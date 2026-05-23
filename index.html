@@ -4455,7 +4455,7 @@
       // Hide points when too many sessions to avoid clutter
       const tooMany = weights.length > 30;
       chartStrength.data.datasets[0].pointBackgroundColor = tooMany ? 'transparent' : weights.map(w => w===best?'#ffffff':'rgba(74,144,217,0.7)');
-      chartStrength.data.datasets[0].pointRadius = tooMany ? 0 : weights.map(w => w===best?5:2);
+      chartStrength.data.datasets[0].pointRadius = 0;
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = Math.max(...weights) + margin;
       chartStrength.update('active');
@@ -4691,7 +4691,7 @@
       chartStrength.data.labels = labels;
       chartStrength.data.datasets[0].data = weights;
       chartStrength.data.datasets[0].pointBackgroundColor = weights.map(w => w===best?'#d4a843':'rgba(212,168,67,0.5)');
-      chartStrength.data.datasets[0].pointRadius = weights.map(w => w===best?6:3);
+      chartStrength.data.datasets[0].pointRadius = 0;
       chartStrength.update('active');
     }
 
@@ -4793,7 +4793,7 @@
       chartStrength.data.datasets[0].data = d.data;
       const best = Math.max(...d.data);
       chartStrength.data.datasets[0].pointBackgroundColor = d.data.map(v => v===best?'#d4a843':'rgba(212,168,67,0.5)');
-      chartStrength.data.datasets[0].pointRadius = d.data.map(v => v===best?6:3);
+      chartStrength.data.datasets[0].pointRadius = 0;
       chartStrength.update('active');
     }
     // Actualizar tabla
@@ -4856,7 +4856,7 @@
       chartStrength.data.datasets[0].data = weights;
       chartStrength.data.datasets[0].borderColor = '#4a90d9';
       chartStrength.data.datasets[0].pointBackgroundColor = tooMany ? 'transparent' : weights.map(w => w===best?'#ffffff':'rgba(74,144,217,0.7)');
-      chartStrength.data.datasets[0].pointRadius = tooMany ? 0 : weights.map(w => w===best?5:2);
+      chartStrength.data.datasets[0].pointRadius = 0;
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update('active');
@@ -4896,8 +4896,8 @@
           fill: true,
           pointBackgroundColor: d.data.map(v => v===best?'#ffffff':'rgba(74,144,217,0.7)'),
           pointBorderColor: 'transparent',
-          pointRadius: d.data.length > 30 ? 0 : d.data.map(v => v===best?5:2),
-          pointHoverRadius: 5,
+          pointRadius: 0,
+          pointHoverRadius: 3,
           pointHoverBackgroundColor: '#ffffff',
         }]
       },
