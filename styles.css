@@ -1237,7 +1237,7 @@
   .dash-connect-status.ok { color:#2ecc71; }
 
   .dash-footer { padding:28px 20px 0; text-align:center; }
-  .btn-cerrar-sesion { background:none; border:2px solid #c0392b; border-radius:4px; padding:5px 12px; color:#e74c3c; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+  .btn-cerrar-sesion { background:none; border:2px solid #c0392b; border-radius:4px; padding:7px 18px; color:#e74c3c; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
   .btn-cerrar-sesion:hover { background:#c0392b; color:#fff; }
   .btn-ingresar {
     background: transparent; color: #d4a843;
