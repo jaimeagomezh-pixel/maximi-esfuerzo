@@ -1237,8 +1237,8 @@
   .dash-connect-status.ok { color:#2ecc71; }
 
   .dash-footer { padding:28px 20px 0; text-align:center; }
-  .btn-cerrar-sesion { background:none; border:none; color:#333; font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:color 0.2s; }
-  .btn-cerrar-sesion:hover { color:#c0392b; }
+  .btn-cerrar-sesion { background:none; border:2px solid #c0392b; border-radius:4px; padding:5px 12px; color:#e74c3c; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; transition:all 0.2s; }
+  .btn-cerrar-sesion:hover { background:#c0392b; color:#fff; }
   .btn-ingresar {
     background: transparent; color: #d4a843;
     border: 1px solid #d4a843; padding: 7px 14px;
@@ -2260,8 +2260,8 @@
   }
 
   /* Cerrar sesión */
-  .btn-cerrar-sesion { color: rgba(0,200,212,0.3) !important; }
-  .btn-cerrar-sesion:hover { color: #e74c3c !important; }
+  .btn-cerrar-sesion { color: #e74c3c !important; border-color: #c0392b !important; }
+  .btn-cerrar-sesion:hover { background: #c0392b !important; color: #fff !important; }
 
   /* Barra separadora */
   .dash-bar-bg { background: rgba(0,200,212,0.06) !important; }
