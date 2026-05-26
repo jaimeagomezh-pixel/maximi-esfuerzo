@@ -1,0 +1,249 @@
+// ══════════════════════════════════════════════
+//  FLOW PAYMENTS WORKER — Máximo Esfuerzo
+//  Variables de entorno requeridas en Cloudflare:
+//  FLOW_API_KEY, FLOW_SECRET_KEY, NOTIFY_EMAIL
+// ══════════════════════════════════════════════
+
+const FLOW_BASE = 'https://www.flow.cl/api';
+// Para pruebas usa: 'https://sandbox.flow.cl/api'
+
+// ── Firmar parámetros con HMAC-SHA256 ──────────
+async function firmar(params, secretKey) {
+  const keys = Object.keys(params).sort();
+  const cadena = keys.map(k => k + params[k]).join('');
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw', encoder.encode(secretKey),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(cadena));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ── Llamar a la API de Flow ────────────────────
+async function llamarFlow(endpoint, params, env) {
+  params.apiKey = env.FLOW_API_KEY;
+  params.s = await firmar(params, env.FLOW_SECRET_KEY);
+  const body = new URLSearchParams(params);
+  const res = await fetch(`${FLOW_BASE}${endpoint}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString()
+  });
+  return res.json();
+}
+
+// ── Verificar webhook de Flow ──────────────────
+async function verificarWebhook(params, secretKey) {
+  const firma = params.s;
+  const copia = { ...params };
+  delete copia.s;
+  const firma2 = await firmar(copia, secretKey);
+  return firma === firma2;
+}
+
+// ── CORS ───────────────────────────────────────
+function corsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': 'https://maximi-esfuerzo.pages.dev',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+
+// ══════════════════════════════════════════════
+//  HANDLER PRINCIPAL
+// ══════════════════════════════════════════════
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+
+    // ── POST /crear-pago (plan cobro único) ──────
+    if (url.pathname === '/crear-pago' && request.method === 'POST') {
+      try {
+        const { plan, monto, email, nombre } = await request.json();
+        const comercioOrden = `ME-${Date.now()}`;
+
+        const datos = {
+          commerceOrder: comercioOrden,
+          subject:       `Plan ${plan} - Máximo Esfuerzo`,
+          currency:      'CLP',
+          amount:        String(monto),
+          email:         email,
+          urlConfirmation: 'https://flow-payments.jaimea-gomezh.workers.dev/webhook-pago',
+
+          urlReturn:     'https://maximi-esfuerzo.pages.dev?pago=ok',
+          optional:      JSON.stringify({ plan, nombre }),
+        };
+
+        const resp = await llamarFlow('/payment/create', datos, env);
+
+        if (resp.url && resp.token) {
+          return Response.json({
+            ok: true,
+            url: `${resp.url}?token=${resp.token}`
+          }, { headers: corsHeaders() });
+        }
+        return Response.json({ ok: false, error: resp }, { headers: corsHeaders() });
+
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { headers: corsHeaders() });
+      }
+    }
+
+    // ── POST /crear-suscripcion (asesoría) ───────
+    if (url.pathname === '/crear-suscripcion' && request.method === 'POST') {
+      try {
+        const { email, nombre, meses, monto } = await request.json();
+
+        // 1. Crear o buscar cliente en Flow
+        const cliente = await llamarFlow('/customer/create', {
+          name:  nombre,
+          email: email,
+        }, env);
+
+        const customerId = cliente.customerId || cliente.id;
+        if (!customerId) {
+          return Response.json({ ok: false, error: 'No se pudo crear cliente', detalle: cliente }, { headers: corsHeaders() });
+        }
+
+        // 2. Crear plan de suscripción
+        const planId = `asesoria-${meses}m-${Date.now()}`;
+        const plan = await llamarFlow('/plan/create', {
+          planId:       planId,
+          name:         `Asesoría ${meses} mes(es) - Máximo Esfuerzo`,
+          currency:     'CLP',
+          amount:       String(monto),
+          interval:     '1',
+          intervalCount: String(meses),
+          trialPeriodDays: '0',
+          urlCallback:  'https://flow-payments.jaimea-gomezh.workers.dev/webhook-suscripcion',
+        }, env);
+
+        // 3. Suscribir cliente al plan — redirige a Flow para ingresar tarjeta
+        const suscripcion = await llamarFlow('/subscription/create', {
+          planId:     planId,
+          customerId: customerId,
+          couponId:   '',
+        }, env);
+
+        if (suscripcion.url && suscripcion.token) {
+          return Response.json({
+            ok: true,
+            url: `${suscripcion.url}?token=${suscripcion.token}`
+          }, { headers: corsHeaders() });
+        }
+
+        return Response.json({ ok: false, error: suscripcion }, { headers: corsHeaders() });
+
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { headers: corsHeaders() });
+      }
+    }
+
+    // ── POST /webhook-pago (Flow confirma pago) ──
+    if (url.pathname === '/webhook-pago' && request.method === 'POST') {
+      try {
+        const body   = await request.text();
+        const params = Object.fromEntries(new URLSearchParams(body));
+
+        const valido = await verificarWebhook(params, env.FLOW_SECRET_KEY);
+        if (!valido) return new Response('Firma inválida', { status: 403 });
+
+        // Consultar estado real del pago
+        const estado = await llamarFlow('/payment/getStatus', {
+          token: params.token
+        }, env);
+
+        if (estado.status === 2) { // 2 = pagado
+          const opt = JSON.parse(estado.optional || '{}');
+
+          // Notificar a Jaime por email
+          await notificarEmail(env, {
+            asunto: `✅ Nuevo pago recibido — ${opt.plan}`,
+            cuerpo: `
+              Plan: ${opt.plan}
+              Cliente: ${opt.nombre}
+              Email: ${estado.payer}
+              Monto: $${estado.amount} CLP
+              Orden: ${estado.commerceOrder}
+              
+              → Enviar código TrainHeroic al cliente.
+            `
+          });
+        }
+
+        return new Response('OK', { status: 200 });
+
+      } catch(e) {
+        return new Response('Error', { status: 500 });
+      }
+    }
+
+    // ── POST /webhook-suscripcion ────────────────
+    if (url.pathname === '/webhook-suscripcion' && request.method === 'POST') {
+      try {
+        const body   = await request.text();
+        const params = Object.fromEntries(new URLSearchParams(body));
+
+        const valido = await verificarWebhook(params, env.FLOW_SECRET_KEY);
+        if (!valido) return new Response('Firma inválida', { status: 403 });
+
+        const evento = params.event_name || params.status;
+
+        // Pago mensual exitoso
+        if (evento === 'subscription_payment_success' || params.status === '2') {
+          await notificarEmail(env, {
+            asunto: `✅ Pago suscripción recibido`,
+            cuerpo: `
+              Cliente: ${params.customer_name || params.customerId}
+              Email: ${params.email || params.payer}
+              Monto: $${params.amount} CLP
+              Fecha: ${new Date().toLocaleDateString('es-CL')}
+            `
+          });
+        }
+
+        // Suscripción por vencer (Flow no lo envía automático — lo manejamos con cron)
+        if (evento === 'subscription_cancel') {
+          await notificarEmail(env, {
+            asunto: `❌ Suscripción cancelada`,
+            cuerpo: `El cliente ${params.email || params.customerId} canceló su suscripción.`
+          });
+        }
+
+        return new Response('OK', { status: 200 });
+
+      } catch(e) {
+        return new Response('Error', { status: 500 });
+      }
+    }
+
+    // ── CRON: notificar planes por vencer ────────
+    // (configurar en wrangler.toml como cron trigger)
+    return new Response('Flow Worker activo', { status: 200 });
+  },
+
+  // ── Cron diario para revisar vencimientos ────
+  async scheduled(event, env) {
+    // Aquí iría la lógica de revisar en Firebase/KV
+    // los planes que vencen en 7 días y enviar email
+    // Por ahora registra que corrió
+    console.log('Cron ejecutado:', new Date().toISOString());
+  }
+};
+
+// ── Enviar email de notificación ──────────────
+async function notificarEmail(env, { asunto, cuerpo }) {
+  // Usa el servicio de email de Cloudflare o un endpoint externo
+  // Por ahora registra en consola — se conecta a un servicio real en el siguiente paso
+  console.log('EMAIL:', asunto);
+  console.log(cuerpo);
+
+  // Si tienes configurado un servicio como Resend o SendGrid,
+  // se agrega aquí con env.EMAIL_API_KEY
+}
