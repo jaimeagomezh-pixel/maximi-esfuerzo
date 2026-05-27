@@ -1018,7 +1018,7 @@
     // Top-20 ejercicios por frecuencia de sesiones
     const sorted = Object.keys(thRealData)
       .map(name => {
-        const f = isBilateralDumbbell(name) ? 0.5 : 1;
+        const f = 1 / 2.205;  // lbs → kg (TH exporta CSV en libras, muestra en kg)
         return {
           name,
           count:      thRealData[name].length,
@@ -1055,7 +1055,7 @@
     const sessions = thRealData[exName];
     if (!sessions || !sessions.length) return;
 
-    const factor     = isBilateralDumbbell(exName) ? 0.5 : 1;
+    const factor     = 1 / 2.205;  // lbs → kg (datos embebidos están en libras)
     const rawWeights = sessions.map(s => s.w);
     const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
     const labels     = sessions.map(s => formatDateShort(s.d));
@@ -1517,8 +1517,8 @@
     }
     if (!sessions.length) return;
 
-    // Factor de presentación: mancuernas bilaterales → ÷2 para coincidir con TH
-    const factor  = isBilateralDumbbell(fullName) ? 0.5 : 1;
+    // Factor: datos embebidos están en lbs → dividir por 2.205; CSV ya viene con factor bilateral aplicado
+    const factor  = isEmbedded ? 1/2.205 : (isBilateralDumbbell(fullName) ? 0.5 : 1);
 
     const rawWeights  = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
     const weights     = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
