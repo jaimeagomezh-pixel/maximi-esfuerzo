@@ -2619,6 +2619,14 @@
     transition: border-color 0.2s;
   }
   .manual-date-input:focus { border-color: #00c8d4; }
+  .manual-last {
+    grid-column: 1 / -1;
+    font-family: 'Barlow', sans-serif;
+    font-size: 10px;
+    color: #aaa;
+    letter-spacing: 0.2px;
+    min-height: 13px;
+  }
   .manual-save-btn {
     width: 100%;
     background: rgba(0,200,212,0.12);

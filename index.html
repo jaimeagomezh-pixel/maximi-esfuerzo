@@ -696,14 +696,14 @@
           <div class="th-pr-stat-sub" id="prBestDate">15 May</div>
         </div>
         <div class="th-pr-stat">
-          <div class="th-pr-stat-label">Tiempo Inicial</div>
+          <div class="th-pr-stat-label">Más Reciente</div>
           <div class="th-pr-stat-value" id="prFirst">22:48</div>
           <div class="th-pr-stat-sub" id="prFirstDate">01 May</div>
         </div>
         <div class="th-pr-stat delta">
-          <div class="th-pr-stat-label">Mejora</div>
+          <div class="th-pr-stat-label">Vs. Primer Registro</div>
           <div class="th-pr-stat-value" id="prDelta">▼ 2:36</div>
-          <div class="th-pr-stat-sub">este mes</div>
+          <div class="th-pr-stat-sub" id="prDeltaSub">este mes</div>
         </div>
       </div>
 
@@ -853,64 +853,74 @@
       <div id="manualPanel" style="display:none;">
         <div class="manual-entry-panel" style="background:#f8f9fa;border:1px solid rgba(0,0,0,0.06);border-radius:8px;margin-top:10px;">
           <div class="manual-entry-title" style="font-weight:700;font-size:12px;letter-spacing:1px;color:#333;">
-            <i data-lucide="clock" style="width:14px;height:14px;"></i>
-            Mejor Tiempo Personal — Formato MM:SS o H:MM:SS
+            <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
+            Registrar tiempo — MM:SS o H:MM:SS
           </div>
           <div class="manual-dist-grid">
             <div class="manual-dist-item">
               <div class="manual-dist-label">1 km</div>
               <input class="manual-time-input" id="mt_1km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_1km" type="date">
+              <div class="manual-last" id="mlast_1km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2 km</div>
               <input class="manual-time-input" id="mt_2km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2km" type="date">
+              <div class="manual-last" id="mlast_2km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2.4 km</div>
               <input class="manual-time-input" id="mt_2400m" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2400m" type="date">
+              <div class="manual-last" id="mlast_2400m"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">5 km</div>
               <input class="manual-time-input" id="mt_5km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_5km" type="date">
+              <div class="manual-last" id="mlast_5km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">8 km</div>
               <input class="manual-time-input" id="mt_8km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_8km" type="date">
+              <div class="manual-last" id="mlast_8km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">10 km</div>
               <input class="manual-time-input" id="mt_10km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_10km" type="date">
+              <div class="manual-last" id="mlast_10km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">12 km</div>
               <input class="manual-time-input" id="mt_12km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_12km" type="date">
+              <div class="manual-last" id="mlast_12km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">15 km</div>
               <input class="manual-time-input" id="mt_15km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_15km" type="date">
+              <div class="manual-last" id="mlast_15km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">21 km</div>
               <input class="manual-time-input" id="mt_21km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_21km" type="date">
+              <div class="manual-last" id="mlast_21km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">42 km</div>
               <input class="manual-time-input" id="mt_42km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_42km" type="date">
+              <div class="manual-last" id="mlast_42km"></div>
             </div>
           </div>
           <button class="manual-save-btn" onclick="saveManualTimes()">
             <i data-lucide="save" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i>
-            Guardar Tiempos
+            Agregar Registro
           </button>
         </div>
       </div>

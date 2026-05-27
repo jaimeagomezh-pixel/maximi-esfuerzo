@@ -764,29 +764,50 @@
 
     const labels = data.map(e => formatDate(e.date));
     const values = data.map(e => e.seconds);
-    const best = Math.min(...values);
-    const first = values[0];
+    const best    = Math.min(...values);
+    const latest  = values[values.length - 1];           // más reciente (último en el array)
+    const first   = values[0];
     const bestEntry = data.find(e => e.seconds === best);
 
-    // Actualizar stats
-    document.getElementById('prBest').textContent = secToTime(best);
+    // Actualizar stats: mejor histórico y más reciente
+    document.getElementById('prBest').textContent     = secToTime(best);
     document.getElementById('prBestDate').textContent = formatDate(bestEntry.date);
-    document.getElementById('prFirst').textContent = secToTime(first);
-    document.getElementById('prFirstDate').textContent = formatDate(data[0].date);
-    const diff = first - best;
-    document.getElementById('prDelta').textContent = '▼ ' + secToTime(diff);
+    document.getElementById('prFirst').textContent     = secToTime(latest);
+    document.getElementById('prFirstDate').textContent = formatDate(data[data.length - 1].date);
+    // Diferencia primer registro vs más reciente  (positivo = mejoró = más rápido)
+    const diff = first - latest;
+    document.getElementById('prDelta').textContent =
+      diff > 0 ? '▼ ' + secToTime(diff)  :
+      diff < 0 ? '▲ ' + secToTime(-diff) : '— igual';
+    const subEl = document.getElementById('prDeltaSub');
+    if (subEl) subEl.textContent = diff > 0 ? 'mejoró' : diff < 0 ? 'empeoró' : '';
+
+    // Puntos: dorado = mejor, cian = más reciente, gris = el resto
+    const bestIdx   = values.indexOf(best);
+    const latestIdx = values.length - 1;
+    const pointRadius = values.map((_, i) =>
+      i === bestIdx || i === latestIdx ? 5 : (values.length <= 8 ? 3 : 0)
+    );
+    const pointColors = values.map((_, i) => {
+      if (i === bestIdx)   return '#d4a843';
+      if (i === latestIdx) return '#00c8d4';
+      return 'rgba(0,200,212,0.45)';
+    });
 
     chartPR.data.labels = labels;
     chartPR.data.datasets[0].data = values;
-    chartPR.data.datasets[0].pointRadius = 0;
-    chartPR.data.datasets[0].pointHoverRadius = 0;
+    chartPR.data.datasets[0].pointRadius      = pointRadius;
+    chartPR.data.datasets[0].pointHoverRadius = pointRadius.map(r => r + 2);
+    chartPR.data.datasets[0].pointBackgroundColor = pointColors;
+    chartPR.data.datasets[0].pointBorderColor     = pointColors;
     chartPR.options.scales.y.ticks.callback = v => secToTime(Math.round(v));
     chartPR.options.scales.y.reverse = true;
 
     // Ajustar rango Y
-    const margin = (Math.max(...values) - best) * 0.15;
-    chartPR.options.scales.y.min = best - margin;
-    chartPR.options.scales.y.max = Math.max(...values) + margin;
+    const maxV   = Math.max(...values);
+    const margin = Math.max((maxV - best) * 0.18, 5);
+    chartPR.options.scales.y.min = best   - margin;
+    chartPR.options.scales.y.max = maxV   + margin;
 
     chartPR.update('active');
   }
@@ -1447,33 +1468,90 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
+  // ── HISTORIAL DE TIEMPOS MANUALES ────────────────
+  // Formato localStorage: manualTimesHistory = { "10km": [{date:"YYYY-MM-DD", time:"MM:SS"}, ...], ... }
+  // Orden cronológico ascendente por distancia; las zonas usan el MÁS RECIENTE
+
+  function todayISO() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  // Convierte el historial completo en entradas prData[] para el gráfico
+  function buildPRDataFromHistory(history) {
+    const dists = ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'];
+    dists.forEach(d => {
+      const entries = history[d];
+      if (!entries || !entries.length) return;
+      const mapped = entries
+        .map(e => {
+          const p = e.time.split(':').map(Number);
+          let sec = 0;
+          if (p.length === 2) sec = p[0]*60 + p[1];
+          else if (p.length === 3) sec = p[0]*3600 + p[1]*60 + p[2];
+          return { date: new Date(e.date + 'T12:00:00'), seconds: sec, manual: true };
+        })
+        .filter(e => e.seconds > 0)
+        .sort((a, b) => a.date - b.date);
+      if (mapped.length) prData[d] = mapped;
+    });
+  }
+
+  // Devuelve {distKey: timeString} con el tiempo MÁS RECIENTE por distancia
+  function getLatestTimes(history) {
+    const latest = {};
+    Object.keys(history).forEach(d => {
+      const entries = history[d];
+      if (!entries || !entries.length) return;
+      const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+      latest[d] = sorted[0].time;
+    });
+    return latest;
+  }
+
   function saveManualTimes() {
     const dists = ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'];
-    const saved = {};
+
+    // Cargar historial existente (con migración desde formato antiguo si fuera necesario)
+    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    const oldFlat = localStorage.getItem('manualTimes');
+    if (oldFlat && !Object.keys(history).length) {
+      const old = JSON.parse(oldFlat);
+      dists.forEach(d => { if (old[d]) history[d] = [{ date: todayISO(), time: old[d] }]; });
+      localStorage.removeItem('manualTimes');
+    }
+
+    let added = 0;
     dists.forEach(d => {
-      const val = document.getElementById('mt_'+d)?.value.trim();
-      if (val) saved[d] = val;
+      const timeVal = document.getElementById('mt_'+d)?.value.trim();
+      const dateEl  = document.getElementById('md_'+d);
+      const dateVal = dateEl?.value || todayISO();
+      if (!timeVal) return;
+
+      // Validar formato mínimo MM:SS o H:MM:SS
+      const parts = timeVal.split(':');
+      if (parts.length < 2 || parts.length > 3) return;
+
+      if (!history[d]) history[d] = [];
+
+      // Evitar duplicado exacto (misma fecha + mismo tiempo)
+      const dup = history[d].some(e => e.date === dateVal && e.time === timeVal);
+      if (dup) return;
+
+      history[d].push({ date: dateVal, time: timeVal });
+      history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronológico
+      added++;
+
+      // Limpiar campo de tiempo; la fecha se queda lista para la próxima entrada
+      const timeEl = document.getElementById('mt_'+d);
+      if (timeEl) timeEl.value = '';
     });
-    localStorage.setItem('manualTimes', JSON.stringify(saved));
+
+    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+
+    buildPRDataFromHistory(history);
+    mostrarUltimosRegistros(history);
     calcularZonasCarrera();
 
-    // Actualizar prData con los tiempos manuales (solo si no hay datos de Strava)
-    const hoy = new Date();
-    dists.forEach(d => {
-      const val = saved[d];
-      if (val && (!prData[d] || prData[d][0]?.manual)) {
-        // Convertir "m:ss" o "h:mm:ss" a segundos
-        const partes = val.split(':').map(Number);
-        let seg = 0;
-        if (partes.length === 2) seg = partes[0]*60 + partes[1];
-        else if (partes.length === 3) seg = partes[0]*3600 + partes[1]*60 + partes[2];
-        if (seg > 0) {
-          prData[d] = [{ date: hoy, seconds: seg, manual: true }];
-        }
-      }
-    });
-
-    // Refrescar gráfico PR activo
     const activeBtn = document.querySelector('.th-dist-btn.active');
     const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
     const dist = m ? m[1] : '5km';
@@ -1482,25 +1560,72 @@
     // Feedback visual
     const btn = document.querySelector('.manual-save-btn');
     const orig = btn.innerHTML;
-    btn.innerHTML = '<i data-lucide="check" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i> Guardado';
-    btn.style.color = '#2ecc71';
-    btn.style.borderColor = 'rgba(46,204,113,0.4)';
+    if (added > 0) {
+      btn.innerHTML = '<i data-lucide="check" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i> Guardado';
+      btn.style.color = '#2ecc71';
+      btn.style.borderColor = 'rgba(46,204,113,0.4)';
+    } else {
+      btn.innerHTML = '<i data-lucide="minus" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i> Sin cambios';
+      btn.style.color = '#666';
+    }
     if (typeof lucide !== 'undefined') lucide.createIcons();
-    setTimeout(() => { btn.innerHTML = orig; btn.style.color=''; btn.style.borderColor=''; if(typeof lucide!=='undefined') lucide.createIcons(); }, 2000);
+    setTimeout(() => { btn.innerHTML = orig; btn.style.color=''; btn.style.borderColor=''; if(typeof lucide!=='undefined') lucide.createIcons(); }, 2200);
   }
 
   function loadManualTimes() {
-    const saved = JSON.parse(localStorage.getItem('manualTimes') || '{}');
-    Object.keys(saved).forEach(d => {
-      const el = document.getElementById('mt_'+d);
-      if (el) el.value = saved[d];
+    // Migrar formato antiguo si existe
+    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    const oldFlat = localStorage.getItem('manualTimes');
+    if (oldFlat && !Object.keys(history).length) {
+      const old = JSON.parse(oldFlat);
+      const dists = ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'];
+      dists.forEach(d => { if (old[d]) history[d] = [{ date: todayISO(), time: old[d] }]; });
+      localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+      localStorage.removeItem('manualTimes');
+    }
+
+    // Poner fecha de hoy en inputs de fecha (para que el atleta solo tenga que ingresar el tiempo)
+    const today = todayISO();
+    const dists2 = ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'];
+    dists2.forEach(d => {
+      const el = document.getElementById('md_'+d);
+      if (el && !el.value) el.value = today;
     });
+
+    buildPRDataFromHistory(history);
+    mostrarUltimosRegistros(history);
+
+    // Actualizar gráfico con la distancia activa
+    const activeBtn = document.querySelector('.th-dist-btn.active');
+    const m2 = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
+    const dist = m2 ? m2[1] : '5km';
+    if (prData[dist] && typeof updatePRChart === 'function') updatePRChart(dist);
+
     calcularZonasCarrera();
+  }
+
+  // Muestra el último tiempo guardado debajo de cada input como referencia
+  function mostrarUltimosRegistros(history) {
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'].forEach(d => {
+      const el = document.getElementById('mlast_'+d);
+      if (!el) return;
+      const entries = history[d];
+      if (!entries || !entries.length) { el.textContent = ''; return; }
+      const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
+      const last = sorted[0];
+      // Formatear fecha YYYY-MM-DD → "27 May 26"
+      const [y, mo, da] = last.date.split('-').map(Number);
+      const fechaStr = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
+      el.textContent = `Último: ${last.time} · ${fechaStr}`;
+    });
   }
 
   // ── ZONAS DE CARRERA ──────────────────────────────
   function calcularZonasCarrera() {
-    const saved = JSON.parse(localStorage.getItem('manualTimes') || '{}');
+    // Obtener el tiempo MÁS RECIENTE por distancia (no el mejor)
+    const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    const saved   = getLatestTimes(history);
 
     const sinDatos     = document.getElementById('zonasSinDatos');
     const refEl        = document.getElementById('zonasRef');
