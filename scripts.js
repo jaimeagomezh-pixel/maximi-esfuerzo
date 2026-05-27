@@ -430,24 +430,52 @@
         '42km':  { t: 42195, lo:42145, hi: 42245 },
       };
 
-      let updated = false;
+      const updatedKeys = [];
       for (const [key, {t, lo, hi}] of Object.entries(cats)) {
         const match = runs.filter(a => a.distance >= lo && a.distance <= hi);
         if (!match.length) continue;
         prData[key] = match
           .map(a => ({
-            date: new Date(a.start_date_local),
-            seconds: Math.round(a.moving_time * (t / a.distance))
+            date:    new Date(a.start_date_local),
+            seconds: Math.round(a.moving_time * (t / a.distance)),
+            source:  'strava'
           }))
           .sort((a,b) => a.date - b.date);
-        updated = true;
+        updatedKeys.push(key);
       }
 
-      if (updated) {
+      if (updatedKeys.length) {
+        // ── Sincronizar con manualTimesHistory ─────────────────────────
+        // Strava aporta el historial real de carreras; se guarda junto a
+        // las entradas manuales del atleta (sin sobreescribirlas).
+        const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+        updatedKeys.forEach(key => {
+          if (!history[key]) history[key] = [];
+          // Remover entradas anteriores de Strava para este distancia
+          history[key] = history[key].filter(e => e.source !== 'strava');
+          // Añadir las nuevas desde Strava
+          const stravaEntries = prData[key].map(e => ({
+            date:   e.date.toISOString().slice(0, 10),
+            time:   secToTime(e.seconds),
+            source: 'strava'
+          }));
+          history[key] = [...history[key], ...stravaEntries]
+            .sort((a, b) => a.date.localeCompare(b.date));
+        });
+        localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+
+        // Reconstruir prData combinando Strava + entradas manuales
+        buildPRDataFromHistory(history);
+
+        // Actualizar gráfico con la distancia activa
         const activeBtn = document.querySelector('.th-dist-btn.active');
         const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
-        const dist = m ? m[1] : Object.keys(cats).find(k => prData[k]?.length);
+        const dist = m ? m[1] : updatedKeys[0];
         if (dist && prData[dist]) updatePRChart(dist);
+
+        // Recalcular zonas e indicadores
+        if (typeof mostrarUltimosRegistros === 'function') mostrarUltimosRegistros(history);
+        if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
     } catch(e) { console.error('PRs Strava error:', e); }
   }
@@ -1488,7 +1516,7 @@
           let sec = 0;
           if (p.length === 2) sec = p[0]*60 + p[1];
           else if (p.length === 3) sec = p[0]*3600 + p[1]*60 + p[2];
-          return { date: new Date(e.date + 'T12:00:00'), seconds: sec, manual: true };
+          return { date: new Date(e.date + 'T12:00:00'), seconds: sec, source: e.source || 'manual' };
         })
         .filter(e => e.seconds > 0)
         .sort((a, b) => a.date - b.date);
@@ -1537,7 +1565,7 @@
       const dup = history[d].some(e => e.date === dateVal && e.time === timeVal);
       if (dup) return;
 
-      history[d].push({ date: dateVal, time: timeVal });
+      history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
       history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronológico
       added++;
 
@@ -1614,10 +1642,10 @@
       if (!entries || !entries.length) { el.textContent = ''; return; }
       const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
       const last = sorted[0];
-      // Formatear fecha YYYY-MM-DD → "27 May 26"
       const [y, mo, da] = last.date.split('-').map(Number);
       const fechaStr = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
-      el.textContent = `Último: ${last.time} · ${fechaStr}`;
+      const fuente  = last.source === 'strava' ? '🔗 Strava' : '✏️';
+      el.textContent = `${fuente} ${last.time} · ${fechaStr}`;
     });
   }
 
