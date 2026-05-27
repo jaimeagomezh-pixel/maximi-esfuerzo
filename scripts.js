@@ -1055,8 +1055,9 @@
     const weights  = sessions.map(s => s.w);
     const labels   = sessions.map(s => formatDateShort(s.d));
     const best     = Math.max(...weights);
-    const bestSess = sessions.find(s => s.w === best);
-    const est1rm   = bestSess ? bestSess.e : Math.round(best * 1.05);
+    // Epley con cap 15 reps (igual que TrainHeroic): usar mejor est1rm de sesiones r≤15
+    const validSess = sessions.filter(s => s.r <= 15 && s.e > 0);
+    const est1rm    = validSess.length ? Math.max(...validSess.map(s => s.e)) : Math.round(best * (1 + 5/30));
 
     // Working max
     document.getElementById('thWMLabel').textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
@@ -1205,8 +1206,8 @@
       const dateStr = row[dateCol] || '';
       if (!ex || isNaN(w) || w <= 0) return;
 
-      // Calcular 1RM estimado (fórmula Epley)
-      const est1rm = Math.round(w * (1 + reps / 30));
+      // 1RM Epley con cap 15 reps (igual que TrainHeroic: r>15 → no calcular)
+      const est1rm = reps <= 15 ? Math.round(w * (1 + reps / 30)) : 0;
       const date = parseDate(dateStr);
 
       if (!exercises[ex]) exercises[ex] = [];
@@ -1301,8 +1302,9 @@
       return d.getDate() + '/' + (d.getMonth()+1);
     });
     const best = Math.max(...weights);
-    const bestSession = sessions.find(s => s.weight === best);
-    const est1rm = bestSession ? bestSession.est1rm : Math.round(best * 1.05);
+    // Epley con cap 15 reps (igual que TrainHeroic): mejor est1rm de sesiones r≤15
+    const validSess = sessions.filter(s => s.reps <= 15 && s.est1rm > 0);
+    const est1rm    = validSess.length ? Math.max(...validSess.map(s => s.est1rm)) : Math.round(best * (1 + 5/30));
 
     // Working Max
     const labelEl = document.getElementById('thWMLabel');
@@ -1457,6 +1459,44 @@
     });
   }
 
+  // ── Regresión lineal + proyección 1 año ──
+  function computeProjection(sessions, isEmbedded) {
+    if (sessions.length < 2) return { projLabels: [], projData: [] };
+    // s.d (embebido) = "YYYY-MM-DD"; s.date (CSV) = ISO string o Date
+    const getDate = s => {
+      const raw = isEmbedded ? s.d : s.date;
+      if (raw instanceof Date) return raw;
+      // Si ya tiene T es ISO; si no, agregar para evitar UTC midnight offset
+      return new Date(typeof raw === 'string' && !raw.includes('T') ? raw + 'T12:00:00' : raw);
+    };
+    const getW    = s => isEmbedded ? s.w : s.weight;
+    const dates   = sessions.map(getDate);
+    const weights = sessions.map(getW);
+    const t0 = dates[0].getTime();
+    const xArr = dates.map(d => (d.getTime() - t0) / 86400000);
+    const n = xArr.length;
+    const sumX  = xArr.reduce((a,b) => a+b, 0);
+    const sumY  = weights.reduce((a,b) => a+b, 0);
+    const sumXY = xArr.reduce((s,x,i) => s + x*weights[i], 0);
+    const sumXX = xArr.reduce((s,x) => s + x*x, 0);
+    const denom  = n*sumXX - sumX*sumX;
+    if (denom === 0) return { projLabels: [], projData: [] };
+    const slope     = (n*sumXY - sumX*sumY) / denom;
+    const intercept = (sumY - slope*sumX) / n;
+    const lastDate  = dates[dates.length - 1];
+    const projLabels = [], projData = [];
+    for (let m = 1; m <= 12; m++) {
+      const fd = new Date(lastDate);
+      fd.setMonth(fd.getMonth() + m);
+      const fx = (fd.getTime() - t0) / 86400000;
+      const fy = Math.max(0, slope * fx + intercept);
+      const mes = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][fd.getMonth()];
+      projLabels.push(mes + '/' + fd.getFullYear().toString().slice(2));
+      projData.push(Math.round(fy * 10) / 10);
+    }
+    return { projLabels, projData };
+  }
+
   function changeStrRange(range, btn) {
     btn.closest('.th-range-selector').querySelectorAll('.th-range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -1480,6 +1520,77 @@
       } catch(e) {}
     }
     if (!sessions || !sessions.length) return;
+
+    // Proyección 1 año: todos los datos + línea de tendencia proyectada
+    if (range === '1y') {
+      const allWeights = isEmbedded ? sessions.map(s => s.w)    : sessions.map(s => s.weight);
+      const allLabels  = sessions.map(s => {
+        const raw = isEmbedded ? s.d : s.date;
+        const d   = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
+        return d.getDate() + '/' + (d.getMonth()+1);
+      });
+      const { projLabels, projData } = computeProjection(sessions, isEmbedded);
+      const best   = Math.max(...allWeights);
+      const projMax = projData.length ? Math.max(...projData) : best;
+      const margin  = Math.max((best - Math.min(...allWeights)) * 0.25, best * 0.05);
+
+      if (chartStrength) {
+        // Limpiar dataset de proyección previo
+        while (chartStrength.data.datasets.length > 1) chartStrength.data.datasets.pop();
+
+        chartStrength.data.labels = [...allLabels, ...projLabels];
+        // Dataset 0: datos históricos (+ nulls para zona de proyección)
+        chartStrength.data.datasets[0].data              = [...allWeights, ...Array(projLabels.length).fill(null)];
+        chartStrength.data.datasets[0].borderColor        = '#4a90d9';
+        chartStrength.data.datasets[0].pointRadius        = allWeights.length <= 25 ? 3 : 0;
+        chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
+        chartStrength.data.datasets[0].tension            = 0.3;
+
+        // Dataset 1: proyección (línea dorada punteada, arranca en el último dato real)
+        chartStrength.data.datasets.push({
+          data: [...Array(allWeights.length - 1).fill(null), allWeights[allWeights.length-1], ...projData],
+          borderColor: '#d4a843',
+          borderDash: [6, 4],
+          backgroundColor: 'rgba(212,168,67,0.04)',
+          fill: true,
+          tension: 0.2,
+          pointRadius: 0,
+          pointHoverRadius: 3,
+          pointHoverBackgroundColor: '#d4a843',
+          spanGaps: false,
+          label: 'Proyección',
+        });
+
+        const overallMax = Math.max(best, projMax);
+        chartStrength.options.scales.y.min = Math.max(0, Math.min(...allWeights) - margin);
+        chartStrength.options.scales.y.max = overallMax + margin;
+        chartStrength.update();
+      }
+
+      // Tabla: mostrar las últimas 5 sesiones reales
+      const tbody = document.getElementById('thSetsTable');
+      if (tbody) {
+        tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
+        sessions.slice(-5).reverse().forEach((s) => {
+          const raw   = isEmbedded ? s.d : s.date;
+          const d     = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
+          const label = d.getDate() + '/' + (d.getMonth()+1);
+          const w     = isEmbedded ? s.w   : s.weight;
+          const sr    = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
+          const e1rm  = isEmbedded ? s.e   : s.est1rm;
+          const isMax = w === best;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${label}</td><td>${sr}</td><td class="${isMax?'highlight':''}">${w}</td><td>${e1rm} kg</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+      return;
+    }
+
+    // Limpiar proyección si venimos de 1y
+    if (chartStrength && chartStrength.data.datasets.length > 1) {
+      while (chartStrength.data.datasets.length > 1) chartStrength.data.datasets.pop();
+    }
 
     // Filtrar por rango
     if (range !== 'all') {

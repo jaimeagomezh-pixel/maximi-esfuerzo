@@ -830,7 +830,8 @@ function handleCoachCSV(input, atletaId) {
         const reps = parseInt(row[rCol]) || 1;
         const d    = row[dateCol] || '';
         if (!ex || isNaN(w) || w <= 0) return;
-        const est1rm = Math.round(w * (1 + reps / 30));
+        // Epley cap 15 reps (TrainHeroic no calcula 1RM para r>15)
+        const est1rm = reps <= 15 ? Math.round(w * (1 + reps / 30)) : 0;
         if (!exercises[ex]) exercises[ex] = [];
         exercises[ex].push({ date: d, weight: w, reps, sets: 1, est1rm });
       });
