@@ -1170,9 +1170,8 @@
   .dashboard-box { background:#0a0a0a; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
 
   .dash-header { background:linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%); border-bottom:1px solid rgba(212,168,67,0.15); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; position:relative; }
-  .dash-header-logo img { height:38px; width:auto; display:block; position:relative; z-index:1; }
-  .dash-header-logo::after { content:''; position:absolute; bottom:0; left:-4%; width:108%; height:52%; background:rgba(0,200,212,0.28); transform:skewX(-4deg) rotate(-0.8deg); border-radius:3px 4px 3px 2px; z-index:0; pointer-events:none; }
+  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; }
+  .dash-header-logo img { height:36px; width:auto; display:block; }
 
   /* Perfil */
   .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(255,255,255,0.05); }
