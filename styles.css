@@ -240,14 +240,20 @@
     background: rgba(212,168,67,0.1);
   }
 
+  .hero-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+
   .hero-stats {
-    position: absolute;
-    right: 24px;
-    bottom: 60px;
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 16px;
     text-align: right;
+    flex-shrink: 0;
   }
 
   .stat-item {}
@@ -961,7 +967,10 @@
 
     section { padding: 60px 16px; }
 
-    .hero-stats { display: none; }
+    .hero-top-row { flex-direction: column; gap: 10px; }
+    .hero-stats { display: flex; flex-direction: row; gap: 18px; text-align: right; justify-content: flex-end; }
+    .stat-number { font-size: 1.5rem; }
+    .stat-label { font-size: 0.6rem; }
     .hero-actions { flex-direction: column; }
     .btn-primary, .btn-ghost { text-align: center; padding: 14px 20px; }
 
