@@ -982,16 +982,27 @@
   }
 
   function loadRealTHData() {
-    // Si el coach subió un CSV, mostrarlo en lugar de los datos embebidos
+    // Si el coach subió un CSV, mostrarlo — pero validar que los pesos sean reales
     const storedCSV = localStorage.getItem('thCSVData');
     if (storedCSV) {
       try {
         const data = JSON.parse(storedCSV);
-        const filename = localStorage.getItem('thCSVFilename') || 'trainheroic.csv';
-        const exCount      = Object.keys(data).length;
-        const sessionCount = Object.values(data).reduce((s,v) => s + v.length, 0);
-        loadCSVData(data, filename, exCount, sessionCount);
-        return;
+        // Validación: si el mayor peso parece un año (2000-2100) el CSV tiene mapeo incorrecto
+        const sampleW = Object.values(data)
+          .flatMap(s => s.slice(0,5).map(e => e.weight))
+          .filter(w => typeof w === 'number' && !isNaN(w) && isFinite(w));
+        const badData = sampleW.length === 0 || sampleW.every(w => w >= 1990 && w <= 2110);
+        if (badData) {
+          // Limpiar datos corruptos y usar datos embebidos
+          localStorage.removeItem('thCSVData');
+          localStorage.removeItem('thCSVFilename');
+        } else {
+          const filename      = localStorage.getItem('thCSVFilename') || 'trainheroic.csv';
+          const exCount       = Object.keys(data).length;
+          const sessionCount  = Object.values(data).reduce((s,v) => s + v.length, 0);
+          loadCSVData(data, filename, exCount, sessionCount);
+          return;
+        }
       } catch(e) { /* CSV malformado → caer a datos embebidos */ }
     }
 
@@ -1449,49 +1460,70 @@
     // Get current active exercise card
     const activeCard = document.querySelector('.th-ex-card.active');
     if (!activeCard) return;
-
     const fullName = activeCard.querySelector('.th-ex-name')?.textContent?.trim();
-    if (!fullName || !thRealData[fullName]) return;
-    
-    let sessions = thRealData[fullName];
-    
-    // Filter by range
+    if (!fullName) return;
+
+    // Detectar fuente: datos embebidos (formato .w/.d) o CSV (formato .weight/.date)
+    let sessions = null;
+    let isEmbedded = false;
+    if (thRealData[fullName]) {
+      sessions    = thRealData[fullName];
+      isEmbedded  = true;
+    } else {
+      try {
+        const csv = localStorage.getItem('thCSVData');
+        if (csv) { const d = JSON.parse(csv); if (d[fullName]) sessions = d[fullName]; }
+      } catch(e) {}
+    }
+    if (!sessions || !sessions.length) return;
+
+    // Filtrar por rango
     if (range !== 'all') {
-      const now = new Date();
+      const now    = new Date();
       const months = range === '1m' ? 1 : range === '3m' ? 3 : 6;
       const cutoff = new Date(now.setMonth(now.getMonth() - months));
-      sessions = sessions.filter(s => new Date(s.d) >= cutoff);
+      sessions = isEmbedded
+        ? sessions.filter(s => new Date(s.d)    >= cutoff)
+        : sessions.filter(s => new Date(s.date) >= cutoff);
     }
-    
     if (!sessions.length) return;
-    
-    const weights = sessions.map(s => s.w);
-    const labels = sessions.map(s => formatDateShort(s.d));
+
+    const weights = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
+    const labels  = sessions.map(s => {
+      const raw = isEmbedded ? s.d : s.date;
+      const d = new Date(raw + (raw.includes('T') ? '' : 'T12:00:00'));
+      return d.getDate() + '/' + (d.getMonth()+1);
+    });
     const best = Math.max(...weights);
-    
+
     if (chartStrength) {
-      const margin = (best - Math.min(...weights)) * 0.25 || best * 0.05;
-      const tooMany = weights.length > 30;
+      const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data = weights;
-      chartStrength.data.datasets[0].borderColor = '#4a90d9';
-      chartStrength.data.datasets[0].pointBackgroundColor = 'transparent';
-      chartStrength.data.datasets[0].pointRadius = 0;
-      chartStrength.data.datasets[0].pointBorderColor = "transparent";
-      chartStrength.data.datasets[0].tension = 0.3;
+      chartStrength.data.datasets[0].data   = weights;
+      chartStrength.data.datasets[0].borderColor         = '#4a90d9';
+      chartStrength.data.datasets[0].pointBackgroundColor = sessions.length <= 25 ? '#4a90d9' : 'transparent';
+      chartStrength.data.datasets[0].pointRadius          = sessions.length <= 25 ? 3 : 0;
+      chartStrength.data.datasets[0].pointBorderColor     = sessions.length <= 25 ? '#4a90d9' : 'transparent';
+      chartStrength.data.datasets[0].tension              = 0.3;
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
     }
-    
-    // Update table with filtered last 5
+
+    // Tabla últimas 5 sesiones filtradas
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s, i, arr) => {
-        const isMax = s.w === best;
+        const raw    = isEmbedded ? s.d : s.date;
+        const d      = new Date(raw + (raw.includes('T') ? '' : 'T12:00:00'));
+        const label  = d.getDate() + '/' + (d.getMonth()+1);
+        const w      = isEmbedded ? s.w      : s.weight;
+        const sr     = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
+        const e1rm   = isEmbedded ? s.e      : s.est1rm;
+        const isMax  = w === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${s.w}</td><td>${s.e} kg${i===arr.length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
+        tr.innerHTML = `<td>${label}</td><td>${sr}</td><td class="${isMax?'highlight':''}">${w}</td><td>${e1rm} kg${i===arr.length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
         tbody.appendChild(tr);
       });
     }

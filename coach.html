@@ -784,17 +784,37 @@ function handleCoachCSV(input, atletaId) {
         const aliases = {
           date:     ['date','fecha','day','session date','workout date'],
           exercise: ['exercise','ejercicio','movement','exercise name','nombre ejercicio'],
-          weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)'],
-          reps:     ['reps','repeticiones','rep','repetition','repetitions'],
+          weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)','load (lbs)','weight (lbs)'],
+          reps:     ['reps','repeticiones','rep','repetition','repetitions','reps completed'],
         };
         const a = aliases[field] || [];
         for (const h of headers) { if (a.includes(h.toLowerCase().trim())) return h; }
         for (const h of headers) { for (const al of a) { if (h.toLowerCase().includes(al)) return h; } }
-        return headers[0];
+        return null; // no fallback — devolver null si no se puede detectar
       }
 
-      const dateCol = guess('date'), exCol = guess('exercise');
-      const wCol = guess('weight'), rCol = guess('reps');
+      const dateCol = guess('date');
+      const exCol   = guess('exercise') || headers[1] || headers[0];
+      let   wCol    = guess('weight');
+      const rCol    = guess('reps')    || null;
+
+      // Si no se detectó columna de peso, buscar heurísticamente la columna
+      // con valores numéricos plausibles (>0 y <1000)
+      if (!wCol) {
+        const rows0 = lines.slice(1, Math.min(11, lines.length)).map(l => {
+          const vals = l.split(sep).map(v => v.trim().replace(/"/g,''));
+          const obj  = {};
+          headers.forEach((h, i) => obj[h] = vals[i] || '');
+          return obj;
+        });
+        for (const h of headers) {
+          if (h === dateCol || h === exCol) continue;
+          const nums = rows0.map(r => parseFloat(r[h])).filter(v => !isNaN(v) && v > 0);
+          const plausible = nums.filter(v => v > 1 && v < 1000);
+          if (plausible.length >= Math.min(5, rows0.length * 0.5)) { wCol = h; break; }
+        }
+      }
+      if (!wCol) throw new Error('No se detectó columna de peso. Columnas disponibles: ' + headers.join(', '));
 
       const rows = lines.slice(1).map(line => {
         const vals = line.split(sep).map(v => v.trim().replace(/"/g,''));
