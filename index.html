@@ -1043,7 +1043,7 @@
     try { const result = await window._signInWithPopup(window._auth,window._googleProvider); mostrarMensaje('¡Sesión iniciada!','success'); setTimeout(()=>{ cerrarLogin(); const nombre = result.user.displayName || result.user.email.split('@')[0]; abrirDashboard(nombre); },800); }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
-  async function cerrarSesion() { await window._signOut(window._auth); }
+  async function cerrarSesion() { try { await window._signOut(window._auth); } catch(e) { console.error(e); } cerrarDash(); const btn = document.getElementById('btnIngresarText'); if(btn) btn.textContent = 'Atleta'; }
   document.addEventListener('keydown',(e)=>{ if(e.key==='Escape') cerrarLogin(); });
 </script>
 
