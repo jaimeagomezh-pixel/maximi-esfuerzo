@@ -1091,6 +1091,17 @@
   .dash-connect-card.conectado .dash-connect-status {
     color: #2ecc71 !important;
   }
+  .dash-connect-card.sincronizando {
+    border-color: rgba(252,76,2,0.35) !important;
+    animation: strava-pulse 1.2s ease-in-out infinite;
+  }
+  .dash-connect-card.sincronizando .dash-connect-status::before {
+    content: '⟳ ';
+  }
+  @keyframes strava-pulse {
+    0%,100% { opacity: 1; }
+    50%      { opacity: 0.6; }
+  }
   .strava-orange { color: #FC4C02; }
 
 

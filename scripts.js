@@ -404,16 +404,37 @@
     } catch(e) { console.error('Streams error:', e); }
   }
 
-  // ── PRs AUTOMÁTICOS DESDE STRAVA (con tolerancia GPS) ──
-  async function cargarPRsStrava(token) {
-    try {
+  // ── PRs AUTOMÁTICOS DESDE STRAVA (con tolerancia GPS, paginado) ──
+  const STRAVA_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
+
+  async function fetchTodasLasCarreras(token) {
+    const runs = [];
+    for (let page = 1; page <= 5; page++) {          // máx 5 páginas × 200 = 1000 actividades
       const res = await fetch(
-        'https://www.strava.com/api/v3/athlete/activities?per_page=100',
+        `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`,
         { headers: { 'Authorization': 'Bearer ' + token } }
       );
       const acts = await res.json();
-      if (!Array.isArray(acts)) return;
-      const runs = acts.filter(a => a.type === 'Run' && a.distance > 0);
+      if (!Array.isArray(acts) || acts.length === 0) break;
+      runs.push(...acts.filter(a => STRAVA_RUN_TYPES.has(a.type) && a.distance > 0));
+      if (acts.length < 200) break;                  // última página
+    }
+    return runs;
+  }
+
+  async function cargarPRsStrava(token) {
+    try {
+      // Indicador de sincronización
+      const stravaCard   = document.getElementById('btnStrava');
+      const stravaStatus = document.getElementById('stravaStatus');
+      if (stravaCard)   stravaCard.classList.add('sincronizando');
+      if (stravaStatus) stravaStatus.textContent = 'Sincronizando historial…';
+
+      const runs = await fetchTodasLasCarreras(token);
+
+      if (stravaCard)   stravaCard.classList.remove('sincronizando');
+      if (stravaStatus) stravaStatus.textContent = `✓ ${runs.length} carreras cargadas`;
+
       if (runs.length === 0) return;
 
       // Tolerancia GPS: ±50m en todas las distancias
