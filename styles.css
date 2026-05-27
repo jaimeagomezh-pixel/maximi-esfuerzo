@@ -962,7 +962,8 @@
     section { padding: 60px 16px; }
 
     #hero { padding-top: 72px; }
-    .hero-stats { position: static; display: flex; flex-direction: row; gap: 20px; text-align: left; justify-content: flex-start; margin-bottom: 4px; }
+    .hero-label { margin-bottom: 16px; }
+    .hero-stats { position: static !important; display: flex; flex-direction: row; gap: 20px; text-align: left; justify-content: flex-start; margin-bottom: 4px; }
     .stat-item { text-align: left; }
     .stat-number { font-size: 1.6rem; }
     .stat-label { font-size: 0.58rem; }
