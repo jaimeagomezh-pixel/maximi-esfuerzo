@@ -2462,37 +2462,64 @@
 
 
   /* ── TRAINHEROIC CSV MODULE ── */
-  .th-exercise-selector {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    margin-bottom: 14px;
+
+  /* Grilla de ejercicios top-20 (2 columnas) */
+  .th-exercise-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    max-height: 230px;
+    overflow-y: auto;
+    margin: 8px 0 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
   }
-  .th-exercise-btn {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.45);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 5px 12px;
-    border-radius: 20px;
+  .th-exercise-grid::-webkit-scrollbar { width: 3px; }
+  .th-exercise-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .th-ex-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 8px 9px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.15s;
+    min-width: 0;
+  }
+  .th-ex-card:hover  { border-color: rgba(212,168,67,0.25); background: rgba(212,168,67,0.04); }
+  .th-ex-card.active { border-color: rgba(212,168,67,0.5);  background: rgba(212,168,67,0.09); }
+  .th-ex-name {
+    font-family: 'Barlow', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #bbb;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
   }
-  .th-exercise-btn:hover {
-    background: rgba(212,168,67,0.08);
-    color: #d4a843;
-    border-color: rgba(212,168,67,0.3);
+  .th-ex-card.active .th-ex-name { color: #d4a843; }
+  .th-ex-meta { font-family: 'Barlow', sans-serif; font-size: 10px; color: #444; margin-top: 2px; }
+  .th-ex-max  { font-family: 'Barlow Condensed', sans-serif; font-size: 13px; color: #777; margin-top: 1px; }
+  .th-ex-card.active .th-ex-max { color: #c49a38; }
+
+  /* Tira RM (12 → 1 RM) */
+  .th-rm-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin: 8px 0 12px;
   }
-  .th-exercise-btn.active {
-    background: rgba(212,168,67,0.14);
-    color: #d4a843;
-    border-color: rgba(212,168,67,0.4);
-    box-shadow: 0 0 10px rgba(212,168,67,0.1);
+  .th-rm-cell {
+    background: rgba(255,255,255,0.025);
+    border-radius: 5px;
+    padding: 6px 2px 5px;
+    text-align: center;
   }
+  .th-rm-rep  { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; letter-spacing: 1px; color: #444; text-transform: uppercase; }
+  .th-rm-kg   { font-family: 'Barlow Condensed', sans-serif; font-size: 14px; color: #ccc; margin-top: 3px; line-height: 1; }
+  .th-rm-unit { font-family: 'Barlow', sans-serif; font-size: 8px; color: #3a3a3a; margin-top: 1px; }
+  .th-rm-cell.best .th-rm-kg  { color: #d4a843; }
+  .th-rm-cell.best .th-rm-rep { color: #8a6a22; }
 
   .th-csv-empty {
     background: rgba(255,255,255,0.02);

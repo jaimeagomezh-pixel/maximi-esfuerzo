@@ -948,89 +948,131 @@
     return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2);
   }
 
+  // ── HELPERS TRAINHEROIC ──────────────────────────
+
+  // Construye la grilla top-20 de ejercicios
+  // exercises: [{name, count, bestWeight}], callbackFn: nombre de la función JS a llamar al clic
+  function buildExerciseGrid(exercises, callbackFn) {
+    const grid = document.getElementById('exerciseGrid');
+    if (!grid) return;
+    grid.innerHTML = exercises.map((ex, i) => {
+      const safeName = ex.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+      return `<div class="th-ex-card${i===0?' active':''}" onclick="${callbackFn}('${safeName}',this)" title="${ex.name}">
+        <div class="th-ex-name">${ex.name}</div>
+        <div class="th-ex-meta">${ex.count} sesiones</div>
+        <div class="th-ex-max">${ex.bestWeight % 1 === 0 ? ex.bestWeight : ex.bestWeight.toFixed(1)} kg</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Calcula y muestra la tira RM (12→1) desde el mejor est1RM
+  function computeAndShowRMStrip(best1rm) {
+    const strip = document.getElementById('thRMStrip');
+    if (!strip || !best1rm) return;
+    const reps = [12, 10, 8, 6, 4, 2, 1];
+    strip.innerHTML = reps.map(r => {
+      const kg = r === 1 ? Math.round(best1rm) : Math.round(best1rm / (1 + r / 30));
+      const isBest = r === 1;
+      return `<div class="th-rm-cell${isBest?' best':''}">
+        <div class="th-rm-rep">${r}RM</div>
+        <div class="th-rm-kg">${kg}</div>
+        <div class="th-rm-unit">kg</div>
+      </div>`;
+    }).join('');
+  }
+
   function loadRealTHData() {
-    // Hide upload zone, show real data directly
+    // Si el coach subió un CSV, mostrarlo en lugar de los datos embebidos
+    const storedCSV = localStorage.getItem('thCSVData');
+    if (storedCSV) {
+      try {
+        const data = JSON.parse(storedCSV);
+        const filename = localStorage.getItem('thCSVFilename') || 'trainheroic.csv';
+        const exCount      = Object.keys(data).length;
+        const sessionCount = Object.values(data).reduce((s,v) => s + v.length, 0);
+        loadCSVData(data, filename, exCount, sessionCount);
+        return;
+      } catch(e) { /* CSV malformado → caer a datos embebidos */ }
+    }
+
     const uploadZone = document.getElementById('csvUploadZone');
     if (uploadZone) uploadZone.style.display = 'none';
-    
-    const processing = document.getElementById('csvProcessing');
-    if (processing) processing.classList.remove('show');
-    
-    const mapping = document.getElementById('csvMapping');
-    if (mapping) mapping.classList.remove('show');
+    document.getElementById('csvProcessing')?.classList.remove('show');
+    document.getElementById('csvMapping')?.classList.remove('show');
 
-    // Actualizar botones ejercicios
-    const selector = document.getElementById('exerciseSelector');
-    if (selector) {
-      selector.innerHTML = thExerciseNames.map((ex, i) =>
-        `<button class="th-exercise-btn${i===0?' active':''}" onclick="selectExerciseReal('${ex.replace(/'/g,"\\'")}'  ,this)">${ex.substring(0,22)}${ex.length>22?'...':''}</button>`
-      ).join('');
-    }
-    // Mostrar sección datos
+    // Top-20 ejercicios por frecuencia de sesiones
+    const sorted = Object.keys(thRealData)
+      .map(name => ({
+        name,
+        count:      thRealData[name].length,
+        bestWeight: Math.max(...thRealData[name].map(s => s.w))
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 20);
+
+    buildExerciseGrid(sorted, 'selectExerciseReal');
+
     const dataSection = document.getElementById('thDataSection');
     if (dataSection) dataSection.style.display = 'block';
 
-    // Ocultar uploader
-    document.getElementById('csvUploadZone').style.display = 'none';
-
-    // Mostrar resumen
     const summary = document.getElementById('csvSummary');
     if (summary) {
       summary.classList.add('show');
       document.getElementById('csvFileName').textContent = 'training_data.csv';
-      const totalSessions = Object.values(thRealData).reduce((s,v)=>s+v.length,0);
-      document.getElementById('csvFileMeta').textContent = thExerciseNames.length + ' ejercicios · ' + totalSessions + ' sesiones desde 2023';
+      const total = Object.values(thRealData).reduce((s,v) => s + v.length, 0);
+      document.getElementById('csvFileMeta').textContent =
+        `${Object.keys(thRealData).length} ejercicios · ${total} sesiones desde 2023`;
     }
     document.getElementById('thLastUpdate').textContent = 'Actualizado: Mar 2026';
 
-    // Cargar primer ejercicio
-    selectExerciseReal(thExerciseNames[0], document.querySelector('.th-exercise-btn.active'));
+    // Cargar primer ejercicio de la grilla
+    selectExerciseReal(sorted[0].name, null);
   }
 
   function selectExerciseReal(exName, btn) {
     if (btn) {
-      document.querySelectorAll('.th-exercise-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.th-ex-card').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     }
     const sessions = thRealData[exName];
     if (!sessions || !sessions.length) return;
 
-    const weights = sessions.map(s => s.w);
-    const labels = sessions.map(s => formatDateShort(s.d));
-    const best = Math.max(...weights);
-    const bestSession = sessions.find(s => s.w === best);
-    const est1rm = bestSession ? bestSession.e : Math.round(best * 1.05);
+    const weights  = sessions.map(s => s.w);
+    const labels   = sessions.map(s => formatDateShort(s.d));
+    const best     = Math.max(...weights);
+    const bestSess = sessions.find(s => s.w === best);
+    const est1rm   = bestSess ? bestSess.e : Math.round(best * 1.05);
 
-    // Update Working Max
-    document.querySelector('#thWorkingMax .th-wm-label').textContent = 'Working Max · ' + exName.substring(0,30);
-    document.getElementById('thWMValue').textContent = best;
-    document.getElementById('thEst1RM').textContent = est1rm + ' kg est. 1RM';
+    // Working max
+    document.getElementById('thWMLabel').textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
+    document.getElementById('thWMValue').textContent = best % 1 === 0 ? best : best.toFixed(1);
+    document.getElementById('thEst1RM').textContent  = est1rm + ' kg';
 
-    // Update chart
+    // Tira RM
+    computeAndShowRMStrip(est1rm);
+
+    // Gráfico
     if (chartStrength) {
-      const margin = (Math.max(...weights) - Math.min(...weights)) * 0.25 || Math.max(...weights) * 0.05;
+      const margin = Math.max((Math.max(...weights) - Math.min(...weights)) * 0.25, Math.max(...weights) * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data = weights;
+      chartStrength.data.datasets[0].data   = weights;
       chartStrength.data.datasets[0].borderColor = '#4a90d9';
       chartStrength.data.datasets[0].tension = 0.3;
-      chartStrength.data.datasets[0].pointBackgroundColor = 'transparent';
-      chartStrength.data.datasets[0].pointRadius = 0;
-      chartStrength.data.datasets[0].pointBorderColor = "transparent";
-      chartStrength.data.datasets[0].tension = 0.3;
+      chartStrength.data.datasets[0].pointRadius = sessions.length <= 20 ? 3 : 0;
+      chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = Math.max(...weights) + margin;
       chartStrength.update();
     }
 
-    // Update table - last 5 sessions
+    // Tabla últimas 5 sesiones
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
-      const last5 = sessions.slice(-5).reverse();
-      last5.forEach((s, i) => {
+      sessions.slice(-5).reverse().forEach((s, i) => {
         const isMax = s.w === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${s.w}</td><td>${s.e} kg${i===last5.length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
+        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${s.w}</td><td>${s.e} kg</td>`;
         tbody.appendChild(tr);
       });
     }
@@ -1200,34 +1242,39 @@
   }
 
   function loadCSVData(data, filename, exCount, sessionCount) {
-    // Ocultar uploader, mostrar resumen
-    document.getElementById('csvUploadZone').style.display = 'none';
-    document.getElementById('csvSummary').classList.add('show');
-    document.getElementById('csvFileName').textContent = filename;
-    document.getElementById('csvFileMeta').textContent = exCount + ' ejercicios · ' + sessionCount + ' sesiones';
-    document.getElementById('thLastUpdate').textContent = 'Actualizado hoy';
-    document.getElementById('csvResetBtn').style.display = 'block';
+    const uploadZone = document.getElementById('csvUploadZone');
+    if (uploadZone) uploadZone.style.display = 'none';
+    document.getElementById('csvSummary')?.classList.add('show');
+    const fnEl = document.getElementById('csvFileName');  if (fnEl) fnEl.textContent = filename;
+    const fmEl = document.getElementById('csvFileMeta');  if (fmEl) fmEl.textContent = exCount + ' ejercicios · ' + sessionCount + ' sesiones';
+    const luEl = document.getElementById('thLastUpdate'); if (luEl) luEl.textContent = 'Actualizado hoy';
+    const rstEl = document.getElementById('csvResetBtn'); if (rstEl) rstEl.style.display = 'block';
 
-    // Mostrar sección de datos
     const dataSection = document.getElementById('thDataSection');
     if (dataSection) dataSection.style.display = 'block';
 
-    // Actualizar botones de ejercicios
-    const selector = document.getElementById('exerciseSelector');
-    if (selector) {
-      selector.innerHTML = Object.keys(data).slice(0, 8).map((ex, i) =>
-        `<button class="th-exercise-btn${i===0?' active':''}" onclick="selectExerciseFromCSV('${ex.replace(/'/g,"\'")}',this)">${ex}</button>`
-      ).join('');
-    }
+    // Top 20 por frecuencia de sesiones → grilla de tarjetas
+    const sorted = Object.keys(data)
+      .map(name => ({
+        name,
+        count:      data[name].length,
+        bestWeight: Math.max(...data[name].map(s => s.weight))
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 20);
+
+    buildExerciseGrid(sorted, 'selectExerciseFromCSV');
 
     // Cargar primer ejercicio
-    const firstEx = Object.keys(data)[0];
-    if (firstEx) displayExerciseData(data[firstEx], firstEx);
+    const firstEx = sorted[0]?.name;
+    if (firstEx && data[firstEx]) displayExerciseData(data[firstEx], firstEx);
   }
 
   function selectExerciseFromCSV(exName, btn) {
-    document.querySelectorAll('.th-exercise-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) {
+      document.querySelectorAll('.th-ex-card').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
     const stored = JSON.parse(localStorage.getItem('thCSVData') || '{}');
     if (stored[exName]) displayExerciseData(stored[exName], exName);
   }
@@ -1242,32 +1289,42 @@
     const bestSession = sessions.find(s => s.weight === best);
     const est1rm = bestSession ? bestSession.est1rm : Math.round(best * 1.05);
 
-    // Actualizar Working Max
-    document.querySelector('#thWorkingMax .th-wm-label').textContent = 'Working Max · ' + exName;
-    document.getElementById('thWMValue').textContent = best;
-    document.getElementById('thEst1RM').textContent = est1rm + ' kg';
+    // Working Max
+    const labelEl = document.getElementById('thWMLabel');
+    if (labelEl) labelEl.textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
+    const wmEl = document.getElementById('thWMValue');
+    if (wmEl) wmEl.textContent = best % 1 === 0 ? best : best.toFixed(1);
+    const rmEl = document.getElementById('thEst1RM');
+    if (rmEl) rmEl.textContent = est1rm + ' kg';
 
-    // Actualizar gráfico
+    // Tira RM estimada
+    computeAndShowRMStrip(est1rm);
+
+    // Gráfico
     if (chartStrength) {
+      const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data = weights;
-      chartStrength.data.datasets[0].pointBackgroundColor = 'transparent';
-      chartStrength.data.datasets[0].pointRadius = 0;
-      chartStrength.data.datasets[0].pointBorderColor = "transparent";
-      chartStrength.data.datasets[0].tension = 0.3;
+      chartStrength.data.datasets[0].data   = weights;
+      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
+      chartStrength.data.datasets[0].tension             = 0.3;
+      chartStrength.data.datasets[0].pointRadius         = sessions.length <= 20 ? 3 : 0;
+      chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
+      chartStrength.data.datasets[0].pointBorderColor    = '#4a90d9';
+      chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
+      chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
     }
 
-    // Actualizar tabla (últimas 5 sesiones)
+    // Tabla últimas 5 sesiones
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
-      sessions.slice(-5).reverse().forEach((s, i) => {
+      sessions.slice(-5).reverse().forEach((s) => {
         const d = new Date(s.date);
         const dateStr = d.getDate()+'/'+(d.getMonth()+1);
         const isMax = s.weight === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${s.weight}</td><td>${s.est1rm} kg${i===sessions.slice(-5).length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
+        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${s.weight}</td><td>${s.est1rm} kg</td>`;
         tbody.appendChild(tr);
       });
     }
@@ -1388,14 +1445,12 @@
   function changeStrRange(range, btn) {
     btn.closest('.th-range-selector').querySelectorAll('.th-range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
-    // Get current active exercise
-    const activeBtn = document.querySelector('.th-exercise-btn.active');
-    if (!activeBtn) return;
-    
-    // Get exercise name from button text (match back to full name)
-    const btnText = activeBtn.textContent.trim().replace('...','');
-    const fullName = thExerciseNames.find(n => n.startsWith(btnText) || btnText.startsWith(n.substring(0,20)));
+
+    // Get current active exercise card
+    const activeCard = document.querySelector('.th-ex-card.active');
+    if (!activeCard) return;
+
+    const fullName = activeCard.querySelector('.th-ex-name')?.textContent?.trim();
     if (!fullName || !thRealData[fullName]) return;
     
     let sessions = thRealData[fullName];

@@ -598,6 +598,28 @@ function abrirPerfil(id) {
     </div>
 
     <div class="sec">
+      <div class="sec-t">TrainHeroic · Subir CSV</div>
+      <div id="coachCSVInfo" style="font-size:11px;color:#666;margin-bottom:10px;"></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <input type="file" id="coachCSVInput" accept=".csv,.txt" style="display:none"
+               onchange="handleCoachCSV(this,${a.id})">
+        <button onclick="document.getElementById('coachCSVInput').click()"
+          style="background:rgba(0,200,212,0.08);border:1px solid rgba(0,200,212,0.3);color:#00c8d4;
+                 font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;
+                 text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
+          📂 Subir CSV
+        </button>
+        <button onclick="clearCoachCSV()" id="coachCSVClearBtn" style="display:none;
+          background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;
+          font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;
+          text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
+          🗑 Limpiar
+        </button>
+      </div>
+      <div id="coachCSVStatus" style="margin-top:8px;font-size:11px;color:#00c8d4;"></div>
+    </div>
+
+    <div class="sec">
       <div class="sec-t">Notas privadas del coach</div>
       <textarea class="nota-ta" id="notaTA">${a.notas}</textarea>
       <button class="nota-sv" onclick="guardarNota(${a.id})">Guardar nota</button>
@@ -639,6 +661,8 @@ function abrirPerfil(id) {
         selEx(exFuerza[0], document.querySelector('.ex-btn.active'));
       }
     }
+
+    refreshCoachCSVStatus();
   }, 150);
 }
 
@@ -737,6 +761,126 @@ function guardarNota(id) {
   const orig = btn.textContent;
   btn.textContent = '✓ Guardado'; btn.style.color='var(--green)';
   setTimeout(()=>{ btn.textContent=orig; btn.style.color=''; },2000);
+}
+
+// ── CSV TrainHeroic desde coach ────────────────────────────────────────────
+function handleCoachCSV(input, atletaId) {
+  const file = input.files[0];
+  if (!file) return;
+  const statusEl = document.getElementById('coachCSVStatus');
+  if (statusEl) { statusEl.textContent = 'Procesando…'; statusEl.style.color = '#888'; }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const text = e.target.result;
+      const sep  = text.includes(';') ? ';' : text.includes('\t') ? '\t' : ',';
+      const lines = text.trim().split('\n').filter(l => l.trim());
+      if (lines.length < 2) throw new Error('CSV vacío');
+
+      const headers = lines[0].split(sep).map(h => h.trim().replace(/"/g,''));
+
+      function guess(field) {
+        const aliases = {
+          date:     ['date','fecha','day','session date','workout date'],
+          exercise: ['exercise','ejercicio','movement','exercise name','nombre ejercicio'],
+          weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)'],
+          reps:     ['reps','repeticiones','rep','repetition','repetitions'],
+        };
+        const a = aliases[field] || [];
+        for (const h of headers) { if (a.includes(h.toLowerCase().trim())) return h; }
+        for (const h of headers) { for (const al of a) { if (h.toLowerCase().includes(al)) return h; } }
+        return headers[0];
+      }
+
+      const dateCol = guess('date'), exCol = guess('exercise');
+      const wCol = guess('weight'), rCol = guess('reps');
+
+      const rows = lines.slice(1).map(line => {
+        const vals = line.split(sep).map(v => v.trim().replace(/"/g,''));
+        const obj  = {};
+        headers.forEach((h, i) => obj[h] = vals[i] || '');
+        return obj;
+      });
+
+      const exercises = {};
+      rows.forEach(row => {
+        const ex   = (row[exCol] || '').trim();
+        const w    = parseFloat(row[wCol]);
+        const reps = parseInt(row[rCol]) || 1;
+        const d    = row[dateCol] || '';
+        if (!ex || isNaN(w) || w <= 0) return;
+        const est1rm = Math.round(w * (1 + reps / 30));
+        if (!exercises[ex]) exercises[ex] = [];
+        exercises[ex].push({ date: d, weight: w, reps, sets: 1, est1rm });
+      });
+
+      // Agrupar por día (mantener el peso máximo del día)
+      const merged = {};
+      Object.keys(exercises).forEach(ex => {
+        const byDate = {};
+        exercises[ex].forEach(e => {
+          if (!byDate[e.date] || e.weight > byDate[e.date].weight) {
+            byDate[e.date] = e;
+          } else if (e.weight === byDate[e.date].weight) {
+            byDate[e.date].sets++;
+          }
+        });
+        merged[ex] = Object.values(byDate).sort((a,b) => new Date(a.date) - new Date(b.date));
+      });
+
+      const exCount      = Object.keys(merged).length;
+      const sessionCount = Object.values(merged).reduce((s,v) => s + v.length, 0);
+      if (exCount === 0) throw new Error('Sin datos válidos');
+
+      // Guardar en localStorage (compartido con index.html)
+      localStorage.setItem('thCSVData',     JSON.stringify(merged));
+      localStorage.setItem('thCSVFilename', file.name);
+
+      if (statusEl) {
+        statusEl.textContent = `✓ ${exCount} ejercicios · ${sessionCount} sesiones cargadas`;
+        statusEl.style.color = '#00c8d4';
+      }
+      const infoEl = document.getElementById('coachCSVInfo');
+      if (infoEl) infoEl.textContent = `Archivo activo: ${file.name}`;
+      const clearBtn = document.getElementById('coachCSVClearBtn');
+      if (clearBtn) clearBtn.style.display = 'inline-block';
+
+    } catch (err) {
+      if (statusEl) { statusEl.textContent = '✗ Error: ' + err.message; statusEl.style.color = '#e74c3c'; }
+    }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function clearCoachCSV() {
+  localStorage.removeItem('thCSVData');
+  localStorage.removeItem('thCSVFilename');
+  const statusEl  = document.getElementById('coachCSVStatus');
+  const infoEl    = document.getElementById('coachCSVInfo');
+  const clearBtn  = document.getElementById('coachCSVClearBtn');
+  const fileInput = document.getElementById('coachCSVInput');
+  if (statusEl)  { statusEl.textContent  = 'CSV eliminado. El atleta verá los datos embebidos.'; statusEl.style.color = '#888'; }
+  if (infoEl)    infoEl.textContent = '';
+  if (clearBtn)  clearBtn.style.display = 'none';
+  if (fileInput) fileInput.value = '';
+}
+
+// Mostrar estado CSV actual al abrir el perfil
+function refreshCoachCSVStatus() {
+  const stored  = localStorage.getItem('thCSVData');
+  const fname   = localStorage.getItem('thCSVFilename');
+  const infoEl  = document.getElementById('coachCSVInfo');
+  const clearBtn = document.getElementById('coachCSVClearBtn');
+  if (!infoEl) return;
+  if (stored && fname) {
+    const exCount = Object.keys(JSON.parse(stored)).length;
+    infoEl.textContent = `Archivo activo: ${fname} · ${exCount} ejercicios`;
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+  } else {
+    infoEl.textContent = 'Sin CSV cargado · el atleta ve datos embebidos';
+    if (clearBtn) clearBtn.style.display = 'none';
+  }
 }
 
 function cerrarPerfil() {
