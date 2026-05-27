@@ -616,6 +616,9 @@
     const fcCtx = document.getElementById('chartFC');
     const ritmoCtx = document.getElementById('chartRitmo');
     if (!fcCtx || !ritmoCtx) return;
+    // Destruir instancias previas si existen (evita "Canvas already in use")
+    if (chartFC)    { try { chartFC.destroy();    } catch(e){} chartFC    = null; }
+    if (chartRitmo) { try { chartRitmo.destroy(); } catch(e){} chartRitmo = null; }
 
     // Datos demo FC (simulando carrera de 43 min)
     const labels = Array.from({length: 22}, (_, i) => {
@@ -864,6 +867,7 @@
   function initPRChart() {
     const ctx = document.getElementById('chartPR');
     if (!ctx) return;
+    if (chartPR) { try { chartPR.destroy(); } catch(e){} chartPR = null; }
 
     const data = prData['5km'];
     const labels = data.map(e => formatDate(e.date));
@@ -1532,6 +1536,11 @@
   function initStrengthChart() {
     const ctx = document.getElementById('chartStrength');
     if (!ctx) return;
+    if (chartStrength) { try { chartStrength.destroy(); } catch(e){} chartStrength = null; }
+    // También limpiar window.chartStrength si el parche anterior lo había creado
+    if (window.chartStrength && window.chartStrength !== chartStrength) {
+      try { window.chartStrength.destroy(); } catch(e){} window.chartStrength = null;
+    }
     const d = strengthData.squat;
     const best = Math.max(...d.data);
     chartStrength = new Chart(ctx, {
