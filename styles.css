@@ -243,7 +243,7 @@
   .hero-stats {
     position: absolute !important;
     right: 40px;
-    bottom: 80px;
+    bottom: 250px;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -1528,7 +1528,7 @@
 
   /* Títulos principales — más grandes e impactantes */
   .hero-title {
-    font-size: clamp(4rem, 14vw, 10rem) !important;
+    font-size: clamp(3rem, 9vw, 7rem) !important;
     letter-spacing: 1px !important;
     line-height: 0.88 !important;
   }
