@@ -2184,6 +2184,28 @@
   .th-wm-unit { color: #888888 !important; }
   .th-wm-icon { color: #aaaaaa !important; }
 
+  /* RM strip — visible en fondo blanco */
+  .th-rm-cell { background: rgba(0,0,0,0.03) !important; }
+  .th-rm-rep  { color: #888888 !important; }
+  .th-rm-kg   { color: #333333 !important; }
+  .th-rm-unit { color: #888888 !important; }
+  .th-rm-cell.best .th-rm-kg  { color: #c8901c !important; }
+  .th-rm-cell.best .th-rm-rep { color: #a07428 !important; }
+
+  /* Tabla últimas sesiones — texto oscuro en fondo blanco */
+  .th-sets-table th { color: rgba(0,0,0,0.4) !important; border-bottom-color: rgba(0,0,0,0.07) !important; }
+  .th-sets-table td { color: #444444 !important; border-bottom-color: rgba(0,0,0,0.05) !important; }
+  .th-sets-table td.highlight { color: #c8901c !important; font-weight: 700 !important; }
+  .th-set-badge { background: rgba(200,144,28,0.12) !important; color: #c8901c !important; }
+
+  /* Tarjetas ejercicios — fondo claro */
+  .th-ex-card { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.07) !important; }
+  .th-ex-card:hover { background: rgba(0,168,179,0.06) !important; border-color: rgba(0,168,179,0.3) !important; }
+  .th-ex-card.active { background: rgba(0,168,179,0.1) !important; border-color: rgba(0,168,179,0.5) !important; }
+  .th-ex-name { color: #333333 !important; }
+  .th-ex-meta { color: #888888 !important; }
+  .th-ex-max  { color: #007a85 !important; }
+
   /* Exercise buttons */
   .th-exercise-btn {
     background: rgba(0,0,0,0.04) !important;
