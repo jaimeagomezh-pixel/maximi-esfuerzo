@@ -1455,6 +1455,7 @@
       if (val) saved[d] = val;
     });
     localStorage.setItem('manualTimes', JSON.stringify(saved));
+    calcularZonasCarrera();
 
     // Actualizar prData con los tiempos manuales (solo si no hay datos de Strava)
     const hoy = new Date();
@@ -1494,6 +1495,136 @@
       const el = document.getElementById('mt_'+d);
       if (el) el.value = saved[d];
     });
+    calcularZonasCarrera();
+  }
+
+  // ── ZONAS DE CARRERA ──────────────────────────────
+  function calcularZonasCarrera() {
+    const saved = JSON.parse(localStorage.getItem('manualTimes') || '{}');
+
+    const sinDatos     = document.getElementById('zonasSinDatos');
+    const refEl        = document.getElementById('zonasRef');
+    const refTexto     = document.getElementById('zonasRefTexto');
+    const tablaEl      = document.getElementById('zonasTabla');
+    const filasEl      = document.getElementById('zonasFilas');
+    const predicEl     = document.getElementById('zonasPredic');
+    const predicGridEl = document.getElementById('predicGrid');
+
+    // ── helpers ──
+    function timeToSec(str) {
+      const p = str.split(':').map(Number);
+      if (p.length === 2) return p[0]*60 + p[1];
+      if (p.length === 3) return p[0]*3600 + p[1]*60 + p[2];
+      return 0;
+    }
+    function secToTime(sec) {
+      sec = Math.round(sec);
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      return `${m}:${String(s).padStart(2,'0')}`;
+    }
+    function secToPace(secPerKm) {
+      secPerKm = Math.round(secPerKm);
+      return `${Math.floor(secPerKm / 60)}:${String(secPerKm % 60).padStart(2,'0')}`;
+    }
+
+    const distKm = {
+      '1km':1,'2km':2,'2400m':2.4,'5km':5,'8km':8,
+      '10km':10,'12km':12,'15km':15,'21km':21.0975,'42km':42.195
+    };
+    const distLabels = {
+      '1km':'1 km','2km':'2 km','2400m':'2.4 km','5km':'5 km',
+      '8km':'8 km','10km':'10 km','12km':'12 km','15km':'15 km',
+      '21km':'Medio Maratón','42km':'Maratón'
+    };
+
+    // Orden de preferencia para distancia de referencia
+    const prefOrder = ['10km','5km','21km','42km','8km','15km','12km','2km','2400m','1km'];
+    let refKey = null;
+    for (const k of prefOrder) { if (saved[k]) { refKey = k; break; } }
+
+    if (!refKey) {
+      if (sinDatos)  sinDatos.style.display  = 'block';
+      if (refEl)     refEl.style.display     = 'none';
+      if (tablaEl)   tablaEl.style.display   = 'none';
+      if (predicEl)  predicEl.style.display  = 'none';
+      return;
+    }
+    if (sinDatos) sinDatos.style.display = 'none';
+
+    // Ritmo base: equivalente 10 km via fórmula de Riegel  t2 = t1 × (d2/d1)^1.06
+    const refSec    = timeToSec(saved[refKey]);
+    const refDistK  = distKm[refKey];
+    const sec10km   = refSec * Math.pow(10 / refDistK, 1.06);
+    const pace10    = sec10km / 10; // seg/km base para cálculo de zonas
+
+    // Referencia usada
+    if (refEl)    refEl.style.display  = 'block';
+    if (refTexto) refTexto.textContent =
+      `${distLabels[refKey]}: ${secToTime(refSec)} (${secToPace(refSec / refDistK)}/km)` +
+      (refKey !== '10km' ? ` → equiv. 10 km: ${secToTime(sec10km)}` : '');
+
+    // ── Zonas (lo = multiplicador extremo rápido, hi = extremo lento) ──
+    const zonas = [
+      { z:'Z1', nombre:'Recuperación', color:'#5b9bd5', lo:1.35, hi:null  },
+      { z:'Z2', nombre:'Aeróbico',     color:'#2ecc71', lo:1.18, hi:1.35  },
+      { z:'Z3', nombre:'Tempo',        color:'#f1c40f', lo:1.06, hi:1.18  },
+      { z:'Z4', nombre:'Umbral',       color:'#e67e22', lo:0.97, hi:1.06  },
+      { z:'Z5', nombre:'VO₂max',       color:'#e74c3c', lo:0.88, hi:0.97  },
+      { z:'Z6', nombre:'Velocidad',    color:'#9b59b6', lo:null, hi:0.88  },
+    ];
+
+    if (filasEl) {
+      filasEl.innerHTML = zonas.map((z, i) => {
+        const pFast = z.lo != null ? z.lo * pace10 : null; // seg/km (menor = más rápido)
+        const pSlow = z.hi != null ? z.hi * pace10 : null;
+
+        let paceDisplay, speedDisplay;
+        if (pFast === null) {
+          // Z6: abierto por el lado rápido
+          paceDisplay  = `&lt; ${secToPace(pSlow)}`;
+          speedDisplay = `&gt; ${(3600 / pSlow).toFixed(1)}`;
+        } else if (pSlow === null) {
+          // Z1: abierto por el lado lento
+          paceDisplay  = `&gt; ${secToPace(pFast)}`;
+          speedDisplay = `&lt; ${(3600 / pFast).toFixed(1)}`;
+        } else {
+          paceDisplay  = `${secToPace(pFast)} – ${secToPace(pSlow)}`;
+          speedDisplay = `${(3600 / pSlow).toFixed(1)} – ${(3600 / pFast).toFixed(1)}`;
+        }
+
+        const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent';
+        return `<div style="display:grid;grid-template-columns:28px 1fr 90px 72px;gap:0;padding:8px 12px;background:${rowBg};align-items:center;">
+          <div style="width:9px;height:9px;border-radius:50%;background:${z.color};flex-shrink:0;"></div>
+          <div>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;text-transform:uppercase;">${z.z}</span>
+            <span style="font-family:'Barlow',sans-serif;font-size:11px;color:#666;margin-left:6px;">${z.nombre}</span>
+          </div>
+          <div style="font-family:'Barlow',sans-serif;font-size:12px;color:#d0d0d0;text-align:right;">${paceDisplay}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:11px;color:#777;text-align:right;">${speedDisplay}</div>
+        </div>`;
+      }).join('');
+    }
+    if (tablaEl) tablaEl.style.display = 'block';
+
+    // ── Predictor de tiempos (Riegel desde la referencia) ──
+    if (predicGridEl) {
+      const predDists = ['1km','5km','10km','21km','42km','2400m','2km','8km','12km','15km'];
+      predicGridEl.innerHTML = predDists.map(d => {
+        const predSec  = refSec * Math.pow(distKm[d] / refDistK, 1.06);
+        const predTime = secToTime(predSec);
+        const predPace = secToPace(predSec / distKm[d]);
+        const isRef    = d === refKey;
+        return `<div style="padding:8px 10px;background:${isRef?'rgba(212,168,67,0.07)':'rgba(255,255,255,0.03)'};border:1px solid ${isRef?'rgba(212,168,67,0.22)':'rgba(255,255,255,0.05)'};border-radius:6px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:${isRef?'#d4a843':'#555'};text-transform:uppercase;margin-bottom:2px;">${distLabels[d]}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:${isRef?'#e0b84d':'#ccc'};">${predTime}</div>
+          <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#555;margin-top:1px;">${predPace}/km</div>
+        </div>`;
+      }).join('');
+    }
+    if (predicEl) predicEl.style.display = 'block';
   }
 
   // ── FLOW PAGOS ────────────────────────────────
