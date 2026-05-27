@@ -240,10 +240,6 @@
     background: rgba(212,168,67,0.1);
   }
 
-  .hero-top-row {
-    display: block;
-  }
-
   .hero-stats {
     position: absolute;
     right: 24px;
@@ -966,8 +962,7 @@
     section { padding: 60px 16px; }
 
     #hero { padding-top: 72px; }
-    .hero-top-row { display: flex; flex-direction: column; gap: 8px; }
-    .hero-stats { position: static; display: flex; flex-direction: row; gap: 20px; text-align: center; justify-content: flex-start; }
+    .hero-stats { position: static; display: flex; flex-direction: row; gap: 20px; text-align: left; justify-content: flex-start; margin-bottom: 4px; }
     .stat-item { text-align: left; }
     .stat-number { font-size: 1.6rem; }
     .stat-label { font-size: 0.58rem; }
