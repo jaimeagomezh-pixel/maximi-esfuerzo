@@ -241,9 +241,9 @@
   }
 
   .hero-stats {
-    position: absolute;
-    right: 24px;
-    bottom: 60px;
+    position: absolute !important;
+    right: 40px;
+    bottom: 80px;
     display: flex;
     flex-direction: column;
     gap: 24px;
