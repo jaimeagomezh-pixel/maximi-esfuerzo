@@ -1017,11 +1017,14 @@
 
     // Top-20 ejercicios por frecuencia de sesiones
     const sorted = Object.keys(thRealData)
-      .map(name => ({
-        name,
-        count:      thRealData[name].length,
-        bestWeight: Math.max(...thRealData[name].map(s => s.w))
-      }))
+      .map(name => {
+        const f = isBilateralDumbbell(name) ? 0.5 : 1;
+        return {
+          name,
+          count:      thRealData[name].length,
+          bestWeight: parseFloat((Math.max(...thRealData[name].map(s => s.w)) * f).toFixed(1))
+        };
+      })
       .sort((a, b) => b.count - a.count)
       .slice(0, 20);
 
@@ -1052,12 +1055,14 @@
     const sessions = thRealData[exName];
     if (!sessions || !sessions.length) return;
 
-    const weights  = sessions.map(s => s.w);
-    const labels   = sessions.map(s => formatDateShort(s.d));
-    const best     = Math.max(...weights);
-    // Epley con cap 15 reps (igual que TrainHeroic): usar mejor est1rm de sesiones r≤15
-    const validSess = sessions.filter(s => s.r <= 15 && s.e > 0);
-    const est1rm    = validSess.length ? Math.max(...validSess.map(s => s.e)) : Math.round(best * (1 + 5/30));
+    const factor     = isBilateralDumbbell(exName) ? 0.5 : 1;
+    const rawWeights = sessions.map(s => s.w);
+    const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
+    const labels     = sessions.map(s => formatDateShort(s.d));
+    const best       = Math.max(...weights);
+    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones r≤15, aplicando factor
+    const validSess  = sessions.filter(s => s.r <= 15 && s.e > 0);
+    const est1rm     = validSess.length ? Math.round(Math.max(...validSess.map(s => s.e)) * factor) : Math.round(best * (1 + 5/30));
 
     // Working max
     document.getElementById('thWMLabel').textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
@@ -1069,15 +1074,15 @@
 
     // Gráfico
     if (chartStrength) {
-      const margin = Math.max((Math.max(...weights) - Math.min(...weights)) * 0.25, Math.max(...weights) * 0.05);
+      const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data   = weights;
-      chartStrength.data.datasets[0].borderColor = '#4a90d9';
-      chartStrength.data.datasets[0].tension = 0.3;
-      chartStrength.data.datasets[0].pointRadius = sessions.length <= 20 ? 3 : 0;
+      chartStrength.data.datasets[0].data              = weights;
+      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
+      chartStrength.data.datasets[0].tension            = 0.3;
+      chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
       chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
-      chartStrength.options.scales.y.max = Math.max(...weights) + margin;
+      chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
     }
 
@@ -1086,9 +1091,11 @@
     if (tbody) {
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s, i) => {
-        const isMax = s.w === best;
+        const dispW   = parseFloat((s.w * factor).toFixed(1));
+        const dispE   = Math.round(s.e * factor);
+        const isMax   = dispW === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${s.w}</td><td>${s.e} kg</td>`;
+        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
         tbody.appendChild(tr);
       });
     }
@@ -1271,11 +1278,14 @@
 
     // Top 20 por frecuencia de sesiones → grilla de tarjetas
     const sorted = Object.keys(data)
-      .map(name => ({
-        name,
-        count:      data[name].length,
-        bestWeight: Math.max(...data[name].map(s => s.weight))
-      }))
+      .map(name => {
+        const f = isBilateralDumbbell(name) ? 0.5 : 1;
+        return {
+          name,
+          count:      data[name].length,
+          bestWeight: parseFloat((Math.max(...data[name].map(s => s.weight)) * f).toFixed(1))
+        };
+      })
       .sort((a, b) => b.count - a.count)
       .slice(0, 20);
 
@@ -1296,15 +1306,17 @@
   }
 
   function displayExerciseData(sessions, exName) {
-    const weights = sessions.map(s => s.weight);
-    const labels  = sessions.map(s => {
+    const factor     = isBilateralDumbbell(exName) ? 0.5 : 1;
+    const rawWeights = sessions.map(s => s.weight);
+    const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
+    const labels     = sessions.map(s => {
       const d = new Date(s.date);
       return d.getDate() + '/' + (d.getMonth()+1);
     });
     const best = Math.max(...weights);
-    // Epley con cap 15 reps (igual que TrainHeroic): mejor est1rm de sesiones r≤15
+    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones r≤15, con factor
     const validSess = sessions.filter(s => s.reps <= 15 && s.est1rm > 0);
-    const est1rm    = validSess.length ? Math.max(...validSess.map(s => s.est1rm)) : Math.round(best * (1 + 5/30));
+    const est1rm    = validSess.length ? Math.round(Math.max(...validSess.map(s => s.est1rm)) * factor) : Math.round(best * (1 + 5/30));
 
     // Working Max
     const labelEl = document.getElementById('thWMLabel');
@@ -1321,12 +1333,12 @@
     if (chartStrength) {
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data   = weights;
+      chartStrength.data.datasets[0].data              = weights;
       chartStrength.data.datasets[0].borderColor        = '#4a90d9';
-      chartStrength.data.datasets[0].tension             = 0.3;
-      chartStrength.data.datasets[0].pointRadius         = sessions.length <= 20 ? 3 : 0;
+      chartStrength.data.datasets[0].tension            = 0.3;
+      chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
       chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
-      chartStrength.data.datasets[0].pointBorderColor    = '#4a90d9';
+      chartStrength.data.datasets[0].pointBorderColor   = '#4a90d9';
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
@@ -1338,10 +1350,12 @@
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s) => {
         const d = new Date(s.date);
-        const dateStr = d.getDate()+'/'+(d.getMonth()+1);
-        const isMax = s.weight === best;
+        const dateStr  = d.getDate()+'/'+(d.getMonth()+1);
+        const dispW    = parseFloat((s.weight * factor).toFixed(1));
+        const dispE    = Math.round(s.est1rm * factor);
+        const isMax    = dispW === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${s.weight}</td><td>${s.est1rm} kg</td>`;
+        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
         tbody.appendChild(tr);
       });
     }
@@ -1459,60 +1473,31 @@
     });
   }
 
-  // ── Regresión lineal + proyección 1 año ──
-  function computeProjection(sessions, isEmbedded) {
-    if (sessions.length < 2) return { projLabels: [], projData: [] };
-    // s.d (embebido) = "YYYY-MM-DD"; s.date (CSV) = ISO string o Date
-    const getDate = s => {
-      const raw = isEmbedded ? s.d : s.date;
-      if (raw instanceof Date) return raw;
-      // Si ya tiene T es ISO; si no, agregar para evitar UTC midnight offset
-      return new Date(typeof raw === 'string' && !raw.includes('T') ? raw + 'T12:00:00' : raw);
-    };
-    const getW    = s => isEmbedded ? s.w : s.weight;
-    const dates   = sessions.map(getDate);
-    const weights = sessions.map(getW);
-    const t0 = dates[0].getTime();
-    const xArr = dates.map(d => (d.getTime() - t0) / 86400000);
-    const n = xArr.length;
-    const sumX  = xArr.reduce((a,b) => a+b, 0);
-    const sumY  = weights.reduce((a,b) => a+b, 0);
-    const sumXY = xArr.reduce((s,x,i) => s + x*weights[i], 0);
-    const sumXX = xArr.reduce((s,x) => s + x*x, 0);
-    const denom  = n*sumXX - sumX*sumX;
-    if (denom === 0) return { projLabels: [], projData: [] };
-    const slope     = (n*sumXY - sumX*sumY) / denom;
-    const intercept = (sumY - slope*sumX) / n;
-    const lastDate  = dates[dates.length - 1];
-    const projLabels = [], projData = [];
-    for (let m = 1; m <= 12; m++) {
-      const fd = new Date(lastDate);
-      fd.setMonth(fd.getMonth() + m);
-      const fx = (fd.getTime() - t0) / 86400000;
-      const fy = Math.max(0, slope * fx + intercept);
-      const mes = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][fd.getMonth()];
-      projLabels.push(mes + '/' + fd.getFullYear().toString().slice(2));
-      projData.push(Math.round(fy * 10) / 10);
-    }
-    return { projLabels, projData };
+  // ── Helper: ejercicios con mancuernas bilaterales ──
+  // TrainHeroic exporta el peso TOTAL (ambas mancuernas). La UI de TH muestra por mancuerna.
+  // Para coincidir con TH, dividimos por 2 en la presentación.
+  function isBilateralDumbbell(name) {
+    const lower = (name || '').toLowerCase();
+    return (lower.includes('mancuerna') || lower.includes('mancuernas'))
+      && !lower.includes('unilateral');
   }
 
   function changeStrRange(range, btn) {
     btn.closest('.th-range-selector').querySelectorAll('.th-range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // Get current active exercise card
+    // Ejercicio activo
     const activeCard = document.querySelector('.th-ex-card.active');
     if (!activeCard) return;
     const fullName = activeCard.querySelector('.th-ex-name')?.textContent?.trim();
     if (!fullName) return;
 
-    // Detectar fuente: datos embebidos (formato .w/.d) o CSV (formato .weight/.date)
+    // Detectar fuente: embebida (.w/.d) o CSV (.weight/.date)
     let sessions = null;
     let isEmbedded = false;
     if (thRealData[fullName]) {
-      sessions    = thRealData[fullName];
-      isEmbedded  = true;
+      sessions   = thRealData[fullName];
+      isEmbedded = true;
     } else {
       try {
         const csv = localStorage.getItem('thCSVData');
@@ -1521,81 +1506,10 @@
     }
     if (!sessions || !sessions.length) return;
 
-    // Proyección 1 año: todos los datos + línea de tendencia proyectada
-    if (range === '1y') {
-      const allWeights = isEmbedded ? sessions.map(s => s.w)    : sessions.map(s => s.weight);
-      const allLabels  = sessions.map(s => {
-        const raw = isEmbedded ? s.d : s.date;
-        const d   = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
-        return d.getDate() + '/' + (d.getMonth()+1);
-      });
-      const { projLabels, projData } = computeProjection(sessions, isEmbedded);
-      const best   = Math.max(...allWeights);
-      const projMax = projData.length ? Math.max(...projData) : best;
-      const margin  = Math.max((best - Math.min(...allWeights)) * 0.25, best * 0.05);
-
-      if (chartStrength) {
-        // Limpiar dataset de proyección previo
-        while (chartStrength.data.datasets.length > 1) chartStrength.data.datasets.pop();
-
-        chartStrength.data.labels = [...allLabels, ...projLabels];
-        // Dataset 0: datos históricos (+ nulls para zona de proyección)
-        chartStrength.data.datasets[0].data              = [...allWeights, ...Array(projLabels.length).fill(null)];
-        chartStrength.data.datasets[0].borderColor        = '#4a90d9';
-        chartStrength.data.datasets[0].pointRadius        = allWeights.length <= 25 ? 3 : 0;
-        chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
-        chartStrength.data.datasets[0].tension            = 0.3;
-
-        // Dataset 1: proyección (línea dorada punteada, arranca en el último dato real)
-        chartStrength.data.datasets.push({
-          data: [...Array(allWeights.length - 1).fill(null), allWeights[allWeights.length-1], ...projData],
-          borderColor: '#d4a843',
-          borderDash: [6, 4],
-          backgroundColor: 'rgba(212,168,67,0.04)',
-          fill: true,
-          tension: 0.2,
-          pointRadius: 0,
-          pointHoverRadius: 3,
-          pointHoverBackgroundColor: '#d4a843',
-          spanGaps: false,
-          label: 'Proyección',
-        });
-
-        const overallMax = Math.max(best, projMax);
-        chartStrength.options.scales.y.min = Math.max(0, Math.min(...allWeights) - margin);
-        chartStrength.options.scales.y.max = overallMax + margin;
-        chartStrength.update();
-      }
-
-      // Tabla: mostrar las últimas 5 sesiones reales
-      const tbody = document.getElementById('thSetsTable');
-      if (tbody) {
-        tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
-        sessions.slice(-5).reverse().forEach((s) => {
-          const raw   = isEmbedded ? s.d : s.date;
-          const d     = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
-          const label = d.getDate() + '/' + (d.getMonth()+1);
-          const w     = isEmbedded ? s.w   : s.weight;
-          const sr    = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
-          const e1rm  = isEmbedded ? s.e   : s.est1rm;
-          const isMax = w === best;
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${label}</td><td>${sr}</td><td class="${isMax?'highlight':''}">${w}</td><td>${e1rm} kg</td>`;
-          tbody.appendChild(tr);
-        });
-      }
-      return;
-    }
-
-    // Limpiar proyección si venimos de 1y
-    if (chartStrength && chartStrength.data.datasets.length > 1) {
-      while (chartStrength.data.datasets.length > 1) chartStrength.data.datasets.pop();
-    }
-
-    // Filtrar por rango
+    // Filtrar por rango (1M / 3M / 6M / 1A / ALL)
     if (range !== 'all') {
       const now    = new Date();
-      const months = range === '1m' ? 1 : range === '3m' ? 3 : 6;
+      const months = range === '1m' ? 1 : range === '3m' ? 3 : range === '6m' ? 6 : 12;
       const cutoff = new Date(now.setMonth(now.getMonth() - months));
       sessions = isEmbedded
         ? sessions.filter(s => new Date(s.d)    >= cutoff)
@@ -1603,10 +1517,14 @@
     }
     if (!sessions.length) return;
 
-    const weights = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
-    const labels  = sessions.map(s => {
+    // Factor de presentación: mancuernas bilaterales → ÷2 para coincidir con TH
+    const factor  = isBilateralDumbbell(fullName) ? 0.5 : 1;
+
+    const rawWeights  = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
+    const weights     = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
+    const labels      = sessions.map(s => {
       const raw = isEmbedded ? s.d : s.date;
-      const d = new Date(raw + (raw.includes('T') ? '' : 'T12:00:00'));
+      const d   = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
       return d.getDate() + '/' + (d.getMonth()+1);
     });
     const best = Math.max(...weights);
@@ -1614,12 +1532,12 @@
     if (chartStrength) {
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
-      chartStrength.data.datasets[0].data   = weights;
-      chartStrength.data.datasets[0].borderColor         = '#4a90d9';
+      chartStrength.data.datasets[0].data              = weights;
+      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
       chartStrength.data.datasets[0].pointBackgroundColor = sessions.length <= 25 ? '#4a90d9' : 'transparent';
-      chartStrength.data.datasets[0].pointRadius          = sessions.length <= 25 ? 3 : 0;
-      chartStrength.data.datasets[0].pointBorderColor     = sessions.length <= 25 ? '#4a90d9' : 'transparent';
-      chartStrength.data.datasets[0].tension              = 0.3;
+      chartStrength.data.datasets[0].pointRadius         = sessions.length <= 25 ? 3 : 0;
+      chartStrength.data.datasets[0].pointBorderColor    = sessions.length <= 25 ? '#4a90d9' : 'transparent';
+      chartStrength.data.datasets[0].tension             = 0.3;
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
@@ -1630,13 +1548,14 @@
     if (tbody) {
       tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s, i, arr) => {
-        const raw    = isEmbedded ? s.d : s.date;
-        const d      = new Date(raw + (raw.includes('T') ? '' : 'T12:00:00'));
-        const label  = d.getDate() + '/' + (d.getMonth()+1);
-        const w      = isEmbedded ? s.w      : s.weight;
-        const sr     = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
-        const e1rm   = isEmbedded ? s.e      : s.est1rm;
-        const isMax  = w === best;
+        const raw   = isEmbedded ? s.d : s.date;
+        const d     = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
+        const label = d.getDate() + '/' + (d.getMonth()+1);
+        const rawW  = isEmbedded ? s.w      : s.weight;
+        const w     = parseFloat((rawW * factor).toFixed(1));
+        const sr    = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
+        const e1rm  = Math.round((isEmbedded ? s.e : s.est1rm) * factor);
+        const isMax = w === best;
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${label}</td><td>${sr}</td><td class="${isMax?'highlight':''}">${w}</td><td>${e1rm} kg${i===arr.length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
         tbody.appendChild(tr);
