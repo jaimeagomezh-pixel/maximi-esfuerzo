@@ -124,6 +124,7 @@
           if (typeof initStrengthChart === 'function') initStrengthChart();
           if (typeof loadRealTHData === 'function') loadRealTHData();
           if (typeof loadManualTimes === 'function') loadManualTimes();
+          if (typeof initZonasCarrera === 'function') initZonasCarrera();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Cargar datos reales de Strava si hay token guardado
           const stravaToken = localStorage.getItem('strava_token');
@@ -1796,135 +1797,167 @@
     });
   }
 
-  // ── ZONAS DE CARRERA ──────────────────────────────
-  function calcularZonasCarrera() {
-    // Obtener el tiempo MÁS RECIENTE por distancia (no el mejor)
-    const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
-    const saved   = getLatestTimes(history);
+  // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
+  let _vPicoMode = 'directo';
 
-    const sinDatos     = document.getElementById('zonasSinDatos');
-    const refEl        = document.getElementById('zonasRef');
-    const refTexto     = document.getElementById('zonasRefTexto');
-    const tablaEl      = document.getElementById('zonasTabla');
-    const filasEl      = document.getElementById('zonasFilas');
-    const predicEl     = document.getElementById('zonasPredic');
-    const predicGridEl = document.getElementById('predicGrid');
-
-    // ── helpers ──
-    function timeToSec(str) {
-      const p = str.split(':').map(Number);
-      if (p.length === 2) return p[0]*60 + p[1];
-      if (p.length === 3) return p[0]*3600 + p[1]*60 + p[2];
-      return 0;
+  function setVpicoTab(mode, btn) {
+    _vPicoMode = mode;
+    document.querySelectorAll('.zona-tab').forEach(b => b.classList.remove('zona-tab-active'));
+    if (btn) btn.classList.add('zona-tab-active');
+    const pDirecto = document.getElementById('panelVpicoDirecto');
+    const p5min    = document.getElementById('panelVpico5min');
+    if (pDirecto) pDirecto.style.display = mode === 'directo' ? '' : 'none';
+    if (p5min)    p5min.style.display    = mode === '5min'    ? '' : 'none';
+    if (mode === '5min') {
+      const inp = document.getElementById('inputVpico');
+      if (inp) inp.value = '';
+    } else {
+      const inp5  = document.getElementById('inputDist5min');
+      const calcEl = document.getElementById('vPicoDerivada');
+      if (inp5)   inp5.value = '';
+      if (calcEl) calcEl.style.display = 'none';
     }
-    function secToTime(sec) {
-      sec = Math.round(sec);
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-      return `${m}:${String(s).padStart(2,'0')}`;
+  }
+
+  function onDist5minInput() {
+    const dist   = parseFloat(document.getElementById('inputDist5min').value);
+    const calcEl = document.getElementById('vPicoDerivada');
+    const valEl  = document.getElementById('vPicoCalcVal');
+    if (!isNaN(dist) && dist > 0) {
+      if (calcEl) calcEl.style.display = '';
+      if (valEl)  valEl.textContent = (dist * 12).toFixed(1);
+    } else {
+      if (calcEl) calcEl.style.display = 'none';
     }
-    function secToPace(secPerKm) {
-      secPerKm = Math.round(secPerKm);
-      return `${Math.floor(secPerKm / 60)}:${String(secPerKm % 60).padStart(2,'0')}`;
+  }
+
+  function guardarYCalcularZonas() {
+    let vpico = null;
+    if (_vPicoMode === 'directo') {
+      vpico = parseFloat(document.getElementById('inputVpico')?.value);
+    } else {
+      const dist = parseFloat(document.getElementById('inputDist5min')?.value);
+      if (!isNaN(dist) && dist > 0) vpico = parseFloat((dist * 12).toFixed(1));
     }
-
-    const distKm = {
-      '1km':1,'2km':2,'2400m':2.4,'5km':5,'8km':8,
-      '10km':10,'12km':12,'15km':15,'21km':21.0975,'42km':42.195
-    };
-    const distLabels = {
-      '1km':'1 km','2km':'2 km','2400m':'2.4 km','5km':'5 km',
-      '8km':'8 km','10km':'10 km','12km':'12 km','15km':'15 km',
-      '21km':'Medio Maratón','42km':'Maratón'
-    };
-
-    // Orden de preferencia para distancia de referencia
-    const prefOrder = ['10km','5km','21km','42km','8km','15km','12km','2km','2400m','1km'];
-    let refKey = null;
-    for (const k of prefOrder) { if (saved[k]) { refKey = k; break; } }
-
-    if (!refKey) {
-      if (sinDatos)  sinDatos.style.display  = 'block';
-      if (refEl)     refEl.style.display     = 'none';
-      if (tablaEl)   tablaEl.style.display   = 'none';
-      if (predicEl)  predicEl.style.display  = 'none';
+    const fcmax = parseFloat(document.getElementById('inputFcMax')?.value);
+    const hasVpico = vpico && !isNaN(vpico) && vpico > 0;
+    const hasFc    = fcmax && !isNaN(fcmax) && fcmax > 0;
+    if (!hasVpico && !hasFc) {
+      alert('Ingresa al menos V PICO o FC máx para calcular las zonas.');
       return;
     }
-    if (sinDatos) sinDatos.style.display = 'none';
+    localStorage.setItem('zonaParams', JSON.stringify({
+      vpico:   hasVpico ? vpico : null,
+      fcmax:   hasFc    ? fcmax : null,
+      mode:    _vPicoMode,
+      dist5min: _vPicoMode === '5min'
+        ? parseFloat(document.getElementById('inputDist5min')?.value) || null
+        : null
+    }));
+    calcularZonasCarrera();
+  }
 
-    // Ritmo base: equivalente 10 km via fórmula de Riegel  t2 = t1 × (d2/d1)^1.06
-    const refSec    = timeToSec(saved[refKey]);
-    const refDistK  = distKm[refKey];
-    const sec10km   = refSec * Math.pow(10 / refDistK, 1.06);
-    const pace10    = sec10km / 10; // seg/km base para cálculo de zonas
+  function initZonasCarrera() {
+    const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
+    if (!saved) return;
+    if (saved.mode === '5min') {
+      setVpicoTab('5min', document.getElementById('tabVpico5min'));
+      if (saved.dist5min) {
+        const inp5 = document.getElementById('inputDist5min');
+        if (inp5) { inp5.value = saved.dist5min; onDist5minInput(); }
+      }
+    } else {
+      if (saved.vpico) {
+        const inp = document.getElementById('inputVpico');
+        if (inp) inp.value = saved.vpico;
+      }
+    }
+    if (saved.fcmax) {
+      const fcInp = document.getElementById('inputFcMax');
+      if (fcInp) fcInp.value = saved.fcmax;
+    }
+    calcularZonasCarrera();
+  }
 
-    // Referencia usada
-    if (refEl)    refEl.style.display  = 'block';
-    if (refTexto) refTexto.textContent =
-      `${distLabels[refKey]}: ${secToTime(refSec)} (${secToPace(refSec / refDistK)}/km)` +
-      (refKey !== '10km' ? ` → equiv. 10 km: ${secToTime(sec10km)}` : '');
+  function calcularZonasCarrera() {
+    const saved      = JSON.parse(localStorage.getItem('zonaParams') || 'null');
+    const sinDatosEl = document.getElementById('zonasSinDatos');
+    const refEl      = document.getElementById('zonasRef');
+    const refTexto   = document.getElementById('zonasRefTexto');
+    const tablaEl    = document.getElementById('zonasTabla');
+    const filasEl    = document.getElementById('zonasFilas');
 
-    // ── Zonas (lo = multiplicador extremo rápido, hi = extremo lento) ──
-    const zonas = [
-      { z:'Z1', nombre:'Recuperación', color:'#5b9bd5', lo:1.35, hi:null  },
-      { z:'Z2', nombre:'Aeróbico',     color:'#2ecc71', lo:1.18, hi:1.35  },
-      { z:'Z3', nombre:'Tempo',        color:'#f1c40f', lo:1.06, hi:1.18  },
-      { z:'Z4', nombre:'Umbral',       color:'#e67e22', lo:0.97, hi:1.06  },
-      { z:'Z5', nombre:'VO₂max',       color:'#e74c3c', lo:0.88, hi:0.97  },
-      { z:'Z6', nombre:'Velocidad',    color:'#9b59b6', lo:null, hi:0.88  },
+    // km/h → min:ss /km
+    function kphToPace(kph) {
+      if (!kph || kph <= 0) return '—';
+      const secs = 3600 / kph;
+      const m = Math.floor(secs / 60);
+      const s = Math.round(secs % 60);
+      return `${m}:${String(s).padStart(2,'0')}`;
+    }
+
+    if (!saved || (!saved.vpico && !saved.fcmax)) {
+      if (sinDatosEl) sinDatosEl.style.display = 'block';
+      if (refEl)      refEl.style.display      = 'none';
+      if (tablaEl)    tablaEl.style.display     = 'none';
+      return;
+    }
+
+    const vpico = saved.vpico;
+    const fcmax = saved.fcmax;
+
+    if (sinDatosEl) sinDatosEl.style.display = 'none';
+    if (refEl)      refEl.style.display      = 'block';
+    if (refTexto) {
+      const parts = [];
+      if (vpico) parts.push(`V PICO ${vpico.toFixed(1)} km/h`);
+      if (fcmax) parts.push(`FC máx ${Math.round(fcmax)} ppm`);
+      refTexto.textContent = parts.join(' · ') + ' — Cerezuela-Espejo et al. (2018)';
+    }
+
+    // Modelo Cerezuela-Espejo: R0-R3+
+    const ZONAS = [
+      { id:'R0',  nombre:'Recuperación',     desc:'70-90% VT1/LT',  color:'#5b9bd5', vLo:0.50, vHi:0.52, fcLo:0.55, fcHi:0.70, rpe:'8-10'  },
+      { id:'R1',  nombre:'Umbral aeróbico',   desc:'90-110% VT1/LT', color:'#27ae60', vLo:0.53, vHi:0.64, fcLo:0.71, fcHi:0.83, rpe:'11-12' },
+      { id:'R2',  nombre:'Tempo / MLSS',      desc:'95-105% MLSS',   color:'#f39c12', vLo:0.65, vHi:0.75, fcLo:0.84, fcHi:0.88, rpe:'13-14' },
+      { id:'R3',  nombre:'Umbral anaeróbico', desc:'95-105% VT2',    color:'#e67e22', vLo:0.76, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'15-16' },
+      { id:'R3+', nombre:'Potencia aeróbica', desc:'≥95% VO₂máx',   color:'#e74c3c', vLo:0.90, vHi:1.00, fcLo:0.95, fcHi:null,  rpe:'>17'   },
     ];
 
     if (filasEl) {
-      filasEl.innerHTML = zonas.map((z, i) => {
-        const pFast = z.lo != null ? z.lo * pace10 : null; // seg/km (menor = más rápido)
-        const pSlow = z.hi != null ? z.hi * pace10 : null;
+      filasEl.innerHTML = ZONAS.map((z, i) => {
+        // Velocidad
+        const vLow  = vpico ? parseFloat((vpico * z.vLo).toFixed(1)) : null;
+        const vHigh = vpico ? parseFloat((vpico * z.vHi).toFixed(1)) : null;
+        const speedStr = vLow  !== null ? `${vLow}–${vHigh} km/h` : '';
+        const paceStr  = vHigh !== null ? `${kphToPace(vHigh)} – ${kphToPace(vLow)} /km` : '';
 
-        let paceDisplay, speedDisplay;
-        if (pFast === null) {
-          // Z6: abierto por el lado rápido
-          paceDisplay  = `&lt; ${secToPace(pSlow)}`;
-          speedDisplay = `&gt; ${(3600 / pSlow).toFixed(1)}`;
-        } else if (pSlow === null) {
-          // Z1: abierto por el lado lento
-          paceDisplay  = `&gt; ${secToPace(pFast)}`;
-          speedDisplay = `&lt; ${(3600 / pFast).toFixed(1)}`;
-        } else {
-          paceDisplay  = `${secToPace(pFast)} – ${secToPace(pSlow)}`;
-          speedDisplay = `${(3600 / pSlow).toFixed(1)} – ${(3600 / pFast).toFixed(1)}`;
-        }
+        // FC
+        const fcLow  = fcmax ? Math.round(fcmax * z.fcLo) : null;
+        const fcHigh = fcmax && z.fcHi ? Math.round(fcmax * z.fcHi) : null;
+        const fcStr  = fcmax ? (fcHigh ? `${fcLow}–${fcHigh} ppm` : `>${fcLow} ppm`) : '';
 
-        const rowBg = i % 2 === 0 ? 'rgba(255,255,255,0.025)' : 'transparent';
-        return `<div style="display:grid;grid-template-columns:28px 1fr 90px 72px;gap:0;padding:8px 12px;background:${rowBg};align-items:center;">
-          <div style="width:9px;height:9px;border-radius:50%;background:${z.color};flex-shrink:0;"></div>
+        const rowBg = i % 2 === 0 ? 'rgba(0,0,0,0.018)' : 'transparent';
+        const sep   = i < ZONAS.length - 1 ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : '';
+
+        return `<div style="display:grid;grid-template-columns:40px 1fr 110px;gap:0;padding:11px 12px;background:${rowBg};align-items:start;${sep}">
           <div>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;text-transform:uppercase;">${z.z}</span>
-            <span style="font-family:'Barlow',sans-serif;font-size:11px;color:#666;margin-left:6px;">${z.nombre}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.5px;color:${z.color};background:${z.color}18;border:1px solid ${z.color}55;border-radius:4px;padding:2px 5px;display:inline-block;">${z.id}</span>
           </div>
-          <div style="font-family:'Barlow',sans-serif;font-size:12px;color:#d0d0d0;text-align:right;">${paceDisplay}</div>
-          <div style="font-family:'Barlow',sans-serif;font-size:11px;color:#777;text-align:right;">${speedDisplay}</div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.3px;color:#1a1a1a;">${z.nombre}</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#bbb;margin-top:2px;">${z.desc}</div>
+          </div>
+          <div style="text-align:right;">
+            ${speedStr ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:#333;">${speedStr}</div>` : ''}
+            ${paceStr  ? `<div style="font-family:'Barlow',sans-serif;font-size:10px;color:#999;margin-top:1px;">${paceStr}</div>` : ''}
+            ${fcStr    ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#666;margin-top:${vpico ? '4px' : '0'};">${fcStr}</div>` : ''}
+            <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#bbb;margin-top:2px;">RPE ${z.rpe}</div>
+          </div>
         </div>`;
       }).join('');
     }
     if (tablaEl) tablaEl.style.display = 'block';
-
-    // ── Predictor de tiempos (Riegel desde la referencia) ──
-    if (predicGridEl) {
-      const predDists = ['1km','5km','10km','21km','42km','2400m','2km','8km','12km','15km'];
-      predicGridEl.innerHTML = predDists.map(d => {
-        const predSec  = refSec * Math.pow(distKm[d] / refDistK, 1.06);
-        const predTime = secToTime(predSec);
-        const predPace = secToPace(predSec / distKm[d]);
-        const isRef    = d === refKey;
-        return `<div style="padding:8px 10px;background:${isRef?'rgba(212,168,67,0.07)':'rgba(255,255,255,0.03)'};border:1px solid ${isRef?'rgba(212,168,67,0.22)':'rgba(255,255,255,0.05)'};border-radius:6px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:${isRef?'#d4a843':'#555'};text-transform:uppercase;margin-bottom:2px;">${distLabels[d]}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;color:${isRef?'#e0b84d':'#ccc'};">${predTime}</div>
-          <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#555;margin-top:1px;">${predPace}/km</div>
-        </div>`;
-      }).join('');
-    }
-    if (predicEl) predicEl.style.display = 'block';
   }
 
   // ── FLOW PAGOS ────────────────────────────────

@@ -2741,6 +2741,53 @@
   .manual-toggle-icon { transition: transform 0.3s; }
   .manual-toggle-icon.open { transform: rotate(180deg); }
 
+  /* ── ZONAS DE CARRERA — INPUTS ── */
+  .zona-tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 6px 13px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.12);
+    background: transparent;
+    color: #aaa;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .zona-tab.zona-tab-active {
+    background: rgba(0,122,133,0.1);
+    border-color: rgba(0,122,133,0.4);
+    color: #007a85;
+    font-weight: 700;
+  }
+  .zona-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #aaa;
+    margin-bottom: 5px;
+    margin-top: 10px;
+  }
+  .zona-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #f7f9fa;
+    border: 1px solid rgba(0,0,0,0.10);
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    transition: border .2s;
+    -moz-appearance: textfield;
+  }
+  .zona-input::-webkit-outer-spin-button,
+  .zona-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .zona-input:focus { border-color: rgba(0,122,133,0.4); }
 
   /* ── CSV UPLOADER ── */
   .csv-upload-zone {
