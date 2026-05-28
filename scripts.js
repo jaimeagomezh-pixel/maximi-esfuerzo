@@ -996,11 +996,20 @@
     if (storedCSV) {
       try {
         const data = JSON.parse(storedCSV);
-        // Validación: si el mayor peso parece un año (2000-2100) el CSV tiene mapeo incorrecto
+        // Validación: detectar mapeo incorrecto (año de fecha mapeado como peso)
+        // Un peso válido está entre 0.5 kg y 1000 kg; valores ≥1990 son años
         const sampleW = Object.values(data)
           .flatMap(s => s.slice(0,5).map(e => e.weight))
           .filter(w => typeof w === 'number' && !isNaN(w) && isFinite(w));
-        const badData = sampleW.length === 0 || sampleW.every(w => w >= 1990 && w <= 2110);
+        const sampleR = Object.values(data)
+          .flatMap(s => s.slice(0,5).map(e => e.reps))
+          .filter(r => typeof r === 'number' && !isNaN(r));
+        const yearLikeW = sampleW.filter(w => w >= 1990 && w <= 2110).length;
+        const yearLikeR = sampleR.filter(r => r >= 1990 && r <= 2110).length;
+        // Corrupto si: sin datos, o >25% de pesos/reps son valores de año
+        const badData = sampleW.length === 0
+          || (yearLikeW / sampleW.length) > 0.25
+          || (sampleR.length > 0 && (yearLikeR / sampleR.length) > 0.25);
         if (badData) {
           // Limpiar datos corruptos y usar datos embebidos
           localStorage.removeItem('thCSVData');
@@ -1166,12 +1175,19 @@
     const weightCol   = guessColumn(csvHeaders, 'weight');
     const repsCol     = guessColumn(csvHeaders, 'reps');
 
-    // Verificar si el mapeo automático es bueno
-    const autoMapped = csvRawData.slice(0,3).every(row => {
+    // Verificar si el mapeo automático es bueno:
+    // peso válido: 0.5–1400 (lbs); reps válidas: 1–99
+    // Rechazar si detecta años (2024/2025) como valores de peso o reps
+    const sampleRows = csvRawData.slice(0, 5);
+    const validRows  = sampleRows.filter(row => {
       const d = row[dateCol];
       const w = parseFloat(row[weightCol]);
-      return d && !isNaN(w) && w > 0;
+      const r = parseInt(row[repsCol]);
+      return d
+        && !isNaN(w) && w >= 0.5 && w < 1400    // peso razonable en lbs
+        && !isNaN(r) && r >= 1   && r < 100;     // reps razonables
     });
+    const autoMapped = validRows.length >= Math.min(2, sampleRows.length);
 
     showProcessing(false);
 
