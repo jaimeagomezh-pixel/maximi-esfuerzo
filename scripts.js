@@ -499,6 +499,10 @@
         if (typeof mostrarUltimosRegistros === 'function') mostrarUltimosRegistros(history);
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
+
+      // Detectar actividad 5km nueva para sugerir actualización de zonas
+      if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
+
     } catch(e) { console.error('PRs Strava error:', e); }
   }
 
@@ -1857,26 +1861,101 @@
     calcularZonasCarrera();
   }
 
-  function initZonasCarrera() {
-    const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
-    if (!saved) return;
-    if (saved.mode === '5min') {
-      setVpicoTab('5min', document.getElementById('tabVpico5min'));
-      if (saved.dist5min) {
-        const inp5 = document.getElementById('inputDist5min');
-        if (inp5) { inp5.value = saved.dist5min; onDist5minInput(); }
-      }
-    } else {
-      if (saved.vpico) {
-        const inp = document.getElementById('inputVpico');
-        if (inp) inp.value = saved.vpico;
-      }
-    }
-    if (saved.fcmax) {
-      const fcInp = document.getElementById('inputFcMax');
-      if (fcInp) fcInp.value = saved.fcmax;
-    }
+  // ── BANNER STRAVA → ZONAS ──────────────────────────────────────────────────
+  function mostrarZonaStravaBanner(pending) {
+    const banner = document.getElementById('zonaStravaBanner');
+    const infoEl = document.getElementById('zonaStravaInfo');
+    if (!banner || !pending) return;
+    const [y, mo, da] = pending.date.split('-').map(Number);
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const fechaLabel = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
+    const pace = secToTime(Math.round(pending.seconds / 5));
+    const tiempo = secToTime(pending.seconds);
+    if (infoEl) infoEl.innerHTML =
+      `${tiempo} &mdash; ${pace}/km &mdash; ${fechaLabel}<br>` +
+      `<span style="font-size:11px;color:#aaa;">V PICO estimada: ` +
+      `<strong style="color:#007a85;font-family:'Barlow Condensed',sans-serif;">${pending.vPicoEst} km/h</strong>` +
+      ` (5km ≈ 92% V PICO)</span>`;
+    banner.style.display = 'block';
+  }
+
+  function checkStravaZonaUpdate(runs) {
+    const runs5km = runs.filter(a => a.distance >= 4950 && a.distance <= 5050);
+    if (!runs5km.length) return;
+    // La actividad 5km más reciente
+    const latest = runs5km.sort(
+      (a,b) => new Date(b.start_date_local) - new Date(a.start_date_local)
+    )[0];
+    const latestDate = new Date(latest.start_date_local).toISOString().slice(0,10);
+    // Ya fue ofrecida/aplicada → no volver a mostrar
+    if (localStorage.getItem('zonaStrava5kmDate') === latestDate) return;
+    // Tiempo ajustado a exactamente 5km
+    const seconds5k = Math.round(latest.moving_time * (5000 / latest.distance));
+    const speedKph  = parseFloat((18000 / seconds5k).toFixed(2));
+    const vPicoEst  = parseFloat((speedKph / 0.92).toFixed(1));
+    const pending = { date: latestDate, seconds: seconds5k, speedKph, vPicoEst };
+    localStorage.setItem('zonaStrava5km_pending', JSON.stringify(pending));
+    mostrarZonaStravaBanner(pending);
+  }
+
+  function usarStrava5kmParaZonas() {
+    const pending = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
+    if (!pending) return;
+    // Cambiar a modo directo y prellenar V PICO estimada
+    setVpicoTab('directo', document.getElementById('tabVpicoDirecto'));
+    const inp = document.getElementById('inputVpico');
+    if (inp) inp.value = pending.vPicoEst;
+    // Leer FC máx si ya estaba ingresada
+    const fcmax = parseFloat(document.getElementById('inputFcMax')?.value);
+    localStorage.setItem('zonaParams', JSON.stringify({
+      vpico:      pending.vPicoEst,
+      fcmax:      (fcmax && !isNaN(fcmax) && fcmax > 0) ? fcmax : null,
+      mode:       'directo',
+      dist5min:   null,
+      fromStrava: pending.date
+    }));
+    localStorage.setItem('zonaStrava5kmDate', pending.date);
+    localStorage.removeItem('zonaStrava5km_pending');
+    descartarStravaBanner();
     calcularZonasCarrera();
+  }
+
+  function descartarStravaBanner() {
+    const banner = document.getElementById('zonaStravaBanner');
+    if (banner) banner.style.display = 'none';
+    const pending = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
+    if (pending) localStorage.setItem('zonaStrava5kmDate', pending.date);
+    localStorage.removeItem('zonaStrava5km_pending');
+  }
+
+  // ── INIT ZONAS ─────────────────────────────────────────────────────────────
+  function initZonasCarrera() {
+    // Restaurar parámetros guardados
+    const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
+    if (saved) {
+      if (saved.mode === '5min') {
+        setVpicoTab('5min', document.getElementById('tabVpico5min'));
+        if (saved.dist5min) {
+          const inp5 = document.getElementById('inputDist5min');
+          if (inp5) { inp5.value = saved.dist5min; onDist5minInput(); }
+        }
+      } else {
+        if (saved.vpico) {
+          const inp = document.getElementById('inputVpico');
+          if (inp) inp.value = saved.vpico;
+        }
+      }
+      if (saved.fcmax) {
+        const fcInp = document.getElementById('inputFcMax');
+        if (fcInp) fcInp.value = saved.fcmax;
+      }
+      calcularZonasCarrera();
+    }
+    // Restaurar banner de Strava si quedó pendiente de sesión anterior
+    const pending = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
+    if (pending && localStorage.getItem('zonaStrava5kmDate') !== pending.date) {
+      mostrarZonaStravaBanner(pending);
+    }
   }
 
   function calcularZonasCarrera() {
