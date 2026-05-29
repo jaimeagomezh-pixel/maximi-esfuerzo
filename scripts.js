@@ -1195,7 +1195,10 @@
     const lines = text.trim().split('\n').filter(l => l.trim());
     if (lines.length < 2) { showProcessing(false); alert('CSV vacío o inválido'); return; }
 
-    csvHeaders = lines[0].split(sep).map(h => h.trim().replace(/"/g,''));
+    // Eliminar BOM (Excel guarda UTF-8 con BOM ﻿ al inicio del archivo)
+    csvHeaders = lines[0].split(sep).map((h, i) =>
+      (i === 0 ? h.replace(/^﻿/, '') : h).trim().replace(/"/g,'')
+    );
     csvRawData = lines.slice(1).map(line => {
       const vals = line.split(sep).map(v => v.trim().replace(/"/g,''));
       const obj = {};
@@ -1208,16 +1211,20 @@
     const exerciseCol = guessColumn(csvHeaders, 'exercise');
     let   weightCol   = guessColumn(csvHeaders, 'weight');
     const repsCol     = guessColumn(csvHeaders, 'reps');
+    console.log('[CSV] Headers:', csvHeaders);
+    console.log('[CSV] Detectado → fecha:', dateCol, '| ejercicio:', exerciseCol, '| peso:', weightCol, '| reps:', repsCol);
 
     // Si no se detectó columna de peso por alias, buscar heurísticamente:
-    // columna numérica con valores plausibles (1–1000 lbs), excluyendo fecha y ejercicio.
-    // Esto cubre CSV de TrainHeroic u otras apps donde el encabezado no coincide exactamente.
+    // columna numérica con valores plausibles (0.5–999 lbs), excluyendo fecha, ejercicio y reps.
+    // Excluye también columnas donde los valores parecen años (≥1990).
     if (!weightCol) {
       const rows0 = csvRawData.slice(0, 20);
       for (const h of csvHeaders) {
-        if (h === dateCol || h === exerciseCol) continue;
+        if (h === dateCol || h === exerciseCol || h === repsCol) continue;
         const nums = rows0.map(r => parseFloat(r[h])).filter(v => !isNaN(v) && v > 0);
-        const plausible = nums.filter(v => v > 1 && v < 1000);
+        const yearLike = nums.filter(v => v >= 1990);
+        if (yearLike.length > 0) continue; // descartar si tiene valores de año
+        const plausible = nums.filter(v => v >= 0.5 && v < 1000);
         if (plausible.length >= Math.min(5, rows0.length * 0.5)) {
           weightCol = h;
           break;
@@ -1256,7 +1263,12 @@
       const sel = document.getElementById(id);
       if (!sel) return;
       const best = guessColumn(csvHeaders, fields[i]); // puede ser null
-      sel.innerHTML = csvHeaders.map(h =>
+      // Si no hay coincidencia, poner placeholder deshabilitado para que el usuario elija.
+      // Sin placeholder, el browser pre-selecciona la primera opción (típicamente la fecha).
+      const placeholder = best
+        ? ''
+        : `<option value="" disabled selected>— seleccionar columna —</option>`;
+      sel.innerHTML = placeholder + csvHeaders.map(h =>
         `<option value="${h}" ${h === best ? 'selected' : ''}>${h}</option>`
       ).join('');
     });
@@ -1269,6 +1281,10 @@
     const exerciseCol = document.getElementById('mapExercise')?.value;
     const weightCol   = document.getElementById('mapWeight')?.value;
     const repsCol     = document.getElementById('mapReps')?.value;
+    if (!dateCol || !exerciseCol || !weightCol || !repsCol) {
+      alert('Por favor selecciona todas las columnas antes de importar.');
+      return;
+    }
     document.getElementById('csvMapping').classList.remove('show');
     importCSV(dateCol, exerciseCol, weightCol, repsCol, 'trainheroic.csv');
   }
@@ -1312,6 +1328,18 @@
     const sessionCount = Object.values(merged).reduce((s,v)=>s+v.length,0);
 
     if (exCount === 0) { alert('No se pudieron leer datos válidos. Verifica el formato del CSV.'); return; }
+
+    // Validación de integridad: si los pesos se ven como años (ej. 2025) el mapeo fue incorrecto.
+    // Forzar el panel de mapeo manual para que el usuario elija la columna correcta.
+    const sampleWeights = Object.values(merged)
+      .flatMap(s => s.slice(0, 3).map(e => e.weight))
+      .filter(w => !isNaN(w));
+    const yearLikeCount = sampleWeights.filter(w => w >= 1990 && w <= 2110).length;
+    if (sampleWeights.length > 0 && yearLikeCount / sampleWeights.length > 0.25) {
+      showProcessing(false);
+      showMappingPanel(filename);
+      return;
+    }
 
     // Guardar en localStorage (puede lanzar QuotaExceededError si los datos son muy grandes)
     try {
