@@ -1189,22 +1189,86 @@
     readAndProcessFile(input.files[0]);
   }
 
+  // ── PARSEO CSV (RFC 4180) ─────────────────────────────────────────────────
+  // Une líneas que pertenecen al mismo campo entre comillas (campos multi-línea).
+  function splitCSVLines(text) {
+    const rows = []; let cur = '', inQ = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (c === '"') { inQ = !inQ; cur += c; }
+      else if (!inQ && (c === '\n' || c === '\r')) {
+        if (c === '\r' && text[i+1] === '\n') i++;
+        if (cur.trim()) rows.push(cur);
+        cur = '';
+      } else { cur += c; }
+    }
+    if (cur.trim()) rows.push(cur);
+    return rows;
+  }
+
+  // Parsea una fila CSV respetando campos entre comillas y comas internas.
+  function parseCSVRow(line, sep) {
+    const res = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') {
+        if (inQ && line[i+1] === '"') { cur += '"'; i++; } else inQ = !inQ;
+      } else if (c === sep && !inQ) { res.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    res.push(cur.trim());
+    return res;
+  }
+
+  // Parsea una celda ExerciseData de TrainHeroic.
+  // Formato: "reps1, reps2 rep x peso1, peso2 unidad"
+  // Devuelve { weightLbs, reps } del mejor set, o null si no hay datos de peso.
+  function parseExerciseDataField(str) {
+    if (!str) return null;
+    const idx = str.toLowerCase().indexOf(' rep x ');
+    if (idx === -1) return null;
+    const repsPart = str.substring(0, idx).trim();
+    let   rest     = str.substring(idx + 7).trim();
+    const unitM    = rest.match(/\s*(kilogram|pound|kg|lbs?|percent|time|meter)\s*$/i);
+    const unit     = unitM ? unitM[1].toLowerCase() : '';
+    if (unitM) rest = rest.substring(0, unitM.index).trim();
+    if (unit === 'percent' || unit === 'time' || unit === 'meter') return null;
+    const weights  = rest.split(',').map(s => parseFloat(s.trim())).filter(v => !isNaN(v) && v > 0);
+    if (!weights.length) return null;
+    const maxW     = Math.max(...weights);
+    const maxIdx   = weights.indexOf(maxW);
+    const repsArr  = repsPart.split(',').map(s => parseInt(s.trim())).filter(v => !isNaN(v) && v > 0);
+    return { weightLbs: maxW, reps: repsArr[maxIdx] ?? repsArr[0] ?? 1 };
+  }
+
   function processCSV(text, filename) {
     // Detectar separador (coma, punto y coma, tab)
     const sep = text.includes(';') ? ';' : text.includes('\t') ? '\t' : ',';
-    const lines = text.trim().split('\n').filter(l => l.trim());
+    const lines = splitCSVLines(text);
     if (lines.length < 2) { showProcessing(false); alert('CSV vacío o inválido'); return; }
 
-    // Eliminar BOM (Excel guarda UTF-8 con BOM ﻿ al inicio del archivo)
-    csvHeaders = lines[0].split(sep).map((h, i) =>
-      (i === 0 ? h.replace(/^﻿/, '') : h).trim().replace(/"/g,'')
-    );
+    // Parsear encabezados, eliminando BOM si existe (Excel UTF-8)
+    const rawHeaders = parseCSVRow(lines[0], sep);
+    csvHeaders = rawHeaders.map((h, i) => (i === 0 ? h.replace(/^﻿/, '') : h).trim());
     csvRawData = lines.slice(1).map(line => {
-      const vals = line.split(sep).map(v => v.trim().replace(/"/g,''));
-      const obj = {};
-      csvHeaders.forEach((h, i) => obj[h] = vals[i] || '');
+      const vals = parseCSVRow(line, sep);
+      const obj  = {};
+      csvHeaders.forEach((h, i) => obj[h] = vals[i] ?? '');
       return obj;
     });
+
+    // ── Formato TrainHeroic con columna ExerciseData ───────────────────────
+    // Los pesos y reps vienen embebidos: "12, 12 rep x 110.23, 110.23 kilogram"
+    // Los valores están en libras aunque la etiqueta diga "kilogram".
+    if (csvHeaders.includes('ExerciseData')) {
+      const dateCol     = guessColumn(csvHeaders, 'date');
+      const exerciseCol = guessColumn(csvHeaders, 'exercise');
+      if (dateCol && exerciseCol) {
+        showProcessing(false);
+        importCSVFromExerciseData(dateCol, exerciseCol, 'ExerciseData', filename);
+        return;
+      }
+    }
 
     // Intentar mapeo automático por alias de nombre de columna
     const dateCol     = guessColumn(csvHeaders, 'date');
@@ -1351,6 +1415,71 @@
     }
 
     // Actualizar UI
+    loadCSVData(merged, filename, exCount, sessionCount);
+  }
+
+  // Importa el formato TrainHeroic con columna ExerciseData.
+  // Los pesos están en libras (aunque la etiqueta diga "kilogram") → convierte a kg.
+  function importCSVFromExerciseData(dateCol, exerciseCol, dataCol, filename) {
+    const LBS_TO_KG = 1 / 2.2046;
+    const exercises = {};
+
+    for (const row of csvRawData) {
+      const ex      = (row[exerciseCol] || '').trim();
+      const dateRaw = (row[dateCol]     || '').trim().split('T')[0];
+      const dataStr = (row[dataCol]     || '').trim();
+      if (!ex || !dateRaw || !dataStr) continue;
+
+      const parsed = parseExerciseDataField(dataStr);
+      if (!parsed) continue;
+
+      const weightKg = parseFloat((parsed.weightLbs * LBS_TO_KG).toFixed(2));
+      if (weightKg < 0.5) continue;
+
+      // Normalizar fecha: "2023-3-28" → "2023-03-28"
+      const dp      = dateRaw.split('-');
+      const dateStr = dp.length === 3
+        ? `${dp[0]}-${dp[1].padStart(2,'0')}-${dp[2].padStart(2,'0')}`
+        : dateRaw;
+      const date   = parseDate(dateStr);
+      const reps   = parsed.reps;
+      const est1rm = reps <= 15 ? Math.round(weightKg * (1 + reps / 30)) : 0;
+
+      if (!exercises[ex]) exercises[ex] = [];
+      exercises[ex].push({ date, dateStr, weight: weightKg, reps, sets: 1, est1rm });
+    }
+
+    // Agrupar por día: conservar el mayor peso por sesión
+    const merged = {};
+    for (const [ex, entries] of Object.entries(exercises)) {
+      const byDate = {};
+      for (const e of entries) {
+        if (!byDate[e.dateStr] || e.weight > byDate[e.dateStr].weight) {
+          byDate[e.dateStr] = e;
+        } else if (e.weight === byDate[e.dateStr].weight) {
+          byDate[e.dateStr].sets += 1;
+        }
+      }
+      const arr = Object.values(byDate).sort((a, b) => a.date - b.date);
+      if (arr.length) merged[ex] = arr;
+    }
+
+    const exCount      = Object.keys(merged).length;
+    const sessionCount = Object.values(merged).reduce((s, v) => s + v.length, 0);
+
+    if (exCount === 0) {
+      showProcessing(false);
+      alert('No se encontraron datos de peso.\nVerifica que el CSV sea de entrenamientos completados, no del programa prescrito.');
+      return;
+    }
+
+    try {
+      localStorage.setItem('thCSVData', JSON.stringify(merged));
+      localStorage.setItem('thCSVFilename', filename);
+    } catch (e) {
+      console.warn('localStorage lleno; datos no guardados entre sesiones.', e);
+    }
+
     loadCSVData(merged, filename, exCount, sessionCount);
   }
 
