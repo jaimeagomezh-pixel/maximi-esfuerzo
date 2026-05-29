@@ -46,10 +46,12 @@ async function verificarWebhook(params, secretKey) {
 function corsHeaders() {
   return {
     'Access-Control-Allow-Origin': 'https://maximi-esfuerzo.pages.dev',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 }
+
+const COACH_SECRET = 'ME2025coach';
 
 // ══════════════════════════════════════════════
 //  HANDLER PRINCIPAL
@@ -220,6 +222,39 @@ export default {
 
       } catch(e) {
         return new Response('Error', { status: 500 });
+      }
+    }
+
+    // ── POST /rucking/sync — atleta empuja sus sesiones al KV ──
+    if (url.pathname === '/rucking/sync' && request.method === 'POST') {
+      try {
+        const { stravaId, sessions } = await request.json();
+        if (!stravaId || !Array.isArray(sessions)) {
+          return Response.json({ ok: false, error: 'Datos inválidos' }, { status: 400, headers: corsHeaders() });
+        }
+        await env.RUCK_DATA.put(`ruck:${stravaId}`, JSON.stringify(sessions));
+        return Response.json({ ok: true, saved: sessions.length }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
+    // ── GET /rucking/athlete — coach lee datos de un atleta ────
+    if (url.pathname === '/rucking/athlete' && request.method === 'GET') {
+      const secret   = url.searchParams.get('secret');
+      const stravaId = url.searchParams.get('stravaId');
+      if (secret !== COACH_SECRET) {
+        return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+      }
+      if (!stravaId) {
+        return Response.json({ ok: false, error: 'stravaId requerido' }, { status: 400, headers: corsHeaders() });
+      }
+      try {
+        const raw = await env.RUCK_DATA.get(`ruck:${stravaId}`);
+        const sessions = raw ? JSON.parse(raw) : [];
+        return Response.json({ ok: true, sessions }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
       }
     }
 

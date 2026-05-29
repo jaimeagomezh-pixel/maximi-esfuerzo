@@ -10,5 +10,15 @@
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  // KV namespace para sesiones de rucking por atleta
+  // Crear con: npx wrangler kv namespace create "RUCK_DATA"
+  // Luego reemplazar los IDs de abajo con los que devuelve el comando
+  "kv_namespaces": [
+    {
+      "binding": "RUCK_DATA",
+      "id": "REEMPLAZAR_CON_ID_KV",
+      "preview_id": "REEMPLAZAR_CON_PREVIEW_ID_KV"
+    }
   ]
 }

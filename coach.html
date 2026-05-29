@@ -524,7 +524,7 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
                 '5km':[{d:'2026-02-01',t:1380},{d:'2026-03-20',t:1320},{d:'2026-05-10',t:1260}],
                 '10km':[{d:'2026-02-15',t:2880},{d:'2026-04-05',t:2760},{d:'2026-05-18',t:2640}] },
     pagos:[{plan:'Plan Fitness Medio',fecha:'2026-05-20',monto:'$45.000'},{plan:'Plan Fitness Medio',fecha:'2026-04-20',monto:'$45.000'}],
-    notas:'Buena adherencia. Trabajar técnica sentadilla. Objetivo: Sub 20 en 5k.' },
+    notas:'Buena adherencia. Trabajar técnica sentadilla. Objetivo: Sub 20 en 5k.', stravaId:null },
 
   { id:2, nombre:'Valentina Ruiz', email:'vale@mail.com', plan:'Asesoría Personalizada', tipo:'activo',
     diasActivos:45, vencimiento:'2026-07-01', peso:61, talla:165, edad:27, archivado:false,
@@ -534,11 +534,11 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
                 '10km':[{d:'2026-02-20',t:3300},{d:'2026-04-10',t:3180},{d:'2026-05-20',t:3060}],
                 '21km':[{d:'2026-03-15',t:7200},{d:'2026-05-05',t:7020}] },
     pagos:[{plan:'Asesoría 3 meses',fecha:'2026-05-01',monto:'$90.000'}],
-    notas:'Meta: media maratón Septiembre. Volumen aumentando bien.' },
+    notas:'Meta: media maratón Septiembre. Volumen aumentando bien.', stravaId:null },
 
   { id:3, nombre:'Rodrigo Soto', email:'rodrigo@mail.com', plan:'Sin plan', tipo:'cuenta',
     diasActivos:0, vencimiento:null, peso:91, talla:183, edad:35, archivado:false,
-    strava:null, fuerza:{}, prTiempos:{}, pagos:[], notas:'' },
+    strava:null, fuerza:{}, prTiempos:{}, pagos:[], notas:'', stravaId:null },
 
   { id:4, nombre:'Felipe Torres', email:'felipe@mail.com', plan:'Plan Fitness Avanzado', tipo:'vencido',
     diasActivos:62, vencimiento:'2026-05-10', peso:78, talla:175, edad:29, archivado:false,
@@ -547,7 +547,7 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
     prTiempos:{ '5km':[{d:'2025-12-10',t:1260},{d:'2026-02-01',t:1230},{d:'2026-04-15',t:1200}],
                 '10km':[{d:'2026-01-20',t:2640},{d:'2026-03-10',t:2580},{d:'2026-05-02',t:2520}] },
     pagos:[{plan:'Plan Fitness Avanzado',fecha:'2026-04-10',monto:'$55.000'},{plan:'Plan Fitness Avanzado',fecha:'2026-03-10',monto:'$55.000'}],
-    notas:'Renovar plan. Excelente progresión en fuerza.' }
+    notas:'Renovar plan. Excelente progresión en fuerza.', stravaId:null }
 ];
 
 function guardarAtletas() { localStorage.setItem('coachAtletas', JSON.stringify(atletas)); }
@@ -1148,6 +1148,50 @@ function abrirPerfil(id) {
       <div id="coachCSVStatus" style="margin-top:8px;font-size:11px;color:#00c8d4;"></div>
     </div>
 
+    <!-- RUCKING del atleta -->
+    <div class="sec" id="ruckCoachSec">
+      <div class="sec-t" style="justify-content:space-between;">
+        <span>Rucking · Progresión</span>
+        <button class="f-btn" style="font-size:9px;" onclick="toggleRuckCoachLink()">⚙ Vincular</button>
+      </div>
+
+      <!-- Campo Strava ID (colapsable) -->
+      <div id="ruckCoachLinkPanel" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:11px;margin-bottom:12px;">
+        <label class="l-label">Strava ID del atleta</label>
+        <div style="display:flex;gap:8px;margin-top:4px;">
+          <input type="text" id="ruckCoachStravaId" class="l-input" placeholder="ej. 12345678"
+                 value="${a.stravaId||''}" style="flex:1;margin-bottom:0;">
+          <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Guardar</button>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta ve su Strava ID en su perfil de Strava (URL: strava.com/athletes/<strong>ID</strong>)</div>
+      </div>
+
+      <!-- Estado sin vincular -->
+      <div id="ruckCoachEmpty" style="${a.stravaId?'display:none':''}text-align:center;padding:16px;color:var(--text3);font-size:12px;">
+        🎒 Vincula el Strava ID del atleta para ver su progresión de rucking
+      </div>
+
+      <!-- Datos (se muestra cuando hay stravaId) -->
+      <div id="ruckCoachData" style="${a.stravaId?'':'display:none'}">
+        <!-- Selectores distancia -->
+        <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:5px;">Distancia</div>
+        <div class="dist-sel" id="ruckCoachDistBtns"></div>
+        <!-- Selectores carga -->
+        <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:8px 0 5px;">Lastre</div>
+        <div class="dist-sel" id="ruckCoachLoadBtns"></div>
+        <!-- Stats -->
+        <div class="pr-stats" style="margin-top:10px;">
+          <div class="pr-stat best"><div class="pr-stat-v" id="ruckCoachBest">—</div><div class="pr-stat-l">Mejor tiempo</div></div>
+          <div class="pr-stat"><div class="pr-stat-v" id="ruckCoachDate" style="font-size:0.9rem;">—</div><div class="pr-stat-l">Fecha PR</div></div>
+          <div class="pr-stat delta"><div class="pr-stat-v" id="ruckCoachDelta">—</div><div class="pr-stat-l">Vs. inicio</div></div>
+        </div>
+        <!-- Gráfico -->
+        <div class="chart-wrap"><canvas id="cRucking"></canvas></div>
+        <!-- Lista sesiones -->
+        <div id="ruckCoachList" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
     <div class="sec">
       <div class="sec-t">Notas privadas del coach</div>
       <textarea class="nota-ta" id="notaTA">${a.notas}</textarea>
@@ -1192,7 +1236,142 @@ function abrirPerfil(id) {
     }
 
     refreshCoachCSVStatus();
+
+    // Cargar rucking del atleta si tiene Strava ID vinculado
+    if (a.stravaId) cargarRuckingCoach(a.stravaId);
+
   }, 150);
+}
+
+// ── RUCKING COACH ─────────────────────────────────────────────
+const RUCK_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
+const RUCK_DISTS_C = [5,8,10,12,15,18,20,25,30,32,35,40];
+const RUCK_LOADS_C = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
+let chartRuckCoach = null;
+let ruckCoachDist  = null;
+let ruckCoachLoad  = null;
+let ruckCoachSessions = [];
+
+async function cargarRuckingCoach(stravaId) {
+  const dataDiv  = document.getElementById('ruckCoachData');
+  const emptyDiv = document.getElementById('ruckCoachEmpty');
+  if (!dataDiv) return;
+  try {
+    const res  = await fetch(`${RUCK_WORKER}/rucking/athlete?stravaId=${stravaId}&secret=ME2025coach`);
+    const json = await res.json();
+    if (!json.ok || !json.sessions.length) {
+      if (emptyDiv) { emptyDiv.style.display='block'; emptyDiv.textContent='🎒 Sin sesiones de rucking registradas aún.'; }
+      if (dataDiv) dataDiv.style.display='none';
+      return;
+    }
+    ruckCoachSessions = json.sessions;
+    if (emptyDiv) emptyDiv.style.display='none';
+    if (dataDiv) dataDiv.style.display='block';
+    renderRuckCoachBtns();
+  } catch(e) {
+    if (emptyDiv) { emptyDiv.style.display='block'; emptyDiv.textContent='Error al cargar datos. Verifica el Strava ID.'; }
+  }
+}
+
+function renderRuckCoachBtns() {
+  const usedDists = [...new Set(ruckCoachSessions.map(s=>s.dist))].sort((a,b)=>a-b);
+  const usedLoads = [...new Set(ruckCoachSessions.map(s=>s.load))].sort((a,b)=>a-b);
+  const db = document.getElementById('ruckCoachDistBtns');
+  const lb = document.getElementById('ruckCoachLoadBtns');
+  if (db) db.innerHTML = usedDists.map(d=>`<button class="d-btn" onclick="selRuckCoachDist(${d},this)">${d} km</button>`).join('');
+  if (lb) lb.innerHTML = usedLoads.map(l=>`<button class="d-btn" onclick="selRuckCoachLoad(${l},this)">${l} kg</button>`).join('');
+  // Seleccionar primeros
+  const fd = db?.querySelector('.d-btn');
+  if (fd) fd.click();
+}
+
+function selRuckCoachDist(km, btn) {
+  document.querySelectorAll('#ruckCoachDistBtns .d-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); ruckCoachDist=km; updateRuckCoachView();
+}
+function selRuckCoachLoad(kg, btn) {
+  document.querySelectorAll('#ruckCoachLoadBtns .d-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); ruckCoachLoad=kg; updateRuckCoachView();
+}
+
+function updateRuckCoachView() {
+  const filtered = ruckCoachSessions.filter(s=>
+    (!ruckCoachDist || s.dist==ruckCoachDist) &&
+    (!ruckCoachLoad || s.load==ruckCoachLoad)
+  );
+  const withTime = filtered.filter(s=>s.time>0);
+  const best = withTime.length ? withTime.reduce((a,b)=>a.time<=b.time?a:b) : null;
+  const sorted = [...withTime].sort((a,b)=>a.date.localeCompare(b.date));
+
+  const fmtT = s => { const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),ss=s%60; return h?h+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'):m+':'+String(ss).padStart(2,'0'); };
+  const fmtD = str => { const d=new Date(str+'T12:00:00'); return d.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]+' '+d.getFullYear(); };
+
+  const bestEl  = document.getElementById('ruckCoachBest');
+  const dateEl  = document.getElementById('ruckCoachDate');
+  const deltaEl = document.getElementById('ruckCoachDelta');
+  if (bestEl)  bestEl.textContent  = best ? fmtT(best.time) : '—';
+  if (dateEl)  dateEl.textContent  = best ? fmtD(best.date) : '—';
+  if (deltaEl && sorted.length>=2) {
+    const diff = sorted[0].time - sorted[sorted.length-1].time;
+    const pct  = (Math.abs(diff)/sorted[0].time*100).toFixed(1);
+    deltaEl.innerHTML = diff>0
+      ? `<span style="color:var(--green);">▲ ${fmtT(diff)}</span> <span style="font-size:9px;color:var(--text3);">mejora ${pct}%</span>`
+      : diff<0
+        ? `<span style="color:var(--orange);">▼ ${fmtT(-diff)}</span> <span style="font-size:9px;color:var(--text3);">disminución ${pct}%</span>`
+        : '<span style="color:var(--text3);">— igual</span>';
+  } else if (deltaEl) deltaEl.innerHTML='<span style="color:var(--text3);">—</span>';
+
+  // Gráfico
+  const ctx = document.getElementById('cRucking');
+  if (ctx) {
+    if (chartRuckCoach) { chartRuckCoach.destroy(); chartRuckCoach=null; }
+    if (sorted.length) {
+      chartRuckCoach = mkLineChart(
+        ctx,
+        sorted.map(s=>{ const d=new Date(s.date+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1); }),
+        sorted.map(s=>+(s.time/60).toFixed(2)),
+        '#007a85',
+        v=>Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0'),
+        { reverse:true }
+      );
+    }
+  }
+
+  // Lista sesiones
+  const listEl = document.getElementById('ruckCoachList');
+  if (listEl) {
+    const recent = [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+    listEl.innerHTML = recent.map(s=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);">
+        <div>
+          <div style="font-family:var(--fc);font-size:14px;font-weight:700;color:var(--cian);">${fmtT(s.time)}</div>
+          <div style="font-size:11px;color:var(--text3);">${fmtD(s.date)}${s.source==='strava'?' · <span style="color:#FC4C02">Strava</span>':''}</div>
+        </div>
+        <div style="text-align:right;font-size:11px;color:var(--text3);">${s.dist} km · ${s.load} kg${s.elev>0?'<br>↑ '+s.elev+' m':''}</div>
+      </div>`).join('') || '<div style="text-align:center;padding:14px;color:var(--text3);font-size:12px;font-style:italic;">Sin sesiones para esta selección</div>';
+  }
+}
+
+function toggleRuckCoachLink() {
+  const p = document.getElementById('ruckCoachLinkPanel');
+  if (p) p.style.display = p.style.display==='none' ? 'block' : 'none';
+}
+
+function guardarStravaIdAtleta(atletaId) {
+  const sid = document.getElementById('ruckCoachStravaId')?.value?.trim();
+  const a   = atletas.find(x=>x.id===atletaId);
+  if (!a) return;
+  a.stravaId = sid || null;
+  guardarAtletas();
+  document.getElementById('ruckCoachLinkPanel').style.display='none';
+  if (sid) {
+    document.getElementById('ruckCoachEmpty').style.display='none';
+    document.getElementById('ruckCoachData').style.display='block';
+    cargarRuckingCoach(sid);
+  } else {
+    document.getElementById('ruckCoachEmpty').style.display='block';
+    document.getElementById('ruckCoachData').style.display='none';
+  }
 }
 
 // Helpers charts

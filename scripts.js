@@ -280,11 +280,18 @@
       // PRs automáticos en background
       cargarPRsStrava(accessToken);
 
-      // Info del atleta
-      const atletaRes = await fetch('https://www.strava.com/api/v3/athlete', {
+      // Info del atleta — guardar ID para sincronización de rucking
+      const atletaRes  = await fetch('https://www.strava.com/api/v3/athlete', {
         headers: { 'Authorization': 'Bearer ' + accessToken }
       });
-      return await atletaRes.json();
+      const atletaData = await atletaRes.json();
+      if (atletaData.id) {
+        localStorage.setItem('strava_athlete_id', String(atletaData.id));
+        // Sincronizar rucking guardado si hay sesiones previas
+        const prevSessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+        if (prevSessions.length) pushRuckingToCloud(prevSessions);
+      }
+      return atletaData;
 
     } catch(e) {
       console.error('Strava error:', e);
@@ -488,8 +495,22 @@
 
     if (added > 0) {
       localStorage.setItem('ruckSessions', JSON.stringify(existing));
+      pushRuckingToCloud(existing);
       if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
     }
+  }
+
+  // Empuja todas las sesiones de rucking al Worker (Cloudflare KV)
+  async function pushRuckingToCloud(sessions) {
+    const stravaId = localStorage.getItem('strava_athlete_id');
+    if (!stravaId) return;
+    try {
+      await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stravaId, sessions })
+      });
+    } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
 
   async function cargarPRsStrava(token) {
@@ -2002,6 +2023,7 @@
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
     sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev:0, notes:'Manual', terrain:1.2, source:'manual' });
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
+    pushRuckingToCloud(sessions);
     document.getElementById('ruckAManualForm').style.display='none';
     initRuckingAtleta();
   }
