@@ -2172,7 +2172,7 @@
   .th-pr-stat-value { color: #007a85 !important; }
   .th-pr-stat-sub { color: #999999 !important; }
   .th-pr-stat.best .th-pr-stat-value { color: #d4a843 !important; }
-  .th-pr-stat.delta .th-pr-stat-value { color: #27ae60 !important; }
+  .th-pr-stat.delta .th-pr-stat-value { color: #27ae60; } /* sin !important: JS sobreescribe con naranja si empeoró */
 
   /* Working max */
   .th-working-max {

@@ -832,12 +832,25 @@
     document.getElementById('prFirst').textContent     = secToTime(latest);
     document.getElementById('prFirstDate').textContent = formatDate(data[data.length - 1].date);
     // Diferencia primer registro vs más reciente  (positivo = mejoró = más rápido)
-    const diff = first - latest;
-    document.getElementById('prDelta').textContent =
-      diff > 0 ? '▼ ' + secToTime(diff)  :
-      diff < 0 ? '▲ ' + secToTime(-diff) : '— igual';
-    const subEl = document.getElementById('prDeltaSub');
-    if (subEl) subEl.textContent = diff > 0 ? 'mejoró' : diff < 0 ? 'empeoró' : '';
+    const diff    = first - latest;
+    const pct     = first > 0 ? (Math.abs(diff) / first * 100).toFixed(1) : '0.0';
+    const deltaEl = document.getElementById('prDelta');
+    const subEl   = document.getElementById('prDeltaSub');
+    if (diff > 0) {
+      // Mejoró: tiempo bajó → triángulo verde apuntando arriba
+      deltaEl.textContent = '▲ ' + secToTime(diff);
+      deltaEl.style.color = '#27ae60';
+      if (subEl) subEl.textContent = 'mejoró · ' + pct + '%';
+    } else if (diff < 0) {
+      // Empeoró: tiempo subió → triángulo naranja apuntando abajo
+      deltaEl.textContent = '▼ ' + secToTime(-diff);
+      deltaEl.style.color = '#e67e22';
+      if (subEl) subEl.textContent = 'empeoró · ' + pct + '%';
+    } else {
+      deltaEl.textContent = '— igual';
+      deltaEl.style.color = '';
+      if (subEl) subEl.textContent = '';
+    }
 
     // Puntos: dorado = mejor, cian = más reciente, gris = el resto
     const bestIdx   = values.indexOf(best);
