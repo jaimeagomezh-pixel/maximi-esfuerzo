@@ -1157,29 +1157,36 @@
     return null; // sin fallback — el llamador decide qué hacer
   }
 
-  function handleCSVFile(input) {
-    const file = input.files[0];
+  // Lee un objeto File y lo procesa como CSV.
+  // Centralizado aquí para que tanto el input como el drag-drop usen el mismo flujo.
+  function readAndProcessFile(file) {
     if (!file) return;
-    // Límite de 20 MB para evitar bloquear el navegador
     if (file.size > 20 * 1024 * 1024) {
-      alert('El archivo es demasiado grande (máx. 20 MB). Exporta un rango de fechas más acotado.');
+      alert('El archivo es demasiado grande (máx. 20 MB). Exporta un rango de fechas más acotado desde TrainHeroic.');
       return;
     }
     showProcessing(true);
     const reader = new FileReader();
-    reader.onerror = () => { showProcessing(false); alert('Error al leer el archivo.'); };
-    reader.onload = (e) => {
+    reader.onerror = () => {
+      showProcessing(false);
+      alert('No se pudo leer el archivo. Intenta seleccionarlo con el botón en lugar de arrastrarlo.');
+    };
+    reader.onload = (ev) => {
       setTimeout(() => {
         try {
-          processCSV(e.target.result, file.name);
+          processCSV(ev.target.result, file.name);
         } catch(err) {
           showProcessing(false);
           console.error('Error procesando CSV:', err);
-          alert('No se pudo procesar el archivo. Verifica que sea un CSV válido.\n\n' + err.message);
+          alert('El archivo no pudo procesarse. Verifica que sea un CSV válido.\n\n' + err.message);
         }
-      }, 300);
+      }, 200);
     };
     reader.readAsText(file, 'UTF-8');
+  }
+
+  function handleCSVFile(input) {
+    readAndProcessFile(input.files[0]);
   }
 
   function processCSV(text, filename) {
@@ -1490,11 +1497,9 @@
       zone.classList.remove('drag-over');
       const file = e.dataTransfer.files[0];
       if (file && (file.name.endsWith('.csv') || file.name.endsWith('.txt'))) {
-        const input = document.getElementById('csvFileInput');
-        const dt = new DataTransfer();
-        dt.items.add(file);
-        input.files = dt.files;
-        handleCSVFile(input);
+        readAndProcessFile(file); // leer el File directamente, sin reasignar input.files
+      } else if (file) {
+        alert('Solo se aceptan archivos .csv o .txt');
       }
     });
   });
