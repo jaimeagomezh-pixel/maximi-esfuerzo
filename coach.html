@@ -203,6 +203,25 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
 .pago-monto{font-family:var(--fc);font-size:14px;font-weight:700;color:var(--green);}
 .p-ok{font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:20px;background:rgba(39,174,96,0.1);color:var(--green);border:1px solid rgba(39,174,96,0.2);}
 
+/* ── RUCKING ──────────────────────────────────────────────── */
+.ruck-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:10px;}
+.ruck-title{font-family:var(--fd);font-size:1.5rem;letter-spacing:3px;color:var(--text);}
+.ruck-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5;}
+.ruck-inputs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px;}
+.ruck-load-btns{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;}
+.ruck-load-btn{font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:3px 8px;border-radius:12px;border:1px solid var(--border);background:#fff;color:var(--text3);cursor:pointer;transition:all .2s;}
+.ruck-load-btn:hover{border-color:var(--gold);color:#a07a10;}
+.ruck-load-btn.active{background:rgba(212,168,67,0.12);color:#a07a10;border-color:rgba(212,168,67,0.4);}
+.ruck-result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.ruck-res-card{background:#f7f9fa;border:1px solid var(--border);border-top:3px solid var(--cian2);border-radius:7px;padding:11px;text-align:center;}
+.ruck-res-v{font-family:var(--fd);font-size:1.6rem;color:var(--cian);line-height:1;}
+.ruck-res-l{font-family:var(--fc);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:3px;}
+.ruck-ratio-box{background:#f7f9fa;border:1px solid var(--border);border-radius:8px;padding:14px;display:flex;align-items:center;gap:14px;}
+.ruck-ratio-v{font-family:var(--fd);font-size:2.2rem;line-height:1;}
+.kraemer-box{background:#f7f9fa;border:1px solid var(--border);border-radius:8px;padding:14px;}
+.ruck-badge{display:inline-block;font-family:var(--fc);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 9px;border-radius:20px;background:rgba(212,168,67,0.1);color:#a07a10;border:1px solid rgba(212,168,67,0.3);}
+@media(max-width:500px){.ruck-result-grid{grid-template-columns:repeat(2,1fr);}.ruck-inputs-grid{grid-template-columns:1fr;}}
+
 /* Notas */
 .nota-ta{width:100%;background:#f7f9fa;border:1px solid rgba(0,0,0,0.1);color:var(--text);font-family:var(--fb);font-size:13px;padding:11px;border-radius:6px;outline:none;resize:vertical;min-height:70px;transition:border .2s;}
 .nota-ta:focus{border-color:var(--cian2);}
@@ -250,6 +269,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
   <div class="ptabs">
     <button class="ptab active" onclick="showTab('atletas',this)">Atletas</button>
     <button class="ptab" onclick="showTab('resumen',this)">Resumen</button>
+    <button class="ptab" onclick="showTab('rucking',this)">Rucking</button>
   </div>
   <div class="pcont">
 
@@ -283,6 +303,197 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
         <div id="vencRes"></div>
       </div>
     </div>
+
+    <!-- TAB RUCKING -->
+    <div class="psec" id="tab-rucking">
+
+      <!-- Header + perfil compacto -->
+      <div class="ruck-hdr">
+        <div>
+          <div class="ruck-title">Rucking</div>
+          <div class="ruck-sub" id="ruckProfileSub">Sin perfil — completa los datos del atleta</div>
+        </div>
+        <button class="f-btn" onclick="toggleRuckProfile()">⚙ Perfil</button>
+      </div>
+
+      <!-- Editor de perfil (colapsable) -->
+      <div class="sec" id="ruckProfilePanel" style="display:none;">
+        <div class="sec-t">Perfil del Atleta</div>
+        <div class="ruck-inputs-grid">
+          <div>
+            <label class="l-label">Peso corporal · BM (kg)</label>
+            <input type="number" class="l-input" id="rBW" placeholder="ej. 75" min="40" max="200" step="0.5">
+          </div>
+          <div>
+            <label class="l-label">Masa libre de grasa · LBM (kg)</label>
+            <input type="number" class="l-input" id="rLBM" placeholder="ej. 65 — opcional" min="20" max="150" step="0.5">
+          </div>
+          <div>
+            <label class="l-label">Masa grasa (kg)</label>
+            <input type="number" class="l-input" id="rFAT" placeholder="ej. 10 — opcional" min="1" max="80" step="0.5">
+          </div>
+          <div>
+            <label class="l-label">Test Sentadilla · Reps (SE)</label>
+            <input type="number" class="l-input" id="rSE" placeholder="ej. 40 — opcional" min="1" max="300">
+          </div>
+          <div>
+            <label class="l-label">Carrera 2 millas · Tiempo (TMR)</label>
+            <input type="text" class="l-input" id="rTMR" placeholder="ej. 14:30 — opcional" maxlength="5">
+          </div>
+        </div>
+        <button class="l-btn" onclick="saveRuckProfile()">Guardar Perfil</button>
+      </div>
+
+      <!-- Calculadora Pandolf -->
+      <div class="sec">
+        <div class="sec-t">Gasto Energético · Pandolf</div>
+        <div class="ruck-inputs-grid">
+          <div>
+            <label class="l-label">Distancia (km)</label>
+            <input type="number" class="l-input" id="pDist" placeholder="ej. 10" min="0.5" step="0.1">
+          </div>
+          <div>
+            <label class="l-label">Desnivel acumulado (m)</label>
+            <input type="number" class="l-input" id="pElev" placeholder="ej. 350 — 0 si plano" min="0" step="1">
+          </div>
+          <div>
+            <label class="l-label">Tiempo en movimiento (H:MM:SS)</label>
+            <input type="text" class="l-input" id="pTime" placeholder="ej. 1:45:00" maxlength="8">
+          </div>
+          <div>
+            <label class="l-label">Peso lastre (kg)</label>
+            <div class="ruck-load-btns" id="pandolfLoadBtns"></div>
+            <input type="number" class="l-input" id="pLoad" placeholder="o escribe el kg" min="1" max="60" step="1">
+          </div>
+          <div>
+            <label class="l-label">Terreno</label>
+            <select class="l-input" id="pTerrain">
+              <option value="1.0">Asfalto / Pista dura (T = 1.0)</option>
+              <option value="1.1">Sendero compacto (T = 1.1)</option>
+              <option value="1.2" selected>Trail / Montaña (T = 1.2)</option>
+              <option value="1.5">Fuera de pista / Arena (T = 1.5)</option>
+            </select>
+          </div>
+        </div>
+        <button class="l-btn" onclick="calcPandolf()">Calcular</button>
+        <div class="ruck-result-grid" id="pandolfResults" style="display:none;margin-top:14px;">
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="pKcal">—</div>
+            <div class="ruck-res-l">kcal total</div>
+          </div>
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="pKcalH">—</div>
+            <div class="ruck-res-l">kcal / hora</div>
+          </div>
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="pVel">—</div>
+            <div class="ruck-res-l">km/h media</div>
+          </div>
+          <div class="ruck-res-card" style="border-top-color:var(--orange);">
+            <div class="ruck-res-v" style="color:var(--orange);" id="pPotencia">—</div>
+            <div class="ruck-res-l">Watts metab.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Historial + PRs -->
+      <div class="sec">
+        <div class="sec-t" style="justify-content:space-between;">
+          <span>Historial · PRs por Distancia + Carga</span>
+          <button class="f-btn" onclick="toggleAddSession()" style="margin-left:auto;">+ Sesión</button>
+        </div>
+
+        <!-- Formulario agregar sesión -->
+        <div id="ruckAddForm" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:12px;">
+          <div class="ruck-inputs-grid">
+            <div>
+              <label class="l-label">Fecha</label>
+              <input type="date" class="l-input" id="sDate">
+            </div>
+            <div>
+              <label class="l-label">Distancia (km)</label>
+              <select class="l-input" id="sDist"><option value="">Seleccionar</option></select>
+            </div>
+            <div>
+              <label class="l-label">Lastre (kg)</label>
+              <select class="l-input" id="sLoad"><option value="">Seleccionar</option></select>
+            </div>
+            <div>
+              <label class="l-label">Tiempo total (H:MM:SS)</label>
+              <input type="text" class="l-input" id="sTime" placeholder="ej. 1:45:00" maxlength="8">
+            </div>
+            <div>
+              <label class="l-label">Desnivel (m) — opcional</label>
+              <input type="number" class="l-input" id="sElev" placeholder="0" min="0">
+            </div>
+            <div>
+              <label class="l-label">Notas</label>
+              <input type="text" class="l-input" id="sNotes" placeholder="ej. Cerro San Cristóbal">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px;">
+            <button class="l-btn" onclick="addRuckSession()" style="flex:1;">Agregar Sesión</button>
+            <button class="f-btn" onclick="toggleAddSession()">Cancelar</button>
+          </div>
+        </div>
+
+        <!-- Selectores distancia -->
+        <div style="margin-bottom:8px;">
+          <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:5px;">Distancia</div>
+          <div class="dist-sel" id="ruckDistBtns"></div>
+        </div>
+        <!-- Selectores carga -->
+        <div style="margin-bottom:12px;">
+          <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:5px;">Lastre</div>
+          <div class="dist-sel" id="ruckLoadBtns"></div>
+        </div>
+
+        <!-- Stats PR -->
+        <div class="pr-stats">
+          <div class="pr-stat best">
+            <div class="pr-stat-v" id="ruckBestTime">—</div>
+            <div class="pr-stat-l">Mejor tiempo</div>
+          </div>
+          <div class="pr-stat">
+            <div class="pr-stat-v" id="ruckBestDate">—</div>
+            <div class="pr-stat-l">Fecha PR</div>
+          </div>
+          <div class="pr-stat">
+            <div class="pr-stat-v" id="ruckSessions">0</div>
+            <div class="pr-stat-l">Sesiones</div>
+          </div>
+        </div>
+
+        <!-- Gráfico progresión -->
+        <div class="chart-wrap"><canvas id="ruckChart"></canvas></div>
+
+        <!-- Tabla sesiones -->
+        <table class="sets-table" id="ruckSessionTable" style="margin-top:12px;"></table>
+      </div>
+
+      <!-- Kraemer -->
+      <div class="sec">
+        <div class="sec-t">Predicción de Rendimiento · Kraemer</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6;">
+          Predice el tiempo en marcha de <strong>2 millas (3.2 km) con 34 kg</strong> usando regresión múltiple (NSCA). Requiere perfil completo.
+        </div>
+        <div id="kraemerResult"></div>
+      </div>
+
+      <!-- Lyons Ratio -->
+      <div class="sec">
+        <div class="sec-t">Ratio Metabólico · Lyons</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:10px;line-height:1.6;">
+          <strong>LBM / (Masa Grasa + Lastre)</strong> — mayor ratio = menor exigencia metabólica relativa. Requiere LBM y masa grasa en el perfil.
+        </div>
+        <div style="margin-bottom:10px;">
+          <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:5px;">Lastre para cálculo</div>
+          <div class="ruck-load-btns" id="lyonsLoadBtns"></div>
+        </div>
+        <div id="lyonsResult"></div>
+      </div>
+
+    </div><!-- /tab-rucking -->
 
   </div>
 </div>
@@ -367,6 +578,7 @@ function iniciar() {
   actualizarStats();
   renderAtletas();
   renderResumen();
+  initRucking();
 }
 
 function actualizarStats() {
@@ -469,6 +681,323 @@ function activarPlan(id) {
   guardarAtletas();
   actualizarStats();
   renderAtletas();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RUCKING — ANÁLISIS Y MÉTRICAS
+// ══════════════════════════════════════════════════════════════
+const RUCK_DISTS = [5,8,10,12,15,18,20,25,30,32,35,40];
+const RUCK_LOADS = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
+let ruckChart = null;
+let ruckSelDist = null;
+let ruckSelLoad = null;
+
+function getRuckProfile(){ return JSON.parse(localStorage.getItem('ruckProfile')||'null')||{}; }
+function getRuckSessions(){ return JSON.parse(localStorage.getItem('ruckSessions')||'[]'); }
+function saveRuckSessions(s){ localStorage.setItem('ruckSessions', JSON.stringify(s)); }
+
+function parseMmSs(str) {
+  if (!str) return null;
+  const p = str.split(':').map(Number);
+  if (p.length===3) return p[0]*3600+p[1]*60+p[2];
+  if (p.length===2) return p[0]*60+p[1];
+  return null;
+}
+function fmtTime(sec) {
+  if (!sec||sec<=0) return '—';
+  const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60;
+  if (h>0) return h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  return m+':'+String(s).padStart(2,'0');
+}
+function fmtDateShort(str) {
+  if (!str) return '—';
+  const d = new Date(str+'T12:00:00');
+  return d.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()];
+}
+
+// Pandolf: M (watts) = 1.5W + 2(W+L)(L/W)² + T(W+L)[1.5V²+0.35VG]
+// kcal = M × t(s) / 4184
+function pandolfCalc(W, L, V_ms, G_pct, T, tSec) {
+  const M = 1.5*W + 2.0*(W+L)*Math.pow(L/W,2) + T*(W+L)*(1.5*V_ms*V_ms + 0.35*V_ms*G_pct);
+  return { kcal: M*tSec/4184, watts: M };
+}
+
+function calcPandolf() {
+  const profile = getRuckProfile();
+  if (!profile.bw) { alert('Guarda primero el perfil con el peso corporal.'); return; }
+  const distKm = parseFloat(document.getElementById('pDist').value);
+  const elevM  = parseFloat(document.getElementById('pElev').value)||0;
+  const tStr   = document.getElementById('pTime').value.trim();
+  const loadKg = parseFloat(document.getElementById('pLoad').value);
+  const T      = parseFloat(document.getElementById('pTerrain').value);
+  if (!distKm||!tStr||!loadKg) { alert('Completa distancia, tiempo y lastre.'); return; }
+  const tSec = parseMmSs(tStr);
+  if (!tSec||tSec<=0) { alert('Formato de tiempo inválido. Usa H:MM:SS o MM:SS'); return; }
+  const distM = distKm*1000;
+  const V_ms  = distM/tSec;
+  const G     = distM>0?(elevM/distM)*100:0;
+  const {kcal,watts} = pandolfCalc(profile.bw, loadKg, V_ms, G, T, tSec);
+  document.getElementById('pKcal').textContent = Math.round(kcal);
+  document.getElementById('pKcalH').textContent = Math.round(kcal/tSec*3600);
+  document.getElementById('pVel').textContent = (distM/tSec*3.6).toFixed(1);
+  document.getElementById('pPotencia').textContent = Math.round(watts);
+  document.getElementById('pandolfResults').style.display = 'grid';
+}
+
+function saveRuckProfile() {
+  const bw  = parseFloat(document.getElementById('rBW').value);
+  const lbm = parseFloat(document.getElementById('rLBM').value)||null;
+  const fat = parseFloat(document.getElementById('rFAT').value)||null;
+  const se  = parseInt(document.getElementById('rSE').value)||null;
+  const tmrStr = document.getElementById('rTMR').value.trim()||null;
+  if (!bw||bw<40) { alert('Peso corporal inválido.'); return; }
+  const profile = { bw, lbm, fat, se, tmrSec: tmrStr?parseMmSs(tmrStr):null, tmrStr };
+  localStorage.setItem('ruckProfile', JSON.stringify(profile));
+  document.getElementById('ruckProfilePanel').style.display = 'none';
+  updateRuckingUI();
+}
+
+function toggleRuckProfile() {
+  const el = document.getElementById('ruckProfilePanel');
+  if (el.style.display==='none') {
+    const p = getRuckProfile();
+    ['rBW','rLBM','rFAT','rSE'].forEach(id => {
+      const k = {rBW:'bw',rLBM:'lbm',rFAT:'fat',rSE:'se'}[id];
+      if (p[k]) document.getElementById(id).value = p[k];
+    });
+    if (p.tmrStr) document.getElementById('rTMR').value = p.tmrStr;
+    el.style.display = 'block';
+  } else { el.style.display = 'none'; }
+}
+
+function toggleAddSession() {
+  const f = document.getElementById('ruckAddForm');
+  f.style.display = f.style.display==='none'?'block':'none';
+}
+
+function addRuckSession() {
+  const date = document.getElementById('sDate').value;
+  const dist = parseFloat(document.getElementById('sDist').value);
+  const load = parseFloat(document.getElementById('sLoad').value);
+  const tStr = document.getElementById('sTime').value.trim();
+  const elev = parseFloat(document.getElementById('sElev').value)||0;
+  const notes = document.getElementById('sNotes').value.trim();
+  if (!date||!dist||!load||!tStr) { alert('Completa fecha, distancia, lastre y tiempo.'); return; }
+  const tSec = parseMmSs(tStr);
+  if (!tSec||tSec<=0) { alert('Formato de tiempo inválido.'); return; }
+  const sessions = getRuckSessions();
+  sessions.push({ id: Date.now().toString(), date, dist, load, time: tSec, elev, notes, terrain:1.2 });
+  saveRuckSessions(sessions);
+  document.getElementById('sTime').value='';
+  document.getElementById('sElev').value='';
+  document.getElementById('sNotes').value='';
+  document.getElementById('ruckAddForm').style.display='none';
+  updateRuckingUI();
+}
+
+function deleteRuckSession(id) {
+  if (!confirm('¿Eliminar esta sesión?')) return;
+  saveRuckSessions(getRuckSessions().filter(s=>s.id!==id));
+  updateRuckingUI();
+}
+
+function selectRuckDist(km, btn) {
+  document.querySelectorAll('#ruckDistBtns .d-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ruckSelDist = km;
+  updateRuckPR();
+}
+function selectRuckLoad(kg, btn) {
+  document.querySelectorAll('#ruckLoadBtns .d-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ruckSelLoad = kg;
+  updateRuckPR();
+}
+function selectPandolfLoad(kg, btn) {
+  document.querySelectorAll('#pandolfLoadBtns .ruck-load-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('pLoad').value = kg;
+}
+function selectLyonsLoad(kg, btn) {
+  document.querySelectorAll('#lyonsLoadBtns .ruck-load-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  updateLyonsRatio(kg);
+}
+
+function updateRuckPR() {
+  const all = getRuckSessions();
+  const filtered = all.filter(s=>
+    (!ruckSelDist || s.dist==ruckSelDist) &&
+    (!ruckSelLoad || s.load==ruckSelLoad)
+  );
+  const withTime = filtered.filter(s=>s.time>0);
+  const best = withTime.length ? withTime.reduce((a,b)=>a.time<=b.time?a:b) : null;
+  document.getElementById('ruckBestTime').textContent = best ? fmtTime(best.time) : '—';
+  document.getElementById('ruckBestDate').textContent = best ? fmtDateShort(best.date) : '—';
+  document.getElementById('ruckSessions').textContent = filtered.length;
+  const sorted = [...withTime].sort((a,b)=>a.date.localeCompare(b.date));
+  updateRuckChart(sorted);
+  updateRuckTable(filtered);
+}
+
+function updateRuckChart(sessions) {
+  const ctx = document.getElementById('ruckChart');
+  if (!ctx) return;
+  if (ruckChart) { ruckChart.destroy(); ruckChart=null; }
+  if (!sessions.length) return;
+  ruckChart = new Chart(ctx, {
+    type:'line',
+    data:{
+      labels: sessions.map(s=>fmtDateShort(s.date)),
+      datasets:[{
+        data: sessions.map(s=>+(s.time/60).toFixed(2)),
+        borderColor:'#007a85', backgroundColor:'rgba(0,122,133,0.08)',
+        fill:true, tension:0.3, pointRadius:4, pointBackgroundColor:'#007a85'
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{ reverse:true, ticks:{callback:v=>Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0')}},
+        x:{ ticks:{maxTicksLimit:8}}
+      }
+    }
+  });
+}
+
+function updateRuckTable(sessions) {
+  const tbody = document.getElementById('ruckSessionTable');
+  if (!tbody) return;
+  const profile = getRuckProfile();
+  const sorted = [...sessions].sort((a,b)=>b.date.localeCompare(a.date));
+  let html = '<tr><th>Fecha</th><th>Dist.</th><th>Lastre</th><th>Tiempo</th><th>Kcal</th><th></th></tr>';
+  if (!sorted.length) {
+    html += '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:14px;font-style:italic;">Sin sesiones para esta selección</td></tr>';
+  } else {
+    sorted.forEach(s => {
+      let kcal = '—';
+      if (profile.bw && s.dist && s.time && s.load) {
+        const V = (s.dist*1000)/s.time;
+        const G = s.elev>0?((s.elev/1000)/s.dist)*100:0;
+        const {kcal:k} = pandolfCalc(profile.bw, s.load, V, G, s.terrain||1.2, s.time);
+        kcal = Math.round(k);
+      }
+      html += `<tr>
+        <td>${fmtDateShort(s.date)}</td>
+        <td class="hl">${s.dist} km</td>
+        <td>${s.load} kg</td>
+        <td>${fmtTime(s.time)}</td>
+        <td>${kcal}</td>
+        <td><button class="act-btn peligro" onclick="deleteRuckSession('${s.id}')">✕</button></td>
+      </tr>`;
+      if (s.notes) html += `<tr><td colspan="6" style="font-size:11px;color:var(--text3);padding:2px 6px 6px;">${s.notes}</td></tr>`;
+    });
+  }
+  tbody.innerHTML = html;
+}
+
+function updateKraemer() {
+  const p = getRuckProfile();
+  const el = document.getElementById('kraemerResult');
+  if (!el) return;
+  if (!p.bw || !p.se || !p.tmrSec) {
+    el.innerHTML = '<div style="background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;color:var(--text3);">Perfil incompleto. Necesitas: Peso corporal (BM) · Test sentadilla (SE) · Carrera 2 millas (TMR).</div>';
+    return;
+  }
+  // Rendimiento (segundos) = 1831 - 4.28(SE) + 0.95(TMR) - 13.4(BM)
+  const pred = Math.max(1831 - 4.28*p.se + 0.95*p.tmrSec - 13.4*p.bw, 0);
+  el.innerHTML = `
+    <div class="kraemer-box">
+      <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px;">
+        <div style="font-family:var(--fd);font-size:2.2rem;color:var(--cian);">${fmtTime(Math.round(pred))}</div>
+        <div style="font-size:11px;color:var(--text3);">predicción · marcha 2 mi (3.2 km) con 34 kg</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-size:11px;">
+        <div style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:14px;font-weight:700;">${p.se} reps</div>
+          <div style="color:var(--text3);">SE · Sentadilla</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:14px;font-weight:700;">${p.tmrStr}</div>
+          <div style="color:var(--text3);">TMR · 2 millas</div>
+        </div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:14px;font-weight:700;">${p.bw} kg</div>
+          <div style="color:var(--text3);">BM · Corporal</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-top:8px;line-height:1.5;">Ec. Kraemer: 1831 − 4.28(SE) + 0.95(TMR) − 13.4(BM) · R²=53% · Carga referencia: 34 kg</div>
+    </div>`;
+}
+
+function updateLyonsRatio(load) {
+  const p = getRuckProfile();
+  const el = document.getElementById('lyonsResult');
+  if (!el) return;
+  if (!p.lbm || !p.fat) {
+    el.innerHTML = '<div style="background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;color:var(--text3);">Completa LBM y Masa Grasa en el perfil.</div>';
+    return;
+  }
+  const ratio = p.lbm / (p.fat + load);
+  let level, color, desc;
+  if (ratio>=2.0){level='Excelente';color='var(--green)';desc='Exigencia metabólica muy baja';}
+  else if (ratio>=1.5){level='Bueno';color='var(--cian)';desc='Exigencia metabólica moderada-baja';}
+  else if (ratio>=1.0){level='Moderado';color='var(--orange)';desc='Exigencia metabólica significativa';}
+  else{level='Riesgo alto';color='var(--red)';desc='Exigencia metabólica muy alta';}
+  el.innerHTML = `
+    <div class="ruck-ratio-box">
+      <div class="ruck-ratio-v" style="color:${color};">${ratio.toFixed(2)}</div>
+      <div>
+        <div style="font-family:var(--fc);font-size:13px;font-weight:700;color:${color};">${level}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:3px;">${desc}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px;">LBM <strong>${p.lbm} kg</strong> / Masa muerta <strong>${(p.fat+load).toFixed(1)} kg</strong> (${p.fat} kg grasa + ${load} kg lastre)</div>
+      </div>
+    </div>`;
+}
+
+function updateRuckingUI() {
+  const p = getRuckProfile();
+  const sub = document.getElementById('ruckProfileSub');
+  if (sub) {
+    if (p.bw) {
+      const parts = [`${p.bw} kg BM`];
+      if (p.lbm) parts.push(`${p.lbm} kg LBM`);
+      if (p.fat) parts.push(`${p.fat} kg grasa`);
+      if (p.se)  parts.push(`SE ${p.se} reps`);
+      if (p.tmrStr) parts.push(`TMR ${p.tmrStr}`);
+      sub.textContent = parts.join(' · ');
+    } else {
+      sub.textContent = 'Sin perfil — completa los datos del atleta';
+    }
+  }
+  updateRuckPR();
+  updateKraemer();
+}
+
+function initRucking() {
+  // Botones carga Pandolf
+  const pb = document.getElementById('pandolfLoadBtns');
+  if (pb) pb.innerHTML = RUCK_LOADS.map(l=>`<button class="ruck-load-btn" onclick="selectPandolfLoad(${l},this)">${l}</button>`).join('');
+  // Botones distancia PR
+  const db = document.getElementById('ruckDistBtns');
+  if (db) db.innerHTML = RUCK_DISTS.map(d=>`<button class="d-btn" onclick="selectRuckDist(${d},this)">${d} km</button>`).join('');
+  // Botones carga PR
+  const lb = document.getElementById('ruckLoadBtns');
+  if (lb) lb.innerHTML = RUCK_LOADS.map(l=>`<button class="d-btn" onclick="selectRuckLoad(${l},this)">${l} kg</button>`).join('');
+  // Botones carga Lyons
+  const lyb = document.getElementById('lyonsLoadBtns');
+  if (lyb) lyb.innerHTML = RUCK_LOADS.map(l=>`<button class="ruck-load-btn" onclick="selectLyonsLoad(${l},this)">${l}</button>`).join('');
+  // Selects del formulario de sesión
+  const sd = document.getElementById('sDist');
+  if (sd) sd.innerHTML = '<option value="">Seleccionar</option>'+RUCK_DISTS.map(d=>`<option value="${d}">${d} km</option>`).join('');
+  const sl = document.getElementById('sLoad');
+  if (sl) sl.innerHTML = '<option value="">Seleccionar</option>'+RUCK_LOADS.map(l=>`<option value="${l}">${l} kg</option>`).join('');
+  // Fecha de hoy por defecto
+  const sd2 = document.getElementById('sDate');
+  if (sd2) sd2.value = new Date().toISOString().split('T')[0];
+  // Actualizar UI con perfil y sesiones guardadas
+  updateRuckingUI();
 }
 
 function showTab(id, btn) {
