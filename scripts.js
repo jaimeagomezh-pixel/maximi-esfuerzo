@@ -336,6 +336,15 @@
 
   // ── ZONAS FC DESDE STRAVA ──
   async function cargarZonasActividad(token, actId) {
+    // Limpiar siempre antes de cargar, para que no queden datos de otra actividad
+    for (let z = 1; z <= 5; z++) {
+      const elTime = document.getElementById('zTime' + z);
+      const elPct  = document.getElementById('zPct' + z);
+      const elBar  = document.getElementById('zBar' + z);
+      if (elTime) elTime.textContent = '--:--';
+      if (elPct)  elPct.textContent  = '—';
+      if (elBar)  elBar.style.width  = '0%';
+    }
     try {
       const res = await fetch(
         `https://www.strava.com/api/v3/activities/${actId}/zones`,
