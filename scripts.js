@@ -840,12 +840,12 @@
       // Mejoró: tiempo bajó → triángulo verde apuntando arriba
       deltaEl.textContent = '▲ ' + secToTime(diff);
       deltaEl.style.color = '#27ae60';
-      if (subEl) subEl.textContent = 'mejoró · ' + pct + '%';
+      if (subEl) subEl.textContent = 'mejora · ' + pct + '%';
     } else if (diff < 0) {
       // Empeoró: tiempo subió → triángulo naranja apuntando abajo
       deltaEl.textContent = '▼ ' + secToTime(-diff);
       deltaEl.style.color = '#e67e22';
-      if (subEl) subEl.textContent = 'empeoró · ' + pct + '%';
+      if (subEl) subEl.textContent = 'disminución · ' + pct + '%';
     } else {
       deltaEl.textContent = '— igual';
       deltaEl.style.color = '';
