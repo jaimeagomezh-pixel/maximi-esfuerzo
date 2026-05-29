@@ -1157,13 +1157,18 @@ function abrirPerfil(id) {
 
       <!-- Campo Strava ID (colapsable) -->
       <div id="ruckCoachLinkPanel" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:11px;margin-bottom:12px;">
-        <label class="l-label">Strava ID del atleta</label>
+        <label class="l-label">Atletas con datos de rucking registrados</label>
+        <select id="ruckCoachAtletasSel" class="l-input" style="margin-bottom:8px;"
+          onchange="document.getElementById('ruckCoachStravaId').value=this.value">
+          <option value="">Cargando…</option>
+        </select>
+        <label class="l-label">O ingresa el Strava ID manualmente</label>
         <div style="display:flex;gap:8px;margin-top:4px;">
           <input type="text" id="ruckCoachStravaId" class="l-input" placeholder="ej. 12345678"
                  value="${a.stravaId||''}" style="flex:1;margin-bottom:0;">
-          <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Guardar</button>
+          <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Vincular</button>
         </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta ve su Strava ID en su perfil de Strava (URL: strava.com/athletes/<strong>ID</strong>)</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta aparece en la lista cuando sube su primera sesión de rucking con Strava conectado.</div>
       </div>
 
       <!-- Estado sin vincular -->
@@ -1352,9 +1357,28 @@ function updateRuckCoachView() {
   }
 }
 
-function toggleRuckCoachLink() {
+async function toggleRuckCoachLink() {
   const p = document.getElementById('ruckCoachLinkPanel');
-  if (p) p.style.display = p.style.display==='none' ? 'block' : 'none';
+  if (!p) return;
+  if (p.style.display !== 'none') { p.style.display='none'; return; }
+  p.style.display = 'block';
+
+  // Intentar cargar lista de atletas registrados desde el Worker
+  const sel = document.getElementById('ruckCoachAtletasSel');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Cargando…</option>';
+  try {
+    const res  = await fetch(`${RUCK_WORKER}/rucking/lista?secret=ME2025coach`);
+    const json = await res.json();
+    if (json.ok && json.atletas.length) {
+      sel.innerHTML = '<option value="">— Seleccionar atleta —</option>' +
+        json.atletas.map(a=>`<option value="${a.stravaId}">${a.nombre} (${a.stravaId})</option>`).join('');
+    } else {
+      sel.innerHTML = '<option value="">Sin atletas registrados aún</option>';
+    }
+  } catch(e) {
+    sel.innerHTML = '<option value="">Error al cargar — ingresa manualmente</option>';
+  }
 }
 
 function guardarStravaIdAtleta(atletaId) {

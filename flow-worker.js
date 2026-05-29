@@ -228,11 +228,16 @@ export default {
     // ── POST /rucking/sync — atleta empuja sus sesiones al KV ──
     if (url.pathname === '/rucking/sync' && request.method === 'POST') {
       try {
-        const { stravaId, sessions } = await request.json();
+        const { stravaId, sessions, nombre } = await request.json();
         if (!stravaId || !Array.isArray(sessions)) {
           return Response.json({ ok: false, error: 'Datos inválidos' }, { status: 400, headers: corsHeaders() });
         }
+        // Guardar sesiones
         await env.RUCK_DATA.put(`ruck:${stravaId}`, JSON.stringify(sessions));
+        // Guardar perfil de atleta (nombre + id) para que el coach lo pueda buscar
+        if (nombre) {
+          await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre }));
+        }
         return Response.json({ ok: true, saved: sessions.length }, { headers: corsHeaders() });
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
@@ -253,6 +258,26 @@ export default {
         const raw = await env.RUCK_DATA.get(`ruck:${stravaId}`);
         const sessions = raw ? JSON.parse(raw) : [];
         return Response.json({ ok: true, sessions }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
+    // ── GET /rucking/lista — lista atletas registrados (para autocompletar) ──
+    if (url.pathname === '/rucking/lista' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) {
+        return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+      }
+      try {
+        // Lista todas las claves atleta:*
+        const list = await env.RUCK_DATA.list({ prefix: 'atleta:' });
+        const atletas = await Promise.all(
+          list.keys.map(async k => {
+            const val = await env.RUCK_DATA.get(k.name);
+            return val ? JSON.parse(val) : null;
+          })
+        );
+        return Response.json({ ok: true, atletas: atletas.filter(Boolean) }, { headers: corsHeaders() });
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
       }

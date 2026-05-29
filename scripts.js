@@ -501,14 +501,16 @@
   }
 
   // Empuja todas las sesiones de rucking al Worker (Cloudflare KV)
+  // También registra el nombre del atleta para que el coach pueda encontrarlo
   async function pushRuckingToCloud(sessions) {
     const stravaId = localStorage.getItem('strava_athlete_id');
     if (!stravaId) return;
+    const nombre = localStorage.getItem('atletaNombre') || '';
     try {
       await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId, sessions })
+        body: JSON.stringify({ stravaId, sessions, nombre })
       });
     } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
