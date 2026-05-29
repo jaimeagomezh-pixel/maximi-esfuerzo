@@ -1124,24 +1124,28 @@
   const COL_ALIASES = {
     date:     ['date','fecha','day','día','session date','workout date'],
     exercise: ['exercise','ejercicio','movement','exercise name','nombre ejercicio','lift'],
-    weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)'],
-    reps:     ['reps','repeticiones','rep','repetition','repetitions'],
+    weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)','weight (lbs)','load (lbs)'],
+    reps:     ['reps','repeticiones','rep','repetition','repetitions','reps completed'],
     sets:     ['sets','series','set'],
     notes:    ['notes','notas','note','comments'],
   };
 
+  // Devuelve el encabezado que coincide con `field`, o null si no encuentra ninguno.
+  // NUNCA usa headers[0] como fallback — eso causaría que la columna de fecha
+  // (formato YYYY-MM-DD) se interprete como peso (~2025 kg).
   function guessColumn(headers, field) {
     const aliases = COL_ALIASES[field] || [];
+    // 1. Coincidencia exacta (case-insensitive)
     for (const h of headers) {
       if (aliases.includes(h.toLowerCase().trim())) return h;
     }
-    // Búsqueda parcial
+    // 2. Coincidencia parcial
     for (const h of headers) {
       for (const a of aliases) {
-        if (h.toLowerCase().includes(a) || a.includes(h.toLowerCase())) return h;
+        if (h.toLowerCase().includes(a) || a.includes(h.toLowerCase().trim())) return h;
       }
     }
-    return headers[0]; // fallback
+    return null; // sin fallback — el llamador decide qué hacer
   }
 
   function handleCSVFile(input) {
@@ -1169,24 +1173,40 @@
       return obj;
     });
 
-    // Intentar mapeo automático
+    // Intentar mapeo automático por alias de nombre de columna
     const dateCol     = guessColumn(csvHeaders, 'date');
     const exerciseCol = guessColumn(csvHeaders, 'exercise');
-    const weightCol   = guessColumn(csvHeaders, 'weight');
+    let   weightCol   = guessColumn(csvHeaders, 'weight');
     const repsCol     = guessColumn(csvHeaders, 'reps');
 
-    // Verificar si el mapeo automático es bueno:
-    // peso válido: 0.5–1400 (lbs); reps válidas: 1–99
-    // Rechazar si detecta años (2024/2025) como valores de peso o reps
+    // Si no se detectó columna de peso por alias, buscar heurísticamente:
+    // columna numérica con valores plausibles (1–1000 lbs), excluyendo fecha y ejercicio.
+    // Esto cubre CSV de TrainHeroic u otras apps donde el encabezado no coincide exactamente.
+    if (!weightCol) {
+      const rows0 = csvRawData.slice(0, 20);
+      for (const h of csvHeaders) {
+        if (h === dateCol || h === exerciseCol) continue;
+        const nums = rows0.map(r => parseFloat(r[h])).filter(v => !isNaN(v) && v > 0);
+        const plausible = nums.filter(v => v > 1 && v < 1000);
+        if (plausible.length >= Math.min(5, rows0.length * 0.5)) {
+          weightCol = h;
+          break;
+        }
+      }
+    }
+
+    // Verificar si el mapeo automático produjo columnas válidas:
+    // peso: 0.5–1400 (lbs); reps: 1–99; ninguna columna clave puede ser null
     const sampleRows = csvRawData.slice(0, 5);
-    const validRows  = sampleRows.filter(row => {
-      const d = row[dateCol];
-      const w = parseFloat(row[weightCol]);
-      const r = parseInt(row[repsCol]);
-      return d
-        && !isNaN(w) && w >= 0.5 && w < 1400    // peso razonable en lbs
-        && !isNaN(r) && r >= 1   && r < 100;     // reps razonables
-    });
+    const validRows  = (dateCol && exerciseCol && weightCol && repsCol)
+      ? sampleRows.filter(row => {
+          const w = parseFloat(row[weightCol]);
+          const r = parseInt(row[repsCol]);
+          return row[dateCol]
+            && !isNaN(w) && w >= 0.5 && w < 1400
+            && !isNaN(r) && r >= 1   && r < 100;
+        })
+      : [];
     const autoMapped = validRows.length >= Math.min(2, sampleRows.length);
 
     showProcessing(false);
@@ -1205,8 +1225,9 @@
     selects.forEach((id, i) => {
       const sel = document.getElementById(id);
       if (!sel) return;
+      const best = guessColumn(csvHeaders, fields[i]); // puede ser null
       sel.innerHTML = csvHeaders.map(h =>
-        `<option value="${h}" ${h === guessColumn(csvHeaders, fields[i]) ? 'selected' : ''}>${h}</option>`
+        `<option value="${h}" ${h === best ? 'selected' : ''}>${h}</option>`
       ).join('');
     });
     document.getElementById('csvMapping').classList.add('show');
