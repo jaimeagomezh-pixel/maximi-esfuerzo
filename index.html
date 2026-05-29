@@ -1008,6 +1008,118 @@
     </div> <!-- cierre thDataSection -->
     </div>
 
+    <!-- RUCKING -->
+    <div class="dash-section-title" style="margin-top:4px;">Rucking</div>
+    <div class="th-chart-container" style="margin:0 16px 6px;">
+
+      <!-- Header -->
+      <div class="th-chart-header">
+        <div>
+          <div class="th-chart-title">Progresión de Rucking</div>
+          <div class="th-chart-subtitle" id="ruckACount">Sincronizando con Strava…</div>
+        </div>
+        <button onclick="toggleRuckManualAdd()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid rgba(0,122,133,0.3);color:rgba(0,122,133,0.7);padding:5px 10px;border-radius:4px;cursor:pointer;">+ Manual</button>
+      </div>
+
+      <!-- Formulario entrada manual (colapsado) -->
+      <div id="ruckAManualForm" style="display:none;background:rgba(0,122,133,0.04);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:13px;margin-bottom:10px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#007a85;text-transform:uppercase;margin-bottom:10px;">Agregar sesión manual</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Fecha</div>
+            <input type="date" id="ruckADate" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Tiempo (H:MM:SS)</div>
+            <input type="text" id="ruckATime" placeholder="ej. 1:45:00" maxlength="8" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Distancia (km)</div>
+            <select id="ruckADist" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+              <option value="">Seleccionar</option>
+              <option value="5">5 km</option><option value="8">8 km</option><option value="10">10 km</option>
+              <option value="12">12 km</option><option value="15">15 km</option><option value="18">18 km</option>
+              <option value="20">20 km</option><option value="25">25 km</option><option value="30">30 km</option>
+              <option value="32">32 km</option><option value="35">35 km</option><option value="40">40 km</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Lastre (kg)</div>
+            <select id="ruckALoad" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+              <option value="">Seleccionar</option>
+              <option value="4">4 kg</option><option value="5">5 kg</option><option value="8">8 kg</option>
+              <option value="10">10 kg</option><option value="12">12 kg</option><option value="15">15 kg</option>
+              <option value="18">18 kg</option><option value="20">20 kg</option><option value="25">25 kg</option>
+              <option value="28">28 kg</option><option value="30">30 kg</option><option value="32">32 kg</option>
+              <option value="35">35 kg</option><option value="37">37 kg</option><option value="39">39 kg</option>
+              <option value="40">40 kg</option><option value="42">42 kg</option><option value="44">44 kg</option>
+              <option value="46">46 kg</option><option value="48">48 kg</option><option value="50">50 kg</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="addRuckManualSession()" style="flex:1;background:#007a85;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">Agregar</button>
+          <button onclick="toggleRuckManualAdd()" style="background:none;border:1px solid rgba(0,0,0,0.12);color:#999;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;padding:10px 16px;border-radius:5px;cursor:pointer;">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- Estado vacío -->
+      <div id="ruckAEmpty" style="display:none;text-align:center;padding:22px 16px;">
+        <div style="font-size:28px;margin-bottom:8px;">🎒</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#aaa;text-transform:uppercase;line-height:1.8;">
+          Aún no se detectaron sesiones de rucking<br>
+          <span style="font-size:10px;color:#ccc;">Titula tu actividad en Strava como <strong style="color:#007a85;">"Lastre 25 kg"</strong></span>
+        </div>
+      </div>
+
+      <!-- Contenido cuando hay datos -->
+      <div id="ruckAData" style="display:none;">
+
+        <!-- Selectores distancia -->
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.4);text-transform:uppercase;margin-bottom:5px;">Distancia</div>
+        <div class="th-range-selector" id="ruckADistBtns" style="margin-bottom:10px;"></div>
+
+        <!-- Selectores lastre -->
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,0,0,0.4);text-transform:uppercase;margin-bottom:5px;">Lastre</div>
+        <div class="th-range-selector" id="ruckALoadBtns" style="margin-bottom:12px;flex-wrap:wrap;height:auto;"></div>
+
+        <!-- Stats PR -->
+        <div class="th-pr-stats">
+          <div class="th-pr-stat best">
+            <div class="th-pr-stat-label">Mejor tiempo</div>
+            <div class="th-pr-stat-value" id="ruckABestTime">—</div>
+          </div>
+          <div class="th-pr-stat">
+            <div class="th-pr-stat-label">Fecha PR</div>
+            <div class="th-pr-stat-value" id="ruckABestDate" style="font-size:1rem;">—</div>
+          </div>
+          <div class="th-pr-stat delta">
+            <div class="th-pr-stat-label">Vs. primer registro</div>
+            <div class="th-pr-stat-value" id="ruckADelta">—</div>
+          </div>
+        </div>
+
+        <!-- Gráfico -->
+        <div class="th-chart-wrap" style="height:150px;margin-top:6px;">
+          <canvas id="chartRucking"></canvas>
+        </div>
+
+        <!-- Sesiones recientes -->
+        <div style="margin-top:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Últimas Sesiones</div>
+          <div id="ruckASessionsList"></div>
+        </div>
+
+      </div><!-- /ruckAData -->
+
+      <!-- Nota Strava -->
+      <div style="margin-top:10px;padding:8px 10px;background:rgba(252,76,2,0.04);border-left:2px solid rgba(252,76,2,0.3);border-radius:3px;">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#FC4C02;text-transform:uppercase;">Strava · </span>
+        <span style="font-size:11px;color:#999;">Titula tu actividad Walk o Hike como <strong style="color:#555;">"Lastre 25 kg"</strong> para detección automática</span>
+      </div>
+
+    </div>
+
     <!-- NUTRICIÓN -->
     <div class="dash-section-title" style="margin-top:4px;">Nutrición</div>
     <div class="dash-nutri-banner" style="margin:4px 16px 0;border-radius:8px;">

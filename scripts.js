@@ -124,7 +124,8 @@
           if (typeof initStrengthChart === 'function') initStrengthChart();
           if (typeof loadRealTHData === 'function') loadRealTHData();
           if (typeof loadManualTimes === 'function') loadManualTimes();
-          if (typeof initZonasCarrera === 'function') initZonasCarrera();
+          if (typeof initZonasCarrera    === 'function') initZonasCarrera();
+          if (typeof initRuckingAtleta   === 'function') initRuckingAtleta();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Cargar datos reales de Strava si hay token guardado
           const stravaToken = localStorage.getItem('strava_token');
@@ -418,18 +419,77 @@
   const STRAVA_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
 
   async function fetchTodasLasCarreras(token) {
-    const runs = [];
+    const acts = [];
     for (let page = 1; page <= 5; page++) {          // máx 5 páginas × 200 = 1000 actividades
       const res = await fetch(
         `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`,
         { headers: { 'Authorization': 'Bearer ' + token } }
       );
-      const acts = await res.json();
-      if (!Array.isArray(acts) || acts.length === 0) break;
-      runs.push(...acts.filter(a => STRAVA_RUN_TYPES.has(a.type) && a.distance > 0));
-      if (acts.length < 200) break;                  // última página
+      const batch = await res.json();
+      if (!Array.isArray(batch) || batch.length === 0) break;
+      acts.push(...batch.filter(a => a.distance > 0));  // todas las actividades con distancia
+      if (batch.length < 200) break;                    // última página
     }
-    return runs;
+    return acts;
+  }
+
+  // ── RUCKING: detección desde Strava ───────────────────────────
+  const RUCK_DIST_CATS = [5,8,10,12,15,18,20,25,30,32,35,40]; // km
+
+  function parseLastreKg(name) {
+    const m = (name || '').match(/lastre\s+(\d+)\s*kg/i);
+    return m ? parseInt(m[1]) : null;
+  }
+
+  function detectarRuckingDesdeStrava(allActs) {
+    const ruckActs = allActs.filter(a =>
+      (a.type === 'Walk' || a.type === 'Hike') && parseLastreKg(a.name) !== null
+    );
+    if (!ruckActs.length) return;
+
+    const existing   = JSON.parse(localStorage.getItem('ruckSessions') || '[]');
+    const knownIds   = new Set(existing.map(s => s.stravaId).filter(Boolean));
+    let   added      = 0;
+
+    for (const a of ruckActs) {
+      if (knownIds.has(String(a.id))) continue;
+      const load    = parseLastreKg(a.name);
+      const distKm  = a.distance / 1000;
+      const tSec    = a.moving_time;
+      const elevM   = Math.round(a.total_elevation_gain || 0);
+      const dateStr = (a.start_date_local || '').split('T')[0] || new Date().toISOString().split('T')[0];
+
+      // Redondear a categoría de distancia más cercana (±15%)
+      let distCat = parseFloat(distKm.toFixed(2));
+      let minDiff = Infinity;
+      for (const d of RUCK_DIST_CATS) {
+        const diff = Math.abs(distKm - d);
+        if (diff < minDiff) { minDiff = diff; distCat = d; }
+      }
+      // Si supera 15% de tolerancia, usar la distancia real redondeada a 1 decimal
+      if (minDiff / distCat > 0.15) distCat = parseFloat(distKm.toFixed(1));
+
+      existing.push({
+        id:       Date.now().toString() + '_' + a.id,
+        stravaId: String(a.id),
+        date:     dateStr,
+        dist:     distCat,
+        distReal: parseFloat(distKm.toFixed(2)),
+        load,
+        time:     tSec,
+        elev:     elevM,
+        notes:    a.name,
+        terrain:  1.2,
+        source:   'strava'
+      });
+      knownIds.add(String(a.id));
+      added++;
+    }
+
+    if (added > 0) {
+      localStorage.setItem('ruckSessions', JSON.stringify(existing));
+      if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
+    }
   }
 
   async function cargarPRsStrava(token) {
@@ -440,7 +500,8 @@
       if (stravaCard)   stravaCard.classList.add('sincronizando');
       if (stravaStatus) stravaStatus.textContent = 'Sincronizando historial…';
 
-      const runs = await fetchTodasLasCarreras(token);
+      const allActs = await fetchTodasLasCarreras(token);
+      const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type));
 
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
       if (stravaStatus) stravaStatus.textContent = `✓ ${runs.length} carreras cargadas`;
@@ -511,6 +572,9 @@
 
       // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
+
+      // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el título)
+      detectarRuckingDesdeStrava(allActs);
 
     } catch(e) { console.error('PRs Strava error:', e); }
   }
@@ -1750,6 +1814,198 @@
   // ── Helper: ejercicios con mancuernas bilaterales ──
   // TrainHeroic exporta el peso TOTAL (ambas mancuernas). La UI de TH muestra por mancuerna.
   // Para coincidir con TH, dividimos por 2 en la presentación.
+  // ── RUCKING: dashboard del atleta ────────────────────────────
+  const RUCK_LOAD_CATS = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
+  let chartRucking = null;
+  let ruckAtletaDist = null;
+  let ruckAtletaLoad = null;
+
+  function fmtTimerRuck(sec) {
+    if (!sec || sec <= 0) return '—';
+    const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+    return h > 0
+      ? h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')
+      : m+':'+String(s).padStart(2,'0');
+  }
+  function fmtDateRuck(str) {
+    if (!str) return '—';
+    const d = new Date(str+'T12:00:00');
+    return d.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]+' '+d.getFullYear();
+  }
+
+  function initRuckingAtleta() {
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+    const distBtns = document.getElementById('ruckADistBtns');
+    const loadBtns = document.getElementById('ruckALoadBtns');
+    if (!distBtns || !loadBtns) return;
+
+    // Distancias únicas presentes en las sesiones
+    const usedDists = [...new Set(sessions.map(s=>s.dist))].sort((a,b)=>a-b);
+    const usedLoads = [...new Set(sessions.map(s=>s.load))].sort((a,b)=>a-b);
+
+    if (!sessions.length) {
+      document.getElementById('ruckAEmpty')?.style.setProperty('display','block');
+      document.getElementById('ruckAData')?.style.setProperty('display','none');
+      return;
+    }
+
+    document.getElementById('ruckAEmpty')?.style.setProperty('display','none');
+    document.getElementById('ruckAData')?.style.setProperty('display','block');
+
+    // Botones distancia
+    distBtns.innerHTML = (usedDists.length ? usedDists : RUCK_DIST_CATS)
+      .map(d=>`<button class="th-range-btn" onclick="selectRuckAtletaDist(${d},this)">${d} km</button>`)
+      .join('');
+    // Botones carga
+    loadBtns.innerHTML = (usedLoads.length ? usedLoads : RUCK_LOAD_CATS)
+      .map(l=>`<button class="th-range-btn" onclick="selectRuckAtletaLoad(${l},this)">${l} kg</button>`)
+      .join('');
+
+    // Contador total
+    const countEl = document.getElementById('ruckACount');
+    if (countEl) {
+      const stravaCount = sessions.filter(s=>s.source==='strava').length;
+      countEl.textContent = sessions.length+' sesión'+(sessions.length!==1?'es':'')+' · '+stravaCount+' desde Strava';
+    }
+
+    // Seleccionar primeros por defecto
+    const firstDist = distBtns.querySelector('.th-range-btn');
+    if (firstDist) firstDist.click();
+  }
+
+  function selectRuckAtletaDist(km, btn) {
+    document.querySelectorAll('#ruckADistBtns .th-range-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ruckAtletaDist = km;
+    updateRuckingAtletaPR();
+  }
+
+  function selectRuckAtletaLoad(kg, btn) {
+    document.querySelectorAll('#ruckALoadBtns .th-range-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    ruckAtletaLoad = kg;
+    updateRuckingAtletaPR();
+  }
+
+  function updateRuckingAtletaPR() {
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+    const filtered = sessions.filter(s=>
+      (!ruckAtletaDist || s.dist == ruckAtletaDist) &&
+      (!ruckAtletaLoad || s.load == ruckAtletaLoad)
+    );
+    const withTime = filtered.filter(s=>s.time>0);
+    const best = withTime.length ? withTime.reduce((a,b)=>a.time<=b.time?a:b) : null;
+    const sorted = [...withTime].sort((a,b)=>a.date.localeCompare(b.date));
+
+    // Stats
+    const elBest = document.getElementById('ruckABestTime');
+    const elDate = document.getElementById('ruckABestDate');
+    const elSess = document.getElementById('ruckASessions');
+    if (elBest) elBest.textContent = best ? fmtTimerRuck(best.time) : '—';
+    if (elDate) elDate.textContent = best ? fmtDateRuck(best.date) : '—';
+    if (elSess) elSess.textContent = filtered.length;
+
+    // Delta vs primer registro
+    const deltaEl = document.getElementById('ruckADelta');
+    if (deltaEl && sorted.length >= 2) {
+      const first  = sorted[0].time;
+      const latest = sorted[sorted.length-1].time;
+      const diff   = first - latest;
+      const pct    = (Math.abs(diff)/first*100).toFixed(1);
+      if (diff > 0) {
+        deltaEl.innerHTML = `<span style="color:#27ae60;">▲ ${fmtTimerRuck(diff)}</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
+      } else if (diff < 0) {
+        deltaEl.innerHTML = `<span style="color:#e67e22;">▼ ${fmtTimerRuck(-diff)}</span> <span style="font-size:11px;color:#999;">disminución · ${pct}%</span>`;
+      } else {
+        deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
+      }
+    } else if (deltaEl) {
+      deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">—</span>';
+    }
+
+    // Gráfico
+    const ctx = document.getElementById('chartRucking');
+    if (ctx) {
+      if (chartRucking) { chartRucking.destroy(); chartRucking = null; }
+      if (sorted.length) {
+        chartRucking = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: sorted.map(s => {
+              const d = new Date(s.date+'T12:00:00');
+              return d.getDate()+'/'+(d.getMonth()+1);
+            }),
+            datasets:[{
+              data: sorted.map(s => +(s.time/60).toFixed(2)),
+              borderColor:'#007a85', backgroundColor:'rgba(0,122,133,0.08)',
+              fill:true, tension:0.3, pointRadius:4, pointBackgroundColor:'#007a85',
+              pointBorderColor:'#fff', pointBorderWidth:1.5
+            }]
+          },
+          options:{
+            responsive:true, maintainAspectRatio:false,
+            plugins:{legend:{display:false}},
+            scales:{
+              y:{ reverse:true,
+                  ticks:{ color:'#999', font:{size:10},
+                    callback:v=>Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0')
+                  },
+                  grid:{ color:'rgba(0,0,0,0.05)' }
+              },
+              x:{ ticks:{ color:'#999', font:{size:10}, maxTicksLimit:6 }, grid:{display:false} }
+            }
+          }
+        });
+      }
+    }
+
+    // Sesiones recientes (últimas 5)
+    const tbody = document.getElementById('ruckASessionsList');
+    if (tbody) {
+      const recent = [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
+      if (!recent.length) {
+        tbody.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones para esta selección</div>';
+      } else {
+        tbody.innerHTML = recent.map(s=>`
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+            <div>
+              <div style="font-size:13px;font-weight:600;color:#333;">${fmtTimerRuck(s.time)}</div>
+              <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${s.source==='strava'?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;color:#007a85;">${s.dist} km · ${s.load} kg</div>
+              ${s.elev>0?'<div style="font-size:10px;color:#bbb;">↑ '+s.elev+' m desnivel</div>':''}
+            </div>
+          </div>`).join('');
+      }
+    }
+  }
+
+  function updateRuckingDashboard() {
+    initRuckingAtleta();
+  }
+
+  function toggleRuckManualAdd() {
+    const f = document.getElementById('ruckAManualForm');
+    if (f) f.style.display = f.style.display==='none' ? 'block' : 'none';
+  }
+
+  function addRuckManualSession() {
+    const date  = document.getElementById('ruckADate')?.value;
+    const dist  = parseFloat(document.getElementById('ruckADist')?.value);
+    const load  = parseFloat(document.getElementById('ruckALoad')?.value);
+    const tStr  = document.getElementById('ruckATime')?.value?.trim();
+    if (!date||!dist||!load||!tStr) { alert('Completa todos los campos.'); return; }
+    const parts = tStr.split(':').map(Number);
+    const tSec  = parts.length===3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+(parts[1]||0);
+    if (!tSec||tSec<=0) { alert('Formato de tiempo inválido (H:MM:SS).'); return; }
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+    sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev:0, notes:'Manual', terrain:1.2, source:'manual' });
+    localStorage.setItem('ruckSessions', JSON.stringify(sessions));
+    document.getElementById('ruckAManualForm').style.display='none';
+    initRuckingAtleta();
+  }
+
   function isBilateralDumbbell(name) {
     const lower = (name || '').toLowerCase();
     return (lower.includes('mancuerna') || lower.includes('mancuernas'))
