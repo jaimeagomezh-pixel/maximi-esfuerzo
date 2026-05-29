@@ -1113,6 +1113,14 @@
         tbody.appendChild(tr);
       });
     }
+
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado
+    const rBtn = document.querySelector('.th-range-selector .th-range-btn.active');
+    if (rBtn) {
+      const rt = rBtn.textContent.trim().toLowerCase();
+      const rangeMap = { '1m':'1m', '3m':'3m', '6m':'6m', '1a':'1y' };
+      if (rangeMap[rt]) changeStrRange(rangeMap[rt], rBtn);
+    }
   }
 
   // ── CSV PARSER TRAINHEROIC ──
@@ -1351,9 +1359,14 @@
     const factor     = isBilateralDumbbell(exName) ? 0.5 : 1;
     const rawWeights = sessions.map(s => s.weight);
     const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
-    const labels     = sessions.map(s => {
+    // Mostrar dd/mm/yy en el primer punto de cada año nuevo
+    const labels     = sessions.map((s, idx) => {
       const d = new Date(s.date);
-      return d.getDate() + '/' + (d.getMonth()+1);
+      const prevD = idx > 0 ? new Date(sessions[idx-1].date) : null;
+      const base  = d.getDate() + '/' + (d.getMonth()+1);
+      return (!prevD || prevD.getFullYear() !== d.getFullYear())
+        ? base + '/' + String(d.getFullYear()).slice(2)
+        : base;
     });
     const best = Math.max(...weights);
     // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones r≤15, con factor
@@ -1400,6 +1413,14 @@
         tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
         tbody.appendChild(tr);
       });
+    }
+
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado
+    const rBtn = document.querySelector('.th-range-selector .th-range-btn.active');
+    if (rBtn) {
+      const rt = rBtn.textContent.trim().toLowerCase();
+      const rangeMap = { '1m':'1m', '3m':'3m', '6m':'6m', '1a':'1y' };
+      if (rangeMap[rt]) changeStrRange(rangeMap[rt], rBtn);
     }
   }
 
@@ -1557,17 +1578,36 @@
         ? sessions.filter(s => new Date(s.d)    >= cutoff)
         : sessions.filter(s => new Date(s.date) >= cutoff);
     }
-    if (!sessions.length) return;
+
+    // Sin datos en el rango: limpiar gráfico en lugar de retornar silenciosamente
+    if (!sessions.length) {
+      if (chartStrength) {
+        chartStrength.data.labels = [];
+        chartStrength.data.datasets[0].data = [];
+        chartStrength.update();
+      }
+      const tbody = document.getElementById('thSetsTable');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:12px;font-style:italic;">Sin datos en este período</td></tr>';
+      return;
+    }
 
     // Factor: datos embebidos están en lbs → dividir por 2.205; CSV ya viene con factor bilateral aplicado
     const factor  = isEmbedded ? 1/2.205 : (isBilateralDumbbell(fullName) ? 0.5 : 1);
 
     const rawWeights  = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
     const weights     = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
-    const labels      = sessions.map(s => {
+    // Mostrar dd/mm/yy en el primer punto de cada año nuevo (especialmente visible en vista ALL)
+    const labels      = sessions.map((s, idx) => {
       const raw = isEmbedded ? s.d : s.date;
       const d   = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
-      return d.getDate() + '/' + (d.getMonth()+1);
+      const base = d.getDate() + '/' + (d.getMonth()+1);
+      const prevRaw = idx > 0 ? (isEmbedded ? sessions[idx-1].d : sessions[idx-1].date) : null;
+      const prevD   = prevRaw
+        ? (typeof prevRaw === 'string' && !prevRaw.includes('T') ? new Date(prevRaw + 'T12:00:00') : new Date(prevRaw))
+        : null;
+      return (!prevD || prevD.getFullYear() !== d.getFullYear())
+        ? base + '/' + String(d.getFullYear()).slice(2)
+        : base;
     });
     const best = Math.max(...weights);
 
