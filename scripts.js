@@ -1114,8 +1114,9 @@
       });
     }
 
-    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado
-    const rBtn = document.querySelector('.th-range-selector .th-range-btn.active');
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado.
+    // Usar #strRangeBtns para no confundir con el selector de ritmo (#ritmoRangeBtns).
+    const rBtn = document.querySelector('#strRangeBtns .th-range-btn.active');
     if (rBtn) {
       const rt = rBtn.textContent.trim().toLowerCase();
       const rangeMap = { '1m':'1m', '3m':'3m', '6m':'6m', '1a':'1y' };
@@ -1159,10 +1160,24 @@
   function handleCSVFile(input) {
     const file = input.files[0];
     if (!file) return;
+    // Límite de 20 MB para evitar bloquear el navegador
+    if (file.size > 20 * 1024 * 1024) {
+      alert('El archivo es demasiado grande (máx. 20 MB). Exporta un rango de fechas más acotado.');
+      return;
+    }
     showProcessing(true);
     const reader = new FileReader();
+    reader.onerror = () => { showProcessing(false); alert('Error al leer el archivo.'); };
     reader.onload = (e) => {
-      setTimeout(() => processCSV(e.target.result, file.name), 300);
+      setTimeout(() => {
+        try {
+          processCSV(e.target.result, file.name);
+        } catch(err) {
+          showProcessing(false);
+          console.error('Error procesando CSV:', err);
+          alert('No se pudo procesar el archivo. Verifica que sea un CSV válido.\n\n' + err.message);
+        }
+      }, 300);
     };
     reader.readAsText(file, 'UTF-8');
   }
@@ -1291,9 +1306,14 @@
 
     if (exCount === 0) { alert('No se pudieron leer datos válidos. Verifica el formato del CSV.'); return; }
 
-    // Guardar en localStorage
-    localStorage.setItem('thCSVData', JSON.stringify(merged));
-    localStorage.setItem('thCSVFilename', filename);
+    // Guardar en localStorage (puede lanzar QuotaExceededError si los datos son muy grandes)
+    try {
+      localStorage.setItem('thCSVData', JSON.stringify(merged));
+      localStorage.setItem('thCSVFilename', filename);
+    } catch(e) {
+      // Datos demasiado grandes para localStorage: continuar en memoria sin guardar
+      console.warn('localStorage lleno; los datos no se guardarán entre sesiones.', e);
+    }
 
     // Actualizar UI
     loadCSVData(merged, filename, exCount, sessionCount);
@@ -1415,8 +1435,9 @@
       });
     }
 
-    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado
-    const rBtn = document.querySelector('.th-range-selector .th-range-btn.active');
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado.
+    // Usar #strRangeBtns para no confundir con el selector de ritmo (#ritmoRangeBtns).
+    const rBtn = document.querySelector('#strRangeBtns .th-range-btn.active');
     if (rBtn) {
       const rt = rBtn.textContent.trim().toLowerCase();
       const rangeMap = { '1m':'1m', '3m':'3m', '6m':'6m', '1a':'1y' };
@@ -1434,6 +1455,12 @@
     document.getElementById('csvResetBtn').style.display = 'none';
     document.getElementById('csvFileInput').value = '';
     document.getElementById('thLastUpdate').textContent = 'Sin datos — sube tu CSV';
+    // Restablecer rango a ALL para evitar interferencias al subir nuevo CSV
+    const allBtn = document.querySelector('#strRangeBtns .th-range-btn:last-child');
+    if (allBtn) {
+      document.querySelectorAll('#strRangeBtns .th-range-btn').forEach(b => b.classList.remove('active'));
+      allBtn.classList.add('active');
+    }
   }
 
   function showProcessing(show) {
