@@ -1129,12 +1129,21 @@
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">InBody · Resultado</div>
 
         <input type="file" id="inbodyPDF" accept=".pdf" style="display:none" onchange="handleInbodyPDF(this)">
-        <button onclick="document.getElementById('inbodyPDF').click()"
-          style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#00c8d4;
-                 font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
-                 text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;margin-bottom:8px;">
-          📄 Subir PDF InBody
-        </button>
+        <input type="file" id="inbodyIMG" accept="image/*" style="display:none" onchange="handleInbodyImage(this)">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <button onclick="document.getElementById('inbodyPDF').click()"
+            style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#00c8d4;
+                   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
+                   text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
+            📄 Subir PDF InBody
+          </button>
+          <button onclick="document.getElementById('inbodyIMG').click()"
+            style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;
+                   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
+                   text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
+            📸 Captura / Foto
+          </button>
+        </div>
         <div id="inbodyPDFStatus" style="font-size:11px;color:#00c8d4;margin-bottom:8px;"></div>
 
         <!-- Formulario de datos InBody -->
@@ -1501,6 +1510,47 @@ function toggleInbodyForm() {
   document.getElementById('inbodyFormBtn').style.display = isHidden ? 'none' : 'block';
 }
 
+async function handleInbodyImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('inbodyPDFStatus');
+  const user = window._auth?.currentUser;
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
+
+  status.innerHTML = '🤖 Analizando imagen con IA…';
+
+  try {
+    const fd = new FormData();
+    fd.append('image', file);
+    const r = await fetch(`${MEDIA_WORKER}/media/extract-inbody`, { method:'POST', body:fd });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'No se pudo extraer datos');
+
+    const { datos } = d;
+
+    // Autollenar formulario
+    if (datos.peso)      document.getElementById('ib_peso').value      = datos.peso;
+    if (datos.musculo)   document.getElementById('ib_musculo').value   = datos.musculo;
+    if (datos.grasa_kg)  document.getElementById('ib_grasa_kg').value  = datos.grasa_kg;
+    if (datos.grasa_pct) document.getElementById('ib_grasa_pct').value = datos.grasa_pct;
+    if (datos.agua)      document.getElementById('ib_agua').value      = datos.agua;
+    if (datos.imc)       document.getElementById('ib_imc').value       = datos.imc;
+    if (datos.bmr)       document.getElementById('ib_bmr').value       = datos.bmr;
+
+    // Mostrar formulario para que el atleta confirme
+    document.getElementById('inbodyForm').style.display = 'block';
+    document.getElementById('inbodyFormBtn').style.display = 'none';
+    status.textContent = '✓ Datos extraídos — revisa y confirma';
+
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message;
+    // Mostrar formulario manual como fallback
+    document.getElementById('inbodyForm').style.display = 'block';
+    document.getElementById('inbodyFormBtn').style.display = 'none';
+  }
+  input.value = '';
+}
+
 async function handleInbodyPDF(input) {
   const file = input.files[0];
   if (!file) return;
@@ -1523,6 +1573,36 @@ async function handleInbodyPDF(input) {
     if (!d.ok) throw new Error(d.error || 'Error desconocido');
     status.innerHTML = `✓ PDF guardado en Drive · <a href="${d.link}" target="_blank" style="color:#007a85;">Ver</a>`;
     // Mostrar formulario para ingresar los datos
+    document.getElementById('inbodyForm').style.display = 'block';
+    document.getElementById('inbodyFormBtn').style.display = 'none';
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message;
+  }
+  input.value = '';
+}
+
+async function handleInbodyImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('inbodyPDFStatus');
+  const user = window._auth?.currentUser;
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
+
+  status.textContent = 'Subiendo imagen a Drive…';
+  const fecha = new Date().toISOString().split('T')[0];
+  const nombre = user.displayName || user.email.split('@')[0];
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('uid', user.uid);
+    fd.append('nombre', nombre);
+    fd.append('fecha', fecha);
+    const r = await fetch(`${MEDIA_WORKER}/media/upload-image`, { method:'POST', body:fd });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error desconocido');
+    status.innerHTML = `✓ Imagen guardada en Drive · <a href="${d.link}" target="_blank" style="color:#007a85;">Ver</a>`;
+    // Mostrar formulario para ingresar los datos manualmente
     document.getElementById('inbodyForm').style.display = 'block';
     document.getElementById('inbodyFormBtn').style.display = 'none';
   } catch(e) {

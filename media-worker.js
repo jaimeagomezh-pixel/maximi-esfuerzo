@@ -1,6 +1,6 @@
 // media-worker.js — Google Drive integration for InBody PDFs and MyJump videos
 // Deploy: npx wrangler deploy media-worker.js --name media --compatibility-date 2026-05-29
-// Bindings needed: BODY_DATA (KV), GOOGLE_SERVICE_ACCOUNT (secret)
+// Bindings needed: BODY_DATA (KV), GOOGLE_SERVICE_ACCOUNT (secret), AI (Workers AI)
 
 const ROOT_FOLDER = '1WUCe0foHsQp_RG22Odf9PpgOx61G47B1';
 
@@ -128,6 +128,25 @@ export default {
         return ok({ ok:true, link: result.webViewLink, fileId: result.id });
       }
 
+      // ── POST subir imagen InBody a Drive ─────────────────────────
+      if (req.method === 'POST' && url.pathname === '/media/upload-image') {
+        const fd = await req.formData();
+        const file   = fd.get('file');
+        const uid    = fd.get('uid');
+        const nombre = fd.get('nombre');
+        const fecha  = fd.get('fecha');
+        if (!file || !uid || !nombre || !fecha) return err('Faltan campos', 400);
+
+        const mimeType = file.type || 'image/jpeg';
+        const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+        const token = await getToken(env);
+        const atletaDir  = await findOrCreate(token, nombre, ROOT_FOLDER);
+        const inbodyDir  = await findOrCreate(token, 'inbody', atletaDir);
+        const buf    = await file.arrayBuffer();
+        const result = await uploadMultipart(token, inbodyDir, `InBody_${fecha}.${ext}`, mimeType, buf);
+        return ok({ ok:true, link: result.webViewLink, fileId: result.id });
+      }
+
       // ── POST iniciar subida de video (resumable) ─────────────────
       // El Worker crea la sesión en Drive y devuelve la URL de upload.
       // El browser sube el video directamente a Drive (sin pasar por el Worker).
@@ -152,6 +171,47 @@ export default {
         const uploadUrl = r.headers.get('Location');
         if (!uploadUrl) return err('No se pudo iniciar la subida', 500);
         return ok({ ok:true, uploadUrl, nombreArchivo });
+      }
+
+      // ── POST extraer datos InBody desde imagen ───────────────────
+      if (req.method === 'POST' && url.pathname === '/media/extract-inbody') {
+        const fd = await req.formData();
+        const file = fd.get('image');
+        if (!file) return err('imagen requerida', 400);
+
+        const buf = await file.arrayBuffer();
+        const imageBytes = [...new Uint8Array(buf)];
+
+        const prompt = `Eres un asistente que extrae datos de informes InBody.
+Analiza esta imagen de un informe InBody y extrae EXACTAMENTE estos valores numéricos.
+Responde SOLO con un JSON válido con estas claves (usa null si no encuentras el valor):
+{
+  "peso": número en kg,
+  "musculo": masa muscular esquelética en kg,
+  "grasa_kg": masa grasa corporal en kg,
+  "grasa_pct": porcentaje de grasa corporal,
+  "agua": agua corporal total en kg,
+  "imc": índice de masa corporal,
+  "bmr": metabolismo basal en kcal
+}
+Solo el JSON, sin texto adicional.`;
+
+        const response = await env.AI.run('@cf/meta/llama-3.2-11b-vision-instruct', {
+          prompt,
+          image: imageBytes,
+          max_tokens: 200
+        });
+
+        // Extraer JSON de la respuesta
+        const text = response?.response || response?.description || '';
+        const match = text.match(/\{[\s\S]*\}/);
+        if (!match) return err('No se pudo extraer datos de la imagen', 422);
+
+        let datos;
+        try { datos = JSON.parse(match[0]); }
+        catch(e) { return err('Formato de respuesta inválido', 422); }
+
+        return ok({ ok: true, datos });
       }
 
       return err('Ruta no encontrada', 404);
