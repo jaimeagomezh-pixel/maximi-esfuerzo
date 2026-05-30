@@ -1120,6 +1120,160 @@
 
     </div>
 
+    <!-- COMPOSICIÓN CORPORAL -->
+    <div class="dash-section-title" style="margin-top:4px;">Composición Corporal</div>
+    <div style="margin:0 16px 8px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
+
+      <!-- InBody -->
+      <div style="padding:14px 14px 10px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">InBody · Resultado</div>
+
+        <input type="file" id="inbodyPDF" accept=".pdf" style="display:none" onchange="handleInbodyPDF(this)">
+        <button onclick="document.getElementById('inbodyPDF').click()"
+          style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#00c8d4;
+                 font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
+                 text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;margin-bottom:8px;">
+          📄 Subir PDF InBody
+        </button>
+        <div id="inbodyPDFStatus" style="font-size:11px;color:#00c8d4;margin-bottom:8px;"></div>
+
+        <!-- Formulario de datos InBody -->
+        <div id="inbodyForm" style="display:none;border-top:1px solid rgba(0,0,0,0.06);padding-top:12px;margin-top:4px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#888;text-transform:uppercase;margin-bottom:10px;">
+            Ingresa los datos del InBody
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Peso (kg)</label>
+              <input type="number" id="ib_peso" step="0.1" placeholder="ej. 75.5"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Masa Muscular (kg)</label>
+              <input type="number" id="ib_musculo" step="0.1" placeholder="ej. 32.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Masa Grasa (kg)</label>
+              <input type="number" id="ib_grasa_kg" step="0.1" placeholder="ej. 12.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">% Grasa</label>
+              <input type="number" id="ib_grasa_pct" step="0.1" placeholder="ej. 16.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Agua Corporal (kg)</label>
+              <input type="number" id="ib_agua" step="0.1" placeholder="ej. 38.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">IMC</label>
+              <input type="number" id="ib_imc" step="0.1" placeholder="ej. 23.5"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div style="grid-column:1/-1;">
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Metabolismo Basal (kcal)</label>
+              <input type="number" id="ib_bmr" step="1" placeholder="ej. 1750"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="guardarInbody()"
+              style="flex:1;background:#007a85;color:#fff;font-family:'Barlow Condensed',sans-serif;
+                     font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;
+                     border:none;border-radius:5px;cursor:pointer;">
+              Guardar medición
+            </button>
+            <button onclick="document.getElementById('inbodyForm').style.display='none'"
+              style="background:none;border:1px solid rgba(0,0,0,0.12);color:#999;
+                     font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;
+                     padding:10px 14px;border-radius:5px;cursor:pointer;">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        <!-- Botón para ingresar datos sin PDF -->
+        <button id="inbodyFormBtn" onclick="toggleInbodyForm()"
+          style="background:none;border:none;color:#aaa;font-family:'Barlow Condensed',sans-serif;
+                 font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:2px 0;">
+          + Ingresar datos manualmente
+        </button>
+      </div>
+
+      <!-- Radar chart -->
+      <div id="inbodyChartWrap" style="display:none;padding:0 14px 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">
+          Progresión · Tela de Araña
+        </div>
+        <div style="position:relative;height:220px;">
+          <canvas id="inbodyRadar"></canvas>
+        </div>
+        <div id="inbodyLeyenda" style="display:flex;gap:12px;justify-content:center;margin-top:6px;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Historial mediciones -->
+      <div id="inbodyHistorial" style="display:none;border-top:1px solid rgba(0,0,0,0.05);padding:10px 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">Historial</div>
+        <div id="inbodyHistorialList"></div>
+      </div>
+
+      <!-- Separador MyJump -->
+      <div style="border-top:1px solid rgba(0,0,0,0.06);padding:14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">
+          MyJump · Video salto
+        </div>
+
+        <!-- Selector FPS -->
+        <div style="margin-bottom:10px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#bbb;text-transform:uppercase;margin-bottom:6px;">Velocidad de cámara</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="fpsBtns">
+            <button class="fps-btn" onclick="selFPS(60,this)" data-fps="60"
+              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
+                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);
+                     background:#f5f5f5;color:#888;cursor:pointer;transition:all .2s;">
+              60 fps
+            </button>
+            <button class="fps-btn fps-rec active-fps" onclick="selFPS(120,this)" data-fps="120"
+              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
+                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,200,212,0.4);
+                     background:rgba(0,200,212,0.08);color:#00c8d4;cursor:pointer;transition:all .2s;">
+              120 fps ★
+            </button>
+            <button class="fps-btn fps-rec" onclick="selFPS(240,this)" data-fps="240"
+              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
+                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);
+                     background:#f5f5f5;color:#888;cursor:pointer;transition:all .2s;">
+              240 fps ★
+            </button>
+          </div>
+          <div style="font-size:10px;color:#bbb;margin-top:4px;">★ Recomendado para análisis MyJump</div>
+        </div>
+
+        <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
+        <button onclick="document.getElementById('myJumpVideo').click()"
+          style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#00c8d4;
+                 font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
+                 text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
+          🎥 Subir video
+        </button>
+
+        <!-- Barra progreso -->
+        <div id="videoProgressWrap" style="display:none;margin-top:10px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:#888;text-transform:uppercase;">Subiendo a Drive…</span>
+            <span id="videoPct" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#007a85;">0%</span>
+          </div>
+          <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;">
+            <div id="videoBar" style="height:4px;background:#007a85;border-radius:2px;width:0%;transition:width .3s;"></div>
+          </div>
+        </div>
+        <div id="videoStatus" style="font-size:11px;color:#00c8d4;margin-top:6px;"></div>
+      </div>
+    </div>
+
     <!-- NUTRICIÓN -->
     <div class="dash-section-title" style="margin-top:4px;">Nutrición</div>
     <div class="dash-nutri-banner" style="margin:4px 16px 0;border-radius:8px;">
@@ -1304,6 +1458,229 @@ window.saveManualTimes = function() {
     }
   } catch(e) {}
 })();
+</script>
+
+<script>
+// ── COMPOSICIÓN CORPORAL · InBody + MyJump ──────────────────────────────────
+const MEDIA_WORKER = 'https://media.jaimea-gomezh.workers.dev';
+
+let fpsSeleccionado = 120;
+let inbodyRadarChart = null;
+
+const IB_METRICS = [
+  { key:'musculo',   label:'Músculo',     min:20, max:55,   higher:true  },
+  { key:'grasa_pct', label:'% Grasa',     min:5,  max:35,   higher:false },
+  { key:'agua',      label:'Agua',        min:25, max:50,   higher:true  },
+  { key:'imc',       label:'IMC',         min:18, max:30,   higher:false },
+  { key:'bmr',       label:'Metabolismo', min:1200, max:2500, higher:true },
+  { key:'peso',      label:'Peso',        min:40, max:120,  higher:false },
+];
+
+function ibScore(m, val) {
+  const n = (val - m.min) / (m.max - m.min);
+  return Math.min(100, Math.max(0, m.higher ? n*100 : (1-n)*100));
+}
+
+function selFPS(fps, btn) {
+  fpsSeleccionado = fps;
+  document.querySelectorAll('#fpsBtns .fps-btn').forEach(b => {
+    const isRec = b.dataset.fps === '120' || b.dataset.fps === '240';
+    b.style.border = '1px solid rgba(0,0,0,0.15)';
+    b.style.background = '#f5f5f5';
+    b.style.color = '#888';
+  });
+  btn.style.border = '1px solid rgba(0,200,212,0.5)';
+  btn.style.background = 'rgba(0,200,212,0.12)';
+  btn.style.color = '#007a85';
+}
+
+function toggleInbodyForm() {
+  const f = document.getElementById('inbodyForm');
+  const isHidden = f.style.display === 'none';
+  f.style.display = isHidden ? 'block' : 'none';
+  document.getElementById('inbodyFormBtn').style.display = isHidden ? 'none' : 'block';
+}
+
+async function handleInbodyPDF(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('inbodyPDFStatus');
+  const user = window._auth?.currentUser;
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
+
+  status.textContent = 'Subiendo PDF a Drive…';
+  const fecha = new Date().toISOString().split('T')[0];
+  const nombre = user.displayName || user.email.split('@')[0];
+
+  try {
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('uid', user.uid);
+    fd.append('nombre', nombre);
+    fd.append('fecha', fecha);
+    const r = await fetch(`${MEDIA_WORKER}/media/upload-pdf`, { method:'POST', body:fd });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error desconocido');
+    status.innerHTML = `✓ PDF guardado en Drive · <a href="${d.link}" target="_blank" style="color:#007a85;">Ver</a>`;
+    // Mostrar formulario para ingresar los datos
+    document.getElementById('inbodyForm').style.display = 'block';
+    document.getElementById('inbodyFormBtn').style.display = 'none';
+  } catch(e) {
+    status.textContent = 'Error: ' + e.message;
+  }
+  input.value = '';
+}
+
+async function guardarInbody() {
+  const user = window._auth?.currentUser;
+  if (!user) return;
+  const vals = {
+    peso:      parseFloat(document.getElementById('ib_peso').value),
+    musculo:   parseFloat(document.getElementById('ib_musculo').value),
+    grasa_kg:  parseFloat(document.getElementById('ib_grasa_kg').value),
+    grasa_pct: parseFloat(document.getElementById('ib_grasa_pct').value),
+    agua:      parseFloat(document.getElementById('ib_agua').value),
+    imc:       parseFloat(document.getElementById('ib_imc').value),
+    bmr:       parseFloat(document.getElementById('ib_bmr').value),
+    fecha:     new Date().toISOString().split('T')[0]
+  };
+  if (Object.values(vals).some(v => isNaN(v) && v !== vals.fecha)) {
+    alert('Completa todos los campos'); return;
+  }
+  try {
+    const r = await fetch(`${MEDIA_WORKER}/media/save-inbody`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: user.uid, email: user.email, medicion: vals })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    document.getElementById('inbodyForm').style.display = 'none';
+    document.getElementById('inbodyFormBtn').style.display = 'block';
+    document.getElementById('inbodyPDFStatus').textContent = '✓ Medición guardada';
+    await cargarInbodyHistorial();
+  } catch(e) {
+    alert('Error guardando: ' + e.message);
+  }
+}
+
+async function cargarInbodyHistorial() {
+  const user = window._auth?.currentUser;
+  if (!user) return;
+  try {
+    const r = await fetch(`${MEDIA_WORKER}/media/inbody/${user.uid}`);
+    const lista = await r.json();
+    if (!lista.length) return;
+
+    // Radar chart
+    document.getElementById('inbodyChartWrap').style.display = 'block';
+    document.getElementById('inbodyHistorial').style.display = 'block';
+
+    const colores = ['#007a85','#FC4C02','#9b59b6','#27ae60'];
+    const ultimas = lista.slice(-2);
+    const datasets = ultimas.map((m, i) => ({
+      label: m.fecha,
+      data: IB_METRICS.map(met => ibScore(met, m[met.key])),
+      borderColor: colores[i],
+      backgroundColor: colores[i] + '22',
+      borderWidth: 2,
+      pointBackgroundColor: colores[i],
+      pointRadius: 3
+    }));
+
+    if (inbodyRadarChart) inbodyRadarChart.destroy();
+    const ctx = document.getElementById('inbodyRadar').getContext('2d');
+    inbodyRadarChart = new Chart(ctx, {
+      type: 'radar',
+      data: { labels: IB_METRICS.map(m => m.label), datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { r: { min:0, max:100, ticks:{ display:false }, pointLabels:{ font:{size:10,family:'Barlow Condensed'} } } },
+        plugins: { legend:{ display:false } }
+      }
+    });
+
+    // Leyenda
+    document.getElementById('inbodyLeyenda').innerHTML = ultimas.map((m,i) =>
+      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${colores[i]};letter-spacing:1px;">■ ${m.fecha}</span>`
+    ).join('');
+
+    // Historial lista
+    document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
+        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
+        <span style="color:#888;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+      </div>`).join('');
+  } catch(e) { console.error('Error cargando InBody:', e); }
+}
+
+async function handleVideoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const user = window._auth?.currentUser;
+  if (!user) { alert('Debes iniciar sesión'); return; }
+
+  const status = document.getElementById('videoStatus');
+  const progressWrap = document.getElementById('videoProgressWrap');
+  const bar = document.getElementById('videoBar');
+  const pct = document.getElementById('videoPct');
+
+  status.textContent = 'Preparando subida…';
+  progressWrap.style.display = 'block';
+
+  const fecha = new Date().toISOString().split('T')[0];
+  const nombre = user.displayName || user.email.split('@')[0];
+
+  try {
+    // 1. Obtener URL de subida resumible del Worker
+    const r = await fetch(`${MEDIA_WORKER}/media/init-video`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ uid: user.uid, nombre, fps: fpsSeleccionado, fecha, mimeType: file.type || 'video/mp4' })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error iniciando subida');
+
+    // 2. Subir directamente a Drive con progress
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.upload.addEventListener('progress', e => {
+        if (e.lengthComputable) {
+          const p = Math.round(e.loaded/e.total*100);
+          bar.style.width = p + '%';
+          pct.textContent = p + '%';
+        }
+      });
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error('Error subiendo a Drive: ' + xhr.status));
+      });
+      xhr.addEventListener('error', () => reject(new Error('Error de red')));
+      xhr.open('PUT', d.uploadUrl);
+      xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+      xhr.send(file);
+    });
+
+    progressWrap.style.display = 'none';
+    status.textContent = `✓ Video (${fpsSeleccionado} fps) guardado en Drive`;
+  } catch(e) {
+    progressWrap.style.display = 'none';
+    status.textContent = 'Error: ' + e.message;
+  }
+  input.value = '';
+}
+
+// Cargar historial al abrir el dashboard
+const _origAbrirDash = window.abrirDashboard;
+document.addEventListener('DOMContentLoaded', () => {
+  const _orig = window.abrirDashboard;
+  if (_orig) {
+    window.abrirDashboard = function(nombre) {
+      _orig(nombre);
+      setTimeout(cargarInbodyHistorial, 600);
+    };
+  }
+});
 </script>
 </body>
 </html>

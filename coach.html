@@ -1197,6 +1197,37 @@ function abrirPerfil(id) {
       </div>
     </div>
 
+    <!-- COMPOSICIÓN CORPORAL (InBody) -->
+    <div class="sec" id="inbodyCoachSec">
+      <div class="sec-t">Composición Corporal · InBody</div>
+
+      <!-- Sin datos -->
+      <div id="inbodyCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">
+        El atleta aún no ha subido ninguna medición InBody
+      </div>
+
+      <!-- Radar chart -->
+      <div id="inbodyCoachChartWrap" style="display:none;">
+        <div style="position:relative;height:220px;margin-bottom:6px;">
+          <canvas id="cInbodyRadar"></canvas>
+        </div>
+        <div id="inbodyCoachLeyenda" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;"></div>
+      </div>
+
+      <!-- Historial -->
+      <div id="inbodyCoachHistorial"></div>
+
+      <!-- Links Drive -->
+      <div id="inbodyCoachLinks" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+        <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Archivos en Drive</div>
+        <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1"
+           target="_blank"
+           style="font-size:12px;color:#007a85;text-decoration:none;">
+          📁 Abrir carpeta en Google Drive →
+        </a>
+      </div>
+    </div>
+
     <div class="sec">
       <div class="sec-t">Notas privadas del coach</div>
       <textarea class="nota-ta" id="notaTA">${a.notas}</textarea>
@@ -1245,7 +1276,91 @@ function abrirPerfil(id) {
     // Cargar rucking del atleta si tiene Strava ID vinculado
     if (a.stravaId) cargarRuckingCoach(a.stravaId);
 
+    // Cargar InBody del atleta (usa email como identificador hacia el atleta)
+    cargarInbodyCoach(a.email);
+
   }, 150);
+}
+
+// ── COMPOSICIÓN CORPORAL COACH ─────────────────────────────────
+const MEDIA_WORKER_COACH = 'https://media.jaimea-gomezh.workers.dev';
+let inbodyCoachChart = null;
+
+const IB_METRICS_C = [
+  { key:'musculo',   label:'Músculo',     min:20, max:55,   higher:true  },
+  { key:'grasa_pct', label:'% Grasa',     min:5,  max:35,   higher:false },
+  { key:'agua',      label:'Agua',        min:25, max:50,   higher:true  },
+  { key:'imc',       label:'IMC',         min:18, max:30,   higher:false },
+  { key:'bmr',       label:'Metabolismo', min:1200, max:2500, higher:true },
+  { key:'peso',      label:'Peso',        min:40, max:120,  higher:false },
+];
+function ibScoreC(m, val) {
+  const n = (val - m.min) / (m.max - m.min);
+  return Math.min(100, Math.max(0, m.higher ? n*100 : (1-n)*100));
+}
+
+async function cargarInbodyCoach(email) {
+  // El atleta se identifica por su Firebase UID en KV.
+  // Como el coach solo tiene el email, buscamos por email como clave alternativa.
+  // El worker acepta tanto uid como email (fallback).
+  const emptyEl   = document.getElementById('inbodyCoachEmpty');
+  const chartWrap = document.getElementById('inbodyCoachChartWrap');
+  const histEl    = document.getElementById('inbodyCoachHistorial');
+  const linksEl   = document.getElementById('inbodyCoachLinks');
+  if (!emptyEl) return;
+
+  try {
+    // Usamos el email codificado como lookup (el atleta guarda con su UID,
+    // pero también guardamos un índice email→uid en el worker)
+    const r = await fetch(`${MEDIA_WORKER_COACH}/media/inbody-by-email/${encodeURIComponent(email)}`);
+    const lista = await r.json();
+
+    if (!lista || !lista.length) {
+      emptyEl.style.display = 'block';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    chartWrap.style.display = 'block';
+    linksEl.style.display = 'block';
+
+    const colores = ['#007a85','#FC4C02','#9b59b6','#27ae60'];
+    const ultimas = lista.slice(-2);
+    const datasets = ultimas.map((m, i) => ({
+      label: m.fecha,
+      data: IB_METRICS_C.map(met => ibScoreC(met, m[met.key])),
+      borderColor: colores[i],
+      backgroundColor: colores[i] + '22',
+      borderWidth: 2,
+      pointBackgroundColor: colores[i],
+      pointRadius: 3
+    }));
+
+    if (inbodyCoachChart) inbodyCoachChart.destroy();
+    const ctx = document.getElementById('cInbodyRadar').getContext('2d');
+    inbodyCoachChart = new Chart(ctx, {
+      type: 'radar',
+      data: { labels: IB_METRICS_C.map(m => m.label), datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        scales: { r: { min:0, max:100, ticks:{display:false}, pointLabels:{font:{size:10,family:'Barlow Condensed'}} } },
+        plugins: { legend:{display:false} }
+      }
+    });
+
+    document.getElementById('inbodyCoachLeyenda').innerHTML = ultimas.map((m,i) =>
+      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${colores[i]};letter-spacing:1px;">■ ${m.fecha}</span>`
+    ).join('');
+
+    histEl.innerHTML = lista.slice().reverse().map(m => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
+        <span style="font-family:var(--fc);letter-spacing:1px;color:var(--text2);">${m.fecha}</span>
+        <span style="color:var(--text3);">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+      </div>`).join('');
+
+  } catch(e) {
+    console.error('Error InBody coach:', e);
+    emptyEl.style.display = 'block';
+  }
 }
 
 // ── RUCKING COACH ─────────────────────────────────────────────
