@@ -173,6 +173,16 @@ export default {
         return ok({ ok:true, uploadUrl, nombreArchivo });
       }
 
+      // ── POST eliminar medición InBody ────────────────────────────
+      if (req.method === 'POST' && url.pathname === '/media/delete-inbody') {
+        const { uid, fecha } = await req.json();
+        if (!uid || !fecha) return err('uid y fecha requeridos', 400);
+        const list = JSON.parse(await env.BODY_DATA.get(`body:${uid}`) || '[]');
+        const nueva = list.filter(m => m.fecha !== fecha);
+        await env.BODY_DATA.put(`body:${uid}`, JSON.stringify(nueva));
+        return ok({ ok:true });
+      }
+
       // ── POST extraer datos InBody desde imagen ───────────────────
       if (req.method === 'POST' && url.pathname === '/media/extract-inbody') {
         const fd = await req.formData();

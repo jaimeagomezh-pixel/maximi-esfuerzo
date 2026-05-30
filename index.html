@@ -556,6 +556,16 @@
       </div>
     </div>
 
+    <!-- STRAVA CONNECT — al inicio -->
+    <div style="padding:0 16px;margin-bottom:4px;">
+      <div class="dash-connect-card" onclick="conectarStrava()" id="btnStrava" style="border-radius:8px;">
+        <div class="dash-app-logo">
+          <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+        </div>
+        <div><div class="dash-connect-name">Strava</div><div class="dash-connect-status" id="stravaStatus">Conectar</div></div>
+      </div>
+    </div>
+
     <div class="dash-frase-wrap">
       <div class="dash-frase-icon">❝</div>
       <div class="dash-frase" id="dashFrase">Cargando...</div>
@@ -1229,10 +1239,10 @@
         <div id="inbodyHistorialList"></div>
       </div>
 
-      <!-- Separador MyJump -->
+      <!-- Video salto -->
       <div style="border-top:1px solid rgba(0,0,0,0.06);padding:14px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">
-          MyJump · Video salto
+          Video · Salto
         </div>
 
         <!-- Selector FPS -->
@@ -1258,7 +1268,7 @@
               240 fps ★
             </button>
           </div>
-          <div style="font-size:10px;color:#bbb;margin-top:4px;">★ Recomendado para análisis MyJump</div>
+          <div style="font-size:10px;color:#bbb;margin-top:4px;">★ Recomendado para mayor precisión</div>
         </div>
 
         <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
@@ -1293,22 +1303,6 @@
       <button class="btn-agendar" onclick="alert('Próximamente: calendario de agenda')"><i data-lucide="calendar" style="width:14px;height:14px;vertical-align:middle;margin-right:5px;"></i> Agendar</button>
     </div>
 
-    <!-- MIS PLATAFORMAS -->
-    <div class="dash-section-title" style="margin-top:4px;">Mis Plataformas</div>
-    <div class="dash-connect-grid" style="padding:0 16px;grid-template-columns:1fr 1fr;">
-      <div class="dash-connect-card" onclick="conectarStrava()" id="btnStrava">
-        <div class="dash-app-logo">
-          <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-        </div>
-        <div><div class="dash-connect-name">Strava</div><div class="dash-connect-status" id="stravaStatus">Conectar</div></div>
-      </div>
-      <div class="dash-connect-card" onclick="alert('Próximamente: TrainHeroic')">
-        <div class="dash-app-logo">
-          <svg viewBox="0 0 40 40" width="30" height="30"><rect width="40" height="40" fill="#0d0d1a" rx="4"/><text x="20" y="27" text-anchor="middle" fill="#e94560" font-size="17" font-weight="bold" font-family="Arial">TH</text></svg>
-        </div>
-        <div><div class="dash-connect-name">TrainHeroic</div><div class="dash-connect-status">Conectar</div></div>
-      </div>
-    </div>
 
     <div class="dash-footer">
       <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -1715,8 +1709,13 @@ async function cargarInbodyHistorial() {
     // Historial lista
     document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
-        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
-        <span style="color:#888;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+        <div>
+          <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
+          <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+        </div>
+        <button onclick="eliminarInbody('${m.fecha}')"
+          style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
+          title="Eliminar medición">🗑</button>
       </div>`).join('');
   } catch(e) { console.error('Error cargando InBody:', e); }
 }
@@ -1775,6 +1774,22 @@ async function handleVideoUpload(input) {
     status.textContent = 'Error: ' + e.message;
   }
   input.value = '';
+}
+
+async function eliminarInbody(fecha) {
+  if (!confirm(`¿Eliminar la medición del ${fecha}?`)) return;
+  const user = window._auth?.currentUser;
+  if (!user) return;
+  try {
+    const r = await fetch(`${MEDIA_WORKER}/media/delete-inbody`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ uid: user.uid, fecha })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    await cargarInbodyHistorial();
+  } catch(e) { alert('Error: ' + e.message); }
 }
 
 // Cargar historial al abrir el dashboard
