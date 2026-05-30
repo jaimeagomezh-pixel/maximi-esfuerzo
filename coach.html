@@ -1286,23 +1286,7 @@ function abrirPerfil(id) {
 const MEDIA_WORKER_COACH = 'https://media.jaimea-gomezh.workers.dev';
 let inbodyCoachChart = null;
 
-const IB_METRICS_C = [
-  { key:'musculo',   label:'Músculo',     min:20, max:55,   higher:true  },
-  { key:'grasa_pct', label:'% Grasa',     min:5,  max:35,   higher:false },
-  { key:'agua',      label:'Agua',        min:25, max:50,   higher:true  },
-  { key:'imc',       label:'IMC',         min:18, max:30,   higher:false },
-  { key:'bmr',       label:'Metabolismo', min:1200, max:2500, higher:true },
-  { key:'peso',      label:'Peso',        min:40, max:120,  higher:false },
-];
-function ibScoreC(m, val) {
-  const n = (val - m.min) / (m.max - m.min);
-  return Math.min(100, Math.max(0, m.higher ? n*100 : (1-n)*100));
-}
-
 async function cargarInbodyCoach(email) {
-  // El atleta se identifica por su Firebase UID en KV.
-  // Como el coach solo tiene el email, buscamos por email como clave alternativa.
-  // El worker acepta tanto uid como email (fallback).
   const emptyEl   = document.getElementById('inbodyCoachEmpty');
   const chartWrap = document.getElementById('inbodyCoachChartWrap');
   const histEl    = document.getElementById('inbodyCoachHistorial');
@@ -1310,8 +1294,6 @@ async function cargarInbodyCoach(email) {
   if (!emptyEl) return;
 
   try {
-    // Usamos el email codificado como lookup (el atleta guarda con su UID,
-    // pero también guardamos un índice email→uid en el worker)
     const r = await fetch(`${MEDIA_WORKER_COACH}/media/inbody-by-email/${encodeURIComponent(email)}`);
     const lista = await r.json();
 
@@ -1323,33 +1305,67 @@ async function cargarInbodyCoach(email) {
     chartWrap.style.display = 'block';
     linksEl.style.display = 'block';
 
-    const colores = ['#007a85','#FC4C02','#9b59b6','#27ae60'];
-    const ultimas = lista.slice(-2);
-    const datasets = ultimas.map((m, i) => ({
-      label: m.fecha,
-      data: IB_METRICS_C.map(met => ibScoreC(met, m[met.key])),
-      borderColor: colores[i],
-      backgroundColor: colores[i] + '22',
-      borderWidth: 2,
-      pointBackgroundColor: colores[i],
-      pointRadius: 3
-    }));
-
+    const fechas = lista.map(m => m.fecha);
     if (inbodyCoachChart) inbodyCoachChart.destroy();
     const ctx = document.getElementById('cInbodyRadar').getContext('2d');
     inbodyCoachChart = new Chart(ctx, {
-      type: 'radar',
-      data: { labels: IB_METRICS_C.map(m => m.label), datasets },
+      type: 'line',
+      data: {
+        labels: fechas,
+        datasets: [
+          {
+            label: 'Masa Muscular (kg)',
+            data: lista.map(m => m.musculo),
+            fill: true,
+            backgroundColor: 'rgba(0,122,133,0.55)',
+            borderColor: '#007a85',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#007a85'
+          },
+          {
+            label: 'Agua (kg)',
+            data: lista.map(m => m.agua),
+            fill: true,
+            backgroundColor: 'rgba(52,152,219,0.45)',
+            borderColor: '#3498db',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#3498db'
+          },
+          {
+            label: 'Masa Grasa (kg)',
+            data: lista.map(m => m.grasa_kg),
+            fill: true,
+            backgroundColor: 'rgba(231,76,60,0.45)',
+            borderColor: '#e74c3c',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#e74c3c'
+          }
+        ]
+      },
       options: {
         responsive: true, maintainAspectRatio: false,
-        scales: { r: { min:0, max:100, ticks:{display:false}, pointLabels:{font:{size:10,family:'Barlow Condensed'}} } },
-        plugins: { legend:{display:false} }
+        scales: {
+          x: { ticks:{ font:{size:9,family:'Barlow Condensed'} } },
+          y: {
+            stacked: true,
+            title:{ display:true, text:'kg', font:{size:10,family:'Barlow Condensed'} },
+            ticks:{ font:{size:9,family:'Barlow Condensed'} }
+          }
+        },
+        plugins: {
+          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 } },
+          tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
+        }
       }
     });
 
-    document.getElementById('inbodyCoachLeyenda').innerHTML = ultimas.map((m,i) =>
-      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${colores[i]};letter-spacing:1px;">■ ${m.fecha}</span>`
-    ).join('');
+    document.getElementById('inbodyCoachLeyenda').innerHTML = '';
 
     histEl.innerHTML = lista.slice().reverse().map(m => `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">

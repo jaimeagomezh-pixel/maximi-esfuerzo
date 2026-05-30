@@ -1474,21 +1474,7 @@ window.saveManualTimes = function() {
 const MEDIA_WORKER = 'https://media.jaimea-gomezh.workers.dev';
 
 let fpsSeleccionado = 120;
-let inbodyRadarChart = null;
-
-const IB_METRICS = [
-  { key:'musculo',   label:'Músculo',     min:20, max:55,   higher:true  },
-  { key:'grasa_pct', label:'% Grasa',     min:5,  max:35,   higher:false },
-  { key:'agua',      label:'Agua',        min:25, max:50,   higher:true  },
-  { key:'imc',       label:'IMC',         min:18, max:30,   higher:false },
-  { key:'bmr',       label:'Metabolismo', min:1200, max:2500, higher:true },
-  { key:'peso',      label:'Peso',        min:40, max:120,  higher:false },
-];
-
-function ibScore(m, val) {
-  const n = (val - m.min) / (m.max - m.min);
-  return Math.min(100, Math.max(0, m.higher ? n*100 : (1-n)*100));
-}
+let inbodyAreaChart = null;
 
 function selFPS(fps, btn) {
   fpsSeleccionado = fps;
@@ -1652,38 +1638,79 @@ async function cargarInbodyHistorial() {
     const lista = await r.json();
     if (!lista.length) return;
 
-    // Radar chart
+    // Gráfico de áreas apiladas
     document.getElementById('inbodyChartWrap').style.display = 'block';
     document.getElementById('inbodyHistorial').style.display = 'block';
 
-    const colores = ['#007a85','#FC4C02','#9b59b6','#27ae60'];
-    const ultimas = lista.slice(-2);
-    const datasets = ultimas.map((m, i) => ({
-      label: m.fecha,
-      data: IB_METRICS.map(met => ibScore(met, m[met.key])),
-      borderColor: colores[i],
-      backgroundColor: colores[i] + '22',
-      borderWidth: 2,
-      pointBackgroundColor: colores[i],
-      pointRadius: 3
-    }));
-
-    if (inbodyRadarChart) inbodyRadarChart.destroy();
+    const fechas = lista.map(m => m.fecha);
+    if (inbodyAreaChart) inbodyAreaChart.destroy();
     const ctx = document.getElementById('inbodyRadar').getContext('2d');
-    inbodyRadarChart = new Chart(ctx, {
-      type: 'radar',
-      data: { labels: IB_METRICS.map(m => m.label), datasets },
+    inbodyAreaChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: fechas,
+        datasets: [
+          {
+            label: 'Masa Muscular (kg)',
+            data: lista.map(m => m.musculo),
+            fill: true,
+            backgroundColor: 'rgba(0,122,133,0.55)',
+            borderColor: '#007a85',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#007a85'
+          },
+          {
+            label: 'Agua (kg)',
+            data: lista.map(m => m.agua),
+            fill: true,
+            backgroundColor: 'rgba(52,152,219,0.45)',
+            borderColor: '#3498db',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#3498db'
+          },
+          {
+            label: 'Masa Grasa (kg)',
+            data: lista.map(m => m.grasa_kg),
+            fill: true,
+            backgroundColor: 'rgba(231,76,60,0.45)',
+            borderColor: '#e74c3c',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: '#e74c3c'
+          }
+        ]
+      },
       options: {
         responsive: true, maintainAspectRatio: false,
-        scales: { r: { min:0, max:100, ticks:{ display:false }, pointLabels:{ font:{size:10,family:'Barlow Condensed'} } } },
-        plugins: { legend:{ display:false } }
+        scales: {
+          x: { ticks:{ font:{size:9,family:'Barlow Condensed'} } },
+          y: {
+            stacked: true,
+            title:{ display:true, text:'kg', font:{size:10,family:'Barlow Condensed'} },
+            ticks:{ font:{size:9,family:'Barlow Condensed'} }
+          }
+        },
+        plugins: {
+          legend:{
+            display: true,
+            labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 }
+          },
+          tooltip:{
+            callbacks:{
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg`
+            }
+          }
+        }
       }
     });
 
-    // Leyenda
-    document.getElementById('inbodyLeyenda').innerHTML = ultimas.map((m,i) =>
-      `<span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:${colores[i]};letter-spacing:1px;">■ ${m.fecha}</span>`
-    ).join('');
+    // Leyenda custom oculta (Chart.js ya la muestra)
+    document.getElementById('inbodyLeyenda').innerHTML = '';
 
     // Historial lista
     document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `
