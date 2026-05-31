@@ -2559,7 +2559,7 @@
       const parts = [];
       if (vpico) parts.push(`V PICO ${vpico.toFixed(1)} km/h`);
       if (fcmax) parts.push(`FC máx ${Math.round(fcmax)} ppm`);
-      refTexto.textContent = parts.join(' · ') + ' — Cerezuela-Espejo et al. (2018)';
+      refTexto.textContent = parts.join(' · ');
     }
 
     // Modelo Cerezuela-Espejo: R0-R3+
