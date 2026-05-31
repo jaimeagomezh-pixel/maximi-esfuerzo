@@ -300,7 +300,7 @@
 
   // ── ICONOS POR TIPO DE ACTIVIDAD ──
   function actualizarIconoActividad(tipo) {
-    const c = '#00c8d4';
+    const c = '#C9A84C';
     const a = `width="30" height="30" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`;
     const icons = {
       Run:           `<svg viewBox="0 0 24 24" ${a}><circle cx="14" cy="4" r="1.5"/><path d="M7 21l4-9 3 3 3-6"/><path d="M9 13l-2.5 4"/><path d="M15 12l1.5 4"/></svg>`,
@@ -763,7 +763,7 @@
         legend: { display: false },
         tooltip: {
           backgroundColor: '#1a1e24',
-          titleColor: '#00c8d4',
+          titleColor: '#C9A84C',
           bodyColor: '#ffffff',
           borderColor: 'rgba(0,200,212,0.2)',
           borderWidth: 1,
@@ -820,7 +820,7 @@
         labels,
         datasets: [{
           data: ritmoData,
-          borderColor: '#00c8d4',
+          borderColor: '#C9A84C',
           backgroundColor: (ctx) => {
             const g = ctx.chart.ctx.createLinearGradient(0,0,0,120);
             g.addColorStop(0,'rgba(0,200,212,0.12)');
@@ -956,7 +956,7 @@
     );
     const pointColors = values.map((_, i) => {
       if (i === bestIdx)   return '#d4a843';
-      if (i === latestIdx) return '#00c8d4';
+      if (i === latestIdx) return '#C9A84C';
       return 'rgba(0,200,212,0.45)';
     });
 
@@ -996,7 +996,7 @@
         labels,
         datasets: [{
           data: values,
-          borderColor: '#00c8d4',
+          borderColor: '#C9A84C',
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0,0,0,160);
             g.addColorStop(0,'rgba(0,200,212,0.12)');
@@ -1016,7 +1016,7 @@
           legend: { display: false },
           tooltip: {
             backgroundColor: '#1a1e24',
-            titleColor: '#00c8d4',
+            titleColor: '#C9A84C',
             bodyColor: '#ffffff',
             borderColor: 'rgba(0,200,212,0.2)',
             borderWidth: 1,
@@ -1960,8 +1960,8 @@
             }),
             datasets:[{
               data: sorted.map(s => +(s.time/60).toFixed(2)),
-              borderColor:'#007a85', backgroundColor:'rgba(0,122,133,0.08)',
-              fill:true, tension:0.3, pointRadius:4, pointBackgroundColor:'#007a85',
+              borderColor:'#8B1A1A', backgroundColor:'rgba(0,122,133,0.08)',
+              fill:true, tension:0.3, pointRadius:4, pointBackgroundColor:'#8B1A1A',
               pointBorderColor:'#fff', pointBorderWidth:1.5
             }]
           },
@@ -1996,7 +1996,7 @@
               <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${s.source==='strava'?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;color:#007a85;">${s.dist} km · ${s.load} kg</div>
+              <div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
               ${s.elev>0?'<div style="font-size:10px;color:#bbb;">↑ '+s.elev+' m desnivel</div>':''}
             </div>
           </div>`).join('');
@@ -2442,7 +2442,7 @@
     if (infoEl) infoEl.innerHTML =
       `${tiempo} &mdash; ${pace}/km &mdash; ${fechaLabel}<br>` +
       `<span style="font-size:11px;color:#aaa;">V PICO estimada: ` +
-      `<strong style="color:#007a85;font-family:'Barlow Condensed',sans-serif;">${pending.vPicoEst} km/h</strong>` +
+      `<strong style="color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;">${pending.vPicoEst} km/h</strong>` +
       ` (5km ≈ 92% V PICO)</span>`;
     banner.style.display = 'block';
   }

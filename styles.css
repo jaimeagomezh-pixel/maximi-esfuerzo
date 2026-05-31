@@ -1,14 +1,33 @@
   :root {
-    --negro: #0a0a0a;
-    --negro-medio: #111111;
-    --negro-suave: #1a1a1a;
-    --rojo: #c0392b;
-    --rojo-vivo: #e74c3c;
-    --dorado: #d4a843;
-    --dorado-suave: #f0c060;
-    --blanco: #f5f0eb;
-    --gris: #888;
-    --gris-suave: #555;
+    /* ── Paleta MáximoEsfuerzo · Negro/Rojo/Dorado ── */
+    --bg:           #0A0B0A;
+    --surface:      #0F0D0A;
+    --surface2:     #1A1410;
+    --border:       #1A1416;
+    --border-md:    #2A2018;
+    --muted:        #4A3A2A;
+
+    --red:          #8B1A1A;
+    --red-vivo:     #A82020;
+    --gold:         #C9A84C;
+    --gold-suave:   #E8C96A;
+
+    --text-body:    #949080;
+    --text-sec:     #D4CFB8;
+    --text-pri:     #F8EDE4;
+
+    /* Aliases retrocompatibles para código existente */
+    --negro:        var(--bg);
+    --negro-medio:  var(--surface);
+    --negro-suave:  var(--surface2);
+    --rojo:         var(--red);
+    --rojo-vivo:    var(--red-vivo);
+    --dorado:       var(--gold);
+    --dorado-suave: var(--gold-suave);
+    --blanco:       var(--text-pri);
+    --gris:         var(--text-body);
+    --gris-suave:   var(--muted);
+    --cian:         var(--gold);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -16,8 +35,8 @@
   html { scroll-behavior: smooth; }
 
   body {
-    background: var(--negro);
-    color: var(--blanco);
+    background: var(--bg);
+    color: var(--text-sec);
     font-family: 'Barlow', sans-serif;
     font-size: 16px;
     overflow-x: hidden;
@@ -33,9 +52,9 @@
     align-items: center;
     padding: 0 20px;
     height: 60px;
-    background: rgba(10,10,10,0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(212,168,67,0.15);
+    background: rgba(15,13,10,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(201,168,76,0.18);
   }
 
   .nav-logo {
@@ -1183,44 +1202,44 @@
   }
 
   /* ── DASHBOARD ACTUALIZADO ── */
-  #dashboardAtleta { display:none; position:fixed; inset:0; background:#0a0a0a; z-index:300; justify-content:center; align-items:flex-start; overflow-y:auto; }
+  #dashboardAtleta { display:none; position:fixed; inset:0; background:#0A0B0A; z-index:300; justify-content:center; align-items:flex-start; overflow-y:auto; }
   #dashboardAtleta.open { display:flex; }
-  .dashboard-box { background:#0a0a0a; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
+  .dashboard-box { background:#0F0D0A; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
 
-  .dash-header { background:linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%); border-bottom:1px solid rgba(212,168,67,0.15); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; }
+  .dash-header { background:linear-gradient(to bottom, #0A0B0A 0%, #1A1410 60%, #2A2018 100%); border-bottom:1px solid rgba(201,168,76,0.18); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#C9A84C; display:flex; align-items:center; }
   .dash-header-logo img { height:36px; width:auto; display:block; }
 
   /* Perfil */
-  .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(255,255,255,0.05); }
+  .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(201,168,76,0.08); }
   .dash-avatar-wrap { position:relative; flex-shrink:0; }
-  .dash-avatar-circle { width:70px; height:70px; border-radius:50%; background:#c0392b; border:2px solid rgba(212,168,67,0.3); display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:white; }
-  .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#d4a843; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0a0a0a; cursor:pointer; font-weight:bold; }
+  .dash-avatar-circle { width:70px; height:70px; border-radius:50%; background:#8B1A1A; border:2px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#F8EDE4; }
+  .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#C9A84C; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0A0B0A; cursor:pointer; font-weight:bold; }
   .dash-profile-info { flex:1; }
-  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#555; margin-bottom:3px; }
-  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#f5f0eb; letter-spacing:2px; line-height:1; }
+  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#4A3A2A; margin-bottom:3px; }
+  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#F8EDE4; letter-spacing:2px; line-height:1; }
 
   /* Frase */
-  .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(212,168,67,0.04); border-left:3px solid #d4a843; position:relative; }
-  .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(212,168,67,0.15); position:absolute; top:6px; left:10px; line-height:1; }
-  .dash-frase { font-family:'Barlow',sans-serif; font-size:15px; font-weight:300; font-style:italic; color:rgba(245,240,235,0.82); line-height:1.7; padding-left:10px; }
-  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#d4a843; text-align:right; margin-top:8px; }
+  .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(201,168,76,0.04); border-left:3px solid #C9A84C; position:relative; }
+  .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(201,168,76,0.12); position:absolute; top:6px; left:10px; line-height:1; }
+  .dash-frase { font-family:'Barlow',sans-serif; font-size:15px; font-weight:300; font-style:italic; color:rgba(248,237,228,0.82); line-height:1.7; padding-left:10px; }
+  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#C9A84C; text-align:right; margin-top:8px; }
 
-  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:5px; text-transform:uppercase; color:#c0392b; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
-  .dash-section-title::before { content:''; width:14px; height:1px; background:#c0392b; }
+  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:5px; text-transform:uppercase; color:#8B1A1A; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
+  .dash-section-title::before { content:''; width:14px; height:1px; background:#8B1A1A; }
 
   /* Métricas */
   .dash-metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; padding:0 20px; }
-  .dash-metric-card { background:#1a1a1a; padding:16px; border-top:2px solid transparent; transition:border-color 0.3s; }
-  .dash-metric-card:hover { border-top-color:#c0392b; }
+  .dash-metric-card { background:#1A1410; padding:16px; border-top:2px solid transparent; transition:border-color 0.3s; }
+  .dash-metric-card:hover { border-top-color:#8B1A1A; }
   .dash-metric-icon { font-size:1.1rem; margin-bottom:6px; }
-  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#d4a843; line-height:1; }
-  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; letter-spacing:1px; margin-top:2px; }
-  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#666; margin-top:4px; }
+  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#C9A84C; line-height:1; }
+  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#949080; letter-spacing:1px; margin-top:2px; }
+  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#4A3A2A; margin-top:4px; }
   .dash-bar-bg { width:100%; height:3px; background:rgba(255,255,255,0.06); margin-top:9px; border-radius:2px; }
-  .dash-bar-fill { height:100%; background:linear-gradient(90deg,#c0392b,#d4a843); border-radius:2px; }
-  .dash-metric-note { font-size:12px; color:rgba(212,168,67,0.75); margin-top:6px; font-style:italic; }
+  .dash-bar-fill { height:100%; background:linear-gradient(90deg,#8B1A1A,#C9A84C); border-radius:2px; }
+  .dash-metric-note { font-size:12px; color:rgba(201,168,76,0.75); margin-top:6px; font-style:italic; }
 
   /* Macros */
   .dash-macros-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; padding:0 20px; }
