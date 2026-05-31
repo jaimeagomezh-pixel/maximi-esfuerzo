@@ -1,3 +1,95 @@
+  /* ══════════════════════════════════════════
+     ANIMACIONES — MáximoEsfuerzo
+     ══════════════════════════════════════════ */
+
+  /* fadeUp — stagger cards */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* slideIn — lista actividad */
+  @keyframes slideIn {
+    from { opacity:0; transform:translateX(-24px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  /* lineSlide — línea roja */
+  @keyframes lineSlide {
+    from { width:0; }
+    to   { width:60px; }
+  }
+
+  /* textIn — título slide */
+  @keyframes textIn {
+    from { opacity:0; transform:translateX(-16px); }
+    to   { opacity:1; transform:translateX(0); }
+  }
+
+  /* subFade */
+  @keyframes subFade {
+    from { opacity:0; }
+    to   { opacity:1; }
+  }
+
+  /* barGrow — barras de progreso */
+  @keyframes barGrow {
+    from { width:0; }
+    to   { width:var(--w); }
+  }
+
+  /* pulseRed / pulseGold — estados en vivo */
+  @keyframes pulseRed {
+    0%,100% { box-shadow:0 0 0 0 rgba(139,26,26,0.6); }
+    50%      { box-shadow:0 0 0 6px rgba(139,26,26,0); }
+  }
+  @keyframes pulseGold {
+    0%,100% { box-shadow:0 0 0 0 rgba(201,168,76,0.6); }
+    50%      { box-shadow:0 0 0 6px rgba(201,168,76,0); }
+  }
+
+  /* ── Stagger cards al entrar dashboard ── */
+  .dash-metric-card  { opacity:0; }
+  .dash-stats-row .dash-stat-cell { opacity:0; }
+
+  .anim-ready .dash-metric-card:nth-child(1) { animation: fadeUp 0.4s 0.0s ease forwards; }
+  .anim-ready .dash-metric-card:nth-child(2) { animation: fadeUp 0.4s 0.1s ease forwards; }
+  .anim-ready .dash-metric-card:nth-child(3) { animation: fadeUp 0.4s 0.2s ease forwards; }
+  .anim-ready .dash-metric-card:nth-child(4) { animation: fadeUp 0.4s 0.3s ease forwards; }
+
+  .anim-ready .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.05s ease forwards; }
+  .anim-ready .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.15s ease forwards; }
+  .anim-ready .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.25s ease forwards; }
+  .anim-ready .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.35s ease forwards; }
+
+  /* ── Slide-in lista actividad ── */
+  .dash-activity-row { opacity:0; }
+  .anim-ready .dash-activity-row:nth-child(1) { animation: slideIn 0.35s 0.1s ease forwards; }
+  .anim-ready .dash-activity-row:nth-child(2) { animation: slideIn 0.35s 0.2s ease forwards; }
+  .anim-ready .dash-activity-row:nth-child(3) { animation: slideIn 0.35s 0.3s ease forwards; }
+
+  /* ── Hover táctico en cards ── */
+  .dash-metric-card {
+    transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
+  }
+  .dash-metric-card:hover {
+    transform: translateY(-2px) !important;
+  }
+  .dash-connect-card {
+    transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
+  }
+  .dash-connect-card:hover {
+    transform: translateY(-2px) !important;
+  }
+
+  /* ── Pulse dot Strava ── */
+  .pulse-dot-red  { width:8px; height:8px; border-radius:50%; background:#8B1A1A; display:inline-block; animation: pulseRed  1.5s infinite; }
+  .pulse-dot-gold { width:8px; height:8px; border-radius:50%; background:#C9A84C; display:inline-block; animation: pulseGold 1.5s 0.3s infinite; }
+
+  /* ── Barras de zona FC animadas ── */
+  .dash-zone-bar-fill { width:0; transition:none; }
+  .anim-ready .dash-zone-bar-fill { animation: barGrow 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+
   :root {
     /* ── Paleta MáximoEsfuerzo · Negro/Rojo/Dorado ── */
     --bg:           #0A0B0A;

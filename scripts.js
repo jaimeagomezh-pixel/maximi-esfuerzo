@@ -127,6 +127,12 @@
           if (typeof initZonasCarrera    === 'function') initZonasCarrera();
           if (typeof initRuckingAtleta   === 'function') initRuckingAtleta();
           if (typeof lucide !== 'undefined') lucide.createIcons();
+          // Animaciones de entrada
+          if (typeof activarAnimaciones === 'function') activarAnimaciones();
+          setTimeout(() => {
+            if (typeof animarNumeros === 'function') animarNumeros();
+            if (typeof agregarPulseDot === 'function') agregarPulseDot();
+          }, 400);
           // Cargar datos reales de Strava si hay token guardado
           const stravaToken = localStorage.getItem('strava_token');
           const stravaExpiry = localStorage.getItem('strava_expiry');

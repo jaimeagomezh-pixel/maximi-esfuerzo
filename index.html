@@ -1464,6 +1464,53 @@ window.saveManualTimes = function() {
 </script>
 
 <script>
+// ── ANIMACIONES DASHBOARD ───────────────────────────────────────────────────
+
+function activarAnimaciones() {
+  const box = document.querySelector('.dashboard-box');
+  if (!box) return;
+  box.classList.remove('anim-ready');
+  void box.offsetWidth; // reflow
+  box.classList.add('anim-ready');
+}
+
+function countUp(el, target, suffix, duration) {
+  if (!el) return;
+  const start = Date.now();
+  const tick = () => {
+    const p = Math.min((Date.now() - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(ease * target) + (suffix || '');
+    if (p < 1) requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+function animarNumeros() {
+  // Count-up en métricas del dashboard
+  const metricValues = document.querySelectorAll('.dash-metric-value, .dash-stat-value');
+  metricValues.forEach(el => {
+    const raw = parseFloat(el.dataset.value || el.textContent);
+    const suffix = el.dataset.suffix || '';
+    if (!isNaN(raw) && raw > 0) {
+      el.dataset.value = raw;
+      countUp(el, raw, suffix, 1200);
+    }
+  });
+}
+
+// Agregar dot de pulse junto al estado de Strava
+function agregarPulseDot() {
+  const stravaStatus = document.getElementById('stravaStatus');
+  if (stravaStatus && !stravaStatus.querySelector('.pulse-dot-gold')) {
+    const dot = document.createElement('span');
+    dot.className = 'pulse-dot-gold';
+    dot.style.marginRight = '6px';
+    dot.style.verticalAlign = 'middle';
+    stravaStatus.prepend(dot);
+  }
+}
+
 // ── COMPOSICIÓN CORPORAL · InBody + MyJump ──────────────────────────────────
 const MEDIA_WORKER = 'https://media.jaimea-gomezh.workers.dev';
 
