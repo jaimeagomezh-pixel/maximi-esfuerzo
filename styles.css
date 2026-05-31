@@ -48,20 +48,16 @@
     50%      { box-shadow:0 0 0 6px rgba(201,168,76,0); }
   }
 
-  /* ── Stagger stat cells (estructura real del HTML) ── */
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.00s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.10s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.20s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.30s ease both; }
+  /* ── Animaciones: disparan solas cuando dashboard tiene clase .open ── */
+  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.45s 0.10s ease both; }
+  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.45s 0.20s ease both; }
+  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.45s 0.30s ease both; }
+  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.45s 0.40s ease both; }
 
-  /* ── Slide-in frase motivacional ── */
-  .anim-ready .dash-frase-wrap { animation: slideIn 0.5s 0.05s ease both; }
-
-  /* ── Slide-in secciones del dashboard ── */
-  .anim-ready .dash-section-title { animation: fadeUp 0.35s 0.05s ease both; }
-
-  /* ── Slide-in chart cards ── */
-  .anim-ready .dash-chart-card { animation: fadeUp 0.45s 0.15s ease both; }
+  #dashboardAtleta.open .dash-frase-wrap  { animation: slideIn 0.5s 0.15s ease both; }
+  #dashboardAtleta.open .dash-chart-card  { animation: fadeUp 0.5s 0.20s ease both; }
+  #dashboardAtleta.open .dash-section-title { animation: fadeUp 0.4s 0.05s ease both; }
+  #dashboardAtleta.open .dash-profile     { animation: fadeUp 0.4s 0.05s ease both; }
 
   /* ── Hover táctico en cards ── */
   .dash-metric-card {
@@ -3085,3 +3081,19 @@
   #dashboardAtleta .chartjs-render-monitor {
     color: #333333 !important;
   }
+
+  /* ══ TIPOGRAFÍA DASHBOARD — override final ══ */
+  #dashboardAtleta .dash-nombre       { font-size: 2.6rem !important; }
+  #dashboardAtleta .dash-saludo       { font-size: 13px !important; }
+  #dashboardAtleta .dash-frase        { font-size: 16px !important; line-height: 1.7 !important; }
+  #dashboardAtleta .dash-frase-autor  { font-size: 13px !important; }
+  #dashboardAtleta .dash-section-title{ font-size: 12px !important; letter-spacing: 4px !important; }
+  #dashboardAtleta .dash-stat-value   { font-size: 2.2rem !important; font-weight: 700 !important; }
+  #dashboardAtleta .dash-stat-label   { font-size: 12px !important; }
+  #dashboardAtleta .dash-stat-unit    { font-size: 14px !important; }
+  #dashboardAtleta .dash-activity-name{ font-size: 16px !important; font-weight: 600 !important; }
+  #dashboardAtleta .dash-activity-date{ font-size: 13px !important; }
+  #dashboardAtleta .dash-connect-name { font-size: 15px !important; font-weight: 600 !important; }
+  #dashboardAtleta .dash-connect-status { font-size: 13px !important; }
+  #dashboardAtleta .dash-nutri-text strong { font-size: 15px !important; }
+  #dashboardAtleta .dash-nutri-text span   { font-size: 13px !important; }
