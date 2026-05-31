@@ -8,50 +8,39 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=20260531">
 <style>
-/* ── ANIMACIONES STITCH — pegado directo ── */
-@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
-@keyframes slideIn { from { opacity:0; transform:translateX(-24px); } to { opacity:1; transform:translateX(0); } }
-@keyframes lineSlide { from { width:0; } to { width:60px; } }
-@keyframes barGrow { from { width:0; } to { width:var(--w); } }
-@keyframes pulseRed  { 0%,100%{box-shadow:0 0 0 0 rgba(139,26,26,0.6);}  50%{box-shadow:0 0 0 6px rgba(139,26,26,0);} }
-@keyframes pulseGold { 0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.6);} 50%{box-shadow:0 0 0 6px rgba(201,168,76,0);} }
+/* ── ANIMACIONES — disparan via JS con clase .me-anim ── */
+@keyframes meUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes meLeft { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
+@keyframes pulseRed  { 0%,100%{box-shadow:0 0 0 0 rgba(139,26,26,0.6)} 50%{box-shadow:0 0 0 6px rgba(139,26,26,0)} }
+@keyframes pulseGold { 0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.6)} 50%{box-shadow:0 0 0 6px rgba(201,168,76,0)} }
 
-/* stat cells — stagger al abrir */
-#dashboardAtleta.open .dash-stats-row .dash-stat-cell { opacity:0; }
-#dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(1) { animation:fadeUp .45s .15s ease forwards; }
-#dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(2) { animation:fadeUp .45s .25s ease forwards; }
-#dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(3) { animation:fadeUp .45s .35s ease forwards; }
-#dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(4) { animation:fadeUp .45s .45s ease forwards; }
+.me-anim-up   { animation:meUp   .45s ease both; }
+.me-anim-left { animation:meLeft .5s  ease both; }
+.me-anim-d1   { animation-delay:.05s; }
+.me-anim-d2   { animation-delay:.15s; }
+.me-anim-d3   { animation-delay:.25s; }
+.me-anim-d4   { animation-delay:.35s; }
 
-/* frase motivacional */
-#dashboardAtleta.open .dash-frase-wrap { opacity:0; animation:slideIn .5s .2s ease forwards; }
-
-/* perfil */
-#dashboardAtleta.open .dash-profile { opacity:0; animation:fadeUp .4s .05s ease forwards; }
-
-/* chart cards */
-#dashboardAtleta.open .dash-chart-card { opacity:0; animation:fadeUp .5s .3s ease forwards; }
-
-/* pulse dot Strava */
-.me-pulse-dot { width:8px; height:8px; border-radius:50%; display:inline-block; vertical-align:middle; margin-right:5px; }
+/* pulse dot */
+.me-pulse-dot { width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:5px; }
 .me-pulse-dot.gold { background:#C9A84C; animation:pulseGold 1.5s infinite; }
 .me-pulse-dot.red  { background:#8B1A1A; animation:pulseRed  1.5s infinite; }
 
 /* hover táctico */
-.dash-stat-cell    { transition:transform .2s, border-color .2s; }
+.dash-stat-cell  { transition:transform .2s; cursor:default; }
 .dash-stat-cell:hover { transform:translateY(-2px); }
-.dash-chart-card   { transition:transform .2s; }
+.dash-chart-card { transition:transform .2s; }
 .dash-chart-card:hover { transform:translateY(-2px); }
 
-/* tipografía más grande */
-#dashboardAtleta .dash-nombre        { font-size:2.6rem !important; }
-#dashboardAtleta .dash-stat-value    { font-size:2.2rem !important; font-weight:700 !important; }
-#dashboardAtleta .dash-stat-label    { font-size:12px   !important; letter-spacing:2px !important; }
-#dashboardAtleta .dash-stat-unit     { font-size:14px   !important; }
-#dashboardAtleta .dash-section-title { font-size:12px   !important; letter-spacing:4px !important; }
-#dashboardAtleta .dash-frase         { font-size:16px   !important; }
-#dashboardAtleta .dash-activity-name { font-size:16px   !important; font-weight:600 !important; }
-#dashboardAtleta .dash-connect-name  { font-size:15px   !important; }
+/* tipografía dashboard */
+#dashboardAtleta .dash-nombre        { font-size:2.6rem  !important; }
+#dashboardAtleta .dash-stat-value    { font-size:2.2rem  !important; font-weight:700 !important; }
+#dashboardAtleta .dash-stat-label    { font-size:12px    !important; letter-spacing:2px !important; }
+#dashboardAtleta .dash-stat-unit     { font-size:14px    !important; }
+#dashboardAtleta .dash-section-title { font-size:12px    !important; letter-spacing:4px !important; }
+#dashboardAtleta .dash-frase         { font-size:16px    !important; }
+#dashboardAtleta .dash-activity-name { font-size:16px    !important; font-weight:600 !important; }
+#dashboardAtleta .dash-connect-name  { font-size:15px    !important; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
@@ -1513,11 +1502,30 @@ window.saveManualTimes = function() {
 // ── ANIMACIONES DASHBOARD ───────────────────────────────────────────────────
 
 function activarAnimaciones() {
-  const box = document.querySelector('.dashboard-box');
-  if (!box) return;
-  box.classList.remove('anim-ready');
-  void box.offsetWidth; // reflow
-  box.classList.add('anim-ready');
+  // Doble rAF: garantiza que display:flex ya fue procesado por el browser
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // Animar stat cells con stagger
+      document.querySelectorAll('.dash-stats-row .dash-stat-cell').forEach((el, i) => {
+        el.classList.remove('me-anim-up','me-anim-d1','me-anim-d2','me-anim-d3','me-anim-d4');
+        void el.offsetWidth;
+        el.classList.add('me-anim-up', `me-anim-d${i+1}`);
+      });
+      // Animar frase
+      const frase = document.querySelector('.dash-frase-wrap');
+      if (frase) { frase.classList.remove('me-anim-left'); void frase.offsetWidth; frase.classList.add('me-anim-left','me-anim-d2'); }
+      // Animar perfil
+      const perfil = document.querySelector('.dash-profile');
+      if (perfil) { perfil.classList.remove('me-anim-up'); void perfil.offsetWidth; perfil.classList.add('me-anim-up','me-anim-d1'); }
+      // Pulse dot Strava
+      const st = document.getElementById('stravaStatus');
+      if (st && !st.querySelector('.me-pulse-dot')) {
+        const dot = document.createElement('span');
+        dot.className = 'me-pulse-dot gold';
+        st.prepend(dot);
+      }
+    });
+  });
 }
 
 function countUp(el, target, suffix, duration) {
