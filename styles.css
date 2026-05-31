@@ -48,22 +48,20 @@
     50%      { box-shadow:0 0 0 6px rgba(201,168,76,0); }
   }
 
-  /* ── Stagger cards: solo animan cuando .anim-ready está presente ── */
-  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(1) { animation: fadeUp 0.45s 0.00s ease both; }
-  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(2) { animation: fadeUp 0.45s 0.10s ease both; }
-  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(3) { animation: fadeUp 0.45s 0.20s ease both; }
-  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(4) { animation: fadeUp 0.45s 0.30s ease both; }
-
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.05s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.15s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.25s ease both; }
-  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.35s ease both; }
+  /* ── Stagger stat cells (estructura real del HTML) ── */
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.00s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.10s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.20s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.30s ease both; }
 
   /* ── Slide-in frase motivacional ── */
-  .anim-ready .dash-frase-wrap { animation: slideIn 0.5s 0.15s ease both; }
+  .anim-ready .dash-frase-wrap { animation: slideIn 0.5s 0.05s ease both; }
 
   /* ── Slide-in secciones del dashboard ── */
-  .anim-ready .dash-section-title { animation: fadeUp 0.4s 0.05s ease both; }
+  .anim-ready .dash-section-title { animation: fadeUp 0.35s 0.05s ease both; }
+
+  /* ── Slide-in chart cards ── */
+  .anim-ready .dash-chart-card { animation: fadeUp 0.45s 0.15s ease both; }
 
   /* ── Hover táctico en cards ── */
   .dash-metric-card {
@@ -1305,16 +1303,16 @@
   #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#F8EDE4; }
   .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#C9A84C; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0A0B0A; cursor:pointer; font-weight:bold; }
   .dash-profile-info { flex:1; }
-  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#4A3A2A; margin-bottom:3px; }
-  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#F8EDE4; letter-spacing:2px; line-height:1; }
+  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:#4A3A2A; margin-bottom:3px; }
+  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.6rem; color:#F8EDE4; letter-spacing:2px; line-height:1; }
 
   /* Frase */
   .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(201,168,76,0.04); border-left:3px solid #C9A84C; position:relative; }
   .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(201,168,76,0.12); position:absolute; top:6px; left:10px; line-height:1; }
-  .dash-frase { font-family:'Barlow',sans-serif; font-size:15px; font-weight:300; font-style:italic; color:rgba(248,237,228,0.82); line-height:1.7; padding-left:10px; }
-  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#C9A84C; text-align:right; margin-top:8px; }
+  .dash-frase { font-family:'Barlow',sans-serif; font-size:16px; font-weight:300; font-style:italic; color:rgba(248,237,228,0.82); line-height:1.7; padding-left:10px; }
+  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:#C9A84C; text-align:right; margin-top:8px; }
 
-  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:5px; text-transform:uppercase; color:#8B1A1A; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
+  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:5px; text-transform:uppercase; color:#8B1A1A; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
   .dash-section-title::before { content:''; width:14px; height:1px; background:#8B1A1A; }
 
   /* Métricas */
@@ -2201,9 +2199,9 @@
     background: #1A1410 !important;
     border-top: 2px solid rgba(139,26,26,0.4) !important;
   }
-  .dash-stat-label { color: #C9A84C !important; font-size: 11px !important; letter-spacing: 2px !important; }
-  .dash-stat-value { color: #F8EDE4 !important; font-size: 1.6rem !important; font-weight: 700 !important; }
-  .dash-stat-unit  { color: #949080 !important; }
+  .dash-stat-label { color: #C9A84C !important; font-size: 12px !important; letter-spacing: 2px !important; }
+  .dash-stat-value { color: #F8EDE4 !important; font-size: 2rem !important; font-weight: 700 !important; }
+  .dash-stat-unit  { color: #949080 !important; font-size: 14px !important; }
 
   /* Activity */
   .dash-activity-name { color: #F8EDE4 !important; }
