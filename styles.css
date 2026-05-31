@@ -48,47 +48,43 @@
     50%      { box-shadow:0 0 0 6px rgba(201,168,76,0); }
   }
 
-  /* ── Stagger cards al entrar dashboard ── */
-  .dash-metric-card  { opacity:0; }
-  .dash-stats-row .dash-stat-cell { opacity:0; }
+  /* ── Stagger cards: solo animan cuando .anim-ready está presente ── */
+  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(1) { animation: fadeUp 0.45s 0.00s ease both; }
+  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(2) { animation: fadeUp 0.45s 0.10s ease both; }
+  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(3) { animation: fadeUp 0.45s 0.20s ease both; }
+  .anim-ready .dash-metrics-grid .dash-metric-card:nth-child(4) { animation: fadeUp 0.45s 0.30s ease both; }
 
-  .anim-ready .dash-metric-card:nth-child(1) { animation: fadeUp 0.4s 0.0s ease forwards; }
-  .anim-ready .dash-metric-card:nth-child(2) { animation: fadeUp 0.4s 0.1s ease forwards; }
-  .anim-ready .dash-metric-card:nth-child(3) { animation: fadeUp 0.4s 0.2s ease forwards; }
-  .anim-ready .dash-metric-card:nth-child(4) { animation: fadeUp 0.4s 0.3s ease forwards; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.05s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.15s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.25s ease both; }
+  .anim-ready .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.35s ease both; }
 
-  .anim-ready .dash-stat-cell:nth-child(1) { animation: fadeUp 0.4s 0.05s ease forwards; }
-  .anim-ready .dash-stat-cell:nth-child(2) { animation: fadeUp 0.4s 0.15s ease forwards; }
-  .anim-ready .dash-stat-cell:nth-child(3) { animation: fadeUp 0.4s 0.25s ease forwards; }
-  .anim-ready .dash-stat-cell:nth-child(4) { animation: fadeUp 0.4s 0.35s ease forwards; }
+  /* ── Slide-in frase motivacional ── */
+  .anim-ready .dash-frase-wrap { animation: slideIn 0.5s 0.15s ease both; }
 
-  /* ── Slide-in lista actividad ── */
-  .dash-activity-row { opacity:0; }
-  .anim-ready .dash-activity-row:nth-child(1) { animation: slideIn 0.35s 0.1s ease forwards; }
-  .anim-ready .dash-activity-row:nth-child(2) { animation: slideIn 0.35s 0.2s ease forwards; }
-  .anim-ready .dash-activity-row:nth-child(3) { animation: slideIn 0.35s 0.3s ease forwards; }
+  /* ── Slide-in secciones del dashboard ── */
+  .anim-ready .dash-section-title { animation: fadeUp 0.4s 0.05s ease both; }
 
   /* ── Hover táctico en cards ── */
   .dash-metric-card {
     transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
   }
-  .dash-metric-card:hover {
-    transform: translateY(-2px) !important;
-  }
+  .dash-metric-card:hover { transform: translateY(-2px) !important; }
   .dash-connect-card {
     transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
   }
-  .dash-connect-card:hover {
-    transform: translateY(-2px) !important;
-  }
+  .dash-connect-card:hover { transform: translateY(-2px) !important; }
 
   /* ── Pulse dot Strava ── */
-  .pulse-dot-red  { width:8px; height:8px; border-radius:50%; background:#8B1A1A; display:inline-block; animation: pulseRed  1.5s infinite; }
-  .pulse-dot-gold { width:8px; height:8px; border-radius:50%; background:#C9A84C; display:inline-block; animation: pulseGold 1.5s 0.3s infinite; }
+  .pulse-dot-red  { width:8px; height:8px; border-radius:50%; background:#8B1A1A;
+                    display:inline-block; animation: pulseRed  1.5s infinite; }
+  .pulse-dot-gold { width:8px; height:8px; border-radius:50%; background:#C9A84C;
+                    display:inline-block; animation: pulseGold 1.5s 0.3s infinite; }
 
-  /* ── Barras de zona FC animadas ── */
-  .dash-zone-bar-fill { width:0; transition:none; }
-  .anim-ready .dash-zone-bar-fill { animation: barGrow 0.7s cubic-bezier(0.22,1,0.36,1) forwards; }
+  /* ── Barras zona FC ── */
+  .anim-ready .dash-zone-bar-fill {
+    animation: barGrow 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
 
   :root {
     /* ── Paleta MáximoEsfuerzo · Negro/Rojo/Dorado ── */
