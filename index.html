@@ -8,42 +8,45 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css?v=20260531">
 <style>
-/* ── ANIMACIONES — disparan via JS con clase .me-anim ── */
-@keyframes meUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-@keyframes meLeft { from{opacity:0;transform:translateX(-20px)} to{opacity:1;transform:translateX(0)} }
-@keyframes pulseRed  { 0%,100%{box-shadow:0 0 0 0 rgba(139,26,26,0.6)} 50%{box-shadow:0 0 0 6px rgba(139,26,26,0)} }
-@keyframes pulseGold { 0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,0.6)} 50%{box-shadow:0 0 0 6px rgba(201,168,76,0)} }
+/* ─── MáximoEsfuerzo · Animaciones dashboard ─── */
 
-.me-anim-up   { animation:meUp   .45s ease both; }
-.me-anim-left { animation:meLeft .5s  ease both; }
-.me-anim-d1   { animation-delay:.05s; }
-.me-anim-d2   { animation-delay:.15s; }
-.me-anim-d3   { animation-delay:.25s; }
-.me-anim-d4   { animation-delay:.35s; }
+/* 1 · Stagger fade-up */
+@keyframes meUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.me-up { animation: meUp .45s cubic-bezier(.22,1,.36,1) both; }
+.me-d1 { animation-delay:.06s; }
+.me-d2 { animation-delay:.14s; }
+.me-d3 { animation-delay:.22s; }
+.me-d4 { animation-delay:.30s; }
 
-/* pulse dot */
-.me-pulse-dot { width:8px;height:8px;border-radius:50%;display:inline-block;vertical-align:middle;margin-right:5px; }
-.me-pulse-dot.gold { background:#C9A84C; animation:pulseGold 1.5s infinite; }
-.me-pulse-dot.red  { background:#8B1A1A; animation:pulseRed  1.5s infinite; }
+/* 2 · Barras — parten en 0, JS restaura width real con delay */
+.me-bar-animate {
+  width: 0 !important;
+  transition: width .9s cubic-bezier(.22,1,.36,1) !important;
+}
 
-/* hover táctico */
-.dash-stat-cell  { transition:transform .2s; cursor:default; }
-.dash-stat-cell:hover { transform:translateY(-2px); }
-.dash-chart-card { transition:transform .2s; }
-.dash-chart-card:hover { transform:translateY(-2px); }
+/* 3 · Pulse dot paleta negro/rojo/dorado */
+@keyframes pGold { 0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.7)} 60%{box-shadow:0 0 0 8px rgba(201,168,76,0)} }
+@keyframes pRed  { 0%,100%{box-shadow:0 0 0 0 rgba(139,26,26,.7)}  60%{box-shadow:0 0 0 8px rgba(139,26,26,0)} }
 
-/* hero — tamaño normal */
-.hero-title { font-size: clamp(3.5rem, 12vw, 9rem) !important; }
+.me-dot {
+  width:8px; height:8px; border-radius:50%;
+  display:inline-block; vertical-align:middle; flex-shrink:0;
+}
+.me-dot-gold { background:#C9A84C; animation: pGold 1.6s ease infinite; }
+.me-dot-red  { background:#8B1A1A; animation: pRed  1.6s ease infinite; }
 
-/* tipografía dashboard */
-#dashboardAtleta .dash-nombre        { font-size:2.6rem  !important; }
-#dashboardAtleta .dash-stat-value    { font-size:2.2rem  !important; font-weight:700 !important; }
-#dashboardAtleta .dash-stat-label    { font-size:12px    !important; letter-spacing:2px !important; }
-#dashboardAtleta .dash-stat-unit     { font-size:14px    !important; }
-#dashboardAtleta .dash-section-title { font-size:12px    !important; letter-spacing:4px !important; }
-#dashboardAtleta .dash-frase         { font-size:16px    !important; }
-#dashboardAtleta .dash-activity-name { font-size:16px    !important; font-weight:600 !important; }
-#dashboardAtleta .dash-connect-name  { font-size:15px    !important; }
+.me-live-badge {
+  display:inline-flex; align-items:center; gap:7px;
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:11px; font-weight:700; letter-spacing:.15em;
+  text-transform:uppercase; padding:6px 13px;
+  border-radius:2px;
+}
+.me-live-gold { background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.45); color:#C9A84C; }
+.me-live-red  { background:rgba(139,26,26,.08);  border:1px solid rgba(139,26,26,.45);  color:#c0392b; }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
@@ -1505,28 +1508,41 @@ window.saveManualTimes = function() {
 // ── ANIMACIONES DASHBOARD ───────────────────────────────────────────────────
 
 function activarAnimaciones() {
-  // Doble rAF: garantiza que display:flex ya fue procesado por el browser
+  // Doble rAF: asegura que display:flex ya fue procesado antes de animar
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      // Animar stat cells con stagger
+
+      // 1 · STAGGER FADE-UP en stat cells
       document.querySelectorAll('.dash-stats-row .dash-stat-cell').forEach((el, i) => {
-        el.classList.remove('me-anim-up','me-anim-d1','me-anim-d2','me-anim-d3','me-anim-d4');
-        void el.offsetWidth;
-        el.classList.add('me-anim-up', `me-anim-d${i+1}`);
+        el.classList.remove('me-up','me-d1','me-d2','me-d3','me-d4');
+        void el.offsetWidth; // reflow
+        el.classList.add('me-up', `me-d${i+1}`);
       });
-      // Animar frase
-      const frase = document.querySelector('.dash-frase-wrap');
-      if (frase) { frase.classList.remove('me-anim-left'); void frase.offsetWidth; frase.classList.add('me-anim-left','me-anim-d2'); }
-      // Animar perfil
-      const perfil = document.querySelector('.dash-profile');
-      if (perfil) { perfil.classList.remove('me-anim-up'); void perfil.offsetWidth; perfil.classList.add('me-anim-up','me-anim-d1'); }
-      // Pulse dot Strava
-      const st = document.getElementById('stravaStatus');
-      if (st && !st.querySelector('.me-pulse-dot')) {
-        const dot = document.createElement('span');
-        dot.className = 'me-pulse-dot gold';
-        st.prepend(dot);
+
+      // 2 · BARRAS DE PROGRESO — guardar widths, poner a 0, animar al real
+      document.querySelectorAll('.dash-zone-bar-fill, .dash-te-bar-fill').forEach(bar => {
+        const realWidth = bar.style.width || getComputedStyle(bar).width;
+        bar.classList.add('me-bar-animate');
+        // pequeño delay para que el browser procese width:0 antes de animar
+        setTimeout(() => {
+          bar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
+          bar.style.width = realWidth;
+        }, 80);
+      });
+
+      // 3 · PULSE DOT en estado Strava
+      const stravaCard = document.getElementById('btnStrava');
+      const stravaStatus = document.getElementById('stravaStatus');
+      if (stravaStatus && !stravaStatus.querySelector('.me-dot')) {
+        const isConectado = stravaStatus.textContent.toLowerCase().includes('conectado') ||
+                            stravaStatus.textContent.toLowerCase().includes('sincroniz');
+        const badge = document.createElement('span');
+        badge.className = `me-live-badge ${isConectado ? 'me-live-gold' : 'me-live-red'}`;
+        badge.innerHTML = `<span class="me-dot ${isConectado ? 'me-dot-gold' : 'me-dot-red'}"></span>${stravaStatus.textContent}`;
+        stravaStatus.innerHTML = '';
+        stravaStatus.appendChild(badge);
       }
+
     });
   });
 }
