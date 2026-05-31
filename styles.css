@@ -1,115 +1,14 @@
-  /* ══════════════════════════════════════════
-     ANIMACIONES — MáximoEsfuerzo
-     ══════════════════════════════════════════ */
-
-  /* fadeUp — stagger cards */
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(20px); }
-    to   { opacity:1; transform:translateY(0); }
-  }
-
-  /* slideIn — lista actividad */
-  @keyframes slideIn {
-    from { opacity:0; transform:translateX(-24px); }
-    to   { opacity:1; transform:translateX(0); }
-  }
-
-  /* lineSlide — línea roja */
-  @keyframes lineSlide {
-    from { width:0; }
-    to   { width:60px; }
-  }
-
-  /* textIn — título slide */
-  @keyframes textIn {
-    from { opacity:0; transform:translateX(-16px); }
-    to   { opacity:1; transform:translateX(0); }
-  }
-
-  /* subFade */
-  @keyframes subFade {
-    from { opacity:0; }
-    to   { opacity:1; }
-  }
-
-  /* barGrow — barras de progreso */
-  @keyframes barGrow {
-    from { width:0; }
-    to   { width:var(--w); }
-  }
-
-  /* pulseRed / pulseGold — estados en vivo */
-  @keyframes pulseRed {
-    0%,100% { box-shadow:0 0 0 0 rgba(139,26,26,0.6); }
-    50%      { box-shadow:0 0 0 6px rgba(139,26,26,0); }
-  }
-  @keyframes pulseGold {
-    0%,100% { box-shadow:0 0 0 0 rgba(201,168,76,0.6); }
-    50%      { box-shadow:0 0 0 6px rgba(201,168,76,0); }
-  }
-
-  /* ── Animaciones: disparan solas cuando dashboard tiene clase .open ── */
-  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(1) { animation: fadeUp 0.45s 0.10s ease both; }
-  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(2) { animation: fadeUp 0.45s 0.20s ease both; }
-  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(3) { animation: fadeUp 0.45s 0.30s ease both; }
-  #dashboardAtleta.open .dash-stats-row .dash-stat-cell:nth-child(4) { animation: fadeUp 0.45s 0.40s ease both; }
-
-  #dashboardAtleta.open .dash-frase-wrap  { animation: slideIn 0.5s 0.15s ease both; }
-  #dashboardAtleta.open .dash-chart-card  { animation: fadeUp 0.5s 0.20s ease both; }
-  #dashboardAtleta.open .dash-section-title { animation: fadeUp 0.4s 0.05s ease both; }
-  #dashboardAtleta.open .dash-profile     { animation: fadeUp 0.4s 0.05s ease both; }
-
-  /* ── Hover táctico en cards ── */
-  .dash-metric-card {
-    transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
-  }
-  .dash-metric-card:hover { transform: translateY(-2px) !important; }
-  .dash-connect-card {
-    transition: border-color 0.2s, background 0.2s, transform 0.2s !important;
-  }
-  .dash-connect-card:hover { transform: translateY(-2px) !important; }
-
-  /* ── Pulse dot Strava ── */
-  .pulse-dot-red  { width:8px; height:8px; border-radius:50%; background:#8B1A1A;
-                    display:inline-block; animation: pulseRed  1.5s infinite; }
-  .pulse-dot-gold { width:8px; height:8px; border-radius:50%; background:#C9A84C;
-                    display:inline-block; animation: pulseGold 1.5s 0.3s infinite; }
-
-  /* ── Barras zona FC ── */
-  .anim-ready .dash-zone-bar-fill {
-    animation: barGrow 0.8s cubic-bezier(0.22,1,0.36,1) forwards;
-  }
-
   :root {
-    /* ── Paleta MáximoEsfuerzo · Negro/Rojo/Dorado ── */
-    --bg:           #0A0B0A;
-    --surface:      #0F0D0A;
-    --surface2:     #1A1410;
-    --border:       #1A1416;
-    --border-md:    #2A2018;
-    --muted:        #4A3A2A;
-
-    --red:          #8B1A1A;
-    --red-vivo:     #A82020;
-    --gold:         #C9A84C;
-    --gold-suave:   #E8C96A;
-
-    --text-body:    #949080;
-    --text-sec:     #D4CFB8;
-    --text-pri:     #F8EDE4;
-
-    /* Aliases retrocompatibles para código existente */
-    --negro:        var(--bg);
-    --negro-medio:  var(--surface);
-    --negro-suave:  var(--surface2);
-    --rojo:         var(--red);
-    --rojo-vivo:    var(--red-vivo);
-    --dorado:       var(--gold);
-    --dorado-suave: var(--gold-suave);
-    --blanco:       var(--text-pri);
-    --gris:         var(--text-body);
-    --gris-suave:   var(--muted);
-    --cian:         var(--gold);
+    --negro: #0a0a0a;
+    --negro-medio: #111111;
+    --negro-suave: #1a1a1a;
+    --rojo: #c0392b;
+    --rojo-vivo: #e74c3c;
+    --dorado: #d4a843;
+    --dorado-suave: #f0c060;
+    --blanco: #f5f0eb;
+    --gris: #888;
+    --gris-suave: #555;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -117,8 +16,8 @@
   html { scroll-behavior: smooth; }
 
   body {
-    background: var(--bg);
-    color: var(--text-sec);
+    background: var(--negro);
+    color: var(--blanco);
     font-family: 'Barlow', sans-serif;
     font-size: 16px;
     overflow-x: hidden;
@@ -134,9 +33,9 @@
     align-items: center;
     padding: 0 20px;
     height: 60px;
-    background: rgba(15,13,10,0.97);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(201,168,76,0.18);
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(212,168,67,0.15);
   }
 
   .nav-logo {
@@ -1284,44 +1183,44 @@
   }
 
   /* ── DASHBOARD ACTUALIZADO ── */
-  #dashboardAtleta { display:none; position:fixed; inset:0; background:#0A0B0A; z-index:300; justify-content:center; align-items:flex-start; overflow-y:auto; }
+  #dashboardAtleta { display:none; position:fixed; inset:0; background:#0a0a0a; z-index:300; justify-content:center; align-items:flex-start; overflow-y:auto; }
   #dashboardAtleta.open { display:flex; }
-  .dashboard-box { background:#0F0D0A; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
+  .dashboard-box { background:#0a0a0a; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
 
-  .dash-header { background:linear-gradient(to bottom, #0A0B0A 0%, #1A1410 60%, #2A2018 100%); border-bottom:1px solid rgba(201,168,76,0.18); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#C9A84C; display:flex; align-items:center; }
+  .dash-header { background:linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%); border-bottom:1px solid rgba(212,168,67,0.15); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
+  .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; }
   .dash-header-logo img { height:36px; width:auto; display:block; }
 
   /* Perfil */
-  .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(201,168,76,0.08); }
+  .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(255,255,255,0.05); }
   .dash-avatar-wrap { position:relative; flex-shrink:0; }
-  .dash-avatar-circle { width:70px; height:70px; border-radius:50%; background:#8B1A1A; border:2px solid rgba(201,168,76,0.3); display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#F8EDE4; }
-  .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#C9A84C; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0A0B0A; cursor:pointer; font-weight:bold; }
+  .dash-avatar-circle { width:70px; height:70px; border-radius:50%; background:#c0392b; border:2px solid rgba(212,168,67,0.3); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+  #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:white; }
+  .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#d4a843; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0a0a0a; cursor:pointer; font-weight:bold; }
   .dash-profile-info { flex:1; }
-  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:#4A3A2A; margin-bottom:3px; }
-  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.6rem; color:#F8EDE4; letter-spacing:2px; line-height:1; }
+  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#555; margin-bottom:3px; }
+  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#f5f0eb; letter-spacing:2px; line-height:1; }
 
   /* Frase */
-  .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(201,168,76,0.04); border-left:3px solid #C9A84C; position:relative; }
-  .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(201,168,76,0.12); position:absolute; top:6px; left:10px; line-height:1; }
-  .dash-frase { font-family:'Barlow',sans-serif; font-size:16px; font-weight:300; font-style:italic; color:rgba(248,237,228,0.82); line-height:1.7; padding-left:10px; }
-  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:#C9A84C; text-align:right; margin-top:8px; }
+  .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(212,168,67,0.04); border-left:3px solid #d4a843; position:relative; }
+  .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(212,168,67,0.15); position:absolute; top:6px; left:10px; line-height:1; }
+  .dash-frase { font-family:'Barlow',sans-serif; font-size:15px; font-weight:300; font-style:italic; color:rgba(245,240,235,0.82); line-height:1.7; padding-left:10px; }
+  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#d4a843; text-align:right; margin-top:8px; }
 
-  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:5px; text-transform:uppercase; color:#8B1A1A; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
-  .dash-section-title::before { content:''; width:14px; height:1px; background:#8B1A1A; }
+  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:5px; text-transform:uppercase; color:#c0392b; padding:18px 20px 8px; display:flex; align-items:center; gap:8px; }
+  .dash-section-title::before { content:''; width:14px; height:1px; background:#c0392b; }
 
   /* Métricas */
   .dash-metrics-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; padding:0 20px; }
-  .dash-metric-card { background:#1A1410; padding:16px; border-top:2px solid transparent; transition:border-color 0.3s; }
-  .dash-metric-card:hover { border-top-color:#8B1A1A; }
+  .dash-metric-card { background:#1a1a1a; padding:16px; border-top:2px solid transparent; transition:border-color 0.3s; }
+  .dash-metric-card:hover { border-top-color:#c0392b; }
   .dash-metric-icon { font-size:1.1rem; margin-bottom:6px; }
-  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#C9A84C; line-height:1; }
-  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#949080; letter-spacing:1px; margin-top:2px; }
-  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#4A3A2A; margin-top:4px; }
+  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#d4a843; line-height:1; }
+  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; letter-spacing:1px; margin-top:2px; }
+  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#666; margin-top:4px; }
   .dash-bar-bg { width:100%; height:3px; background:rgba(255,255,255,0.06); margin-top:9px; border-radius:2px; }
-  .dash-bar-fill { height:100%; background:linear-gradient(90deg,#8B1A1A,#C9A84C); border-radius:2px; }
-  .dash-metric-note { font-size:12px; color:rgba(201,168,76,0.75); margin-top:6px; font-style:italic; }
+  .dash-bar-fill { height:100%; background:linear-gradient(90deg,#c0392b,#d4a843); border-radius:2px; }
+  .dash-metric-note { font-size:12px; color:rgba(212,168,67,0.75); margin-top:6px; font-style:italic; }
 
   /* Macros */
   .dash-macros-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; padding:0 20px; }
@@ -2148,225 +2047,298 @@
   #cta-final .cta-title span { color: var(--dorado) !important; }
 
 
-  /* ── DASHBOARD ATLETA — PALETA OSCURA NEGRO/ROJO/DORADO ── */
+  /* ── DASHBOARD ATLETA — PALETA CLARA ── */
 
-  #dashboardAtleta { background: #0A0B0A !important; }
-  .dashboard-box   { background: #0F0D0A !important; }
+  #dashboardAtleta {
+    background: #f2f4f5 !important;
+  }
+
+  .dashboard-box {
+    background: #f2f4f5 !important;
+  }
 
   /* Header */
   .dash-header {
-    background: linear-gradient(to bottom, #0A0B0A 0%, #1A1410 60%, #2A2018 100%) !important;
-    border-bottom: 1px solid rgba(201,168,76,0.18) !important;
+    background: linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%) !important;
+    border-bottom: 1px solid rgba(212,168,67,0.15) !important;
   }
-  .dash-header-logo { color: #C9A84C !important; }
+  .dash-header-logo {
+    color: #00a8b3 !important;
+  }
 
   /* Perfil */
   .dash-profile {
-    border-bottom: 1px solid rgba(201,168,76,0.08) !important;
-    background: transparent !important;
+    border-bottom: 1px solid rgba(0,0,0,0.07) !important;
+    background: #ffffff !important;
   }
   .dash-avatar-circle {
-    background: #8B1A1A !important;
-    border: 2px solid rgba(201,168,76,0.3) !important;
+    background: linear-gradient(135deg, #00909a, #006670) !important;
+    border: 2px solid rgba(0,200,212,0.3) !important;
     box-shadow: none !important;
   }
-  .dash-nombre { color: #F8EDE4 !important; }
-  .dash-saludo { color: #4A3A2A !important; letter-spacing: 4px !important; }
+  .dash-nombre { color: #111111 !important; }
+  .dash-saludo { color: #00a8b3 !important; letter-spacing: 4px !important; }
 
   /* Frase */
   .dash-frase-wrap {
-    background: rgba(201,168,76,0.04) !important;
-    border-left: 3px solid #C9A84C !important;
+    background: #ffffff !important;
+    border-left: 2px solid #00c8d4 !important;
   }
-  .dash-frase      { color: rgba(248,237,228,0.82) !important; }
-  .dash-frase-icon { color: rgba(201,168,76,0.12) !important; }
-  .dash-frase-autor { color: #C9A84C !important; }
+  .dash-frase { color: #333333 !important; }
+  .dash-frase-icon { color: rgba(0,200,212,0.25) !important; }
+  .dash-frase-autor { color: #00a8b3 !important; }
 
   /* Sección titles */
   .dash-section-title {
-    color: #8B1A1A !important;
-    font-size: 10px !important;
-    letter-spacing: 5px !important;
+    color: #111111 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    letter-spacing: 3px !important;
+    border: none !important;
   }
-  .dash-section-title::before { background: #8B1A1A !important; }
+  .dash-section-title::before { background: #007a85 !important; }
 
   /* Stat cells */
   .dash-stats-row .dash-stat-cell {
-    background: #1A1410 !important;
-    border-top: 2px solid rgba(139,26,26,0.4) !important;
+    background: #ffffff !important;
+    border-top: 2px solid rgba(0,122,133,0.3) !important;
   }
-  .dash-stat-label { color: #C9A84C !important; font-size: 12px !important; letter-spacing: 2px !important; }
-  .dash-stat-value { color: #F8EDE4 !important; font-size: 2rem !important; font-weight: 700 !important; }
-  .dash-stat-unit  { color: #949080 !important; font-size: 14px !important; }
+  .dash-stat-label { color: #007a85 !important; font-size: 11px !important; letter-spacing: 2px !important; font-weight: 600 !important; }
+  .dash-stat-value { color: #111111 !important; font-size: 1.6rem !important; font-weight: 700 !important; }
+  .dash-stat-unit  { color: #666666 !important; }
 
-  /* Activity */
-  .dash-activity-name { color: #F8EDE4 !important; }
-  .dash-activity-date { color: #949080 !important; }
+  /* Activity header */
+  .dash-activity-name { color: #111111 !important; font-size: 1.1rem !important; font-weight: 600 !important; }
+  .dash-activity-date { color: #666666 !important; font-size: 13px !important; }
 
   /* Metric cards */
   .dash-metric-card {
-    background: #1A1410 !important;
-    border-top: 2px solid rgba(139,26,26,0.25) !important;
+    background: #ffffff !important;
+    border-top: 2px solid rgba(0,200,212,0.2) !important;
   }
   .dash-metric-card:hover {
-    border-top-color: #8B1A1A !important;
-    background: #2A2018 !important;
+    border-top-color: #00c8d4 !important;
+    background: #f7fafa !important;
   }
-  .dash-metric-value { color: #C9A84C !important; }
-  .dash-metric-unit  { color: #949080 !important; }
-  .dash-metric-label { color: #4A3A2A !important; font-weight: 600 !important; }
-  .dash-metric-note  { color: rgba(201,168,76,0.7) !important; }
-  .dash-bar-fill     { background: linear-gradient(90deg, #8B1A1A, #C9A84C) !important; }
-  .dash-bar-bg       { background: rgba(255,255,255,0.05) !important; }
+  .dash-metric-value { color: #d4a843 !important; font-size: 1.4rem !important; font-weight: 700 !important; }
+  .dash-metric-unit  { color: #666666 !important; }
+  .dash-metric-label { color: #007a85 !important; font-weight: 600 !important; font-size: 11px !important; letter-spacing: 1px !important; }
+  .dash-metric-note  { color: #007a85 !important; }
+  .dash-bar-fill {
+    background: linear-gradient(90deg, #00c8d4, #d4a843) !important;
+  }
 
   /* Charts */
   .dash-chart-card {
-    background: #1A1410 !important;
-    border: 1px solid rgba(201,168,76,0.08) !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
   }
-  .dash-chart-title { color: #F8EDE4 !important; }
-  .dash-chart-title span { color: #949080 !important; }
+  .dash-chart-title { color: #111111 !important; font-size: 12px !important; letter-spacing: 2px !important; font-weight: 600 !important; }
+  .dash-chart-title span { color: #555555 !important; }
 
-  /* TH chart containers */
+  /* TH chart containers — fondo blanco */
   .th-chart-container {
-    background: #1A1410 !important;
-    border: 1px solid rgba(201,168,76,0.08) !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
   }
-  .th-chart-title    { color: #F8EDE4 !important; }
-  .th-chart-subtitle { color: #949080 !important; }
-  .th-divider        { background: rgba(255,255,255,0.05) !important; }
+  .th-chart-title { color: #111111 !important; font-size: 12px !important; font-weight: 600 !important; }
+  .th-chart-subtitle { color: #777777 !important; }
+  .th-divider { background: rgba(0,0,0,0.06) !important; }
 
-  /* Range / Dist buttons */
-  .th-range-btn, .th-dist-btn {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    color: #949080 !important;
+  /* Range buttons */
+  .th-range-btn {
+    background: rgba(0,0,0,0.04) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #555555 !important;
   }
-  .th-range-btn:hover, .th-dist-btn:hover {
-    background: rgba(201,168,76,0.08) !important;
-    color: #C9A84C !important;
-    border-color: rgba(201,168,76,0.3) !important;
+  .th-range-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
+  .th-range-btn.active { background: rgba(0,168,179,0.12) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.5) !important; }
+
+  /* Dist buttons */
+  .th-dist-btn {
+    background: rgba(0,0,0,0.04) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #555555 !important;
   }
-  .th-range-btn.active, .th-dist-btn.active {
-    background: rgba(201,168,76,0.12) !important;
-    color: #C9A84C !important;
-    border-color: rgba(201,168,76,0.5) !important;
-    box-shadow: none !important;
-  }
+  .th-dist-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
+  .th-dist-btn.active { background: rgba(0,168,179,0.14) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.5) !important; box-shadow: none !important; }
 
   /* PR stats */
   .th-pr-stat {
-    background: #1A1410 !important;
-    border: 1px solid rgba(201,168,76,0.08) !important;
+    background: #f5f7f8 !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
   }
-  .th-pr-stat-label { color: #949080 !important; }
-  .th-pr-stat-value { color: #D4CFB8 !important; }
-  .th-pr-stat-sub   { color: #4A3A2A !important; }
-  .th-pr-stat.best .th-pr-stat-value  { color: #C9A84C !important; }
-  .th-pr-stat.delta .th-pr-stat-value { color: #27ae60; }
+  .th-pr-stat-label { color: #777777 !important; }
+  .th-pr-stat-value { color: #007a85 !important; }
+  .th-pr-stat-sub { color: #999999 !important; }
+  .th-pr-stat.best .th-pr-stat-value { color: #d4a843 !important; }
+  .th-pr-stat.delta .th-pr-stat-value { color: #27ae60; } /* sin !important: JS sobreescribe con naranja si empeoró */
 
   /* Working max */
   .th-working-max {
-    background: #1A1410 !important;
-    border: 1px solid rgba(201,168,76,0.08) !important;
+    background: #f5f7f8 !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
   }
-  .th-wm-label { color: #949080 !important; }
-  .th-wm-value { color: #C9A84C !important; }
-  .th-wm-unit  { color: #4A3A2A !important; }
-  .th-wm-icon  { color: #4A3A2A !important; }
+  .th-wm-label { color: #777777 !important; }
+  .th-wm-value { color: #007a85 !important; }
+  .th-wm-unit { color: #888888 !important; }
+  .th-wm-icon { color: #aaaaaa !important; }
 
-  /* RM strip */
-  .th-rm-cell { background: rgba(255,255,255,0.03) !important; }
-  .th-rm-rep  { color: #4A3A2A !important; }
-  .th-rm-kg   { color: #D4CFB8 !important; }
-  .th-rm-unit { color: #4A3A2A !important; }
-  .th-rm-cell.best .th-rm-kg  { color: #C9A84C !important; }
-  .th-rm-cell.best .th-rm-rep { color: #8B7030 !important; }
+  /* RM strip — visible en fondo blanco */
+  .th-rm-cell { background: rgba(0,0,0,0.03) !important; }
+  .th-rm-rep  { color: #888888 !important; }
+  .th-rm-kg   { color: #333333 !important; }
+  .th-rm-unit { color: #888888 !important; }
+  .th-rm-cell.best .th-rm-kg  { color: #c8901c !important; }
+  .th-rm-cell.best .th-rm-rep { color: #a07428 !important; }
 
-  /* Sets table */
-  .th-sets-table th { color: rgba(255,255,255,0.3) !important; border-bottom-color: rgba(255,255,255,0.06) !important; }
-  .th-sets-table td { color: #D4CFB8 !important; border-bottom-color: rgba(255,255,255,0.05) !important; }
-  .th-sets-table td.highlight { color: #C9A84C !important; font-weight: 700 !important; }
-  .th-set-badge { background: rgba(201,168,76,0.12) !important; color: #C9A84C !important; }
+  /* Tabla últimas sesiones — texto oscuro en fondo blanco */
+  .th-sets-table th { color: rgba(0,0,0,0.4) !important; border-bottom-color: rgba(0,0,0,0.07) !important; }
+  .th-sets-table td { color: #444444 !important; border-bottom-color: rgba(0,0,0,0.05) !important; }
+  .th-sets-table td.highlight { color: #c8901c !important; font-weight: 700 !important; }
+  .th-set-badge { background: rgba(200,144,28,0.12) !important; color: #c8901c !important; }
 
-  /* Exercise cards */
-  .th-ex-card { background: rgba(255,255,255,0.03) !important; border-color: rgba(255,255,255,0.06) !important; }
-  .th-ex-card:hover  { background: rgba(201,168,76,0.06) !important; border-color: rgba(201,168,76,0.3) !important; }
-  .th-ex-card.active { background: rgba(201,168,76,0.10) !important; border-color: rgba(201,168,76,0.5) !important; }
-  .th-ex-name { color: #D4CFB8 !important; }
-  .th-ex-meta { color: #4A3A2A !important; }
-  .th-ex-max  { color: #C9A84C !important; }
+  /* Tarjetas ejercicios — fondo claro */
+  .th-ex-card { background: rgba(0,0,0,0.03) !important; border-color: rgba(0,0,0,0.07) !important; }
+  .th-ex-card:hover { background: rgba(0,168,179,0.06) !important; border-color: rgba(0,168,179,0.3) !important; }
+  .th-ex-card.active { background: rgba(0,168,179,0.1) !important; border-color: rgba(0,168,179,0.5) !important; }
+  .th-ex-name { color: #333333 !important; }
+  .th-ex-meta { color: #888888 !important; }
+  .th-ex-max  { color: #007a85 !important; }
 
   /* Exercise buttons */
   .th-exercise-btn {
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    color: #949080 !important;
+    background: rgba(0,0,0,0.04) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #555555 !important;
   }
-  .th-exercise-btn:hover  { background: rgba(201,168,76,0.10) !important; color: #C9A84C !important; border-color: rgba(201,168,76,0.4) !important; }
-  .th-exercise-btn.active { background: rgba(201,168,76,0.14) !important; color: #C9A84C !important; border-color: rgba(201,168,76,0.5) !important; box-shadow: none !important; }
+  .th-exercise-btn:hover { background: rgba(212,168,67,0.1) !important; color: #a07a10 !important; border-color: rgba(212,168,67,0.4) !important; }
+  .th-exercise-btn.active { background: rgba(212,168,67,0.14) !important; color: #a07a10 !important; border-color: rgba(212,168,67,0.5) !important; box-shadow: none !important; }
 
-  /* CSV */
-  .th-csv-empty { background: #1A1410 !important; border: 1px dashed rgba(255,255,255,0.08) !important; }
-  .th-csv-empty-text { color: #4A3A2A !important; }
-  .csv-upload-zone { background: #1A1410 !important; border-color: rgba(255,255,255,0.08) !important; }
-  .csv-upload-zone:hover, .csv-upload-zone.drag-over { background: rgba(201,168,76,0.05) !important; border-color: rgba(201,168,76,0.4) !important; }
-  .csv-upload-title { color: #949080 !important; }
-  .csv-upload-sub   { color: #4A3A2A !important; }
-  .csv-mapping { background: rgba(201,168,76,0.04) !important; border-color: rgba(201,168,76,0.2) !important; }
-  .csv-mapping-title { color: rgba(201,168,76,0.85) !important; }
-  .csv-map-label  { color: #D4CFB8 !important; }
-  .csv-map-select { background: #2A2018 !important; border-color: rgba(255,255,255,0.12) !important; color: #F8EDE4 !important; }
-  .csv-map-select:focus { border-color: rgba(201,168,76,0.5) !important; }
-  .csv-import-btn { color: #C9A84C !important; }
-  .csv-import-btn:hover { background: rgba(201,168,76,0.12) !important; border-color: rgba(201,168,76,0.5) !important; color: #E8C96A !important; }
+  /* CSV empty state */
+  .th-csv-empty {
+    background: #f5f7f8 !important;
+    border: 1px dashed rgba(0,0,0,0.15) !important;
+  }
+  .th-csv-empty-text { color: #999999 !important; }
 
   /* Zones */
-  .dash-zones-card { background: #1A1410 !important; border: 1px solid rgba(201,168,76,0.08) !important; }
-  .dash-zone-label  { color: #D4CFB8 !important; }
-  .dash-zone-time   { color: #F8EDE4 !important; }
-  .dash-zone-pct    { color: #949080 !important; }
-  .dash-zone-bar-bg { background: rgba(255,255,255,0.06) !important; }
+  .dash-zones-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
+  }
+  .dash-zone-label { color: #444444 !important; }
+  .dash-zone-time  { color: #111111 !important; }
+  .dash-zone-pct   { color: #888888 !important; }
+  .dash-zone-bar-bg { background: rgba(0,0,0,0.07) !important; }
+  .dash-zone-z5 { background: #e74c3c !important; }
+  .dash-zone-z4 { background: #e67e22 !important; }
+  .dash-zone-z3 { background: #00c8d4 !important; }
+  .dash-zone-z2 { background: #3498db !important; }
+  .dash-zone-z1 { background: #cccccc !important; }
+
+  /* CSV upload / mapping panel — tema claro */
+  .csv-upload-zone {
+    background: #f5f7f8 !important;
+    border-color: rgba(0,0,0,0.15) !important;
+  }
+  .csv-upload-zone:hover, .csv-upload-zone.drag-over {
+    background: rgba(212,168,67,0.05) !important;
+    border-color: rgba(212,168,67,0.45) !important;
+  }
+  .csv-upload-title { color: #555555 !important; }
+  .csv-upload-sub   { color: #999999 !important; }
+  .csv-mapping {
+    background: rgba(212,168,67,0.04) !important;
+    border-color: rgba(212,168,67,0.25) !important;
+  }
+  .csv-mapping-title { color: rgba(140,100,10,0.85) !important; }
+  .csv-map-label     { color: #444444 !important; }
+  .csv-map-select {
+    background: #ffffff !important;
+    border-color: rgba(0,0,0,0.18) !important;
+    color: #222222 !important;
+  }
+  .csv-map-select:focus {
+    border-color: rgba(212,168,67,0.55) !important;
+    color: #222222 !important;
+  }
+  .csv-import-btn { color: #7a5a00 !important; }
+  .csv-import-btn:hover { background: rgba(212,168,67,0.15) !important; border-color: rgba(212,168,67,0.5) !important; color: #5a3e00 !important; }
 
   /* Nutricionista */
-  .dash-nutri-banner { background: #1A1410 !important; border: 1px solid rgba(201,168,76,0.1) !important; }
-  .dash-nutri-text strong { color: #F8EDE4 !important; }
-  .dash-nutri-text span   { color: #949080 !important; }
+  .dash-nutri-banner {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+  }
+  .dash-nutri-text strong { color: #111111 !important; }
+  .dash-nutri-text span   { color: #666666 !important; }
 
   /* Connect cards */
-  .dash-connect-card { background: #1A1410 !important; border: 1px solid rgba(201,168,76,0.1) !important; }
-  .dash-connect-card:hover { border-color: rgba(201,168,76,0.4) !important; background: #2A2018 !important; box-shadow: none !important; }
-  .dash-connect-name   { color: #F8EDE4 !important; }
-  .dash-connect-status { color: #C9A84C !important; }
+  .dash-connect-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+  }
+  .dash-connect-card:hover {
+    border-color: rgba(0,200,212,0.4) !important;
+    background: #f7fafa !important;
+    box-shadow: none !important;
+  }
+  .dash-connect-name   { color: #111111 !important; }
+  .dash-connect-status { color: #00a8b3 !important; }
 
   /* Macro cards */
-  .dash-macro-card { background: #1A1410 !important; }
-  .dash-macro-name  { color: #949080 !important; }
-  .dash-macro-value { color: #F8EDE4 !important; }
-  .dash-macro-meta  { color: #C9A84C !important; }
-  .dash-macro-proteina { border-top-color: #8B1A1A !important; }
-  .dash-macro-carbo    { border-top-color: #C9A84C !important; }
-  .dash-macro-grasa    { border-top-color: #2A5A8B !important; }
+  .dash-macro-card {
+    background: #ffffff !important;
+  }
+  .dash-macro-name  { color: #666666 !important; }
+  .dash-macro-value { color: #111111 !important; }
+  .dash-macro-meta  { color: #00a8b3 !important; }
+  .dash-macro-proteina { border-top-color: #e74c3c !important; }
+  .dash-macro-carbo    { border-top-color: #d4a843 !important; }
+  .dash-macro-grasa    { border-top-color: #00c8d4 !important; }
 
   /* Login box */
-  .login-box { background: #1A1410 !important; border: 1px solid rgba(201,168,76,0.15) !important; }
-  .login-title { color: #F8EDE4 !important; }
-  .login-sub   { color: #C9A84C !important; }
-  .login-input { background: #0F0D0A !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #F8EDE4 !important; }
-  .login-input:focus { border-color: #C9A84C !important; }
-  .login-nota { color: #4A3A2A !important; }
-  .login-nota span { color: #C9A84C !important; }
-  .login-divider span { color: #4A3A2A !important; }
-  .login-divider::before, .login-divider::after { background: rgba(255,255,255,0.08) !important; }
+  .login-box {
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+  }
+  .login-title { color: #111111 !important; }
+  .login-sub   { color: #00a8b3 !important; }
+  .login-input {
+    background: #f5f5f5 !important;
+    border: 1px solid rgba(0,0,0,0.12) !important;
+    color: #111111 !important;
+  }
+  .login-input:focus { border-color: #00c8d4 !important; }
+  .login-nota { color: #999999 !important; }
+  .login-nota span { color: #d4a843 !important; }
+  .login-divider span { color: #999999 !important; }
+  .login-divider::before,
+  .login-divider::after { background: rgba(0,0,0,0.1) !important; }
 
-  /* Nav buttons */
-  .btn-ingresar { color: #C9A84C !important; border-color: rgba(201,168,76,0.4) !important; }
-  .btn-ingresar:hover { background: rgba(201,168,76,0.06) !important; border-color: #C9A84C !important; }
-  .btn-cerrar-sesion { color: #8B1A1A !important; border-color: #8B1A1A !important; }
-  .btn-cerrar-sesion:hover { background: #8B1A1A !important; color: #F8EDE4 !important; }
+  /* Botón ingresar nav */
+  .btn-ingresar {
+    color: #00a8b3 !important;
+    border-color: rgba(0,168,179,0.4) !important;
+  }
+  .btn-ingresar:hover {
+    background: rgba(0,200,212,0.06) !important;
+    border-color: #00c8d4 !important;
+  }
 
-  /* Avatar edit */
-  .dash-avatar-edit { background: #C9A84C !important; color: #0A0B0A !important; }
+  /* Cerrar sesión */
+  .btn-cerrar-sesion { color: #e74c3c !important; border-color: #c0392b !important; }
+  .btn-cerrar-sesion:hover { background: #c0392b !important; color: #fff !important; }
+
+  /* Barra separadora */
+  .dash-bar-bg { background: rgba(0,200,212,0.06) !important; }
+
+  /* Avatar edit button */
+  .dash-avatar-edit {
+    background: #d4a843 !important;
+    color: #000 !important;
+  }
 
 
   /* ── GRÁFICOS ESTILO TRAINHEROIC ── */
@@ -3081,19 +3053,3 @@
   #dashboardAtleta .chartjs-render-monitor {
     color: #333333 !important;
   }
-
-  /* ══ TIPOGRAFÍA DASHBOARD — override final ══ */
-  #dashboardAtleta .dash-nombre       { font-size: 2.6rem !important; }
-  #dashboardAtleta .dash-saludo       { font-size: 13px !important; }
-  #dashboardAtleta .dash-frase        { font-size: 16px !important; line-height: 1.7 !important; }
-  #dashboardAtleta .dash-frase-autor  { font-size: 13px !important; }
-  #dashboardAtleta .dash-section-title{ font-size: 12px !important; letter-spacing: 4px !important; }
-  #dashboardAtleta .dash-stat-value   { font-size: 2.2rem !important; font-weight: 700 !important; }
-  #dashboardAtleta .dash-stat-label   { font-size: 12px !important; }
-  #dashboardAtleta .dash-stat-unit    { font-size: 14px !important; }
-  #dashboardAtleta .dash-activity-name{ font-size: 16px !important; font-weight: 600 !important; }
-  #dashboardAtleta .dash-activity-date{ font-size: 13px !important; }
-  #dashboardAtleta .dash-connect-name { font-size: 15px !important; font-weight: 600 !important; }
-  #dashboardAtleta .dash-connect-status { font-size: 13px !important; }
-  #dashboardAtleta .dash-nutri-text strong { font-size: 15px !important; }
-  #dashboardAtleta .dash-nutri-text span   { font-size: 13px !important; }
