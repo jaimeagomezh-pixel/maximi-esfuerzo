@@ -307,11 +307,33 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
     <!-- TAB RUCKING -->
     <div class="psec" id="tab-rucking">
 
+      <!-- ── STATS GRUPALES ── -->
+      <div class="sec" id="ruckStatsPanel">
+        <div class="sec-t">Estadísticas del Grupo</div>
+        <div id="ruckStatsContent" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="statBMprom">—</div>
+            <div class="ruck-res-l">BM promedio (kg)</div>
+          </div>
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="statSEprom">—</div>
+            <div class="ruck-res-l">SE promedio (reps)</div>
+          </div>
+          <div class="ruck-res-card">
+            <div class="ruck-res-v" id="statDatos">—</div>
+            <div class="ruck-res-l">Con datos rucking</div>
+          </div>
+        </div>
+        <!-- Semáforo SE -->
+        <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:7px;">Distribución SE · Sentadilla 45 kg</div>
+        <div id="ruckSEsemaforo" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      </div>
+
       <!-- Header + perfil compacto -->
       <div class="ruck-hdr">
         <div>
-          <div class="ruck-title">Rucking</div>
-          <div class="ruck-sub" id="ruckProfileSub">Sin perfil — completa los datos del atleta</div>
+          <div class="ruck-title">Perfil Individual</div>
+          <div class="ruck-sub" id="ruckProfileSub">Selecciona un atleta para cargar su perfil</div>
         </div>
         <button class="f-btn" onclick="toggleRuckProfile()">⚙ Perfil</button>
       </div>
@@ -320,6 +342,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
       <div class="sec" id="ruckProfilePanel" style="display:none;">
         <div class="sec-t">Perfil del Atleta</div>
         <div class="ruck-inputs-grid">
+          <div style="grid-column:1/-1;">
+            <label class="l-label">Atleta</label>
+            <select class="l-input" id="ruckAtletaSel" onchange="cargarPerfilAtletaRuck(this.value)">
+              <option value="">— Seleccionar atleta —</option>
+            </select>
+          </div>
           <div>
             <label class="l-label">Peso corporal · BM (kg)</label>
             <input type="number" class="l-input" id="rBW" placeholder="ej. 75" min="40" max="200" step="0.5">
@@ -524,7 +552,8 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
                 '5km':[{d:'2026-02-01',t:1380},{d:'2026-03-20',t:1320},{d:'2026-05-10',t:1260}],
                 '10km':[{d:'2026-02-15',t:2880},{d:'2026-04-05',t:2760},{d:'2026-05-18',t:2640}] },
     pagos:[{plan:'Plan Fitness Medio',fecha:'2026-05-20',monto:'$45.000'},{plan:'Plan Fitness Medio',fecha:'2026-04-20',monto:'$45.000'}],
-    notas:'Buena adherencia. Trabajar técnica sentadilla. Objetivo: Sub 20 en 5k.', stravaId:null },
+    notas:'Buena adherencia. Trabajar técnica sentadilla. Objetivo: Sub 20 en 5k.', stravaId:null,
+    rucking:{ bw:82, lbm:68, fat:14, se:38, tmrSec:870, tmrStr:'14:30' } },
 
   { id:2, nombre:'Valentina Ruiz', email:'vale@mail.com', plan:'Asesoría Personalizada', tipo:'activo',
     diasActivos:45, vencimiento:'2026-07-01', peso:61, talla:165, edad:27, archivado:false,
@@ -534,11 +563,12 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
                 '10km':[{d:'2026-02-20',t:3300},{d:'2026-04-10',t:3180},{d:'2026-05-20',t:3060}],
                 '21km':[{d:'2026-03-15',t:7200},{d:'2026-05-05',t:7020}] },
     pagos:[{plan:'Asesoría 3 meses',fecha:'2026-05-01',monto:'$90.000'}],
-    notas:'Meta: media maratón Septiembre. Volumen aumentando bien.', stravaId:null },
+    notas:'Meta: media maratón Septiembre. Volumen aumentando bien.', stravaId:null,
+    rucking:{ bw:61, lbm:48, fat:13, se:22, tmrSec:960, tmrStr:'16:00' } },
 
   { id:3, nombre:'Rodrigo Soto', email:'rodrigo@mail.com', plan:'Sin plan', tipo:'cuenta',
     diasActivos:0, vencimiento:null, peso:91, talla:183, edad:35, archivado:false,
-    strava:null, fuerza:{}, prTiempos:{}, pagos:[], notas:'', stravaId:null },
+    strava:null, fuerza:{}, prTiempos:{}, pagos:[], notas:'', stravaId:null, rucking:null },
 
   { id:4, nombre:'Felipe Torres', email:'felipe@mail.com', plan:'Plan Fitness Avanzado', tipo:'vencido',
     diasActivos:62, vencimiento:'2026-05-10', peso:78, talla:175, edad:29, archivado:false,
@@ -547,7 +577,8 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
     prTiempos:{ '5km':[{d:'2025-12-10',t:1260},{d:'2026-02-01',t:1230},{d:'2026-04-15',t:1200}],
                 '10km':[{d:'2026-01-20',t:2640},{d:'2026-03-10',t:2580},{d:'2026-05-02',t:2520}] },
     pagos:[{plan:'Plan Fitness Avanzado',fecha:'2026-04-10',monto:'$55.000'},{plan:'Plan Fitness Avanzado',fecha:'2026-03-10',monto:'$55.000'}],
-    notas:'Renovar plan. Excelente progresión en fuerza.', stravaId:null }
+    notas:'Renovar plan. Excelente progresión en fuerza.', stravaId:null,
+    rucking:{ bw:78, lbm:65, fat:13, se:45, tmrSec:810, tmrStr:'13:30' } }
 ];
 
 function guardarAtletas() { localStorage.setItem('coachAtletas', JSON.stringify(atletas)); }
@@ -753,8 +784,63 @@ function saveRuckProfile() {
   if (!bw||bw<40) { alert('Peso corporal inválido.'); return; }
   const profile = { bw, lbm, fat, se, tmrSec: tmrStr?parseMmSs(tmrStr):null, tmrStr };
   localStorage.setItem('ruckProfile', JSON.stringify(profile));
+  // Guardar en el atleta seleccionado
+  const aid = parseInt(document.getElementById('ruckAtletaSel')?.value);
+  if (aid) {
+    const a = atletas.find(x=>x.id===aid);
+    if (a) { a.rucking = profile; guardarAtletas(); }
+  }
   document.getElementById('ruckProfilePanel').style.display = 'none';
   updateRuckingUI();
+  renderRuckStats();
+}
+
+function cargarPerfilAtletaRuck(aid) {
+  if (!aid) return;
+  const a = atletas.find(x=>x.id===parseInt(aid));
+  if (!a) return;
+  const p = a.rucking || {};
+  document.getElementById('rBW').value  = p.bw  || a.peso || '';
+  document.getElementById('rLBM').value = p.lbm || '';
+  document.getElementById('rFAT').value = p.fat || '';
+  document.getElementById('rSE').value  = p.se  || '';
+  document.getElementById('rTMR').value = p.tmrStr || '';
+}
+
+function renderRuckStats() {
+  const activos = atletas.filter(a => !a.archivado);
+  const conDatos = activos.filter(a => a.rucking && a.rucking.bw);
+
+  // BM promedio — todos los activos con peso
+  const bms = activos.filter(a=>a.peso).map(a=>a.peso);
+  const bmProm = bms.length ? (bms.reduce((s,v)=>s+v,0)/bms.length).toFixed(1) : '—';
+
+  // SE promedio — solo los que tienen datos rucking
+  const ses = conDatos.filter(a=>a.rucking.se).map(a=>a.rucking.se);
+  const seProm = ses.length ? Math.round(ses.reduce((s,v)=>s+v,0)/ses.length) : '—';
+
+  document.getElementById('statBMprom').textContent = bmProm !== '—' ? bmProm+' kg' : '—';
+  document.getElementById('statSEprom').textContent = seProm !== '—' ? seProm+' reps' : '—';
+  document.getElementById('statDatos').textContent  = conDatos.length+' / '+activos.length;
+
+  // Semáforo SE
+  const verde    = conDatos.filter(a=>a.rucking.se>=40);
+  const amarillo = conDatos.filter(a=>a.rucking.se>=25&&a.rucking.se<40);
+  const rojo     = conDatos.filter(a=>a.rucking.se>0&&a.rucking.se<25);
+  const sinSE    = activos.filter(a=>!a.rucking||!a.rucking.se);
+
+  const sem = document.getElementById('ruckSEsemaforo');
+  if (sem) sem.innerHTML = [
+    { color:'#27ae60', bg:'rgba(39,174,96,0.1)', border:'rgba(39,174,96,0.3)', label:'≥ 40 reps', count:verde.length,    names:verde.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#e67e22', bg:'rgba(230,126,34,0.1)', border:'rgba(230,126,34,0.3)', label:'25–39 reps', count:amarillo.length, names:amarillo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#c0392b', bg:'rgba(192,57,43,0.1)',  border:'rgba(192,57,43,0.3)',  label:'< 25 reps',  count:rojo.length,     names:rojo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#aaa',    bg:'rgba(0,0,0,0.04)',      border:'rgba(0,0,0,0.1)',      label:'Sin dato',   count:sinSE.length,    names:sinSE.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+  ].map(s=>`
+    <div style="flex:1;min-width:120px;background:${s.bg};border:1px solid ${s.border};border-radius:7px;padding:9px 11px;">
+      <div style="font-family:var(--fd);font-size:1.6rem;color:${s.color};line-height:1;">${s.count}</div>
+      <div style="font-family:var(--fc);font-size:9px;letter-spacing:1.5px;color:${s.color};text-transform:uppercase;margin-top:2px;">${s.label}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:4px;">${s.names}</div>
+    </div>`).join('');
 }
 
 function toggleRuckProfile() {
@@ -996,8 +1082,15 @@ function initRucking() {
   // Fecha de hoy por defecto
   const sd2 = document.getElementById('sDate');
   if (sd2) sd2.value = new Date().toISOString().split('T')[0];
+  // Poblar selector de atletas
+  const sel = document.getElementById('ruckAtletaSel');
+  if (sel) {
+    sel.innerHTML = '<option value="">— Seleccionar atleta —</option>' +
+      atletas.filter(a=>!a.archivado).map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
+  }
   // Actualizar UI con perfil y sesiones guardadas
   updateRuckingUI();
+  renderRuckStats();
 }
 
 function showTab(id, btn) {
