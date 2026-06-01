@@ -1173,8 +1173,22 @@
           </div>
         </div>
 
+        <!-- Toggle métrica gráfico -->
+        <div style="display:flex;gap:6px;margin-top:10px;margin-bottom:4px;">
+          <button id="ruckToggleTiempo" onclick="setRuckMetrica('tiempo',this)"
+            style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid rgba(139,26,26,0.4);background:rgba(139,26,26,0.1);color:#8B1A1A;cursor:pointer;">
+            Tiempo
+          </button>
+          <button id="ruckTogglePotencia" onclick="setRuckMetrica('potencia',this)"
+            style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid rgba(0,0,0,0.12);background:#fff;color:#999;cursor:pointer;">
+            Potencia (W)
+          </button>
+        </div>
+        <div id="ruckBMWarning" style="display:none;font-size:10px;color:#e07b00;margin-bottom:4px;">
+          ⚠ Sin peso corporal — completa tu InBody o composición para ver Potencia
+        </div>
         <!-- Gráfico -->
-        <div class="th-chart-wrap" style="height:150px;margin-top:6px;">
+        <div class="th-chart-wrap" style="height:150px;margin-top:2px;">
           <canvas id="chartRucking"></canvas>
         </div>
 
@@ -1964,6 +1978,10 @@ async function cargarInbodyHistorial() {
 
     // Leyenda custom oculta (Chart.js ya la muestra)
     document.getElementById('inbodyLeyenda').innerHTML = '';
+
+    // Cachear BM más reciente para cálculos de rucking
+    const latestInbody = lista[lista.length - 1];
+    if (latestInbody?.peso) localStorage.setItem('atletaBM', latestInbody.peso);
 
     // Historial lista
     document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `

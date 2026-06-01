@@ -1848,6 +1848,37 @@
   let chartRucking = null;
   let ruckAtletaDist = null;
   let ruckAtletaLoad = null;
+  let ruckMetrica = 'tiempo'; // 'tiempo' | 'potencia'
+
+  function setRuckMetrica(modo, btn) {
+    ruckMetrica = modo;
+    document.querySelectorAll('#ruckToggleTiempo,#ruckTogglePotencia').forEach(b => {
+      b.style.background = '#fff';
+      b.style.color = '#999';
+      b.style.borderColor = 'rgba(0,0,0,0.12)';
+    });
+    btn.style.background = 'rgba(139,26,26,0.1)';
+    btn.style.color = '#8B1A1A';
+    btn.style.borderColor = 'rgba(139,26,26,0.4)';
+    updateRuckingAtletaPR();
+  }
+
+  function getRuckBM() {
+    // 1. InBody cacheado
+    const bm = parseFloat(localStorage.getItem('atletaBM'));
+    if (bm && bm > 0) return bm;
+    // 2. ruckProfile del atleta
+    const p = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    return p.bw || null;
+  }
+
+  function calcPotenciaRuck(session) {
+    const bm = getRuckBM();
+    if (!bm || !session.time || !session.dist) return null;
+    const distM  = session.dist * 1000;
+    const trabajo = (bm + session.load) * 9.81 * distM;
+    return Math.round(trabajo / session.time); // Watts
+  }
 
   function fmtTimerRuck(sec) {
     if (!sec || sec <= 0) return '—';
@@ -1955,32 +1986,53 @@
 
     // Gráfico
     const ctx = document.getElementById('chartRucking');
+    const bmWarn = document.getElementById('ruckBMWarning');
     if (ctx) {
       if (chartRucking) { chartRucking.destroy(); chartRucking = null; }
       if (sorted.length) {
+        const usePotencia = ruckMetrica === 'potencia';
+        const bm = getRuckBM();
+        if (usePotencia && bmWarn) bmWarn.style.display = bm ? 'none' : 'block';
+        else if (bmWarn) bmWarn.style.display = 'none';
+
+        const labels = sorted.map(s => {
+          const d = new Date(s.date+'T12:00:00');
+          return d.getDate()+'/'+(d.getMonth()+1);
+        });
+
+        const data = usePotencia
+          ? sorted.map(s => calcPotenciaRuck(s))
+          : sorted.map(s => +(s.time/60).toFixed(2));
+
+        const isReversed = !usePotencia;
+        const color = usePotencia ? '#C9A84C' : '#8B1A1A';
+        const bgColor = usePotencia ? 'rgba(201,168,76,0.08)' : 'rgba(0,122,133,0.08)';
+
         chartRucking = new Chart(ctx, {
           type: 'line',
           data: {
-            labels: sorted.map(s => {
-              const d = new Date(s.date+'T12:00:00');
-              return d.getDate()+'/'+(d.getMonth()+1);
-            }),
+            labels,
             datasets:[{
-              data: sorted.map(s => +(s.time/60).toFixed(2)),
-              borderColor:'#8B1A1A', backgroundColor:'rgba(0,122,133,0.08)',
-              fill:true, tension:0.3, pointRadius:4, pointBackgroundColor:'#8B1A1A',
+              data,
+              borderColor: color, backgroundColor: bgColor,
+              fill:true, tension:0.3, pointRadius:4,
+              pointBackgroundColor: color,
               pointBorderColor:'#fff', pointBorderWidth:1.5
             }]
           },
           options:{
             responsive:true, maintainAspectRatio:false,
-            plugins:{legend:{display:false}},
+            plugins:{ legend:{ display:false } },
             scales:{
-              y:{ reverse:true,
-                  ticks:{ color:'#999', font:{size:10},
-                    callback:v=>Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0')
-                  },
-                  grid:{ color:'rgba(0,0,0,0.05)' }
+              y:{
+                reverse: isReversed,
+                ticks:{
+                  color:'#999', font:{size:10},
+                  callback: usePotencia
+                    ? v => v+' W'
+                    : v => Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0')
+                },
+                grid:{ color:'rgba(0,0,0,0.05)' }
               },
               x:{ ticks:{ color:'#999', font:{size:10}, maxTicksLimit:6 }, grid:{display:false} }
             }
@@ -1996,17 +2048,23 @@
       if (!recent.length) {
         tbody.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones para esta selección</div>';
       } else {
-        tbody.innerHTML = recent.map(s=>`
+        tbody.innerHTML = recent.map(s=>{
+          const pot = calcPotenciaRuck(s);
+          const bm  = getRuckBM();
+          const trabajo = bm ? Math.round((bm + s.load) * 9.81 * s.dist * 1000 / 1000) : null; // kJ
+          return `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
             <div>
               <div style="font-size:13px;font-weight:600;color:#333;">${fmtTimerRuck(s.time)}</div>
               <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${s.source==='strava'?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-family:\'Barlow Condensed\',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
-              ${s.elev>0?'<div style="font-size:10px;color:#bbb;">↑ '+s.elev+' m desnivel</div>':''}
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
+              ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W · ${trabajo} kJ</div>` : ''}
+              ${s.elev>0?`<div style="font-size:10px;color:#bbb;">↑ ${s.elev} m desnivel</div>`:''}
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       }
     }
   }
