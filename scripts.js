@@ -996,12 +996,10 @@
     const first   = values[0];
     const bestEntry = data.find(e => e.seconds === best);
 
-    // Actualizar stats con flip digits
-    const fwBest   = document.getElementById('fw-best');
-    const fwRecent = document.getElementById('fw-recent');
-    if (fwBest)   { fwBest.innerHTML   = prBuildFlip('fb', best);   }
-    if (fwRecent) { fwRecent.innerHTML = prBuildFlip('fr', latest); }
+    // Actualizar stats
+    document.getElementById('prBest').textContent      = secToTime(best);
     document.getElementById('prBestDate').textContent  = formatDate(bestEntry.date);
+    document.getElementById('prFirst').textContent     = secToTime(latest);
     document.getElementById('prFirstDate').textContent = formatDate(data[data.length - 1].date);
     // Diferencia primer registro vs más reciente  (positivo = mejoró = más rápido)
     const diff    = first - latest;
@@ -2156,6 +2154,20 @@
 
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
+    // Auto-formato H:MM:SS en input de tiempo manual
+    const ruckTimeInp = document.getElementById('ruckATime');
+    if (ruckTimeInp && !ruckTimeInp._fmtBound) {
+      ruckTimeInp._fmtBound = true;
+      ruckTimeInp.addEventListener('input', function() {
+        const digits = this.value.replace(/\D/g, '').slice(0, 6);
+        if (!digits) return;
+        const padded = digits.padStart(6, '0');
+        const mm = parseInt(padded.slice(1, 3));
+        const ss = parseInt(padded.slice(3, 5));
+        if (mm > 59 || ss > 59) return; // dejar que el usuario corrija
+        this.value = padded[0] + ':' + padded.slice(1,3) + ':' + padded.slice(3,5);
+      });
+    }
     // Activar botón Potencia por defecto
     const btnP = document.getElementById('ruckTogglePotencia');
     const btnT = document.getElementById('ruckToggleTiempo');
@@ -2240,31 +2252,40 @@
     if (elSess) elSess.textContent = filtered.length;
 
     // ── Detección PR rucking ───────────────────────────────────────────────
-    if (best && ruckAtletaDist && ruckAtletaLoad) {
+    if (best && ruckAtletaDist && ruckAtletaLoad && withTime.length > 1) {
+      // Solo comparar cuando hay más de 1 sesión (evitar falso positivo en primer registro)
       const rkKey = 'ruckBest_' + ruckAtletaDist + '_' + ruckAtletaLoad + '_' + ruckMetrica;
       if (ruckMetrica === 'potencia') {
-        // PR = mayor potencia (W)
         const bestW = calcPotenciaRuck(best);
         if (bestW) {
           const prevW = parseFloat(localStorage.getItem(rkKey) || '0');
-          if (bestW > prevW) {
-            if (prevW > 0) { // solo festejar si había registro anterior
-              prBurst();
-              prShowToast('🏆 Nuevo récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + bestW + ' W');
-            }
+          if (prevW === 0) {
+            localStorage.setItem(rkKey, bestW); // guardar base sin festejar
+          } else if (bestW > prevW) {
             localStorage.setItem(rkKey, bestW);
+            prBurst();
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + bestW + ' W');
+          }
+        } else {
+          // Sin BM registrado → comparar por tiempo igual que en modo tiempo
+          const prevT = parseInt(localStorage.getItem(rkKey + '_t') || '0', 10);
+          if (prevT === 0) {
+            localStorage.setItem(rkKey + '_t', best.time);
+          } else if (best.time < prevT) {
+            localStorage.setItem(rkKey + '_t', best.time);
+            prBurst();
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
           }
         }
       } else {
-        // PR = menor tiempo
         if (best.time > 0) {
           const prevT = parseInt(localStorage.getItem(rkKey) || '0', 10);
-          if (prevT === 0 || best.time < prevT) {
-            if (prevT > 0) {
-              prBurst();
-              prShowToast('🏆 Nuevo récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
-            }
+          if (prevT === 0) {
             localStorage.setItem(rkKey, best.time);
+          } else if (best.time < prevT) {
+            localStorage.setItem(rkKey, best.time);
+            prBurst();
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
           }
         }
       }
@@ -2771,6 +2792,21 @@
       history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
       history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronológico
       added++;
+
+      // Si es 3200m → sincronizar como TMR en ruckProfile para Kraemer
+      if (d === '3200m') {
+        const parts3 = timeVal.split(':').map(Number);
+        const tmrSec = parts3.length === 3
+          ? parts3[0]*3600 + parts3[1]*60 + parts3[2]
+          : parts3[0]*60  + (parts3[1] || 0);
+        if (tmrSec > 0) {
+          const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+          profile.tmrSec = tmrSec;
+          profile.tmrStr = timeVal;
+          localStorage.setItem('ruckProfile', JSON.stringify(profile));
+          if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+        }
+      }
 
       // Limpiar campo de tiempo; la fecha se queda lista para la próxima entrada
       const timeEl = document.getElementById('mt_'+d);
