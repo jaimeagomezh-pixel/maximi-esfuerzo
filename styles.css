@@ -3061,3 +3061,29 @@
   #dashboardAtleta .chartjs-render-monitor {
     color: #333333 !important;
   }
+
+/* ── ESTANDARIZACIÓN TIPOGRÁFICA GLOBAL ─────────────────────
+   Base: etiquetas 13px · valores 15px · secundario 13px
+   Mismo estándar que las zonas de carrera
+────────────────────────────────────────────────────────────── */
+  .dash-activity-date    { font-size: 13px !important; letter-spacing: 2px !important; }
+  .dash-activity-name    { font-size: 17px !important; }
+  .dash-connect-name     { font-size: 15px !important; font-weight: 600 !important; }
+  .dash-connect-status   { font-size: 13px !important; }
+  .dash-saludo           { font-size: 13px !important; letter-spacing: 3px !important; }
+  .dash-metric-label     { font-size: 13px !important; }
+  .dash-metric-unit      { font-size: 14px !important; }
+  .dash-metric-note      { font-size: 13px !important; }
+  .dash-macro-meta       { font-size: 13px !important; }
+  .dash-frase            { font-size: 16px !important; }
+  .dash-frase-autor      { font-size: 13px !important; }
+  .dash-stat-label       { font-size: 13px !important; }
+  .dash-chart-title      { font-size: 13px !important; letter-spacing: 2px !important; }
+  .dash-chart-title span { font-size: 14px !important; }
+  .dash-te-label         { font-size: 13px !important; }
+  .th-pr-stat-label      { font-size: 12px !important; letter-spacing: 1.5px !important; }
+  .th-pr-stat-value      { font-size: 1.8rem !important; }
+  .th-pr-stat-sub        { font-size: 13px !important; }
+  .th-range-btn          { font-size: 12px !important; }
+  .dash-nutri-text span  { font-size: 13px !important; }
+  .dash-section-title    { font-size: 13px !important; letter-spacing: 3px !important; }

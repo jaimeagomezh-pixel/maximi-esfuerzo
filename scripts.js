@@ -2833,11 +2833,11 @@
 
     // Modelo Cerezuela-Espejo: R0-R3+
     const ZONAS = [
-      { id:'R0',  nombre:'Recuperación',     desc:'70-90% VT1/LT',  color:'#5b9bd5', vLo:0.50, vHi:0.52, fcLo:0.55, fcHi:0.70, rpe:'8-10'  },
-      { id:'R1',  nombre:'Umbral aeróbico',   desc:'90-110% VT1/LT', color:'#27ae60', vLo:0.53, vHi:0.64, fcLo:0.71, fcHi:0.83, rpe:'11-12' },
-      { id:'R2',  nombre:'Tempo / MLSS',      desc:'95-105% MLSS',   color:'#f39c12', vLo:0.65, vHi:0.75, fcLo:0.84, fcHi:0.88, rpe:'13-14' },
-      { id:'R3',  nombre:'Umbral anaeróbico', desc:'95-105% VT2',    color:'#e67e22', vLo:0.76, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'15-16' },
-      { id:'R3+', nombre:'Potencia aeróbica', desc:'≥95% VO₂máx',   color:'#e74c3c', vLo:0.90, vHi:1.00, fcLo:0.95, fcHi:null,  rpe:'>17'   },
+      { id:'R0',  nombre:'Recuperación',     desc:'70-90% VT1/LT',  color:'#5b9bd5', vLo:0.50, vHi:0.52, fcLo:0.55, fcHi:0.70, rpe:'3-4'  },
+      { id:'R1',  nombre:'Umbral aeróbico',   desc:'90-110% VT1/LT', color:'#27ae60', vLo:0.53, vHi:0.64, fcLo:0.71, fcHi:0.83, rpe:'4-5'  },
+      { id:'R2',  nombre:'Tempo / MLSS',      desc:'95-105% MLSS',   color:'#f39c12', vLo:0.65, vHi:0.75, fcLo:0.84, fcHi:0.88, rpe:'6-7'  },
+      { id:'R3',  nombre:'Umbral anaeróbico', desc:'95-105% VT2',    color:'#e67e22', vLo:0.76, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'7-8'  },
+      { id:'R3+', nombre:'Potencia aeróbica', desc:'≥95% VO₂máx',   color:'#e74c3c', vLo:0.90, vHi:1.00, fcLo:0.95, fcHi:null,  rpe:'9-10' },
     ];
 
     if (filasEl) {
