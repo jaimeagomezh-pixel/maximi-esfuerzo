@@ -224,93 +224,87 @@
   <a href="#planes" class="nav-cta" onclick="toggleMenu()">Empezar Ahora</a>
 </div>
 
-<!-- HERO ESTILO TRAINHEROIC -->
-<section id="hero" class="hero-th">
-
-  <!-- GRID DE IMÁGENES EN CAPAS (fondo parallax) -->
-  <div class="hero-th-bg" id="heroBg">
-    <div class="hero-th-img-wrap" id="heroParallaxWrap">
-      <!-- Imagen principal grande -->
-      <div class="hero-th-img hero-th-img-main" id="heroImgMain">
-        <img src="Imagenes/img08.jpg" alt="Entrenamiento élite">
-      </div>
-      <!-- Panel secundario izquierda -->
-      <div class="hero-th-img hero-th-img-left" id="heroImgLeft">
-        <img src="Imagenes/img04.jpg" alt="Rendimiento">
-      </div>
-      <!-- Panel secundario derecha -->
-      <div class="hero-th-img hero-th-img-right" id="heroImgRight">
-        <img src="Imagenes/img12.jpg" alt="Fuerza">
-      </div>
-      <!-- Panel pequeño bottom-right -->
-      <div class="hero-th-img hero-th-img-br" id="heroImgBr">
-        <img src="Imagenes/img13.jpg" alt="Carrera">
-      </div>
+<!-- HERO -->
+<section id="hero">
+  <!-- SLIDER DE FONDO -->
+  <div class="hero-slider" id="heroSlider">
+    <div class="slide active" data-index="0">
+      <img src="Imagenes/img04.jpg" alt="slide 1">
+      <div class="slide-overlay"></div>
     </div>
-    <!-- Overlays para oscurecer y dar profundidad -->
-    <div class="hero-th-overlay-dark"></div>
-    <div class="hero-th-overlay-grad"></div>
-    <!-- Grilla táctica -->
-    <div class="hero-th-grid"></div>
+    <div class="slide" data-index="1">
+      <img src="Imagenes/img06.jpg" alt="slide 2">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="2">
+      <img src="Imagenes/img07.jpg" alt="slide 3">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="3">
+      <img src="Imagenes/img08.jpg" alt="slide 4">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="4">
+      <img src="Imagenes/img10.jpg" alt="slide 5">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="5">
+      <img src="Imagenes/img11.jpg" alt="slide 6">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="6">
+      <img src="Imagenes/img12.jpg" alt="slide 7">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="7">
+      <img src="Imagenes/img13.jpg" alt="slide 8">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="8">
+      <img src="Imagenes/img14.jpg" alt="slide 9">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slide" data-index="9">
+      <img src="Imagenes/img15.jpg" alt="slide 10">
+      <div class="slide-overlay"></div>
+    </div>
+    <div class="slider-dots" id="sliderDots">
+      <button class="slider-dot active" onclick="goToSlide(0)"></button>
+      <button class="slider-dot" onclick="goToSlide(1)"></button>
+      <button class="slider-dot" onclick="goToSlide(2)"></button>
+      <button class="slider-dot" onclick="goToSlide(3)"></button>
+      <button class="slider-dot" onclick="goToSlide(4)"></button>
+      <button class="slider-dot" onclick="goToSlide(5)"></button>
+      <button class="slider-dot" onclick="goToSlide(6)"></button>
+      <button class="slider-dot" onclick="goToSlide(7)"></button>
+      <button class="slider-dot" onclick="goToSlide(8)"></button>
+      <button class="slider-dot" onclick="goToSlide(9)"></button>
+    </div>
+  </div>
+  <div class="hero-grid"></div>
+  <div class="hero-label">Entrenamiento de Élite Militar</div>
+  <div class="hero-stats">
+    <div class="stat-item"><div class="stat-number">+400</div><div class="stat-label">Atletas</div></div>
+    <div class="stat-item"><div class="stat-number">+10</div><div class="stat-label">Años de experiencia</div></div>
+    <div class="stat-item"><div class="stat-number">93%</div><div class="stat-label">Tasa de éxito</div></div>
+  </div>
+  <h1 class="hero-title">
+    FORJADO<br>
+    <span class="line-gold">EN CAMPO,</span><br>
+    PROBADO EN<br>
+    <span class="line-gold">COMBATE</span>
+  </h1>
+
+  <p class="hero-sub">Metodología militar aplicada al rendimiento humano.</p>
+  <div class="seneca-block">
+    <div class="seneca-quote">"El cuerpo debe ser tratado con rigor para que no desobedezca a la mente."</div>
+    <div class="seneca-autor">— Séneca</div>
+  </div>
+  <div class="hero-actions">
+    <a href="#planes" class="btn-primary">Ver Planes de Entrenamiento</a>
+    <a href="#filosofia" class="btn-ghost" style="border-color:rgba(245,240,235,0.7);color:#f5f0eb;background:rgba(255,255,255,0.08);">↓ Mi Filosofía</a>
   </div>
 
-  <!-- CONTENIDO CENTRAL -->
-  <div class="hero-th-content">
-
-    <!-- Badge superior -->
-    <div class="hero-th-badge">
-      <span class="hero-th-badge-dot"></span>
-      Entrenamiento de Élite Militar
-    </div>
-
-    <!-- Título principal -->
-    <h1 class="hero-th-title">
-      CIENCIA
-      <span class="hero-th-gold">APLICADA</span>
-      AL
-      <span class="hero-th-gold">GUERRERO</span>
-    </h1>
-
-    <!-- Subtítulo -->
-    <p class="hero-th-sub">Metodología de operaciones especiales aplicada al rendimiento humano. Progresión estructurada. Resultados medibles.</p>
-
-    <!-- CTAs -->
-    <div class="hero-th-actions">
-      <a href="#planes" class="hero-th-btn-primary">Ver Planes →</a>
-      <a href="#filosofia" class="hero-th-btn-ghost">Mi Filosofía</a>
-    </div>
-
-    <!-- Stats en línea -->
-    <div class="hero-th-stats">
-      <div class="hero-th-stat">
-        <div class="hero-th-stat-num" data-target="400" data-prefix="+">+400</div>
-        <div class="hero-th-stat-label">Atletas</div>
-      </div>
-      <div class="hero-th-stat-div"></div>
-      <div class="hero-th-stat">
-        <div class="hero-th-stat-num" data-target="10" data-prefix="+">+10</div>
-        <div class="hero-th-stat-label">Años exp.</div>
-      </div>
-      <div class="hero-th-stat-div"></div>
-      <div class="hero-th-stat">
-        <div class="hero-th-stat-num" data-target="93" data-suffix="%">93%</div>
-        <div class="hero-th-stat-label">Tasa de éxito</div>
-      </div>
-    </div>
-
-    <!-- Scroll indicator -->
-    <div class="hero-th-scroll">
-      <div class="hero-th-scroll-line"></div>
-      <span>SCROLL</span>
-    </div>
-
-  </div>
-
-  <!-- Cita Séneca (esquina) -->
-  <div class="hero-th-seneca">
-    <div class="hero-th-seneca-quote">"El cuerpo debe ser tratado con rigor<br>para que no desobedezca a la mente."</div>
-    <div class="hero-th-seneca-autor">— Séneca</div>
-  </div>
 
 </section>
 
@@ -2318,31 +2312,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.section-title').forEach(t => titleObserver.observe(t));
   }
 
-  /* ── 7. PARALLAX en el Hero ── */
-  function initParallax() {
-    const slider = document.getElementById('heroSlider');
-    const heroGrid = document.querySelector('.hero-grid');
-    if (!slider) return;
-
-    // Solo en desktop (no en móvil para no afectar performance)
-    if (window.innerWidth < 768) return;
-
-    let ticking = false;
-    window.addEventListener('scroll', () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          const scrollY = window.scrollY;
-          // El slider se mueve al 40% de la velocidad del scroll → efecto parallax
-          slider.style.transform = `translateY(${scrollY * 0.42}px)`;
-          // La grilla se mueve un poco más lento → profundidad extra
-          if (heroGrid) heroGrid.style.transform = `translateY(${scrollY * 0.18}px)`;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }, { passive: true });
-  }
-
   /* ── INICIALIZAR TODO ── */
   document.addEventListener('DOMContentLoaded', () => {
     initReveal();
@@ -2351,7 +2320,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTop();
     initMouseSpotlight();
     initTitleLines();
-    initParallax();
   });
 
 })();
