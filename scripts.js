@@ -1973,9 +1973,14 @@
   }
 
   function selectRuckAtletaLoad(kg, btn) {
+    const yaActivo = btn.classList.contains('active');
     document.querySelectorAll('#ruckALoadBtns .th-range-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    ruckAtletaLoad = kg;
+    if (yaActivo) {
+      ruckAtletaLoad = null; // deseleccionar → ver todos los kg
+    } else {
+      btn.classList.add('active');
+      ruckAtletaLoad = kg;
+    }
     updateRuckingAtletaPR();
   }
 
