@@ -2000,16 +2000,34 @@
     // Delta vs primer registro
     const deltaEl = document.getElementById('ruckADelta');
     if (deltaEl && sorted.length >= 2) {
-      const first  = sorted[0].time;
-      const latest = sorted[sorted.length-1].time;
-      const diff   = first - latest;
-      const pct    = (Math.abs(diff)/first*100).toFixed(1);
-      if (diff > 0) {
-        deltaEl.innerHTML = `<span style="color:#27ae60;">▲ ${fmtTimerRuck(diff)}</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
-      } else if (diff < 0) {
-        deltaEl.innerHTML = `<span style="color:#e67e22;">▼ ${fmtTimerRuck(-diff)}</span> <span style="font-size:11px;color:#999;">disminución · ${pct}%</span>`;
+      if (ruckMetrica === 'potencia') {
+        const firstW  = calcPotenciaRuck(sorted[0]);
+        const latestW = calcPotenciaRuck(sorted[sorted.length-1]);
+        if (firstW && latestW) {
+          const diff = latestW - firstW;
+          const pct  = (Math.abs(diff)/firstW*100).toFixed(1);
+          if (diff > 0) {
+            deltaEl.innerHTML = `<span style="color:#1e8c3a;">▲ +${diff} W</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
+          } else if (diff < 0) {
+            deltaEl.innerHTML = `<span style="color:#d32f2f;">▼ ${diff} W</span> <span style="font-size:11px;color:#999;">baja · ${pct}%</span>`;
+          } else {
+            deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
+          }
+        } else {
+          deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">Sin peso registrado</span>';
+        }
       } else {
-        deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
+        const first  = sorted[0].time;
+        const latest = sorted[sorted.length-1].time;
+        const diff   = first - latest;
+        const pct    = (Math.abs(diff)/first*100).toFixed(1);
+        if (diff > 0) {
+          deltaEl.innerHTML = `<span style="color:#1e8c3a;">▲ ${fmtTimerRuck(diff)}</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
+        } else if (diff < 0) {
+          deltaEl.innerHTML = `<span style="color:#d32f2f;">▼ ${fmtTimerRuck(-diff)}</span> <span style="font-size:11px;color:#999;">baja · ${pct}%</span>`;
+        } else {
+          deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
+        }
       }
     } else if (deltaEl) {
       deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">—</span>';
