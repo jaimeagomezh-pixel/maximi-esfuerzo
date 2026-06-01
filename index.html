@@ -1311,7 +1311,12 @@
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Tiempo (H:MM:SS)</div>
-            <input type="text" id="ruckATime" placeholder="ej. 1:45:00" maxlength="8" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+            <div style="position:relative;">
+              <input type="tel" id="ruckATime" placeholder="0:00:00" maxlength="7"
+                style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 36px 8px 10px;font-size:15px;color:#333;outline:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">
+              <button onclick="document.getElementById('ruckATime').value='';document.getElementById('ruckATime').focus();"
+                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:2px 4px;line-height:1;" title="Borrar">×</button>
+            </div>
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Distancia (km)</div>
@@ -1419,6 +1424,7 @@
           <div id="ruckSEBanda" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:3px;"></div>
           <div id="ruckSEMensaje" style="font-size:12px;line-height:1.5;"></div>
         </div>
+        <div id="ruckSEHistorial"></div>
       </div>
 
       <!-- Nota Strava -->
@@ -2109,9 +2115,12 @@ async function guardarInbody() {
 async function cargarInbodyHistorial() {
   const user = window._auth?.currentUser;
   if (!user) return;
+  const cacheKey = 'inbodyHistorial_' + user.uid;
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/inbody/${user.uid}`);
     const lista = await r.json();
+    // Guardar en caché local para uso offline/fallback
+    if (Array.isArray(lista)) localStorage.setItem(cacheKey, JSON.stringify(lista));
     if (!lista.length) return;
 
     // Gráfico de áreas apiladas
@@ -2207,7 +2216,26 @@ async function cargarInbodyHistorial() {
           style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
           title="Eliminar medición">🗑</button>
       </div>`).join('');
-  } catch(e) { console.error('Error cargando InBody:', e); }
+  } catch(e) {
+    console.warn('Error cargando InBody desde servidor, usando caché local:', e);
+    // Fallback: usar caché local
+    try {
+      const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+      if (cached.length) {
+        document.getElementById('inbodyChartWrap').style.display = 'none';
+        document.getElementById('inbodyHistorial').style.display = 'block';
+        const listEl = document.getElementById('inbodyList');
+        if (listEl) listEl.innerHTML = cached.map(m =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
+            <div>
+              <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
+              <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+            </div>
+            <button onclick="eliminarInbody('${m.fecha}')" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;" title="Eliminar medición">🗑</button>
+          </div>`).join('');
+      }
+    } catch(_) {}
+  }
 }
 
 async function handleVideoUpload(input) {
@@ -2270,6 +2298,19 @@ async function eliminarInbody(fecha) {
   if (!confirm(`¿Eliminar la medición del ${fecha}?`)) return;
   const user = window._auth?.currentUser;
   if (!user) return;
+
+  // Eliminar siempre del caché local primero
+  const cacheKey = 'inbodyHistorial_' + user.uid;
+  try {
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+    const nuevo = cached.filter(m => m.fecha !== fecha);
+    localStorage.setItem(cacheKey, JSON.stringify(nuevo));
+    // Actualizar BMHistorial local
+    const bmHist = JSON.parse(localStorage.getItem('atletaBMHistorial') || '[]');
+    localStorage.setItem('atletaBMHistorial', JSON.stringify(bmHist.filter(b => b.fecha !== fecha)));
+  } catch(_) {}
+
+  // Intentar eliminar en el servidor
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/delete-inbody`, {
       method: 'POST',
@@ -2277,9 +2318,11 @@ async function eliminarInbody(fecha) {
       body: JSON.stringify({ uid: user.uid, fecha })
     });
     const d = await r.json();
-    if (!d.ok) throw new Error(d.error);
-    await cargarInbodyHistorial();
-  } catch(e) { alert('Error: ' + e.message); }
+    if (!d.ok) console.warn('Server delete failed:', d.error);
+  } catch(e) { console.warn('Server delete error:', e.message); }
+
+  // Recargar historial (mostrará los datos actualizados del caché local)
+  await cargarInbodyHistorial();
 }
 
 // Cargar historial al abrir el dashboard

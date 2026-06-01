@@ -2160,12 +2160,27 @@
       ruckTimeInp._fmtBound = true;
       ruckTimeInp.addEventListener('input', function() {
         const digits = this.value.replace(/\D/g, '').slice(0, 6);
+        if (!digits) { this.value = ''; return; }
+        // Rellenar de derecha a izquierda: HMMSS
+        const padded = digits.padStart(6, '0');
+        const h  = parseInt(padded[0]);
+        const mm = padded.slice(1, 3);
+        const ss = padded.slice(3, 5);
+        if (parseInt(mm) > 59 || parseInt(ss) > 59) return;
+        // Mostrar solo la parte necesaria (sin hora si es 0)
+        this.value = h > 0
+          ? `${h}:${mm}:${ss}`
+          : `${mm}:${ss}`;
+      });
+      // Al perder foco, normalizar siempre a H:MM:SS completo
+      ruckTimeInp.addEventListener('blur', function() {
+        const digits = this.value.replace(/\D/g, '').slice(0, 6);
         if (!digits) return;
         const padded = digits.padStart(6, '0');
-        const mm = parseInt(padded.slice(1, 3));
-        const ss = parseInt(padded.slice(3, 5));
-        if (mm > 59 || ss > 59) return; // dejar que el usuario corrija
-        this.value = padded[0] + ':' + padded.slice(1,3) + ':' + padded.slice(3,5);
+        const h  = parseInt(padded[0]);
+        const mm = padded.slice(1, 3);
+        const ss = padded.slice(3, 5);
+        this.value = `${h}:${mm}:${ss}`;
       });
     }
     // Activar botón Potencia por defecto
@@ -2449,6 +2464,13 @@
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     profile.se = val;
     profile.seDate = new Date().toISOString().slice(0,10);
+    // Historial SE
+    if (!profile.seHistory) profile.seHistory = [];
+    // Evitar duplicado exacto mismo día
+    const hoy = profile.seDate;
+    profile.seHistory = profile.seHistory.filter(e => e.date !== hoy);
+    profile.seHistory.push({ reps: val, date: hoy });
+    profile.seHistory.sort((a,b) => a.date.localeCompare(b.date));
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
     if (statusEl) {
       statusEl.textContent = `✓ SE guardado: ${val} reps · ${profile.seDate}`;
@@ -2497,9 +2519,45 @@
         statusEl.textContent = `Último registro: ${profile.se} reps · ${profile.seDate || ''}`;
         statusEl.style.color = '#999';
       }
-      // Mostrar resultado guardado
       mostrarSEResultado(profile.se);
     }
+    renderSEHistorial(profile);
+  }
+
+  function renderSEHistorial(profile) {
+    const hist = profile?.seHistory;
+    const container = document.getElementById('ruckSEHistorial');
+    if (!container) return;
+    if (!hist || hist.length === 0) { container.innerHTML = ''; return; }
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const rows = [...hist].reverse().map(e => {
+      const [y,mo,d] = e.date.split('-').map(Number);
+      const fecha = `${d} ${meses[mo-1]} ${y}`;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
+        <span style="color:#555;">${fecha}</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#007a85;">${e.reps} reps</span>
+        <button onclick="borrarSEEntry('${e.date}')" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:15px;padding:0 4px;line-height:1;" title="Borrar">×</button>
+      </div>`;
+    }).join('');
+    container.innerHTML = `<div style="margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:6px;">Historial</div>${rows}`;
+  }
+
+  function borrarSEEntry(fecha) {
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    if (!profile.seHistory) return;
+    profile.seHistory = profile.seHistory.filter(e => e.date !== fecha);
+    // Si borramos el más reciente, actualizar profile.se al nuevo último
+    if (profile.seDate === fecha) {
+      const ultimo = profile.seHistory[profile.seHistory.length - 1];
+      profile.se = ultimo?.reps || null;
+      profile.seDate = ultimo?.date || null;
+      const inp = document.getElementById('ruckSEInput');
+      if (inp) inp.value = profile.se || '';
+      if (profile.se) mostrarSEResultado(profile.se);
+    }
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    pushRuckProfileToCloud(profile);
+    renderSEHistorial(profile);
   }
 
   function mostrarSEResultado(val) {

@@ -1,0 +1,7 @@
+name = "media-worker"
+main = "media-worker.js"
+compatibility_date = "2026-05-23"
+
+[[kv_namespaces]]
+binding = "BODY_DATA"
+id = "3bd99f6a338c411cac4066edcf049154"
