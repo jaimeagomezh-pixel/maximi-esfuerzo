@@ -144,6 +144,10 @@
 </script>
 </head>
 <body>
+<!-- Confetti + Toast globales -->
+<canvas id="pr-cf"></canvas>
+<div class="pr-toast" id="pr-toast"></div>
+
 <div class="login-overlay" id="loginOverlay" onclick="cerrarLoginOverlay(event)">
   <div class="login-modal">
     <button class="login-modal-close" onclick="cerrarLogin()">×</button>
@@ -829,13 +833,13 @@
       <div class="th-pr-stats" id="prStats">
         <div class="th-pr-stat best">
           <div class="th-pr-stat-label">Mejor Tiempo</div>
-          <div class="th-pr-stat-value" id="prBest">20:12</div>
-          <div class="th-pr-stat-sub" id="prBestDate">15 May</div>
+          <div class="pr-flip-wrap" id="fw-best"></div>
+          <div class="th-pr-stat-sub" id="prBestDate">—</div>
         </div>
         <div class="th-pr-stat">
           <div class="th-pr-stat-label">Más Reciente</div>
-          <div class="th-pr-stat-value" id="prFirst">22:48</div>
-          <div class="th-pr-stat-sub" id="prFirstDate">01 May</div>
+          <div class="pr-flip-wrap" id="fw-recent"></div>
+          <div class="th-pr-stat-sub" id="prFirstDate">—</div>
         </div>
         <div class="th-pr-stat delta">
           <div class="th-pr-stat-label">Vs. Primer Registro</div>
@@ -847,6 +851,15 @@
       <!-- Gráfico de progresión -->
       <div class="th-pr-wrap">
         <canvas id="chartPR"></canvas>
+      </div>
+
+      <!-- Barras de progreso por sesión -->
+      <div class="pr-prog-list" id="pr-prog-list"></div>
+
+      <!-- Sparkline histórica -->
+      <div class="pr-wave-wrap" id="pr-wave-wrap" style="display:none;">
+        <div class="pr-wave-label">Progresión histórica</div>
+        <svg class="pr-wave-svg" id="pr-wave-svg" viewBox="0 0 400 48" preserveAspectRatio="none"></svg>
       </div>
     </div>
 
