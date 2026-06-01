@@ -2856,19 +2856,19 @@
         const rowBg = i % 2 === 0 ? 'rgba(0,0,0,0.018)' : 'transparent';
         const sep   = i < ZONAS.length - 1 ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : '';
 
-        return `<div style="display:grid;grid-template-columns:40px 1fr 110px;gap:0;padding:11px 12px;background:${rowBg};align-items:start;${sep}">
+        return `<div style="display:grid;grid-template-columns:44px 1fr 120px;gap:0;padding:13px 12px;background:${rowBg};align-items:start;${sep}">
           <div>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;letter-spacing:0.5px;color:${z.color};background:${z.color}18;border:1px solid ${z.color}55;border-radius:4px;padding:2px 5px;display:inline-block;">${z.id}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.5px;color:${z.color};background:${z.color}18;border:1px solid ${z.color}55;border-radius:4px;padding:3px 6px;display:inline-block;">${z.id}</span>
           </div>
           <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.3px;color:#1a1a1a;">${z.nombre}</div>
-            <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#bbb;margin-top:2px;">${z.desc}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.3px;color:#1a1a1a;">${z.nombre}</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#bbb;margin-top:2px;">${z.desc}</div>
           </div>
           <div style="text-align:right;">
-            ${speedStr ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:#333;">${speedStr}</div>` : ''}
-            ${paceStr  ? `<div style="font-family:'Barlow',sans-serif;font-size:10px;color:#999;margin-top:1px;">${paceStr}</div>` : ''}
-            ${fcStr    ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#666;margin-top:${vpico ? '4px' : '0'};">${fcStr}</div>` : ''}
-            <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#bbb;margin-top:2px;">RPE ${z.rpe}</div>
+            ${speedStr ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#333;">${speedStr}</div>` : ''}
+            ${paceStr  ? `<div style="font-family:'Barlow',sans-serif;font-size:13px;color:#999;margin-top:2px;">${paceStr}</div>` : ''}
+            ${fcStr    ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:#555;margin-top:${vpico ? '4px' : '0'};">${fcStr}</div>` : ''}
+            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#bbb;margin-top:2px;">RPE ${z.rpe}</div>
           </div>
         </div>`;
       }).join('');
