@@ -3155,3 +3155,450 @@
   .th-range-btn          { font-size: 12px !important; }
   .dash-nutri-text span  { font-size: 13px !important; }
   .dash-section-title    { font-size: 13px !important; letter-spacing: 3px !important; }
+
+
+/* ═══════════════════════════════════════════════════════════
+   MEJORAS VISUALES Y ANIMACIONES — MÁXIMO ESFUERZO UPGRADE
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1. SCROLL REVEAL: elementos aparecen al entrar en pantalla ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.7s cubic-bezier(0.22,1,0.36,1),
+              transform 0.7s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1),
+              transform 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Delays para stagger */
+.reveal-d1 { transition-delay: 0.08s; }
+.reveal-d2 { transition-delay: 0.16s; }
+.reveal-d3 { transition-delay: 0.24s; }
+.reveal-d4 { transition-delay: 0.32s; }
+.reveal-d5 { transition-delay: 0.40s; }
+
+/* ── 2. HERO mejorado: brillo rojo-dorado más intenso ── */
+#hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 200px;
+  background: linear-gradient(to top, var(--negro) 0%, transparent 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+#hero > *:not(.hero-slider):not(.hero-grid) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Pulso de brillo en el hero */
+@keyframes heroGlow {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
+}
+.hero-grid {
+  animation: heroGlow 4s ease-in-out infinite;
+}
+
+/* ── 3. STATS con efecto counter (el número "contará") ── */
+.stat-number {
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s;
+}
+.stat-item:hover .stat-number {
+  color: var(--dorado-suave);
+  text-shadow: 0 0 20px rgba(212,168,67,0.5);
+}
+
+/* ── 4. SECTION LABEL con línea animada ── */
+.section-label::before {
+  transition: width 0.6s cubic-bezier(0.22,1,0.36,1);
+}
+.section-label:hover::before,
+section:hover .section-label::before {
+  width: 40px;
+}
+
+/* ── 5. PILARES de filosofía mejorados ── */
+.pilar {
+  position: relative;
+  overflow: hidden;
+}
+.pilar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: linear-gradient(to top, rgba(212,168,67,0.05), transparent);
+  transition: height 0.4s ease;
+}
+.pilar:hover::after {
+  height: 100%;
+}
+.pilar:hover {
+  transform: translateY(-3px);
+  transition: transform 0.3s ease, border-color 0.3s;
+}
+
+/* ── 6. TRACKER CARDS mejoradas ── */
+.tracker-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s, box-shadow 0.3s;
+}
+.tracker-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--rojo), var(--dorado));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.tracker-card:hover::before {
+  transform: scaleX(1);
+}
+.tracker-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.tracker-metric {
+  transition: color 0.3s, text-shadow 0.3s;
+}
+.tracker-card:hover .tracker-metric {
+  text-shadow: 0 0 24px rgba(212,168,67,0.6);
+}
+
+/* ── 7. PLAN CARDS — efecto premium ── */
+.plan-card {
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.35s ease,
+              border-left-color 0.3s;
+}
+.plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(212,168,67,0.1);
+}
+.plan-card.destacado:hover {
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(212,168,67,0.12);
+}
+
+/* Brillo diagonal animado en plan destacado */
+.plan-card.destacado::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 40%; height: 200%;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(212,168,67,0.06) 50%,
+    transparent 60%
+  );
+  transform: skewX(-15deg);
+  animation: planShine 4s ease-in-out infinite;
+}
+@keyframes planShine {
+  0%   { left: -60%; }
+  50%  { left: 120%; }
+  100% { left: 120%; }
+}
+
+/* ── 8. RESEÑAS — mejoradas ── */
+.resena-card {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.3s,
+              border-top-color 0.3s;
+}
+.resena-card::before {
+  content: '❝';
+  position: absolute;
+  top: 12px; right: 16px;
+  font-size: 4rem;
+  color: rgba(212,168,67,0.06);
+  font-family: Georgia, serif;
+  line-height: 1;
+  pointer-events: none;
+  transition: color 0.3s;
+}
+.resena-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+}
+.resena-card:hover::before {
+  color: rgba(212,168,67,0.12);
+}
+.resena-stars {
+  transition: letter-spacing 0.3s;
+}
+.resena-card:hover .resena-stars {
+  letter-spacing: 6px;
+  color: var(--dorado-suave);
+}
+
+/* ── 9. BOTONES mejorados ── */
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.btn-primary:hover::after {
+  opacity: 1;
+}
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.btn-ghost {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ghost::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 1px;
+  background: var(--dorado);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+.btn-ghost:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* ── 10. CTA FINAL — brillo radial pulsante ── */
+@keyframes ctaPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(192,57,43,0);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+#cta-final::before {
+  animation: ctaPulse 3s ease-in-out infinite;
+}
+#cta-final::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(212,168,67,0.04) 0%, transparent 70%);
+  pointer-events: none;
+  animation: ctaPulse 4s ease-in-out infinite reverse;
+}
+
+/* ── 11. BLOG CARDS mejoradas ── */
+.blog-card {
+  position: relative;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), box-shadow 0.35s;
+}
+.blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.blog-img-placeholder {
+  transition: filter 0.4s ease;
+  background: linear-gradient(135deg, #1a0505, #0f0f1a, #0a1a0f) !important;
+}
+.blog-card:hover .blog-img-placeholder {
+  filter: brightness(1.2);
+}
+.blog-titulo {
+  transition: color 0.2s;
+}
+.blog-card:hover .blog-titulo {
+  color: var(--dorado-suave);
+}
+
+/* Barra de lectura progresiva en blog */
+.blog-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0; height: 2px;
+  background: linear-gradient(90deg, var(--rojo), var(--dorado));
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.blog-card:hover::after {
+  width: 100%;
+}
+
+/* ── 12. NAV — efecto scroll (se agrega clase via JS) ── */
+nav.scrolled {
+  background: rgba(5,5,5,0.98) !important;
+  border-bottom-color: rgba(212,168,67,0.25) !important;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+nav.scrolled .nav-links a {
+  color: rgba(245,240,235,0.7);
+}
+
+/* ── 13. SLIDER dots mejorados ── */
+.slider-dot {
+  transition: transform 0.3s ease, background 0.3s;
+}
+.slider-dot.active {
+  transform: scale(1.4);
+}
+
+/* ── 14. CONNECT BANNER animado ── */
+.connect-banner {
+  position: relative;
+  overflow: hidden;
+}
+.connect-banner::after {
+  content: '';
+  position: absolute;
+  top: -50%; left: -60%;
+  width: 40%; height: 200%;
+  background: linear-gradient(105deg, transparent 40%, rgba(212,168,67,0.04) 50%, transparent 60%);
+  transform: skewX(-15deg);
+  animation: planShine 5s ease-in-out infinite;
+}
+
+/* ── 15. SECTION TITLES — subrayado dorado animado ── */
+.section-title {
+  position: relative;
+  display: inline-block;
+}
+.section-title::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--dorado), transparent);
+  margin-top: 8px;
+  transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+section:hover .section-title::after,
+.section-title.line-visible::after {
+  width: 80px;
+}
+
+/* ── 16. SENECA BLOCK mejorado ── */
+.seneca-block {
+  position: relative;
+  overflow: hidden;
+}
+.seneca-quote {
+  transition: color 0.3s;
+}
+.seneca-block:hover .seneca-quote {
+  color: rgba(245,240,235,0.9);
+}
+
+/* ── 17. SEPARADOR entre secciones ── */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212,168,67,0.2) 30%,
+    rgba(212,168,67,0.4) 50%,
+    rgba(212,168,67,0.2) 70%,
+    transparent 100%
+  );
+  margin: 0;
+}
+
+/* ── 18. SCROLL TO TOP BUTTON ── */
+#scrollTopBtn {
+  position: fixed;
+  bottom: 28px; right: 24px;
+  width: 44px; height: 44px;
+  background: rgba(10,10,10,0.9);
+  border: 1px solid rgba(212,168,67,0.4);
+  color: var(--dorado);
+  font-size: 1.1rem;
+  cursor: pointer;
+  z-index: 90;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.3s, transform 0.3s, background 0.2s;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+}
+#scrollTopBtn.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+#scrollTopBtn:hover {
+  background: rgba(212,168,67,0.15);
+}
+
+/* ── 19. LOADING shimmer para imágenes ── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.blog-img-placeholder {
+  background-size: 800px 100% !important;
+}
+
+/* ── 20. CURSOR spotlight (solo desktop) ── */
+@media (pointer: fine) {
+  .plan-card, .resena-card, .tracker-card, .pilar, .blog-card {
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+  }
+  .plan-card::before,
+  .resena-card::after,
+  .tracker-card::after {
+    background: radial-gradient(
+      circle 200px at var(--mouse-x) var(--mouse-y),
+      rgba(212,168,67,0.04),
+      transparent
+    );
+  }
+}
