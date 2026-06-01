@@ -858,6 +858,31 @@ function saveRuckProfile() {
 
 async function cargarPerfilAtletaRuck(aid) {
   if (!aid) return;
+
+  // Atleta de la nube sin Strava (valor empieza con "cloud:")
+  if (String(aid).startsWith('cloud:')) {
+    const cloudId = aid.replace('cloud:', '');
+    document.getElementById('rBW').value = '';
+    document.getElementById('rLBM').value = '';
+    document.getElementById('rFAT').value = '';
+    document.getElementById('rSE').value  = '';
+    document.getElementById('rTMR').value = '';
+    try {
+      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
+      const d = await res.json();
+      if (d.ok && d.profile) {
+        const cp = d.profile;
+        if (cp.bw)     document.getElementById('rBW').value  = cp.bw;
+        if (cp.lbm)    document.getElementById('rLBM').value = cp.lbm;
+        if (cp.fat)    document.getElementById('rFAT').value = cp.fat;
+        if (cp.se)     document.getElementById('rSE').value  = cp.se;
+        if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
+        document.getElementById('ruckProfileSub').textContent = `✓ Perfil cargado · Firebase (sin Strava) · ${cp.updatedAt?.slice(0,10)||''}`;
+      }
+    } catch(e) { console.warn('[Coach] Perfil nube error:', e); }
+    return;
+  }
+
   const a = atletas.find(x=>x.id===parseInt(aid));
   if (!a) return;
   // Cargar datos locales primero (respuesta inmediata)
@@ -867,23 +892,23 @@ async function cargarPerfilAtletaRuck(aid) {
   document.getElementById('rFAT').value = p.fat || '';
   document.getElementById('rSE').value  = p.se  || '';
   document.getElementById('rTMR').value = p.tmrStr || '';
-  // Si tiene stravaId, intentar leer perfil desde la nube
-  if (a.stravaId) {
+  // Intentar leer perfil desde la nube: stravaId numérico o cloudId uid:xxx
+  const cloudId = a.stravaId || a.cloudId || null;
+  if (cloudId) {
     try {
-      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${a.stravaId}&secret=${encodeURIComponent(PASS)}`);
+      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
       const d = await res.json();
       if (d.ok && d.profile) {
         const cp = d.profile;
-        // Priorizar datos de la nube (más recientes del atleta)
         if (cp.bw)     document.getElementById('rBW').value  = cp.bw;
         if (cp.lbm)    document.getElementById('rLBM').value = cp.lbm;
         if (cp.fat)    document.getElementById('rFAT').value = cp.fat;
         if (cp.se)     document.getElementById('rSE').value  = cp.se;
         if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
-        // Actualizar atleta local también
         a.rucking = { ...a.rucking, ...cp };
         guardarAtletas();
-        document.getElementById('ruckProfileSub').textContent = `✓ Perfil sincronizado desde atleta · ${cp.updatedAt?.slice(0,10)||''}`;
+        const src = cloudId.startsWith('uid:') ? 'Firebase (sin Strava)' : 'Strava';
+        document.getElementById('ruckProfileSub').textContent = `✓ Perfil sincronizado · ${src} · ${cp.updatedAt?.slice(0,10)||''}`;
       }
     } catch(e) { console.warn('[Coach] Perfil rucking nube error:', e); }
   }
@@ -1164,15 +1189,43 @@ function initRucking() {
   // Fecha de hoy por defecto
   const sd2 = document.getElementById('sDate');
   if (sd2) sd2.value = new Date().toISOString().split('T')[0];
-  // Poblar selector de atletas
+  // Poblar selector: atletas locales + atletas en la nube sin Strava
   const sel = document.getElementById('ruckAtletaSel');
   if (sel) {
     sel.innerHTML = '<option value="">— Seleccionar atleta —</option>' +
-      atletas.filter(a=>!a.archivado).map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('');
+      atletas.filter(a=>!a.archivado).map(a=>`<option value="${a.id}">${a.nombre}${a.stravaId?'':' · Sin Strava'}</option>`).join('');
   }
+  // Cargar atletas que sincronizaron desde Firebase (sin Strava) en segundo plano
+  cargarAtletasNube();
   // Actualizar UI con perfil y sesiones guardadas
   updateRuckingUI();
   renderRuckStats();
+}
+
+// Carga atletas desde el cloud y agrega los que no están en la lista local
+async function cargarAtletasNube() {
+  try {
+    const res = await fetch(`${RUCK_WORKER}/rucking/lista?secret=${encodeURIComponent(PASS)}`);
+    const d   = await res.json();
+    if (!d.ok || !d.atletas) return;
+    const sel = document.getElementById('ruckAtletaSel');
+    if (!sel) return;
+
+    // Filtrar solo los uid:xxx (sin Strava) que no están ya en la lista local
+    const sinStrava = d.atletas.filter(a => String(a.stravaId).startsWith('uid:'));
+    if (!sinStrava.length) return;
+
+    // Agregar como grupo separado en el select
+    const grp = document.createElement('optgroup');
+    grp.label = 'Sin Strava — sincronizados';
+    sinStrava.forEach(a => {
+      const opt = document.createElement('option');
+      opt.value = 'cloud:' + a.stravaId; // prefix cloud: para distinguir
+      opt.textContent = a.nombre + ' · ☁';
+      grp.appendChild(opt);
+    });
+    sel.appendChild(grp);
+  } catch(e) { console.warn('[Coach] Lista nube error:', e); }
 }
 
 function showTab(id, btn) {

@@ -231,17 +231,22 @@ export default {
     }
 
     // ── POST /rucking/sync — atleta empuja sus sesiones al KV ──
+    // stravaId puede ser un ID numérico de Strava o "uid:xxx" (Firebase UID)
     if (url.pathname === '/rucking/sync' && request.method === 'POST') {
       try {
         const { stravaId, sessions, nombre } = await request.json();
         if (!stravaId || !Array.isArray(sessions)) {
           return Response.json({ ok: false, error: 'Datos inválidos' }, { status: 400, headers: corsHeaders() });
         }
-        // Guardar sesiones
         await env.RUCK_DATA.put(`ruck:${stravaId}`, JSON.stringify(sessions));
-        // Guardar perfil de atleta (nombre + id) para que el coach lo pueda buscar
         if (nombre) {
-          await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre }));
+          const hasStrava = !String(stravaId).startsWith('uid:');
+          await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({
+            stravaId,
+            nombre,
+            hasStrava,
+            updatedAt: new Date().toISOString()
+          }));
         }
         return Response.json({ ok: true, saved: sessions.length }, { headers: corsHeaders() });
       } catch(e) {
@@ -294,8 +299,10 @@ export default {
         const { stravaId, nombre, profile } = await request.json();
         if (!stravaId || !profile) return Response.json({ ok:false, error:'Datos inválidos' }, { status:400, headers:corsHeaders() });
         await env.RUCK_DATA.put(`profile:${stravaId}`, JSON.stringify({ ...profile, updatedAt: new Date().toISOString() }));
-        // Actualizar registro de atleta también
-        if (nombre) await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre }));
+        if (nombre) {
+          const hasStrava = !String(stravaId).startsWith('uid:');
+          await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre, hasStrava, updatedAt: new Date().toISOString() }));
+        }
         return Response.json({ ok:true }, { headers:corsHeaders() });
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }

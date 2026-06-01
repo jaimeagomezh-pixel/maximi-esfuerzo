@@ -506,17 +506,27 @@
     }
   }
 
-  // Empuja todas las sesiones de rucking al Worker (Cloudflare KV)
-  // También registra el nombre del atleta para que el coach pueda encontrarlo
-  async function pushRuckingToCloud(sessions) {
+  // Devuelve el ID cloud del atleta: StravaId si existe, uid:xxx como fallback Firebase
+  function getAthleteCloudId() {
     const stravaId = localStorage.getItem('strava_athlete_id');
-    if (!stravaId) return;
-    const nombre = localStorage.getItem('atletaNombre') || '';
+    if (stravaId) return stravaId;
+    const uid = window._auth?.currentUser?.uid;
+    if (uid) return 'uid:' + uid;
+    return null;
+  }
+
+  // Empuja todas las sesiones de rucking al Worker (Cloudflare KV)
+  async function pushRuckingToCloud(sessions) {
+    const cloudId = getAthleteCloudId();
+    if (!cloudId) return;
+    const nombre = localStorage.getItem('atletaNombre')
+                || window._auth?.currentUser?.displayName
+                || '';
     try {
       await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId, sessions, nombre })
+        body: JSON.stringify({ stravaId: cloudId, sessions, nombre })
       });
     } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
@@ -2523,14 +2533,16 @@
   }
 
   async function pushRuckProfileToCloud(profile) {
-    const stravaId = localStorage.getItem('strava_athlete_id');
-    if (!stravaId) return;
-    const nombre = localStorage.getItem('atletaNombre') || '';
+    const cloudId = getAthleteCloudId();
+    if (!cloudId) return;
+    const nombre = localStorage.getItem('atletaNombre')
+                || window._auth?.currentUser?.displayName
+                || '';
     try {
       await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId, nombre, profile })
+        body: JSON.stringify({ stravaId: cloudId, nombre, profile })
       });
     } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
   }
