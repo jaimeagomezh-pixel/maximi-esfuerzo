@@ -1979,9 +1979,13 @@ async function cargarInbodyHistorial() {
     // Leyenda custom oculta (Chart.js ya la muestra)
     document.getElementById('inbodyLeyenda').innerHTML = '';
 
-    // Cachear BM más reciente para cálculos de rucking
-    const latestInbody = lista[lista.length - 1];
-    if (latestInbody?.peso) localStorage.setItem('atletaBM', latestInbody.peso);
+    // Cachear historial completo de pesos con fechas para cálculos de rucking
+    const bmHistorial = lista.map(m => ({ fecha: m.fecha, peso: m.peso }))
+                             .filter(m => m.peso && !isNaN(m.peso))
+                             .sort((a,b) => a.fecha.localeCompare(b.fecha));
+    localStorage.setItem('atletaBMHistorial', JSON.stringify(bmHistorial));
+    // También mantener el último para compatibilidad
+    if (bmHistorial.length) localStorage.setItem('atletaBM', bmHistorial[bmHistorial.length-1].peso);
 
     // Historial lista
     document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `

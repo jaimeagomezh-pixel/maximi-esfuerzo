@@ -1851,7 +1851,17 @@
   let ruckMetrica = 'tiempo'; // 'tiempo' | 'potencia'
 
   function setRuckMetrica(modo, btn) {
+    if (modo === 'potencia' && !hayBMRegistrado()) {
+      const warn = document.getElementById('ruckBMWarning');
+      if (warn) {
+        warn.style.display = 'block';
+        warn.innerHTML = '⚠ <strong>Peso corporal obligatorio.</strong> Ve a <a onclick="toggleAccord(document.querySelector(\'[data-accord=composicion]\'))" style="color:#e07b00;cursor:pointer;text-decoration:underline;">Composición Corporal</a> e ingresa tu peso para activar esta métrica.';
+      }
+      return; // No cambiar métrica
+    }
     ruckMetrica = modo;
+    const warn = document.getElementById('ruckBMWarning');
+    if (warn) warn.style.display = 'none';
     document.querySelectorAll('#ruckToggleTiempo,#ruckTogglePotencia').forEach(b => {
       b.style.background = '#fff';
       b.style.color = '#999';
@@ -1863,21 +1873,42 @@
     updateRuckingAtletaPR();
   }
 
-  function getRuckBM() {
-    // 1. InBody cacheado
-    const bm = parseFloat(localStorage.getItem('atletaBM'));
-    if (bm && bm > 0) return bm;
-    // 2. ruckProfile del atleta
-    const p = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-    return p.bw || null;
+  function getBMHistorial() {
+    // 1. Historial InBody con fechas
+    const h = JSON.parse(localStorage.getItem('atletaBMHistorial') || '[]');
+    if (h.length) return h;
+    // 2. Fallback: peso único sin fecha (InBody antiguo o ruckProfile)
+    const bm = parseFloat(localStorage.getItem('atletaBM')) ||
+               JSON.parse(localStorage.getItem('ruckProfile') || '{}').bw || null;
+    return bm ? [{ fecha: '2000-01-01', peso: bm }] : [];
+  }
+
+  function getBMForDate(fecha) {
+    const historial = getBMHistorial();
+    if (!historial.length) return null;
+    // Buscar el peso más reciente en o antes de la fecha de la sesión
+    const anteriores = historial.filter(m => m.fecha <= fecha);
+    if (anteriores.length) return anteriores[anteriores.length - 1].peso;
+    // Si la sesión es anterior a todos los registros, usar el más antiguo
+    return historial[0].peso;
+  }
+
+  function hayBMRegistrado() {
+    return getBMHistorial().length > 0;
   }
 
   function calcPotenciaRuck(session) {
-    const bm = getRuckBM();
+    const bm = getBMForDate(session.date);
     if (!bm || !session.time || !session.dist) return null;
-    const distM  = session.dist * 1000;
+    const distM   = session.dist * 1000;
     const trabajo = (bm + session.load) * 9.81 * distM;
     return Math.round(trabajo / session.time); // Watts
+  }
+
+  function calcTrabajoRuck(session) {
+    const bm = getBMForDate(session.date);
+    if (!bm || !session.dist) return null;
+    return Math.round((bm + session.load) * 9.81 * session.dist * 1000 / 1000); // kJ
   }
 
   function fmtTimerRuck(sec) {
@@ -2049,9 +2080,8 @@
         tbody.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones para esta selección</div>';
       } else {
         tbody.innerHTML = recent.map(s=>{
-          const pot = calcPotenciaRuck(s);
-          const bm  = getRuckBM();
-          const trabajo = bm ? Math.round((bm + s.load) * 9.81 * s.dist * 1000 / 1000) : null; // kJ
+          const pot     = calcPotenciaRuck(s);
+          const trabajo = calcTrabajoRuck(s);
           return `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
             <div>
