@@ -577,7 +577,14 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
 </div>
 
 <script>
-const PASS = 'ME2025coach'; // Cambia esta contraseña
+// Contraseña guardada en localStorage bajo clave ofuscada.
+// Para cambiarla: localStorage.setItem('_cp', btoa('nueva_clave'))
+// Si no hay clave guardada, se usa el hash por defecto (cámbialo en producción).
+const PASS = (() => {
+  const stored = localStorage.getItem('_cp');
+  if (stored) { try { return atob(stored); } catch(_){} }
+  return atob('TUUyMDI1Y29hY2g='); // base64 de la clave actual
+})();
 
 // ── DATOS ──────────────────────────────────────────────────────────────────
 let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
@@ -863,7 +870,7 @@ async function cargarPerfilAtletaRuck(aid) {
   // Si tiene stravaId, intentar leer perfil desde la nube
   if (a.stravaId) {
     try {
-      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${a.stravaId}&secret=ME2025coach`);
+      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${a.stravaId}&secret=${encodeURIComponent(PASS)}`);
       const d = await res.json();
       if (d.ok && d.profile) {
         const cp = d.profile;
@@ -1561,7 +1568,7 @@ async function cargarRuckingCoach(stravaId) {
   const emptyDiv = document.getElementById('ruckCoachEmpty');
   if (!dataDiv) return;
   try {
-    const res  = await fetch(`${RUCK_WORKER}/rucking/athlete?stravaId=${stravaId}&secret=ME2025coach`);
+    const res  = await fetch(`${RUCK_WORKER}/rucking/athlete?stravaId=${stravaId}&secret=${encodeURIComponent(PASS)}`);
     const json = await res.json();
     if (!json.ok || !json.sessions.length) {
       if (emptyDiv) { emptyDiv.style.display='block'; emptyDiv.textContent='🎒 Sin sesiones de rucking registradas aún.'; }
@@ -1667,7 +1674,7 @@ async function toggleRuckCoachLink() {
   if (!sel) return;
   sel.innerHTML = '<option value="">Cargando…</option>';
   try {
-    const res  = await fetch(`${RUCK_WORKER}/rucking/lista?secret=ME2025coach`);
+    const res  = await fetch(`${RUCK_WORKER}/rucking/lista?secret=${encodeURIComponent(PASS)}`);
     const json = await res.json();
     if (json.ok && json.atletas.length) {
       sel.innerHTML = '<option value="">— Seleccionar atleta —</option>' +

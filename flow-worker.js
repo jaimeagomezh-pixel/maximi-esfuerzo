@@ -51,13 +51,18 @@ function corsHeaders() {
   };
 }
 
-const COACH_SECRET = 'ME2025coach';
+// COACH_SECRET se lee de env.COACH_SECRET (Cloudflare Worker secret)
+// Configúralo con: npx wrangler secret put COACH_SECRET
+// Valor por defecto solo como fallback de desarrollo:
+const COACH_SECRET = null; // nunca hardcodeado en código
 
 // ══════════════════════════════════════════════
 //  HANDLER PRINCIPAL
 // ══════════════════════════════════════════════
 export default {
   async fetch(request, env) {
+    // Leer secret desde env (Cloudflare Worker secret), nunca del código
+    const COACH_SECRET = env.COACH_SECRET;
     const url = new URL(request.url);
 
     if (request.method === 'OPTIONS') {

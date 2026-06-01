@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /coach.html
+Disallow: /flow-worker.js
+Disallow: /media-worker.js
+Allow: /
