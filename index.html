@@ -1903,14 +1903,17 @@ async function handleInbodyImage(input) {
 async function guardarInbody() {
   const user = window._auth?.currentUser;
   if (!user) return;
+  const peso     = parseFloat(document.getElementById('ib_peso').value);
+  const grasa_kg = parseFloat(document.getElementById('ib_grasa_kg').value);
   const vals = {
-    peso:      parseFloat(document.getElementById('ib_peso').value),
+    peso,
     musculo:   parseFloat(document.getElementById('ib_musculo').value),
-    grasa_kg:  parseFloat(document.getElementById('ib_grasa_kg').value),
+    grasa_kg,
     grasa_pct: parseFloat(document.getElementById('ib_grasa_pct').value),
     agua:      parseFloat(document.getElementById('ib_agua').value),
     imc:       parseFloat(document.getElementById('ib_imc').value),
     bmr:       parseFloat(document.getElementById('ib_bmr').value),
+    lbm:       (!isNaN(peso) && !isNaN(grasa_kg)) ? parseFloat((peso - grasa_kg).toFixed(1)) : null,
     fecha:     new Date().toISOString().split('T')[0]
   };
   if (Object.values(vals).some(v => isNaN(v) && v !== vals.fecha)) {

@@ -91,6 +91,10 @@ export default {
       if (req.method === 'POST' && url.pathname === '/media/save-inbody') {
         const { uid, email, medicion } = await req.json();
         if (!uid || !medicion?.fecha) return err('uid y medicion.fecha requeridos', 400);
+        // Calcular LBM automáticamente si no viene explícito
+        if (!medicion.lbm && medicion.peso && medicion.grasa_kg) {
+          medicion.lbm = parseFloat((medicion.peso - medicion.grasa_kg).toFixed(1));
+        }
         const list = JSON.parse(await env.BODY_DATA.get(`body:${uid}`) || '[]');
         const idx = list.findIndex(m => m.fecha === medicion.fecha);
         if (idx >= 0) list[idx] = medicion; else list.push(medicion);
