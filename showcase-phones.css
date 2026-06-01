@@ -1,0 +1,411 @@
+/* ═══════════════════════════════════════════════════
+   APP SHOWCASE SECTION — Mockups de teléfono animados
+   Estilo TrainHeroic Athlete Page
+   ═══════════════════════════════════════════════════ */
+
+/* ── Sección contenedor ── */
+.showcase-section {
+  background: #070707;
+  padding: 100px 5% 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  min-height: 90vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Fondo sutil de cuadrícula */
+.showcase-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.025) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+}
+
+/* ── Columna izquierda ── */
+.showcase-left {
+  position: relative;
+  z-index: 2;
+  padding-left: 40px;
+}
+
+.showcase-left .section-title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  margin: 12px 0 20px;
+  line-height: 1;
+}
+
+.showcase-desc {
+  font-family: 'Barlow', sans-serif;
+  font-size: 1rem;
+  color: rgba(245,240,235,0.55);
+  line-height: 1.8;
+  max-width: 420px;
+  margin-bottom: 36px;
+}
+
+/* Features list */
+.showcase-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.showcase-feature {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(201,168,76,0.12);
+  background: rgba(201,168,76,0.03);
+  transition: border-color 0.25s, background 0.25s;
+}
+.showcase-feature:hover {
+  border-color: rgba(201,168,76,0.3);
+  background: rgba(201,168,76,0.06);
+}
+
+.sf-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  width: 36px;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.sf-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f5f0eb;
+  margin-bottom: 4px;
+}
+
+.sf-text {
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.82rem;
+  color: rgba(245,240,235,0.45);
+  line-height: 1.6;
+}
+
+/* ── Columna derecha: teléfonos ── */
+.showcase-right {
+  position: relative;
+  height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Mockup base ── */
+.phone-mockup {
+  position: absolute;
+  width: 185px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.phone-mockup:hover {
+  transform: translateY(-8px) !important;
+  z-index: 20 !important;
+}
+
+/* Posiciones de los 3 teléfonos */
+.phone-left-anim  { left: 0;    top: 40px;   z-index: 10; transform: rotate(-6deg); }
+.phone-center-anim{ left: 50%;  top: 0px;    z-index: 15; transform: translateX(-50%) rotate(0deg); }
+.phone-right-anim { right: 0;   top: 40px;   z-index: 10; transform: rotate(6deg); }
+
+/* Animaciones de entrada al hacer scroll (IntersectionObserver las activa) */
+.phone-left-anim,
+.phone-center-anim,
+.phone-right-anim {
+  opacity: 0;
+}
+
+.phone-left-anim.phone-in {
+  animation: slideInLeft 0.85s cubic-bezier(0.22,1,0.36,1) 0.05s forwards;
+}
+.phone-center-anim.phone-in {
+  animation: slideInUp 0.85s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+}
+.phone-right-anim.phone-in {
+  animation: slideInRight 0.85s cubic-bezier(0.22,1,0.36,1) 0.38s forwards;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-80px) translateY(60px) rotate(-6deg); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) rotate(-6deg); }
+}
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(100px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(80px) translateY(60px) rotate(6deg); }
+  to   { opacity: 1; transform: translateX(0) translateY(0) rotate(6deg); }
+}
+
+/* Teléfono destacado (central) es más grande */
+.phone-featured {
+  width: 210px !important;
+}
+
+/* ── Frame del teléfono ── */
+.phone-frame {
+  background: #111;
+  border-radius: 34px;
+  border: 2px solid rgba(255,255,255,0.1);
+  padding: 14px 8px 16px;
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 1px 0 rgba(255,255,255,0.1) inset;
+  position: relative;
+  overflow: hidden;
+}
+
+.phone-frame-gold {
+  border-color: rgba(201,168,76,0.4);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,0.8),
+    0 0 30px rgba(201,168,76,0.15),
+    0 0 0 1px rgba(201,168,76,0.1) inset;
+}
+
+.phone-notch {
+  width: 60px; height: 8px;
+  background: #000;
+  border-radius: 0 0 8px 8px;
+  margin: 0 auto 8px;
+}
+
+/* ── Pantalla del teléfono ── */
+.phone-screen {
+  background: #0d0d0d;
+  border-radius: 20px;
+  padding: 10px 10px 14px;
+  min-height: 360px;
+  overflow: hidden;
+}
+.phone-screen-dark {
+  background: #080808;
+}
+
+/* Header de la app */
+.phone-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 10px;
+}
+.phone-app-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+}
+
+/* Contenidos de la pantalla */
+.phone-section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.phone-activity-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  color: #f5f0eb;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+.phone-metrics {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.phone-metric { flex: 1; text-align: center; }
+.pm-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 16px;
+  color: #C9A84C;
+  line-height: 1;
+}
+.pm-lbl {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+/* Zonas */
+.phone-zones { display: flex; flex-direction: column; gap: 5px; }
+.phone-zone-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7.5px;
+  color: rgba(255,255,255,0.4);
+}
+.pz-bar { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+.pz-fill { height: 100%; border-radius: 2px; }
+.pz-pct { min-width: 20px; text-align: right; }
+.z5-c { background: #e74c3c; }
+.z4-c { background: #e67e22; }
+.z3-c { background: #f1c40f; }
+.z2-c { background: #2ecc71; }
+
+/* Teléfono central */
+.phone-welcome {
+  font-family: 'Barlow', sans-serif;
+  font-size: 8px;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 2px;
+}
+.phone-user-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  color: #f5f0eb;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
+.phone-plan-badge {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #C9A84C;
+  border: 1px solid rgba(201,168,76,0.3);
+  padding: 3px 8px;
+  margin-bottom: 12px;
+}
+.phone-progress-ring {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 10px;
+}
+.phone-ring-label { text-align: center; }
+.phone-ring-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: #C9A84C;
+  line-height: 1;
+}
+.phone-ring-txt {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+}
+.ring-anim {
+  stroke-dashoffset: 188;
+  transition: stroke-dashoffset 1.5s cubic-bezier(0.22,1,0.36,1);
+}
+.phone-in .ring-anim { stroke-dashoffset: 47; }
+
+.phone-next-session {
+  background: rgba(201,168,76,0.07);
+  border: 1px solid rgba(201,168,76,0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.phone-ns-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: rgba(201,168,76,0.6);
+  margin-bottom: 3px;
+}
+.phone-ns-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  color: #f5f0eb;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.phone-ns-detail {
+  font-size: 7.5px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Barlow', sans-serif;
+}
+
+/* Teléfono fuerza */
+.phone-exercise-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 20px;
+  color: #f5f0eb;
+  margin-bottom: 6px;
+}
+.phone-pr-display {
+  background: rgba(201,168,76,0.07);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.phone-pr-val {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  color: #C9A84C;
+  line-height: 1;
+}
+.phone-pr-val span { font-size: 14px; opacity: 0.6; }
+.phone-pr-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 7px;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.phone-sessions { display: flex; flex-direction: column; gap: 5px; }
+.phone-sess-row {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9px;
+  color: rgba(255,255,255,0.35);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.gold-text { color: #C9A84C !important; }
+.ps-kg { font-weight: 700; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .showcase-section {
+    grid-template-columns: 1fr;
+    padding: 70px 5% 80px;
+  }
+  .showcase-left { padding-left: 0; }
+  .showcase-right {
+    height: 420px;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .phone-mockup { width: 140px !important; }
+  .phone-featured { width: 160px !important; }
+  .phone-left-anim  { left: 0; top: 30px; }
+  .phone-center-anim{ left: 50%; top: 0; }
+  .phone-right-anim { right: 0; top: 30px; }
+}

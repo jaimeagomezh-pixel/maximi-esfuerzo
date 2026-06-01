@@ -6,7 +6,8 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260601b">
+<link rel="stylesheet" href="styles.css?v=20260601c">
+<link rel="stylesheet" href="showcase-phones.css?v=20260601c">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
 /* ─── MáximoEsfuerzo · Animaciones dashboard ─── */
@@ -306,6 +307,134 @@
   </div>
 
 
+</section>
+
+<!-- ═══ SECCIÓN: APP SHOWCASE estilo TrainHeroic ═══ -->
+<section id="app-showcase" class="showcase-section">
+
+  <!-- Lado izquierdo: texto -->
+  <div class="showcase-left">
+    <div class="section-label">Tu Panel de Atleta</div>
+    <h2 class="section-title">TODO TU<br><span>RENDIMIENTO</span><br>EN UN LUGAR</h2>
+    <p class="showcase-desc">
+      Conecta Strava, registra tus tiempos y sigue tu progresión de fuerza — todo desde tu panel personalizado. Sin apps externas, sin fricción.
+    </p>
+
+    <div class="showcase-features">
+      <div class="showcase-feature">
+        <div class="sf-icon">🏃</div>
+        <div>
+          <div class="sf-title">Tracking de Endurance</div>
+          <div class="sf-text">FC, ritmo, zonas y récords personales sincronizados con Strava.</div>
+        </div>
+      </div>
+      <div class="showcase-feature">
+        <div class="sf-icon">💪</div>
+        <div>
+          <div class="sf-title">Progresión de Fuerza</div>
+          <div class="sf-text">Working Max, 1RM estimado y gráfico de progresión por ejercicio.</div>
+        </div>
+      </div>
+      <div class="showcase-feature">
+        <div class="sf-icon">🎯</div>
+        <div>
+          <div class="sf-title">Plan Activo</div>
+          <div class="sf-text">Tu programa de 8 o 12 semanas con sesiones del día y progreso semanal.</div>
+        </div>
+      </div>
+    </div>
+
+    <a href="#planes" class="btn-primary" style="margin-top:32px;display:inline-block;">Empezar Ahora →</a>
+  </div>
+
+  <!-- Lado derecho: 3 teléfonos animados -->
+  <div class="showcase-right" id="showcasePhones">
+
+    <!-- Teléfono 1 — Endurance (llega desde la izquierda-abajo) -->
+    <div class="phone-mockup phone-left-anim" id="ph1">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header-bar">
+            <span class="phone-app-name">MÁX. ESFUERZO</span>
+            <span style="color:#FC4C02;font-size:9px;">⬡ STRAVA</span>
+          </div>
+          <div class="phone-section-title">Última Actividad</div>
+          <div class="phone-activity-name">Temuco Carrera</div>
+          <div class="phone-metrics">
+            <div class="phone-metric"><div class="pm-val">10.02</div><div class="pm-lbl">km</div></div>
+            <div class="phone-metric"><div class="pm-val">4:21</div><div class="pm-lbl">min/km</div></div>
+            <div class="phone-metric"><div class="pm-val">163</div><div class="pm-lbl">ppm</div></div>
+          </div>
+          <div class="phone-zones">
+            <div class="phone-zone-row"><span>Z5</span><div class="pz-bar"><div class="pz-fill z5-c" style="width:4%"></div></div><span class="pz-pct">4%</span></div>
+            <div class="phone-zone-row"><span>Z4</span><div class="pz-bar"><div class="pz-fill z4-c" style="width:48%"></div></div><span class="pz-pct">48%</span></div>
+            <div class="phone-zone-row"><span>Z3</span><div class="pz-bar"><div class="pz-fill z3-c" style="width:34%"></div></div><span class="pz-pct">34%</span></div>
+            <div class="phone-zone-row"><span>Z2</span><div class="pz-bar"><div class="pz-fill z2-c" style="width:9%"></div></div><span class="pz-pct">9%</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teléfono 2 — Dashboard (llega desde abajo al centro, destaca) -->
+    <div class="phone-mockup phone-center-anim phone-featured" id="ph2">
+      <div class="phone-frame phone-frame-gold">
+        <div class="phone-notch"></div>
+        <div class="phone-screen phone-screen-dark">
+          <div class="phone-header-bar">
+            <span class="phone-app-name">MÁX. ESFUERZO</span>
+            <span style="color:#C9A84C;font-size:9px;">●</span>
+          </div>
+          <div class="phone-welcome">Bienvenido de vuelta</div>
+          <div class="phone-user-name">ATLETA</div>
+          <div class="phone-plan-badge">PLAN OPERATOR · SEM 4</div>
+          <div class="phone-progress-ring">
+            <svg viewBox="0 0 80 80" width="72" height="72">
+              <circle cx="40" cy="40" r="30" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="6"/>
+              <circle cx="40" cy="40" r="30" fill="none" stroke="#C9A84C" stroke-width="6"
+                stroke-dasharray="188" stroke-dashoffset="47" stroke-linecap="round"
+                transform="rotate(-90 40 40)" class="ring-anim"/>
+            </svg>
+            <div class="phone-ring-label">
+              <div class="phone-ring-val">75%</div>
+              <div class="phone-ring-txt">completado</div>
+            </div>
+          </div>
+          <div class="phone-next-session">
+            <div class="phone-ns-label">PRÓXIMA SESIÓN</div>
+            <div class="phone-ns-name">Fuerza — Día 4</div>
+            <div class="phone-ns-detail">Sentadilla · Peso muerto · Press</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teléfono 3 — Fuerza (llega desde la derecha-abajo) -->
+    <div class="phone-mockup phone-right-anim" id="ph3">
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="phone-header-bar">
+            <span class="phone-app-name">MÁX. ESFUERZO</span>
+            <span style="color:#C9A84C;font-size:9px;">💪</span>
+          </div>
+          <div class="phone-section-title">Fuerza · Progresión</div>
+          <div class="phone-exercise-name">Sentadilla</div>
+          <div class="phone-pr-display">
+            <div class="phone-pr-val">142<span>kg</span></div>
+            <div class="phone-pr-label">Working Max · Est. 1RM: 158 kg</div>
+          </div>
+          <div class="phone-sessions">
+            <div class="phone-sess-row"><span class="ps-date">20 May</span><span class="ps-sets">4×5</span><span class="ps-kg gold-text">142 kg</span></div>
+            <div class="phone-sess-row"><span class="ps-date">16 May</span><span class="ps-sets">3×5</span><span class="ps-kg gold-text">138 kg</span></div>
+            <div class="phone-sess-row"><span class="ps-date">12 May</span><span class="ps-sets">4×6</span><span class="ps-kg">135 kg</span></div>
+            <div class="phone-sess-row"><span class="ps-date">08 May</span><span class="ps-sets">3×8</span><span class="ps-kg">125 kg</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </section>
 
 <!-- FILOSOFÍA -->
@@ -2322,6 +2451,30 @@ document.addEventListener('DOMContentLoaded', () => {
     initTitleLines();
   });
 
+})();
+</script>
+
+<!-- ═══ ANIMACIÓN TELÉFONOS SHOWCASE ═══ -->
+<script>
+(function() {
+  // IntersectionObserver para disparar la animación al hacer scroll
+  const phoneObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        // Activar los 3 teléfonos con stagger
+        ['ph1','ph2','ph3'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.classList.add('phone-in');
+        });
+        phoneObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const showcase = document.getElementById('showcasePhones');
+    if (showcase) phoneObserver.observe(showcase);
+  });
 })();
 </script>
 
