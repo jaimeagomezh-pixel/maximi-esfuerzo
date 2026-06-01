@@ -621,6 +621,22 @@ let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
 
 function guardarAtletas() { localStorage.setItem('coachAtletas', JSON.stringify(atletas)); }
 
+// Migración: asignar datos rucking demo a atletas que no los tienen
+(function migrarRucking() {
+  const demo = { 1:{ bw:82,lbm:68,fat:14,se:38,tmrSec:870,tmrStr:'14:30' },
+                 2:{ bw:61,lbm:48,fat:13,se:22,tmrSec:960,tmrStr:'16:00' },
+                 3:null,
+                 4:{ bw:78,lbm:65,fat:13,se:45,tmrSec:810,tmrStr:'13:30' } };
+  let changed = false;
+  atletas.forEach(a => {
+    if (a.rucking === undefined) {
+      a.rucking = demo[a.id] || null;
+      changed = true;
+    }
+  });
+  if (changed) guardarAtletas();
+})();
+
 // ── LOGIN ──────────────────────────────────────────────────────────────────
 function verificar() {
   if (document.getElementById('loginPass').value === PASS) {
