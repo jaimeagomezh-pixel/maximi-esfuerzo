@@ -2054,6 +2054,19 @@
       statusEl.textContent = `✓ SE guardado: ${val} reps · ${profile.seDate}`;
       statusEl.style.color = '#27ae60';
     }
+    // Feedback visual en el botón
+    const btn = document.querySelector('[onclick="guardarRuckSE()"]');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ GUARDADO';
+      btn.style.background = '#27ae60';
+      btn.style.transform = 'scale(1.04)';
+      setTimeout(() => {
+        btn.textContent = orig;
+        btn.style.background = '';
+        btn.style.transform = '';
+      }, 1800);
+    }
     // Sincronizar con la nube
     pushRuckProfileToCloud(profile);
   }
