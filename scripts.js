@@ -701,6 +701,13 @@
     localStorage.setItem('atletaPerfil', JSON.stringify(p));
     actualizarResumenPerfil(p);
     document.getElementById('miPerfilPanel').style.display = 'none';
+    // Sincronizar peso al cloud como BM en ruckProfile
+    if (peso) {
+      const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      ruckProfile.bw = peso;
+      localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
+      pushRuckProfileToCloud(ruckProfile);
+    }
     // Feedback
     const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
     if (btn) {
