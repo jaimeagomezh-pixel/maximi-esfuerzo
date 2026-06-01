@@ -289,10 +289,10 @@
     <div class="stat-item"><div class="stat-number">93%</div><div class="stat-label">Tasa de éxito</div></div>
   </div>
   <h1 class="hero-title">
-    FORJADO<br>
-    <span class="line-gold">EN CAMPO,</span><br>
-    PROBADO EN<br>
-    <span class="line-gold">COMBATE</span>
+    CIENCIA<br>
+    <span class="line-gold">APLICADA</span><br>
+    AL<br>
+    <span class="line-gold">GUERRERO</span>
   </h1>
 
   <p class="hero-sub">Metodología militar aplicada al rendimiento humano.</p>
@@ -2312,6 +2312,31 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.section-title').forEach(t => titleObserver.observe(t));
   }
 
+  /* ── 7. PARALLAX en el Hero ── */
+  function initParallax() {
+    const slider = document.getElementById('heroSlider');
+    const heroGrid = document.querySelector('.hero-grid');
+    if (!slider) return;
+
+    // Solo en desktop (no en móvil para no afectar performance)
+    if (window.innerWidth < 768) return;
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          // El slider se mueve al 40% de la velocidad del scroll → efecto parallax
+          slider.style.transform = `translateY(${scrollY * 0.42}px)`;
+          // La grilla se mueve un poco más lento → profundidad extra
+          if (heroGrid) heroGrid.style.transform = `translateY(${scrollY * 0.18}px)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  }
+
   /* ── INICIALIZAR TODO ── */
   document.addEventListener('DOMContentLoaded', () => {
     initReveal();
@@ -2320,6 +2345,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initScrollTop();
     initMouseSpotlight();
     initTitleLines();
+    initParallax();
   });
 
 })();
