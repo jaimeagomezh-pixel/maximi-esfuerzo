@@ -673,6 +673,51 @@
       const letter = document.getElementById('dashAvatarLetter');
       if (img) { img.src = foto; img.style.display = 'block'; if(letter) letter.style.display = 'none'; }
     }
+    cargarMiPerfil();
+  }
+
+  // ── MI PERFIL ──────────────────────────────────────────────
+  function toggleMiPerfil() {
+    const panel = document.getElementById('miPerfilPanel');
+    if (!panel) return;
+    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function cargarMiPerfil() {
+    const p = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    if (p.peso)  { const el = document.getElementById('mpPeso');  if(el) el.value = p.peso; }
+    if (p.talla) { const el = document.getElementById('mpTalla'); if(el) el.value = p.talla; }
+    if (p.edad)  { const el = document.getElementById('mpEdad');  if(el) el.value = p.edad; }
+    if (p.sexo)  { const el = document.getElementById('mpSexo');  if(el) el.value = p.sexo; }
+    actualizarResumenPerfil(p);
+  }
+
+  function guardarMiPerfil() {
+    const peso  = parseFloat(document.getElementById('mpPeso')?.value) || null;
+    const talla = parseFloat(document.getElementById('mpTalla')?.value) || null;
+    const edad  = parseInt(document.getElementById('mpEdad')?.value) || null;
+    const sexo  = document.getElementById('mpSexo')?.value || '';
+    const p = { peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
+    localStorage.setItem('atletaPerfil', JSON.stringify(p));
+    actualizarResumenPerfil(p);
+    document.getElementById('miPerfilPanel').style.display = 'none';
+    // Feedback
+    const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
+      setTimeout(() => { btn.textContent = orig; btn.style.background = '#8B1A1A'; }, 1800);
+    }
+  }
+
+  function actualizarResumenPerfil(p) {
+    const el = document.getElementById('dashPerfilResumen');
+    if (!el) return;
+    const parts = [];
+    if (p.peso)  parts.push(p.peso + ' kg');
+    if (p.talla) parts.push(p.talla + ' cm');
+    if (p.edad)  parts.push(p.edad + ' años');
+    el.textContent = parts.join(' · ');
   }
 
 
@@ -1848,7 +1893,7 @@
   let chartRucking = null;
   let ruckAtletaDist = null;
   let ruckAtletaLoad = null;
-  let ruckMetrica = 'tiempo'; // 'tiempo' | 'potencia'
+  let ruckMetrica = 'potencia'; // 'tiempo' | 'potencia' — default: potencia
 
   function setRuckMetrica(modo, btn) {
     if (modo === 'potencia' && !hayBMRegistrado()) {
@@ -1877,8 +1922,10 @@
     // 1. Historial InBody con fechas
     const h = JSON.parse(localStorage.getItem('atletaBMHistorial') || '[]');
     if (h.length) return h;
-    // 2. Fallback: peso único sin fecha (InBody antiguo o ruckProfile)
+    // 2. Peso de Mi Perfil manual
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const bm = parseFloat(localStorage.getItem('atletaBM')) ||
+               perfil.peso ||
                JSON.parse(localStorage.getItem('ruckProfile') || '{}').bw || null;
     return bm ? [{ fecha: '2000-01-01', peso: bm }] : [];
   }
@@ -1926,6 +1973,13 @@
 
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
+    // Activar botón Potencia por defecto
+    const btnP = document.getElementById('ruckTogglePotencia');
+    const btnT = document.getElementById('ruckToggleTiempo');
+    if (btnP && btnT) {
+      btnT.style.background='#fff'; btnT.style.color='#999'; btnT.style.borderColor='rgba(0,0,0,0.12)';
+      btnP.style.background='rgba(139,26,26,0.1)'; btnP.style.color='#8B1A1A'; btnP.style.borderColor='rgba(139,26,26,0.4)';
+    }
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
     const distBtns = document.getElementById('ruckADistBtns');
     const loadBtns = document.getElementById('ruckALoadBtns');
@@ -2084,7 +2138,7 @@
                   color:'#999', font:{size:10},
                   callback: usePotencia
                     ? v => v+' W'
-                    : v => Math.floor(v)+':'+String(Math.round((v%1)*60)).padStart(2,'0')
+                    : v => { const s=Math.round(v*60); const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const ss=s%60; return h>0?h+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
                 },
                 grid:{ color:'rgba(0,0,0,0.05)' }
               },

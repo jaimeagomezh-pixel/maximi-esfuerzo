@@ -50,7 +50,7 @@
 .me-live-red  { background:rgba(139,26,26,.08);  border:1px solid rgba(139,26,26,.45);  color:#c0392b; }
 
 /* ─── ACORDEÓN ─── */
-.me-accord { margin: 3px 6px; border-radius:4px; overflow:hidden; }
+.me-accord { margin: 2px 0; border-radius:0; overflow:hidden; }
 
 .me-accord-btn {
   width:100%; display:flex; align-items:center; gap:12px;
@@ -632,7 +632,43 @@
       <div class="dash-profile-info">
         <div class="dash-saludo">Bienvenido de vuelta</div>
         <div class="dash-nombre" id="dashNombre">ATLETA</div>
+        <div id="dashPerfilResumen" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;margin-top:4px;"></div>
+        <button onclick="toggleMiPerfil()" style="margin-top:6px;background:none;border:1px solid rgba(212,168,67,0.35);color:#d4a843;font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:20px;cursor:pointer;">✎ Mi Perfil</button>
       </div>
+    </div>
+
+    <!-- MI PERFIL (colapsable) -->
+    <div id="miPerfilPanel" style="display:none;background:#111;border-top:1px solid rgba(255,255,255,0.05);padding:14px 16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">Peso (kg)</div>
+          <input type="number" id="mpPeso" placeholder="ej. 75" step="0.5" min="30" max="200"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f0ede4;padding:8px 10px;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">Talla (cm)</div>
+          <input type="number" id="mpTalla" placeholder="ej. 175" step="1" min="100" max="250"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f0ede4;padding:8px 10px;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">Edad</div>
+          <input type="number" id="mpEdad" placeholder="ej. 28" step="1" min="10" max="99"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f0ede4;padding:8px 10px;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box;">
+        </div>
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">Sexo</div>
+          <select id="mpSexo"
+            style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f0ede4;padding:8px 10px;border-radius:4px;font-size:14px;outline:none;box-sizing:border-box;">
+            <option value="">—</option>
+            <option value="M">Masculino</option>
+            <option value="F">Femenino</option>
+          </select>
+        </div>
+      </div>
+      <button onclick="guardarMiPerfil()"
+        style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:11px;border:none;border-radius:4px;cursor:pointer;">
+        Guardar
+      </button>
     </div>
 
     <!-- STRAVA CONNECT — al inicio -->
