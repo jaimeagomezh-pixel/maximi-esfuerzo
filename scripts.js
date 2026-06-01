@@ -1053,13 +1053,9 @@
 
     chartPR.update('active');
 
-    // Pop en delta si cambió
+    // Pop en delta al cambiar distancia
     const deltaEl2 = document.getElementById('prDelta');
     if (deltaEl2) { deltaEl2.classList.remove('pr-pop'); void deltaEl2.offsetWidth; deltaEl2.classList.add('pr-pop'); }
-
-    // Barras de progreso y sparkline
-    prRenderProgBars(data);
-    prRenderWave(data);
   }
 
   function initPRChart() {
@@ -2242,6 +2238,37 @@
     if (elBest) elBest.textContent = best ? fmtTimerRuck(best.time) : '—';
     if (elDate) elDate.textContent = best ? fmtDateRuck(best.date) : '—';
     if (elSess) elSess.textContent = filtered.length;
+
+    // ── Detección PR rucking ───────────────────────────────────────────────
+    if (best && ruckAtletaDist && ruckAtletaLoad) {
+      const rkKey = 'ruckBest_' + ruckAtletaDist + '_' + ruckAtletaLoad + '_' + ruckMetrica;
+      if (ruckMetrica === 'potencia') {
+        // PR = mayor potencia (W)
+        const bestW = calcPotenciaRuck(best);
+        if (bestW) {
+          const prevW = parseFloat(localStorage.getItem(rkKey) || '0');
+          if (bestW > prevW) {
+            if (prevW > 0) { // solo festejar si había registro anterior
+              prBurst();
+              prShowToast('🏆 Nuevo récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + bestW + ' W');
+            }
+            localStorage.setItem(rkKey, bestW);
+          }
+        }
+      } else {
+        // PR = menor tiempo
+        if (best.time > 0) {
+          const prevT = parseInt(localStorage.getItem(rkKey) || '0', 10);
+          if (prevT === 0 || best.time < prevT) {
+            if (prevT > 0) {
+              prBurst();
+              prShowToast('🏆 Nuevo récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
+            }
+            localStorage.setItem(rkKey, best.time);
+          }
+        }
+      }
+    }
 
     // Delta vs primer registro
     const deltaEl = document.getElementById('ruckADelta');
