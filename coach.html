@@ -906,10 +906,10 @@ function renderRuckStats() {
 
   const sem = document.getElementById('ruckSEsemaforo');
   if (sem) sem.innerHTML = [
-    { color:'#27ae60', bg:'rgba(39,174,96,0.1)', border:'rgba(39,174,96,0.3)', label:'≥ 40 reps', count:verde.length,    names:verde.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
-    { color:'#e67e22', bg:'rgba(230,126,34,0.1)', border:'rgba(230,126,34,0.3)', label:'25–39 reps', count:amarillo.length, names:amarillo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
-    { color:'#c0392b', bg:'rgba(192,57,43,0.1)',  border:'rgba(192,57,43,0.3)',  label:'< 25 reps',  count:rojo.length,     names:rojo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
-    { color:'#aaa',    bg:'rgba(0,0,0,0.04)',      border:'rgba(0,0,0,0.1)',      label:'Sin dato',   count:sinSE.length,    names:sinSE.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#1e8c3a', bg:'rgba(30,140,58,0.10)',  border:'rgba(30,140,58,0.4)',  label:'≥ 40 reps · Óptimo',  count:verde.length,    names:verde.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#e07b00', bg:'rgba(224,123,0,0.10)',   border:'rgba(224,123,0,0.4)',  label:'25–39 reps · Medio',  count:amarillo.length, names:amarillo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#d32f2f', bg:'rgba(211,47,47,0.10)',   border:'rgba(211,47,47,0.4)',  label:'< 25 reps · Crítico', count:rojo.length,     names:rojo.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
+    { color:'#999',    bg:'rgba(0,0,0,0.03)',        border:'rgba(0,0,0,0.08)',     label:'Sin dato',            count:sinSE.length,    names:sinSE.map(a=>a.nombre.split(' ')[0]).join(', ')||'—' },
   ].map(s=>`
     <div style="flex:1;min-width:120px;background:${s.bg};border:1px solid ${s.border};border-radius:7px;padding:9px 11px;">
       <div style="font-family:var(--fd);font-size:1.6rem;color:${s.color};line-height:1;">${s.count}</div>

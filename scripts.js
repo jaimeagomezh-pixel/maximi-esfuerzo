@@ -2107,23 +2107,27 @@
     const bandaEl   = document.getElementById('ruckSEBanda');
     const mensajeEl = document.getElementById('ruckSEMensaje');
     if (!resultEl) return;
-    let color, bg, border, banda, mensaje;
+    let color, bg, border, banda, mensaje, anim;
     if (val >= 40) {
-      color='#27ae60'; bg='rgba(39,174,96,0.08)'; border='rgba(39,174,96,0.3)';
-      banda='🟢 Zona óptima';
+      color='#1e8c3a'; bg='rgba(30,140,58,0.10)'; border='rgba(30,140,58,0.4)';
+      banda='● Zona óptima';
       mensaje='Buena resistencia muscular para rucking. Tu tren inferior aguanta la fatiga de marcha con carga.';
+      anim='none';
     } else if (val >= 25) {
-      color='#e67e22'; bg='rgba(230,126,34,0.08)'; border='rgba(230,126,34,0.3)';
-      banda='🟡 Zona media';
+      color='#e07b00'; bg='rgba(224,123,0,0.10)'; border='rgba(224,123,0,0.4)';
+      banda='● Zona media';
       mensaje='Resistencia muscular mejorable. Trabajar sentadilla con cargas moderadas y series largas.';
+      anim='se-pulse-orange 2.4s ease-in-out infinite';
     } else {
-      color='#c0392b'; bg='rgba(192,57,43,0.08)'; border='rgba(192,57,43,0.3)';
-      banda='🔴 Zona crítica';
+      color='#d32f2f'; bg='rgba(211,47,47,0.10)'; border='rgba(211,47,47,0.4)';
+      banda='● Zona crítica';
       mensaje='Priorizar fuerza-resistencia de tren inferior antes de aumentar la carga de rucking.';
+      anim='se-pulse-red 1.2s ease-in-out infinite';
     }
     resultEl.style.display    = 'block';
     resultEl.style.background = bg;
     resultEl.style.border     = `1px solid ${border}`;
+    resultEl.style.animation  = anim;
     bandaEl.style.color       = color;
     bandaEl.textContent       = banda;
     mensajeEl.style.color     = color;
