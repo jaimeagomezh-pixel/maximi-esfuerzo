@@ -1863,6 +1863,7 @@
   }
 
   function initRuckingAtleta() {
+    cargarRuckSEGuardado();
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
     const distBtns = document.getElementById('ruckADistBtns');
     const loadBtns = document.getElementById('ruckALoadBtns');
@@ -2034,6 +2035,39 @@
     pushRuckingToCloud(sessions);
     document.getElementById('ruckAManualForm').style.display='none';
     initRuckingAtleta();
+  }
+
+  // ── SQUAT ENDURANCE (SE) — ingreso manual atleta ──────────────────────────
+  function guardarRuckSE() {
+    const val = parseInt(document.getElementById('ruckSEInput')?.value);
+    const statusEl = document.getElementById('ruckSEStatus');
+    if (!val || val < 1 || val > 300) {
+      if (statusEl) statusEl.textContent = 'Ingresa un número válido de repeticiones.';
+      return;
+    }
+    // Guardar en ruckProfile (mismo objeto que usa el coach)
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    profile.se = val;
+    profile.seDate = new Date().toISOString().slice(0,10);
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    if (statusEl) {
+      statusEl.textContent = `✓ SE guardado: ${val} reps · ${profile.seDate}`;
+      statusEl.style.color = '#27ae60';
+    }
+  }
+
+  // Al iniciar, cargar SE guardado si existe
+  function cargarRuckSEGuardado() {
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const inp = document.getElementById('ruckSEInput');
+    const statusEl = document.getElementById('ruckSEStatus');
+    if (profile.se && inp) {
+      inp.value = profile.se;
+      if (statusEl) {
+        statusEl.textContent = `Último registro: ${profile.se} reps · ${profile.seDate || ''}`;
+        statusEl.style.color = '#999';
+      }
+    }
   }
 
   function isBilateralDumbbell(name) {
