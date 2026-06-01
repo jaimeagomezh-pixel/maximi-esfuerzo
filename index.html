@@ -2206,36 +2206,29 @@ async function cargarInbodyHistorial() {
     if (bmHistorial.length) localStorage.setItem('atletaBM', bmHistorial[bmHistorial.length-1].peso);
 
     // Historial lista
-    document.getElementById('inbodyHistorialList').innerHTML = lista.slice().reverse().map(m => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
-        <div>
-          <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
-          <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
-        </div>
-        <button onclick="eliminarInbody('${m.fecha}')"
-          style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
-          title="Eliminar medición">🗑</button>
-      </div>`).join('');
+    renderInbodyLista(lista);
   } catch(e) {
     console.warn('Error cargando InBody desde servidor, usando caché local:', e);
-    // Fallback: usar caché local
-    try {
-      const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
-      if (cached.length) {
-        document.getElementById('inbodyChartWrap').style.display = 'none';
-        document.getElementById('inbodyHistorial').style.display = 'block';
-        const listEl = document.getElementById('inbodyList');
-        if (listEl) listEl.innerHTML = cached.map(m =>
-          `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
-            <div>
-              <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
-              <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
-            </div>
-            <button onclick="eliminarInbody('${m.fecha}')" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;" title="Eliminar medición">🗑</button>
-          </div>`).join('');
-      }
-    } catch(_) {}
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+    if (cached.length) renderInbodyLista(cached);
   }
+}
+
+function renderInbodyLista(lista) {
+  const el = document.getElementById('inbodyHistorialList');
+  if (!el) return;
+  if (!lista.length) { el.innerHTML = ''; return; }
+  document.getElementById('inbodyHistorial').style.display = 'block';
+  el.innerHTML = lista.slice().reverse().map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
+      <div>
+        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
+        <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+      </div>
+      <button onclick="eliminarInbody('${m.fecha}')"
+        style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
+        title="Eliminar medición">🗑</button>
+    </div>`).join('');
 }
 
 async function handleVideoUpload(input) {
@@ -2298,19 +2291,20 @@ async function eliminarInbody(fecha) {
   if (!confirm(`¿Eliminar la medición del ${fecha}?`)) return;
   const user = window._auth?.currentUser;
   if (!user) return;
-
-  // Eliminar siempre del caché local primero
   const cacheKey = 'inbodyHistorial_' + user.uid;
+
+  // 1. Eliminar del cache local y renderizar inmediatamente
+  let listaActual = [];
   try {
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
-    const nuevo = cached.filter(m => m.fecha !== fecha);
-    localStorage.setItem(cacheKey, JSON.stringify(nuevo));
-    // Actualizar BMHistorial local
+    listaActual = cached.filter(m => m.fecha !== fecha);
+    localStorage.setItem(cacheKey, JSON.stringify(listaActual));
     const bmHist = JSON.parse(localStorage.getItem('atletaBMHistorial') || '[]');
     localStorage.setItem('atletaBMHistorial', JSON.stringify(bmHist.filter(b => b.fecha !== fecha)));
   } catch(_) {}
+  renderInbodyLista(listaActual); // render inmediato sin esperar servidor
 
-  // Intentar eliminar en el servidor
+  // 2. Intentar eliminar en servidor (best-effort, no refetch)
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/delete-inbody`, {
       method: 'POST',
@@ -2318,11 +2312,8 @@ async function eliminarInbody(fecha) {
       body: JSON.stringify({ uid: user.uid, fecha })
     });
     const d = await r.json();
-    if (!d.ok) console.warn('Server delete failed:', d.error);
-  } catch(e) { console.warn('Server delete error:', e.message); }
-
-  // Recargar historial (mostrará los datos actualizados del caché local)
-  await cargarInbodyHistorial();
+    if (!d.ok) console.warn('Server delete failed (local ok):', d.error);
+  } catch(e) { console.warn('Server delete error (local ok):', e.message); }
 }
 
 // Cargar historial al abrir el dashboard

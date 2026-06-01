@@ -2158,29 +2158,41 @@
     const ruckTimeInp = document.getElementById('ruckATime');
     if (ruckTimeInp && !ruckTimeInp._fmtBound) {
       ruckTimeInp._fmtBound = true;
-      ruckTimeInp.addEventListener('input', function() {
-        const digits = this.value.replace(/\D/g, '').slice(0, 6);
-        if (!digits) { this.value = ''; return; }
-        // Rellenar de derecha a izquierda: HMMSS
-        const padded = digits.padStart(6, '0');
+      ruckTimeInp._digits   = '';
+
+      function ruckTimeFmt(inp) {
+        const d = inp._digits;
+        if (!d) { inp.value = ''; return; }
+        const padded = d.padStart(6, '0');
         const h  = parseInt(padded[0]);
         const mm = padded.slice(1, 3);
         const ss = padded.slice(3, 5);
-        if (parseInt(mm) > 59 || parseInt(ss) > 59) return;
-        // Mostrar solo la parte necesaria (sin hora si es 0)
-        this.value = h > 0
-          ? `${h}:${mm}:${ss}`
-          : `${mm}:${ss}`;
+        inp.value = h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+      }
+
+      ruckTimeInp.addEventListener('keydown', function(e) {
+        if (/^\d$/.test(e.key)) {
+          e.preventDefault();
+          if (this._digits.length >= 6) return;
+          const next = this._digits + e.key;
+          // Validar MM y SS no mayores a 59
+          const padded = next.padStart(6, '0');
+          if (parseInt(padded.slice(1,3)) > 59 || parseInt(padded.slice(3,5)) > 59) return;
+          this._digits = next;
+          ruckTimeFmt(this);
+        } else if (e.key === 'Backspace') {
+          e.preventDefault();
+          this._digits = this._digits.slice(0, -1);
+          ruckTimeFmt(this);
+        } else if (!['Tab','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)) {
+          e.preventDefault();
+        }
       });
-      // Al perder foco, normalizar siempre a H:MM:SS completo
-      ruckTimeInp.addEventListener('blur', function() {
-        const digits = this.value.replace(/\D/g, '').slice(0, 6);
-        if (!digits) return;
-        const padded = digits.padStart(6, '0');
-        const h  = parseInt(padded[0]);
-        const mm = padded.slice(1, 3);
-        const ss = padded.slice(3, 5);
-        this.value = `${h}:${mm}:${ss}`;
+
+      // Cursor siempre al final
+      ruckTimeInp.addEventListener('click', function() {
+        const len = this.value.length;
+        this.setSelectionRange(len, len);
       });
     }
     // Activar botón Potencia por defecto
@@ -2432,7 +2444,19 @@
 
   function toggleRuckManualAdd() {
     const f = document.getElementById('ruckAManualForm');
-    if (f) f.style.display = f.style.display==='none' ? 'block' : 'none';
+    if (!f) return;
+    const visible = f.style.display !== 'none' && f.style.display !== '';
+    f.style.display = visible ? 'none' : 'block';
+    if (!visible) {
+      // Prellenar fecha de hoy si está vacía
+      const dateInp = document.getElementById('ruckADate');
+      if (dateInp && !dateInp.value) {
+        dateInp.value = new Date().toISOString().slice(0, 10);
+      }
+      // Limpiar tiempo y resetear buffer de dígitos
+      const timeInp = document.getElementById('ruckATime');
+      if (timeInp) { timeInp.value = ''; timeInp._digits = ''; timeInp.focus(); }
+    }
   }
 
   function addRuckManualSession() {
@@ -2449,6 +2473,9 @@
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     pushRuckingToCloud(sessions);
     document.getElementById('ruckAManualForm').style.display='none';
+    // Resetear buffer tiempo
+    const ti = document.getElementById('ruckATime');
+    if (ti) { ti.value = ''; ti._digits = ''; }
     initRuckingAtleta();
   }
 
