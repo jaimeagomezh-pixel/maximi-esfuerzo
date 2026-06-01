@@ -249,11 +249,24 @@
 .phone-screen-img {
   padding: 0 !important;
 }
-.phone-screen-img img {
+.img-slide {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  position: absolute;
+  top: 0; left: 0;
+}
+
+/* Animación de crossfade para el slider */
+.top-slide {
+  animation: fadeSlide 8s infinite ease-in-out;
+}
+
+@keyframes fadeSlide {
+  0%, 45% { opacity: 1; }
+  50%, 95% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
 /* ═══════════════════════════════════════════════════
