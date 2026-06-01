@@ -1,0 +1,7 @@
+name = "flow-payments"
+main = "flow-worker.js"
+compatibility_date = "2026-05-23"
+
+[[kv_namespaces]]
+binding = "RUCK_DATA"
+id = "785dd0d41ab34c2e868975d6d0a26bcd"
