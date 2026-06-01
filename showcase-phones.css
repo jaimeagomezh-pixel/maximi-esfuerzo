@@ -127,23 +127,25 @@
 .phone-featured { width: 225px !important; }
 
 /* ── Frame Preparado para PNG ── */
-/* Mientras el usuario no suba el PNG, mostraremos un borde negro ultra minimalista */
 .phone-frame {
   background: #050505; /* Fondo negro detrás de la captura */
   border-radius: 38px;
   padding: 0; /* Sin padding, la imagen será edge-to-edge */
   position: relative;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-  /* Un borde fino para que no se vea roto mientras tanto */
-  border: 4px solid #111;
-  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.35);
+  border: none; /* Quitamos el borde para usar el PNG real */
+  overflow: visible; /* Permitimos que el overlay sobresalga */
 }
 
-/* Superposición del Mockup PNG Real (cuando se suba) */
+/* Superposición del Mockup PNG Real (Verde transparente) */
 .mockup-overlay {
   position: absolute;
-  top: -10px; left: -10px; right: -10px; bottom: -10px;
-  background-image: url('Imagenes/iphone-mockup.png');
+  /* Posicionamiento exacto calculado según las proporciones del mockup */
+  left: -17%;
+  right: -7.1%;
+  top: -3.2%;
+  bottom: -2.8%;
+  background-image: url('Imagenes/iphone-mockup-transparent.png');
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
