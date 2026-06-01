@@ -112,116 +112,107 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  perspective: 1600px; /* Para efecto 3D */
 }
 
 /* ── Mockup base ── */
 .phone-mockup {
   position: absolute;
   width: 188px;
-  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
-              box-shadow 0.35s ease,
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1),
               z-index 0s;
   cursor: pointer;
-  filter: drop-shadow(0 20px 40px rgba(0,0,0,0.18));
-}
-.phone-mockup:hover {
-  filter: drop-shadow(0 32px 60px rgba(0,0,0,0.28));
-  z-index: 20 !important;
-}
-
-/* Posiciones: izquierda inclinado, centro recto al frente, derecha inclinado */
-.phone-left-anim  {
-  left: 10px; top: 60px; z-index: 10;
-  transform: rotate(-8deg) translateY(0);
-}
-.phone-center-anim {
-  left: 50%; top: 10px; z-index: 15;
-  transform: translateX(-50%) rotate(0deg);
-}
-.phone-right-anim {
-  right: 10px; top: 60px; z-index: 10;
-  transform: rotate(8deg) translateY(0);
-}
-
-.phone-mockup:hover.phone-left-anim  { transform: rotate(-8deg) translateY(-12px); }
-.phone-mockup:hover.phone-center-anim{ transform: translateX(-50%) translateY(-12px); }
-.phone-mockup:hover.phone-right-anim { transform: rotate(8deg) translateY(-12px); }
-
-/* Estado inicial (invisible antes de animar) */
-.phone-left-anim,
-.phone-center-anim,
-.phone-right-anim {
-  opacity: 0;
-}
-
-/* Animaciones de entrada */
-.phone-left-anim.phone-in {
-  animation: phoneSlideLeft 0.9s cubic-bezier(0.22,1,0.36,1) 0.05s forwards;
-}
-.phone-center-anim.phone-in {
-  animation: phoneSlideUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.22s forwards;
-}
-.phone-right-anim.phone-in {
-  animation: phoneSlideRight 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
-}
-
-@keyframes phoneSlideLeft {
-  from { opacity: 0; transform: rotate(-8deg) translate(-60px, 80px); }
-  to   { opacity: 1; transform: rotate(-8deg) translate(0, 0); }
-}
-@keyframes phoneSlideUp {
-  from { opacity: 0; transform: translateX(-50%) translateY(100px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-@keyframes phoneSlideRight {
-  from { opacity: 0; transform: rotate(8deg) translate(60px, 80px); }
-  to   { opacity: 1; transform: rotate(8deg) translate(0, 0); }
+  transform-style: preserve-3d;
 }
 
 /* Teléfono central más grande */
 .phone-featured { width: 215px !important; }
 
-/* ── Frame estilo iPhone 15 Pro ── */
+/* ── Frame estilo iPhone Premium Edge-to-Edge ── */
 .phone-frame {
-  /* Borde de titanio/aluminio */
   background: #111;
-  border-radius: 44px;
-  padding: 8px; /* Borde más delgado y parejo */
+  border-radius: 40px;
+  padding: 4px; /* Borde mucho menos pronunciado */
   position: relative;
-  /* Brillo metálico en los bordes */
+  /* Brillo interno para simular cristal curvado */
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.2),
-    inset 0 0 0 2px rgba(0,0,0,0.5),
-    0 20px 40px rgba(0,0,0,0.15),
-    0 0 0 1px rgba(0,0,0,0.1);
+    inset 0 0 0 1px rgba(255,255,255,0.15),
+    inset 0 0 0 2px rgba(0,0,0,0.4),
+    0 20px 40px rgba(0,0,0,0.2);
 }
 
 /* Botones físicos laterales */
 .phone-frame::before {
   content: '';
   position: absolute;
-  right: -3px; top: 100px;
-  width: 3px; height: 60px;
-  background: #222;
+  right: -2px; top: 100px;
+  width: 2px; height: 50px;
+  background: #333;
   border-radius: 0 2px 2px 0;
 }
 .phone-frame::after {
   content: '';
   position: absolute;
-  left: -3px; top: 80px;
-  width: 3px; height: 32px;
-  background: #222;
+  left: -2px; top: 80px;
+  width: 2px; height: 30px;
+  background: #333;
   border-radius: 2px 0 0 2px;
-  box-shadow: 0 -38px 0 #222, 0 50px 0 0 #222; /* Volumen, mute, etc */
+  box-shadow: 0 -40px 0 #333;
 }
 
-/* Teléfono central (destacado) */
-.phone-frame-gold {
+/* Posiciones: izquierda 3D, centro frente, derecha 3D */
+.phone-left-anim  {
+  left: 0px; top: 50px; z-index: 10;
+}
+.phone-center-anim {
+  left: 50%; top: 10px; z-index: 15;
+}
+.phone-right-anim {
+  right: 0px; top: 50px; z-index: 10;
+}
+
+/* Extrusión 3D falsa (múltiples sombras para crear grosor) */
+.phone-left-anim .phone-frame {
+  box-shadow: 
+    1px 0 1px #555, 2px 0 1px #444, 3px 0 1px #333, 4px 0 1px #222, 5px 0 1px #111, 6px 0 1px #000,
+    0 30px 50px rgba(0,0,0,0.3);
+}
+.phone-right-anim .phone-frame {
+  box-shadow: 
+    -1px 0 1px #555, -2px 0 1px #444, -3px 0 1px #333, -4px 0 1px #222, -5px 0 1px #111, -6px 0 1px #000,
+    0 30px 50px rgba(0,0,0,0.3);
+}
+.phone-center-anim .phone-frame-gold {
   box-shadow:
-    inset 0 0 0 1px rgba(201,168,76,0.3),
-    inset 0 0 0 2px rgba(0,0,0,0.6),
-    0 30px 60px rgba(0,0,0,0.2),
-    0 0 0 1px rgba(201,168,76,0.15);
+    0 0 0 1px rgba(201,168,76,0.3),
+    0 30px 60px rgba(0,0,0,0.3);
+}
+
+/* Hovers 3D */
+.phone-mockup:hover { z-index: 20 !important; }
+.phone-mockup:hover.phone-left-anim  { transform: rotateY(15deg) rotateZ(-3deg) translateY(-15px) translateZ(30px); }
+.phone-mockup:hover.phone-center-anim{ transform: translateX(-50%) translateY(-15px) translateZ(50px); }
+.phone-mockup:hover.phone-right-anim { transform: rotateY(-15deg) rotateZ(3deg) translateY(-15px) translateZ(30px); }
+
+/* Estado inicial */
+.phone-left-anim, .phone-center-anim, .phone-right-anim { opacity: 0; }
+
+/* Animaciones de entrada con perspectiva 3D */
+.phone-left-anim.phone-in { animation: phoneSlideLeft 1s cubic-bezier(0.22,1,0.36,1) 0.05s forwards; }
+.phone-center-anim.phone-in { animation: phoneSlideUp 1s cubic-bezier(0.22,1,0.36,1) 0.22s forwards; }
+.phone-right-anim.phone-in { animation: phoneSlideRight 1s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; }
+
+@keyframes phoneSlideLeft {
+  from { opacity: 0; transform: rotateY(25deg) rotateZ(-6deg) translate(-80px, 80px) translateZ(-100px); }
+  to   { opacity: 1; transform: rotateY(25deg) rotateZ(-6deg) translate(0, 0) translateZ(0); }
+}
+@keyframes phoneSlideUp {
+  from { opacity: 0; transform: translateX(-50%) translateY(100px) translateZ(-50px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) translateZ(20px); } /* Leve resalte hacia adelante */
+}
+@keyframes phoneSlideRight {
+  from { opacity: 0; transform: rotateY(-25deg) rotateZ(6deg) translate(80px, 80px) translateZ(-100px); }
+  to   { opacity: 1; transform: rotateY(-25deg) rotateZ(6deg) translate(0, 0) translateZ(0); }
 }
 
 /* Eliminamos el notch falso, la imagen real lo traerá */
