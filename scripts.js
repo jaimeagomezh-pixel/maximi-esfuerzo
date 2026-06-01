@@ -2022,7 +2022,7 @@
       if (chartRucking) { chartRucking.destroy(); chartRucking = null; }
       if (sorted.length) {
         const usePotencia = ruckMetrica === 'potencia';
-        const bm = getRuckBM();
+        const bm = hayBMRegistrado();
         if (usePotencia && bmWarn) bmWarn.style.display = bm ? 'none' : 'block';
         else if (bmWarn) bmWarn.style.display = 'none';
 
