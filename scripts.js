@@ -542,6 +542,7 @@
         '1km':   { t:  1000, lo:  950, hi:  1050 },
         '2km':   { t:  2000, lo: 1950, hi:  2050 },
         '2400m': { t:  2400, lo: 2350, hi:  2450 },
+        '3200m': { t:  3200, lo: 3150, hi:  3250 },
         '5km':   { t:  5000, lo: 4950, hi:  5050 },
         '8km':   { t:  8000, lo: 7950, hi:  8050 },
         '10km':  { t: 10000, lo: 9950, hi: 10050 },
@@ -601,6 +602,12 @@
 
       // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
+
+      // Detectar carrera 3200m → sugerir actualización TMR (Kraemer)
+      checkStrava3200mUpdate(runs);
+
+      // Detectar evaluación 5 minutos → sugerir actualización V PICO
+      checkStravaEv5minUpdate(allActs);
 
       // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el título)
       detectarRuckingDesdeStrava(allActs);
@@ -2772,6 +2779,111 @@
     localStorage.removeItem('zonaStrava5km_pending');
   }
 
+  // ── BANNER TMR 3200m ────────────────────────────────────────────────────────
+  function checkStrava3200mUpdate(runs) {
+    const runs3200 = runs.filter(a => STRAVA_RUN_TYPES.has(a.type) && a.distance >= 3150 && a.distance <= 3250);
+    if (!runs3200.length) return;
+    const latest = runs3200.sort((a,b) => new Date(b.start_date_local) - new Date(a.start_date_local))[0];
+    const latestDate = new Date(latest.start_date_local).toISOString().slice(0,10);
+    if (localStorage.getItem('tmr3200mDate') === latestDate) return;
+    // Ajustar tiempo a exactamente 3200m
+    const tmrSec = Math.round(latest.moving_time * (3200 / latest.distance));
+    const tmrStr = secToTime(tmrSec);
+    const pending = { date: latestDate, tmrSec, tmrStr };
+    localStorage.setItem('tmr3200m_pending', JSON.stringify(pending));
+    mostrarTMRBanner(pending);
+  }
+
+  function mostrarTMRBanner(pending) {
+    const banner = document.getElementById('tmrStravaBanner');
+    const infoEl = document.getElementById('tmrStravaInfo');
+    if (!banner || !pending) return;
+    const [y, mo, da] = pending.date.split('-').map(Number);
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> · 3.2 km · ${pending.tmrStr} ` +
+      `<span style="color:#888;">(¿Usar como tu nuevo TMR?)</span>`;
+    banner.style.display = 'block';
+  }
+
+  function usarTMRStrava() {
+    const pending = JSON.parse(localStorage.getItem('tmr3200m_pending') || 'null');
+    if (!pending) return;
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    profile.tmrSec = pending.tmrSec;
+    profile.tmrStr = pending.tmrStr;
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    localStorage.setItem('tmr3200mDate', pending.date);
+    localStorage.removeItem('tmr3200m_pending');
+    descartarTMRBanner();
+    if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+  }
+
+  function descartarTMRBanner() {
+    const banner = document.getElementById('tmrStravaBanner');
+    if (banner) banner.style.display = 'none';
+    const pending = JSON.parse(localStorage.getItem('tmr3200m_pending') || 'null');
+    if (pending) localStorage.setItem('tmr3200mDate', pending.date);
+    localStorage.removeItem('tmr3200m_pending');
+  }
+
+  // ── BANNER EV. 5 MINUTOS ────────────────────────────────────────────────────
+  const EV5_PATTERN = /\bev\.?\s*5\s*min|\btest\s*5\s*min|\b5\s*min(uto)?s?\s*(test|ev)|\bevaluaci[oó]n\s*5\s*min/i;
+
+  function checkStravaEv5minUpdate(acts) {
+    const evRuns = acts.filter(a => STRAVA_RUN_TYPES.has(a.type) && EV5_PATTERN.test(a.name || ''));
+    if (!evRuns.length) return;
+    const latest = evRuns.sort((a,b) => new Date(b.start_date_local) - new Date(a.start_date_local))[0];
+    const latestDate = new Date(latest.start_date_local).toISOString().slice(0,10);
+    if (localStorage.getItem('ev5minStravaDate') === latestDate) return;
+    const distKm  = parseFloat((latest.distance / 1000).toFixed(2));
+    const vPico   = parseFloat((distKm * 12).toFixed(1)); // km/h = km / (5min/60)
+    const pending = { date: latestDate, distKm, vPico, name: latest.name || 'Test 5 min' };
+    localStorage.setItem('ev5min_pending', JSON.stringify(pending));
+    mostrarEv5minBanner(pending);
+  }
+
+  function mostrarEv5minBanner(pending) {
+    const banner = document.getElementById('ev5minStravaBanner');
+    const infoEl = document.getElementById('ev5minStravaInfo');
+    if (!banner || !pending) return;
+    const [y, mo, da] = pending.date.split('-').map(Number);
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> · "${pending.name}" · ` +
+      `${pending.distKm} km → V PICO estimada <strong>${pending.vPico} km/h</strong>`;
+    banner.style.display = 'block';
+  }
+
+  function usarEv5minStrava() {
+    const pending = JSON.parse(localStorage.getItem('ev5min_pending') || 'null');
+    if (!pending) return;
+    // Cambiar a modo 5min y prellenar distancia
+    if (typeof setVpicoTab === 'function') setVpicoTab('5min', document.getElementById('tabVpico5min'));
+    const inp = document.getElementById('inputDist5min');
+    if (inp) {
+      inp.value = pending.distKm;
+      if (typeof onDist5minInput === 'function') onDist5minInput();
+    }
+    localStorage.setItem('zonaParams', JSON.stringify({
+      vpico:    pending.vPico,
+      fcmax:    parseFloat(document.getElementById('inputFcMax')?.value) || null,
+      mode:     '5min',
+      dist5min: pending.distKm,
+      fromStrava: pending.date
+    }));
+    localStorage.setItem('ev5minStravaDate', pending.date);
+    localStorage.removeItem('ev5min_pending');
+    descartarEv5minBanner();
+    if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
+  }
+
+  function descartarEv5minBanner() {
+    const banner = document.getElementById('ev5minStravaBanner');
+    if (banner) banner.style.display = 'none';
+    const pending = JSON.parse(localStorage.getItem('ev5min_pending') || 'null');
+    if (pending) localStorage.setItem('ev5minStravaDate', pending.date);
+    localStorage.removeItem('ev5min_pending');
+  }
+
   // ── INIT ZONAS ─────────────────────────────────────────────────────────────
   function initZonasCarrera() {
     // Restaurar parámetros guardados
@@ -2795,10 +2907,18 @@
       }
       calcularZonasCarrera();
     }
-    // Restaurar banner de Strava si quedó pendiente de sesión anterior
-    const pending = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
-    if (pending && localStorage.getItem('zonaStrava5kmDate') !== pending.date) {
-      mostrarZonaStravaBanner(pending);
+    // Restaurar banners de Strava pendientes de sesión anterior
+    const pending5km = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
+    if (pending5km && localStorage.getItem('zonaStrava5kmDate') !== pending5km.date) {
+      mostrarZonaStravaBanner(pending5km);
+    }
+    const pendingTMR = JSON.parse(localStorage.getItem('tmr3200m_pending') || 'null');
+    if (pendingTMR && localStorage.getItem('tmr3200mDate') !== pendingTMR.date) {
+      mostrarTMRBanner(pendingTMR);
+    }
+    const pendingEv5 = JSON.parse(localStorage.getItem('ev5min_pending') || 'null');
+    if (pendingEv5 && localStorage.getItem('ev5minStravaDate') !== pendingEv5.date) {
+      mostrarEv5minBanner(pendingEv5);
     }
   }
 
