@@ -283,6 +283,29 @@ export default {
       }
     }
 
+    // ── POST /rucking/save-profile — atleta guarda su perfil (SE, BM) ──
+    if (url.pathname === '/rucking/save-profile' && request.method === 'POST') {
+      try {
+        const { stravaId, nombre, profile } = await request.json();
+        if (!stravaId || !profile) return Response.json({ ok:false, error:'Datos inválidos' }, { status:400, headers:corsHeaders() });
+        await env.RUCK_DATA.put(`profile:${stravaId}`, JSON.stringify({ ...profile, updatedAt: new Date().toISOString() }));
+        // Actualizar registro de atleta también
+        if (nombre) await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre }));
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── GET /rucking/get-profile — coach lee perfil de un atleta ──
+    if (url.pathname === '/rucking/get-profile' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      const stravaId = url.searchParams.get('stravaId');
+      if (!stravaId) return Response.json({ ok:false, error:'stravaId requerido' }, { status:400, headers:corsHeaders() });
+      try {
+        const raw = await env.RUCK_DATA.get(`profile:${stravaId}`);
+        return Response.json({ ok:true, profile: raw ? JSON.parse(raw) : null }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
     // ── CRON: notificar planes por vencer ────────
     // (configurar en wrangler.toml como cron trigger)
     return new Response('Flow Worker activo', { status: 200 });

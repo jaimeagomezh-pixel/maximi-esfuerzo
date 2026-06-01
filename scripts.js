@@ -2054,6 +2054,21 @@
       statusEl.textContent = `✓ SE guardado: ${val} reps · ${profile.seDate}`;
       statusEl.style.color = '#27ae60';
     }
+    // Sincronizar con la nube
+    pushRuckProfileToCloud(profile);
+  }
+
+  async function pushRuckProfileToCloud(profile) {
+    const stravaId = localStorage.getItem('strava_athlete_id');
+    if (!stravaId) return;
+    const nombre = localStorage.getItem('atletaNombre') || '';
+    try {
+      await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stravaId, nombre, profile })
+      });
+    } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
   }
 
   // Al iniciar, cargar SE guardado si existe

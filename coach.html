@@ -241,6 +241,44 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
+
+/* ── ANIMACIONES BOTONES ─────────────────────────────────── */
+@keyframes pulse-border {
+  0%,100% { box-shadow: 0 0 0 0 rgba(139,26,26,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(139,26,26,0.25); }
+}
+@keyframes pulse-teal {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,168,179,0); }
+  50%      { box-shadow: 0 0 0 4px rgba(0,168,179,0.25); }
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; }
+  50%      { opacity:0.3; }
+}
+.l-btn { transition: background .2s, transform .15s, box-shadow .2s; }
+.l-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(139,26,26,0.25); }
+.l-btn:active { transform: translateY(0); }
+
+.f-btn { transition: all .2s; }
+.f-btn:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+.f-btn.active { animation: pulse-teal 2.4s ease-in-out infinite; }
+
+.d-btn { transition: all .2s; }
+.d-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.d-btn.active { animation: pulse-border 2s ease-in-out infinite; }
+
+.ptab { transition: all .2s; }
+.ptab.active { position: relative; }
+.ptab.active::after {
+  content:'';
+  position:absolute;
+  bottom:-1px; left:50%; transform:translateX(-50%);
+  width:20px; height:2px;
+  background: var(--cian);
+  animation: pulse-border 1.8s ease-in-out infinite;
+  border-radius:2px;
+}
+.ruck-load-btn.active { animation: pulse-border 2s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -795,16 +833,37 @@ function saveRuckProfile() {
   renderRuckStats();
 }
 
-function cargarPerfilAtletaRuck(aid) {
+async function cargarPerfilAtletaRuck(aid) {
   if (!aid) return;
   const a = atletas.find(x=>x.id===parseInt(aid));
   if (!a) return;
+  // Cargar datos locales primero (respuesta inmediata)
   const p = a.rucking || {};
   document.getElementById('rBW').value  = p.bw  || a.peso || '';
   document.getElementById('rLBM').value = p.lbm || '';
   document.getElementById('rFAT').value = p.fat || '';
   document.getElementById('rSE').value  = p.se  || '';
   document.getElementById('rTMR').value = p.tmrStr || '';
+  // Si tiene stravaId, intentar leer perfil desde la nube
+  if (a.stravaId) {
+    try {
+      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${a.stravaId}&secret=ME2025coach`);
+      const d = await res.json();
+      if (d.ok && d.profile) {
+        const cp = d.profile;
+        // Priorizar datos de la nube (más recientes del atleta)
+        if (cp.bw)     document.getElementById('rBW').value  = cp.bw;
+        if (cp.lbm)    document.getElementById('rLBM').value = cp.lbm;
+        if (cp.fat)    document.getElementById('rFAT').value = cp.fat;
+        if (cp.se)     document.getElementById('rSE').value  = cp.se;
+        if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
+        // Actualizar atleta local también
+        a.rucking = { ...a.rucking, ...cp };
+        guardarAtletas();
+        document.getElementById('ruckProfileSub').textContent = `✓ Perfil sincronizado desde atleta · ${cp.updatedAt?.slice(0,10)||''}`;
+      }
+    } catch(e) { console.warn('[Coach] Perfil rucking nube error:', e); }
+  }
 }
 
 function renderRuckStats() {
