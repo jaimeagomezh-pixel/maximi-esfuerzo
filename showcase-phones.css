@@ -112,107 +112,78 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  perspective: 1600px; /* Para efecto 3D */
 }
 
 /* ── Mockup base ── */
 .phone-mockup {
   position: absolute;
-  width: 188px;
+  width: 195px;
   transition: transform 0.4s cubic-bezier(0.22,1,0.36,1),
               z-index 0s;
   cursor: pointer;
-  transform-style: preserve-3d;
 }
 
 /* Teléfono central más grande */
-.phone-featured { width: 215px !important; }
+.phone-featured { width: 225px !important; }
 
-/* ── Frame estilo iPhone Premium Edge-to-Edge ── */
+/* ── Frame Preparado para PNG ── */
+/* Mientras el usuario no suba el PNG, mostraremos un borde negro ultra minimalista */
 .phone-frame {
-  background: #111;
-  border-radius: 40px;
-  padding: 4px; /* Borde mucho menos pronunciado */
+  background: #050505; /* Fondo negro detrás de la captura */
+  border-radius: 38px;
+  padding: 0; /* Sin padding, la imagen será edge-to-edge */
   position: relative;
-  /* Brillo interno para simular cristal curvado */
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.15),
-    inset 0 0 0 2px rgba(0,0,0,0.4),
-    0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  /* Un borde fino para que no se vea roto mientras tanto */
+  border: 4px solid #111;
+  overflow: hidden;
 }
 
-/* Botones físicos laterales */
-.phone-frame::before {
-  content: '';
+/* Superposición del Mockup PNG Real (cuando se suba) */
+.mockup-overlay {
   position: absolute;
-  right: -2px; top: 100px;
-  width: 2px; height: 50px;
-  background: #333;
-  border-radius: 0 2px 2px 0;
-}
-.phone-frame::after {
-  content: '';
-  position: absolute;
-  left: -2px; top: 80px;
-  width: 2px; height: 30px;
-  background: #333;
-  border-radius: 2px 0 0 2px;
-  box-shadow: 0 -40px 0 #333;
+  top: -10px; left: -10px; right: -10px; bottom: -10px;
+  background-image: url('Imagenes/iphone-mockup.png');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  pointer-events: none; /* Para que el click pase a través */
+  z-index: 50;
 }
 
-/* Posiciones: izquierda 3D, centro frente, derecha 3D */
+/* Posiciones simples tipo TrainHeroic (sin 3D feo) */
 .phone-left-anim  {
-  left: 0px; top: 50px; z-index: 10;
+  left: 20px; top: 60px; z-index: 10;
 }
 .phone-center-anim {
   left: 50%; top: 10px; z-index: 15;
 }
 .phone-right-anim {
-  right: 0px; top: 50px; z-index: 10;
+  right: 20px; top: 60px; z-index: 10;
 }
 
-/* Extrusión 3D falsa (múltiples sombras para crear grosor) */
-.phone-left-anim .phone-frame {
-  box-shadow: 
-    1px 0 1px #555, 2px 0 1px #444, 3px 0 1px #333, 4px 0 1px #222, 5px 0 1px #111, 6px 0 1px #000,
-    0 30px 50px rgba(0,0,0,0.3);
-}
-.phone-right-anim .phone-frame {
-  box-shadow: 
-    -1px 0 1px #555, -2px 0 1px #444, -3px 0 1px #333, -4px 0 1px #222, -5px 0 1px #111, -6px 0 1px #000,
-    0 30px 50px rgba(0,0,0,0.3);
-}
-.phone-center-anim .phone-frame-gold {
-  box-shadow:
-    0 0 0 1px rgba(201,168,76,0.3),
-    0 30px 60px rgba(0,0,0,0.3);
-}
-
-/* Hovers 3D */
-.phone-mockup:hover { z-index: 20 !important; }
-.phone-mockup:hover.phone-left-anim  { transform: rotateY(15deg) rotateZ(-3deg) translateY(-15px) translateZ(30px); }
-.phone-mockup:hover.phone-center-anim{ transform: translateX(-50%) translateY(-15px) translateZ(50px); }
-.phone-mockup:hover.phone-right-anim { transform: rotateY(-15deg) rotateZ(3deg) translateY(-15px) translateZ(30px); }
+/* Hovers simples (elevar) */
+.phone-mockup:hover { z-index: 20 !important; transform: translateY(-10px) !important; }
 
 /* Estado inicial */
 .phone-left-anim, .phone-center-anim, .phone-right-anim { opacity: 0; }
 
-/* Animaciones de entrada con perspectiva 3D */
-.phone-left-anim.phone-in { animation: phoneSlideLeft 1s cubic-bezier(0.22,1,0.36,1) 0.05s forwards; }
-.phone-center-anim.phone-in { animation: phoneSlideUp 1s cubic-bezier(0.22,1,0.36,1) 0.22s forwards; }
-.phone-right-anim.phone-in { animation: phoneSlideRight 1s cubic-bezier(0.22,1,0.36,1) 0.4s forwards; }
+/* Animaciones de entrada limpias */
+.phone-left-anim.phone-in { animation: phoneSlideUpLeft 0.8s ease-out 0.1s forwards; }
+.phone-center-anim.phone-in { animation: phoneSlideUpCenter 0.8s ease-out 0.3s forwards; }
+.phone-right-anim.phone-in { animation: phoneSlideUpRight 0.8s ease-out 0.5s forwards; }
 
-@keyframes phoneSlideLeft {
-  from { opacity: 0; transform: rotateY(25deg) rotateZ(-6deg) translate(-80px, 80px) translateZ(-100px); }
-  to   { opacity: 1; transform: rotateY(25deg) rotateZ(-6deg) translate(0, 0) translateZ(0); }
+@keyframes phoneSlideUpLeft {
+  from { opacity: 0; transform: translate(-40px, 60px); }
+  to   { opacity: 1; transform: translate(0, 0); }
 }
-@keyframes phoneSlideUp {
-  from { opacity: 0; transform: translateX(-50%) translateY(100px) translateZ(-50px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0) translateZ(20px); } /* Leve resalte hacia adelante */
+@keyframes phoneSlideUpCenter {
+  from { opacity: 0; transform: translateX(-50%) translateY(80px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
-@keyframes phoneSlideRight {
-  from { opacity: 0; transform: rotateY(-25deg) rotateZ(6deg) translate(80px, 80px) translateZ(-100px); }
-  to   { opacity: 1; transform: rotateY(-25deg) rotateZ(6deg) translate(0, 0) translateZ(0); }
+@keyframes phoneSlideUpRight {
+  from { opacity: 0; transform: translate(40px, 60px); }
+  to   { opacity: 1; transform: translate(0, 0); }
 }
 
 /* Eliminamos el notch falso, la imagen real lo traerá */
