@@ -852,6 +852,45 @@
     </div>
 
 
+    <!-- RESUMEN MENSUAL -->
+    <div class="dash-section-title" style="margin-top:4px;">Resumen Mensual</div>
+    <div id="resumenMensualWrap" style="margin:0 16px 6px;">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;">
+        <!-- Selector de mes -->
+        <div id="resMesSelector" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+
+        <!-- Sin datos -->
+        <div id="resSinDatos" style="font-size:13px;color:rgba(255,255,255,0.35);line-height:1.6;">
+          Sincroniza Strava para ver tu volumen mensual de entrenamiento.
+        </div>
+
+        <!-- Contenido -->
+        <div id="resContenido" style="display:none;">
+          <!-- Stats principales -->
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
+            <div style="background:rgba(0,200,212,0.06);border:1px solid rgba(0,200,212,0.15);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resKm" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#00c8d4;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">km totales</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resSesiones" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#d4a843;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">sesiones</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resTiempo" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#f5f0eb;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">tiempo total</div>
+            </div>
+          </div>
+
+          <!-- Distribución por zonas FC -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:8px;">Distribución por zona FC</div>
+          <div id="resZonasFC"></div>
+          <div id="resZonasSinFC" style="display:none;font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;">Registra tu FC máxima (vía Strava) para ver la distribución por zonas.</div>
+        </div>
+      </div>
+    </div>
+
+
     <!-- MEJORES TIEMPOS POR DISTANCIA -->
     <div class="dash-section-title" style="margin-top:4px;">Mejores Tiempos por Distancia</div>
     <div class="th-chart-container" style="margin:0 16px 6px;">

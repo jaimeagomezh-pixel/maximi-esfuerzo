@@ -126,6 +126,7 @@
           if (typeof loadManualTimes === 'function') loadManualTimes();
           if (typeof initZonasCarrera    === 'function') initZonasCarrera();
           if (typeof initRuckingAtleta   === 'function') initRuckingAtleta();
+          if (typeof renderResumenMensual === 'function') renderResumenMensual();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
           if (typeof activarAnimaciones === 'function') activarAnimaciones();
@@ -634,7 +635,27 @@
       // Detectar nueva FC máxima en las actividades y actualizar perfil
       detectarFCMaxDesdeStrava(allActs);
 
+      // Cachear actividades (compacto) para resumen mensual
+      cachearActividades(allActs);
+
+      // Renderizar resumen mensual con el mes más reciente
+      if (typeof renderResumenMensual === 'function') renderResumenMensual();
+
     } catch(e) { console.error('PRs Strava error:', e); }
+  }
+
+  // Guarda un cache compacto de actividades para el resumen mensual
+  function cachearActividades(allActs) {
+    const compact = allActs
+      .filter(a => a.distance > 0 && a.start_date_local)
+      .map(a => ({
+        date: a.start_date_local.slice(0, 10),     // YYYY-MM-DD
+        km:   +(a.distance / 1000).toFixed(2),
+        sec:  a.moving_time || 0,
+        hr:   a.average_heartrate ? Math.round(a.average_heartrate) : null,
+        type: a.type
+      }));
+    localStorage.setItem('stravaActsCache', JSON.stringify(compact));
   }
 
   // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
@@ -671,6 +692,120 @@
         actualizarResumenPerfil(perfil);
       }
     }
+  }
+
+  // ── RESUMEN MENSUAL DE VOLUMEN ─────────────────────────────────────────────
+  let _resMesActivo = null; // 'YYYY-MM'
+
+  const MESES_ABR = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  function renderResumenMensual() {
+    const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const sinDatos  = document.getElementById('resSinDatos');
+    const contenido = document.getElementById('resContenido');
+    const selector  = document.getElementById('resMesSelector');
+    if (!selector) return;
+
+    if (!cache.length) {
+      if (sinDatos)  sinDatos.style.display  = 'block';
+      if (contenido) contenido.style.display = 'none';
+      selector.innerHTML = '';
+      return;
+    }
+    if (sinDatos)  sinDatos.style.display  = 'none';
+    if (contenido) contenido.style.display = 'block';
+
+    // Meses disponibles (YYYY-MM), ordenados desc
+    const meses = [...new Set(cache.map(a => a.date.slice(0, 7)))].sort().reverse();
+    if (!_resMesActivo || !meses.includes(_resMesActivo)) _resMesActivo = meses[0];
+
+    // Botones de mes
+    selector.innerHTML = meses.slice(0, 12).map(m => {
+      const [y, mo] = m.split('-');
+      const label = `${MESES_ABR[parseInt(mo)-1]} ${y}`;
+      const active = m === _resMesActivo;
+      return `<button onclick="selectResMes('${m}')" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:20px;cursor:pointer;border:1px solid ${active?'rgba(0,200,212,0.4)':'rgba(255,255,255,0.1)'};background:${active?'rgba(0,200,212,0.14)':'transparent'};color:${active?'#00c8d4':'rgba(255,255,255,0.5)'};transition:all .2s;">${label}</button>`;
+    }).join('');
+
+    // Filtrar actividades del mes activo
+    const acts = cache.filter(a => a.date.slice(0, 7) === _resMesActivo);
+
+    // Stats
+    const km    = acts.reduce((s, a) => s + a.km, 0);
+    const sec   = acts.reduce((s, a) => s + a.sec, 0);
+    const sesiones = acts.length;
+
+    const elKm  = document.getElementById('resKm');
+    const elSes = document.getElementById('resSesiones');
+    const elTmp = document.getElementById('resTiempo');
+    if (elKm)  elKm.textContent  = km.toFixed(1);
+    if (elSes) elSes.textContent = sesiones;
+    if (elTmp) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.round((sec % 3600) / 60);
+      elTmp.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+
+    // Distribución por zonas FC
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const fcMax  = perfil.fcMax || null;
+    const zonasEl    = document.getElementById('resZonasFC');
+    const sinFcEl    = document.getElementById('resZonasSinFC');
+
+    if (!fcMax) {
+      if (zonasEl) zonasEl.innerHTML = '';
+      if (sinFcEl) sinFcEl.style.display = 'block';
+      return;
+    }
+    if (sinFcEl) sinFcEl.style.display = 'none';
+
+    // Clasificar tiempo de cada actividad por zona (según FC promedio)
+    // Umbrales Cerezuela-Espejo: Z1<71% Z2 71-82% Z3 82-89% Z4 89-94% Z5≥94%
+    const zonaSec = [0, 0, 0, 0, 0]; // Z1..Z5
+    acts.forEach(a => {
+      if (!a.hr || !a.sec) return;
+      const pct = a.hr / fcMax;
+      let z;
+      if      (pct < 0.71) z = 0;
+      else if (pct < 0.82) z = 1;
+      else if (pct < 0.89) z = 2;
+      else if (pct < 0.94) z = 3;
+      else                 z = 4;
+      zonaSec[z] += a.sec;
+    });
+    const totalZ = zonaSec.reduce((s, v) => s + v, 0) || 1;
+
+    const Z = [
+      { lbl:'Z1 Recup',  cls:'dash-zone-z1', color:'#5b9bd5' },
+      { lbl:'Z2 Aerób',  cls:'dash-zone-z2', color:'#27ae60' },
+      { lbl:'Z3 Tempo',  cls:'dash-zone-z3', color:'#f39c12' },
+      { lbl:'Z4 Umbral', cls:'dash-zone-z4', color:'#e67e22' },
+      { lbl:'Z5 Máx',    cls:'dash-zone-z5', color:'#e74c3c' },
+    ];
+
+    if (zonasEl) {
+      // Mostrar de Z5 (arriba) a Z1 (abajo), como Strava
+      zonasEl.innerHTML = [4,3,2,1,0].map(i => {
+        const s   = zonaSec[i];
+        const pct = Math.round((s / totalZ) * 100);
+        const h   = Math.floor(s / 3600);
+        const m   = Math.round((s % 3600) / 60);
+        const tStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:0.5px;color:rgba(255,255,255,0.6);min-width:64px;">${Z[i].lbl}</div>
+          <div style="flex:1;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${Z[i].color};border-radius:4px;transition:width .8s cubic-bezier(0.4,0,0.2,1);"></div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);min-width:48px;text-align:right;">${tStr}</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${Z[i].color};min-width:32px;text-align:right;">${pct}%</div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  function selectResMes(mes) {
+    _resMesActivo = mes;
+    renderResumenMensual();
   }
 
   // Revisar si hay token de Strava guardado
@@ -3508,6 +3643,7 @@
 
   window.contratarPlan     = contratarPlan;
   window.contratarAsesoria = contratarAsesoria;
+  window.selectResMes      = selectResMes;
 
 
   if (typeof lucide !== "undefined") lucide.createIcons();
