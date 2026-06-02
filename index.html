@@ -1374,64 +1374,77 @@
 
       <!-- InBody -->
       <div style="padding:14px 14px 10px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">InBody · Resultado</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">InBody · Resultado</div>
 
         <input type="file" id="inbodyPDF" accept=".pdf" style="display:none" onchange="handleInbodyPDF(this)">
         <input type="file" id="inbodyIMG" accept="image/*" style="display:none" onchange="handleInbodyImage(this)">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
           <button onclick="document.getElementById('inbodyPDF').click()"
-            style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#C9A84C;
-                   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
-                   text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
-            📄 Subir PDF InBody
+            style="flex:1;min-width:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                   gap:8px;background:linear-gradient(135deg,#8B1A1A,#6a1212);color:#fff;
+                   border:none;border-radius:12px;padding:18px 14px;cursor:pointer;
+                   box-shadow:0 4px 16px rgba(139,26,26,0.35);transition:all .2s;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="13" y2="17"/>
+            </svg>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Subir PDF InBody</div>
           </button>
           <button onclick="document.getElementById('inbodyIMG').click()"
-            style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#8B1A1A;
-                   font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
-                   text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
-            📸 Captura / Foto
+            style="flex:1;min-width:140px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                   gap:8px;background:linear-gradient(135deg,#007a85,#005f6b);color:#fff;
+                   border:none;border-radius:12px;padding:18px 14px;cursor:pointer;
+                   box-shadow:0 4px 16px rgba(0,122,133,0.35);transition:all .2s;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Captura / Foto</div>
           </button>
         </div>
         <div id="inbodyPDFStatus" style="font-size:11px;color:#C9A84C;margin-bottom:8px;"></div>
 
         <!-- Formulario de datos InBody -->
         <div id="inbodyForm" style="display:none;border-top:1px solid rgba(0,0,0,0.06);padding-top:12px;margin-top:4px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#888;text-transform:uppercase;margin-bottom:10px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">
             Ingresa los datos del InBody
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Peso (kg)</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Peso (kg)</label>
               <input type="number" id="ib_peso" step="0.1" placeholder="ej. 75.5"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Masa Muscular (kg)</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Masa Muscular (kg)</label>
               <input type="number" id="ib_musculo" step="0.1" placeholder="ej. 32.0"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Masa Grasa (kg)</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Masa Grasa (kg)</label>
               <input type="number" id="ib_grasa_kg" step="0.1" placeholder="ej. 12.0"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">% Grasa</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">% Grasa</label>
               <input type="number" id="ib_grasa_pct" step="0.1" placeholder="ej. 16.0"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Agua Corporal (kg)</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Agua Corporal (kg)</label>
               <input type="number" id="ib_agua" step="0.1" placeholder="ej. 38.0"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">IMC</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">IMC</label>
               <input type="number" id="ib_imc" step="0.1" placeholder="ej. 23.5"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
             <div style="grid-column:1/-1;">
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Metabolismo Basal (kcal)</label>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Metabolismo Basal (kcal)</label>
               <input type="number" id="ib_bmr" step="1" placeholder="ej. 1750"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
@@ -1454,15 +1467,15 @@
 
         <!-- Botón para ingresar datos sin PDF -->
         <button id="inbodyFormBtn" onclick="toggleInbodyForm()"
-          style="background:none;border:none;color:#aaa;font-family:'Barlow Condensed',sans-serif;
-                 font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:2px 0;">
+          style="background:none;border:none;color:#888;font-family:'Barlow Condensed',sans-serif;
+                 font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0;font-weight:600;">
           + Ingresar datos manualmente
         </button>
       </div>
 
       <!-- Radar chart -->
       <div id="inbodyChartWrap" style="display:none;padding:0 14px 14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:10px;font-weight:600;">
           Progresión · Tela de Araña
         </div>
         <div style="position:relative;height:220px;">
@@ -1473,7 +1486,7 @@
 
       <!-- Historial mediciones -->
       <div id="inbodyHistorial" style="display:none;border-top:1px solid rgba(0,0,0,0.05);padding:10px 14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:8px;">Historial</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:10px;font-weight:600;">Historial</div>
         <div id="inbodyHistorialList"></div>
       </div>
 
@@ -1493,13 +1506,13 @@
 
       <!-- Video salto -->
       <div style="margin-bottom:16px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">
           Video salto
         </div>
 
         <!-- Selector FPS -->
         <div style="margin-bottom:10px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#bbb;text-transform:uppercase;margin-bottom:6px;">Velocidad de cámara</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Velocidad de cámara</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;" id="fpsBtns">
             <button class="fps-btn" onclick="selFPS(60,this)" data-fps="60"
               style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
@@ -1525,10 +1538,15 @@
 
         <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
         <button onclick="document.getElementById('myJumpVideo').click()"
-          style="background:rgba(0,200,212,0.07);border:1px solid rgba(0,200,212,0.3);color:#C9A84C;
-                 font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;
-                 text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
-          🎥 Subir video
+          style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                 gap:8px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;
+                 border:none;border-radius:12px;padding:18px 14px;cursor:pointer;
+                 box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:all .2s;">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="23 7 16 12 23 17 23 7"/>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+          </svg>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Subir Video Salto</div>
         </button>
 
         <!-- Barra progreso -->
