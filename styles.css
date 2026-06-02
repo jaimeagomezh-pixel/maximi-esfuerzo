@@ -2156,20 +2156,28 @@
   /* Range buttons */
   .th-range-btn {
     background: rgba(0,0,0,0.04) !important;
-    border: 1px solid rgba(0,0,0,0.1) !important;
-    color: #555555 !important;
+    border: 1.5px solid rgba(0,0,0,0.12) !important;
+    color: #444 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 7px 15px !important;
+    border-radius: 22px !important;
   }
   .th-range-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
-  .th-range-btn.active { background: rgba(0,168,179,0.12) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.5) !important; }
+  .th-range-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.15),rgba(0,200,212,0.1)) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.55) !important; box-shadow: 0 0 10px rgba(0,168,179,0.15) !important; }
 
   /* Dist buttons */
   .th-dist-btn {
     background: rgba(0,0,0,0.04) !important;
-    border: 1px solid rgba(0,0,0,0.1) !important;
-    color: #555555 !important;
+    border: 1.5px solid rgba(0,0,0,0.12) !important;
+    color: #444 !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    padding: 7px 15px !important;
+    border-radius: 22px !important;
   }
   .th-dist-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
-  .th-dist-btn.active { background: rgba(0,168,179,0.14) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.5) !important; box-shadow: none !important; }
+  .th-dist-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.18),rgba(0,200,212,0.12)) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.6) !important; box-shadow: 0 0 12px rgba(0,168,179,0.18) !important; }
 
   /* PR stats */
   .th-pr-stat {
@@ -2417,26 +2425,29 @@
   }
   .th-range-btn {
     background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.4);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.55);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 5px 12px;
-    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 7px 16px;
+    border-radius: 22px;
     cursor: pointer;
     transition: all 0.2s;
+    text-transform: uppercase;
   }
   .th-range-btn:hover {
-    background: rgba(0,200,212,0.08);
-    color: #00c8d4;
-    border-color: rgba(0,200,212,0.2);
-  }
-  .th-range-btn.active {
-    background: rgba(0,200,212,0.12);
+    background: rgba(0,200,212,0.1);
     color: #00c8d4;
     border-color: rgba(0,200,212,0.35);
+    box-shadow: 0 2px 8px rgba(0,200,212,0.1);
+  }
+  .th-range-btn.active {
+    background: linear-gradient(135deg, rgba(0,168,179,0.2), rgba(0,200,212,0.15));
+    color: #00d4e0;
+    border-color: rgba(0,200,212,0.55);
+    box-shadow: 0 0 12px rgba(0,200,212,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
   }
   .th-range-proj {
     border-color: rgba(212,168,67,0.25) !important;
@@ -2473,28 +2484,30 @@
     margin-bottom: 14px;
   }
   .th-dist-btn {
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.45);
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.55);
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 5px 12px;
-    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    padding: 7px 16px;
+    border-radius: 22px;
     cursor: pointer;
     transition: all 0.2s;
+    text-transform: uppercase;
   }
   .th-dist-btn:hover {
-    background: rgba(0,200,212,0.08);
+    background: rgba(0,200,212,0.1);
     color: #00c8d4;
-    border-color: rgba(0,200,212,0.25);
+    border-color: rgba(0,200,212,0.35);
+    box-shadow: 0 2px 8px rgba(0,200,212,0.1);
   }
   .th-dist-btn.active {
-    background: rgba(0,200,212,0.14);
-    color: #00c8d4;
-    border-color: rgba(0,200,212,0.4);
-    box-shadow: 0 0 10px rgba(0,200,212,0.1);
+    background: linear-gradient(135deg, rgba(0,168,179,0.25), rgba(0,200,212,0.18));
+    color: #00d4e0;
+    border-color: rgba(0,200,212,0.6);
+    box-shadow: 0 0 14px rgba(0,200,212,0.25), inset 0 1px 0 rgba(255,255,255,0.12);
   }
 
   .th-pr-stats {
@@ -3152,7 +3165,7 @@
   .th-pr-stat-label      { font-size: 12px !important; letter-spacing: 1.5px !important; }
   .th-pr-stat-value      { font-size: 1.8rem !important; }
   .th-pr-stat-sub        { font-size: 13px !important; }
-  .th-range-btn          { font-size: 12px !important; }
+  .th-range-btn          { font-size: 14px !important; font-weight: 700 !important; }
   .dash-nutri-text span  { font-size: 13px !important; }
   .dash-section-title    { font-size: 13px !important; letter-spacing: 3px !important; }
 

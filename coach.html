@@ -98,30 +98,30 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 .psearch::placeholder{color:var(--text3);}
 
 /* CARDS ATLETAS */
-.acard{background:var(--card);border:1px solid var(--border);border-left:5px solid var(--cian2);border-radius:12px;padding:18px 22px;margin-bottom:12px;display:flex;align-items:center;gap:16px;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-.acard:hover{border-left-color:var(--cian);box-shadow:0 5px 18px rgba(0,0,0,0.13);transform:translateX(3px);}
+.acard{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--cian2);border-radius:8px;padding:11px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.acard:hover{border-left-color:var(--cian);box-shadow:0 3px 10px rgba(0,0,0,0.1);transform:translateX(2px);}
 .acard.vencido{border-left-color:var(--orange);}
 .acard.archivado{border-left-color:var(--text3);opacity:0.65;}
-.a-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.a-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 .dot-activo{background:var(--green);}
 .dot-vencido{background:var(--orange);}
 .dot-cuenta{background:var(--text3);}
 .dot-archivado{background:#bbb;}
-.a-av{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--cian2),#005f6b);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.5rem;color:#fff;flex-shrink:0;box-shadow:0 3px 8px rgba(0,168,179,0.35);}
+.a-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cian2),#005f6b);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.1rem;color:#fff;flex-shrink:0;box-shadow:0 2px 5px rgba(0,168,179,0.25);}
 .a-info{flex:1;min-width:0;}
-.a-name{font-family:var(--fc);font-size:18px;font-weight:700;color:var(--text);letter-spacing:0.5px;}
-.a-meta{font-size:14px;color:var(--text3);margin-top:4px;}
-.a-right{display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0;}
-.badge{font-family:var(--fc);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:20px;font-weight:600;}
+.a-name{font-family:var(--fc);font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.3px;}
+.a-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.a-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.badge{font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px;font-weight:600;}
 .b-plan{background:rgba(0,168,179,0.12);color:var(--cian);border:1px solid rgba(0,168,179,0.35);}
 .b-asesoria{background:rgba(212,168,67,0.12);color:#9a6e00;border:1px solid rgba(212,168,67,0.35);}
 .b-vencido{background:rgba(230,126,34,0.12);color:#b85e00;border:1px solid rgba(230,126,34,0.35);}
 .b-cuenta{background:rgba(0,0,0,0.05);color:var(--text2);border:1px solid var(--border);}
-.b-dias{font-family:var(--fc);font-size:13px;color:var(--text3);letter-spacing:1px;font-weight:600;}
+.b-dias{font-family:var(--fc);font-size:11px;color:var(--text3);letter-spacing:1px;font-weight:600;}
 
 /* ACCIONES RÁPIDAS */
-.a-actions{display:flex;gap:8px;margin-top:8px;}
-.act-btn{font-family:var(--fc);font-size:12px;letter-spacing:1px;text-transform:uppercase;padding:7px 14px;border-radius:5px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--text3);transition:all .2s;font-weight:600;}
+.a-actions{display:flex;gap:5px;margin-top:4px;}
+.act-btn{font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:none;cursor:pointer;color:var(--text3);transition:all .2s;font-weight:600;}
 .act-btn:hover{border-color:var(--cian2);color:var(--cian);background:rgba(0,168,179,0.05);}
 .act-btn.peligro:hover{border-color:rgba(231,76,60,0.4);color:var(--red);background:rgba(231,76,60,0.05);}
 .act-btn.activar{border-color:rgba(39,174,96,0.4);color:var(--green);}
