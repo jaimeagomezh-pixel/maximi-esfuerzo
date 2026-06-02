@@ -408,22 +408,32 @@
       const s = await res.json();
       const N = 22;
 
-      // Gráfico FC
-      if (chartFC && s.heartrate && s.time) {
-        const hrS  = muestrarDatos(s.heartrate.data, N);
-        const tS   = muestrarDatos(s.time.data, N);
-        chartFC.data.labels = tS.map(t => Math.floor(t/60) + ':00');
+      // Etiquetas de tiempo MM:SS (reales, compartidas por ambos gráficos)
+      const tS = s.time ? muestrarDatos(s.time.data, N) : [];
+      const labels = tS.map(t => {
+        const m = Math.floor(t / 60);
+        const sec = Math.round(t % 60);
+        return m + ':' + String(sec).padStart(2, '0');
+      });
+
+      // FC
+      const hrS = (s.heartrate) ? muestrarDatos(s.heartrate.data, N) : [];
+      // Ritmo (m/s → min/km)
+      const paceS = (s.velocity_smooth)
+        ? muestrarDatos(s.velocity_smooth.data, N).map(v => v > 0.5 ? parseFloat(((1000/60)/v).toFixed(2)) : null)
+        : [];
+
+      // Guardar para tooltips cruzados
+      _streamData = { labels, hr: hrS, pace: paceS };
+
+      if (chartFC && hrS.length) {
+        chartFC.data.labels = labels;
         chartFC.data.datasets[0].data = hrS;
         chartFC.update('active');
       }
-
-      // Gráfico Ritmo (m/s → min/km)
-      if (chartRitmo && s.velocity_smooth && s.time) {
-        const vel = s.velocity_smooth.data.map(v => v > 0.5 ? parseFloat(((1000/60)/v).toFixed(2)) : null);
-        const vS  = muestrarDatos(vel, N);
-        const tS  = muestrarDatos(s.time.data, N);
-        chartRitmo.data.labels = tS.map(t => Math.floor(t/60) + ':00');
-        chartRitmo.data.datasets[0].data = vS;
+      if (chartRitmo && paceS.length) {
+        chartRitmo.data.labels = labels;
+        chartRitmo.data.datasets[0].data = paceS;
         chartRitmo.update('active');
       }
     } catch(e) { console.error('Streams error:', e); }
@@ -973,6 +983,8 @@
   // ── CHARTS DASHBOARD ──
   let chartFC = null;
   let chartRitmo = null;
+  // Datos crudos de la última actividad para tooltips cruzados (FC + ritmo + tiempo)
+  let _streamData = { labels: [], hr: [], pace: [] };
 
   function initCharts() {
     const fcCtx = document.getElementById('chartFC');
@@ -1016,10 +1028,21 @@
       elements: { point: { radius: 0 }, line: { tension: 0.4, borderWidth: 2 } }
     };
 
+    // pace decimal (min/km) → "M:SS /km"
+    function _paceFmt(dec) {
+      if (dec == null || isNaN(dec)) return '—';
+      const m = Math.floor(dec);
+      const s = Math.round((dec - m) * 60);
+      return m + ':' + String(s).padStart(2, '0') + ' /km';
+    }
+
     const thDefaults = {
       responsive: true,
       maintainAspectRatio: false,
       animation: { duration: 600, easing: 'easeInOutQuart' },
+      // Modo index + intersect false = el toque/deslizamiento captura el punto
+      // más cercano en X aunque el dedo no toque exactamente la línea (ideal touch)
+      interaction: { mode: 'index', intersect: false, axis: 'x' },
       plugins: {
         legend: { display: false },
         tooltip: {
@@ -1028,8 +1051,28 @@
           bodyColor: '#ffffff',
           borderColor: 'rgba(0,200,212,0.2)',
           borderWidth: 1,
-          padding: 10,
+          padding: 11,
           cornerRadius: 6,
+          displayColors: false,
+          titleFont: { size: 12, weight: '700' },
+          bodyFont: { size: 13 },
+          callbacks: {
+            // Título: minuto de la actividad
+            title: (items) => {
+              if (!items.length) return '';
+              return 'Min ' + (_streamData.labels[items[0].dataIndex] || items[0].label);
+            },
+            // Cuerpo: FC + ritmo del mismo momento (cruzado desde _streamData)
+            label: (item) => {
+              const i = item.dataIndex;
+              const lines = [];
+              const hr = _streamData.hr[i];
+              const pc = _streamData.pace[i];
+              if (hr != null) lines.push('❤️  ' + Math.round(hr) + ' ppm');
+              if (pc != null) lines.push('⏱️  ' + _paceFmt(pc));
+              return lines.length ? lines : (item.formattedValue || '');
+            }
+          }
         }
       },
       scales: {
