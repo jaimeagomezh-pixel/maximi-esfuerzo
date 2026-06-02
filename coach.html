@@ -1574,7 +1574,13 @@ function abrirPerfil(id) {
     // Cargar rucking del atleta si tiene Strava ID vinculado
     const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
     if (ruckNombreEl) ruckNombreEl.textContent = a.nombre ? `· ${a.nombre}` : '';
-    if (a.stravaId) cargarRuckingCoach(a.stravaId);
+
+    if (a.stravaId) {
+      cargarRuckingCoach(a.stravaId);
+    } else {
+      // ── Auto-vincular: buscar en el Worker si el atleta ya subió rucking ──
+      autoVincularStravaId(a);
+    }
 
     // Cargar InBody del atleta (usa email como identificador hacia el atleta)
     cargarInbodyCoach(a.email);
@@ -1835,6 +1841,57 @@ async function toggleRuckCoachLink() {
   } catch(e) {
     sel.innerHTML = '<option value="">Error al cargar — ingresa manualmente</option>';
   }
+}
+
+// ── AUTO-VINCULAR STRAVA ID ─────────────────────────────────────
+// Cuando el coach abre el perfil de un atleta sin stravaId vinculado,
+// consulta el Worker para ver si ese atleta ya subió datos de rucking.
+// Si hay coincidencia por nombre, vincula automáticamente.
+async function autoVincularStravaId(atletaObj) {
+  try {
+    const res = await fetch(`${RUCK_WORKER}/rucking/lista?secret=${encodeURIComponent(PASS)}`);
+    const d   = await res.json();
+    if (!d.ok || !d.atletas?.length) return;
+
+    // Normalizar nombre para comparación flexible (sin tildes, minúsculas)
+    const norm = s => (s||'').toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+
+    const nombreCoach = norm(atletaObj.nombre);
+    if (!nombreCoach) return;
+
+    // Buscar coincidencia: nombre contiene alguna parte o viceversa
+    const match = d.atletas.find(a => {
+      const n = norm(a.nombre);
+      return n && (n.includes(nombreCoach) || nombreCoach.includes(n));
+    });
+
+    if (!match) return;
+
+    // ¡Encontrado! Vincular automáticamente
+    atletaObj.stravaId = match.stravaId;
+    guardarAtletas();
+
+    // Actualizar UI del nombre en el título
+    const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
+    if (ruckNombreEl) ruckNombreEl.textContent = `· ${atletaObj.nombre}`;
+
+    // Mostrar badge de vinculación automática por 3 segundos
+    const secTitle = document.querySelector('#ruckCoachSec .sec-t span:first-child');
+    if (secTitle) {
+      const badge = document.createElement('span');
+      badge.style.cssText = 'font-size:10px;background:rgba(39,174,96,0.15);color:#27ae60;border:1px solid rgba(39,174,96,0.3);padding:2px 7px;border-radius:10px;margin-left:6px;';
+      badge.textContent = '✓ vinculado automáticamente';
+      secTitle.appendChild(badge);
+      setTimeout(() => badge.remove(), 4000);
+    }
+
+    // Cargar datos de rucking
+    document.getElementById('ruckCoachEmpty').style.display = 'none';
+    document.getElementById('ruckCoachData').style.display  = 'block';
+    cargarRuckingCoach(match.stravaId);
+
+  } catch(e) { console.warn('[Coach] Auto-vinculación Strava:', e); }
 }
 
 function guardarStravaIdAtleta(atletaId) {
