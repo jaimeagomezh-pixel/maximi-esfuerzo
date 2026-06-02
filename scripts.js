@@ -3255,6 +3255,70 @@
     }
   }
 
+  // ── ZONAS DE ENTRENAMIENTO — Test 5min Berthon + Cerezuela-Espejo (2018) ──
+  // Calcula VAM, VO2max y 5 zonas (Z1-Z5 / R0-R3+) con rangos de pace, FC y RPE.
+  // distancia_5m: km recorridos en 5 min (float, requerido)
+  // fc_max: pulsaciones máximas (int, opcional/nullable)
+  function calcularZonasBerthon(distancia_5m, fc_max = null) {
+    if (typeof distancia_5m !== 'number' || isNaN(distancia_5m) || distancia_5m <= 0) {
+      throw new Error('distancia_5m debe ser un número positivo (km).');
+    }
+    const hasFc = fc_max != null && !isNaN(fc_max) && fc_max > 0;
+
+    const VAM    = distancia_5m * 12;   // Velocidad Aeróbica Máxima (km/h)
+    const VO2max = distancia_5m * 39;   // VO2max estimado (ml/kg/min)
+
+    // velocidad (km/h) → ritmo "MM:SS" min/km
+    function paceToMMSS(velKmh) {
+      if (!velKmh || velKmh <= 0) return null;
+      const dec = 60 / velKmh;                // min/km decimal
+      let m = Math.floor(dec);
+      let s = Math.round((dec - m) * 60);
+      if (s === 60) { m += 1; s = 0; }
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    // Rangos según Cerezuela-Espejo (% VAM) + FC (% FCmáx)
+    const DEF = [
+      { zona:'Z1', ref:'R0',  nombre:'Recuperación',      vLo:0.00, vHi:0.53, fcLo:0.00, fcHi:0.71, rpe:'1-2'  },
+      { zona:'Z2', ref:'R1',  nombre:'Umbral aeróbico',   vLo:0.53, vHi:0.65, fcLo:0.71, fcHi:0.82, rpe:'3-4'  },
+      { zona:'Z3', ref:'R2',  nombre:'Tempo / MLSS',      vLo:0.65, vHi:0.80, fcLo:0.82, fcHi:0.89, rpe:'5-6'  },
+      { zona:'Z4', ref:'R3',  nombre:'Umbral anaeróbico', vLo:0.80, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'7-8'  },
+      { zona:'Z5', ref:'R3+', nombre:'Potencia aeróbica', vLo:0.89, vHi:1.00, fcLo:0.94, fcHi:1.00, rpe:'9-10' },
+    ];
+
+    const zonas = DEF.map(z => {
+      const vLow  = +(VAM * z.vLo).toFixed(2);
+      const vHigh = +(VAM * z.vHi).toFixed(2);
+      const paceFast = paceToMMSS(vHigh);             // ritmo más rápido (límite alto)
+      const paceSlow = z.vLo > 0 ? paceToMMSS(vLow) : null;
+      const pace = z.vLo > 0
+        ? `${paceFast} – ${paceSlow}`
+        : `> ${paceFast}`;
+
+      let heartRate = 'N/A';
+      if (hasFc) {
+        const fcLow  = Math.round(fc_max * z.fcLo);
+        const fcHigh = Math.round(fc_max * z.fcHi);
+        heartRate = z.fcLo > 0 ? `${fcLow} – ${fcHigh}` : `< ${fcHigh}`;
+      }
+
+      return {
+        zona: z.zona, ref: z.ref, nombre: z.nombre,
+        vLow, vHigh,
+        speed: `${vLow} – ${vHigh} km/h`,
+        pace, heartRate, rpe: z.rpe
+      };
+    });
+
+    return {
+      VAM:    +VAM.toFixed(1),
+      VO2max: +VO2max.toFixed(1),
+      fcMax:  hasFc ? Math.round(fc_max) : null,
+      zonas
+    };
+  }
+
   function calcularZonasCarrera() {
     const saved      = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     const sinDatosEl = document.getElementById('zonasSinDatos');
@@ -3284,51 +3348,52 @@
 
     if (sinDatosEl) sinDatosEl.style.display = 'none';
     if (refEl)      refEl.style.display      = 'block';
+
+    // Calcular zonas con el modelo Berthon (necesita distancia_5m = VAM/12)
+    let resultado = null;
+    if (vpico) {
+      try {
+        resultado = calcularZonasBerthon(vpico / 12, fcmax || null);
+      } catch(e) { console.warn('[Zonas] error:', e); }
+    }
+
     if (refTexto) {
       const parts = [];
-      if (vpico) parts.push(`V PICO ${vpico.toFixed(1)} km/h`);
+      if (resultado) {
+        parts.push(`VAM ${resultado.VAM} km/h`);
+        parts.push(`VO₂máx ${resultado.VO2max} ml/kg/min`);
+      } else if (vpico) {
+        parts.push(`V PICO ${vpico.toFixed(1)} km/h`);
+      }
       if (fcmax) parts.push(`FC máx ${Math.round(fcmax)} ppm`);
       refTexto.textContent = parts.join(' · ');
     }
 
-    // Modelo Cerezuela-Espejo: R0-R3+
-    const ZONAS = [
-      { id:'R0',  nombre:'Recuperación',     desc:'70-90% VT1/LT',  color:'#5b9bd5', vLo:0.50, vHi:0.52, fcLo:0.55, fcHi:0.70, rpe:'3-4'  },
-      { id:'R1',  nombre:'Umbral aeróbico',   desc:'90-110% VT1/LT', color:'#27ae60', vLo:0.53, vHi:0.64, fcLo:0.71, fcHi:0.83, rpe:'4-5'  },
-      { id:'R2',  nombre:'Tempo / MLSS',      desc:'95-105% MLSS',   color:'#f39c12', vLo:0.65, vHi:0.75, fcLo:0.84, fcHi:0.88, rpe:'6-7'  },
-      { id:'R3',  nombre:'Umbral anaeróbico', desc:'95-105% VT2',    color:'#e67e22', vLo:0.76, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'7-8'  },
-      { id:'R3+', nombre:'Potencia aeróbica', desc:'≥95% VO₂máx',   color:'#e74c3c', vLo:0.90, vHi:1.00, fcLo:0.95, fcHi:null,  rpe:'9-10' },
-    ];
+    // Colores por zona (Z1 azul → Z5 rojo)
+    const COLORS = ['#5b9bd5', '#27ae60', '#f39c12', '#e67e22', '#e74c3c'];
 
-    if (filasEl) {
-      filasEl.innerHTML = ZONAS.map((z, i) => {
-        // Velocidad
-        const vLow  = vpico ? parseFloat((vpico * z.vLo).toFixed(1)) : null;
-        const vHigh = vpico ? parseFloat((vpico * z.vHi).toFixed(1)) : null;
-        const speedStr = vLow  !== null ? `${vLow}–${vHigh} km/h` : '';
-        const paceStr  = vHigh !== null ? `${kphToPace(vHigh)} – ${kphToPace(vLow)} /km` : '';
-
-        // FC
-        const fcLow  = fcmax ? Math.round(fcmax * z.fcLo) : null;
-        const fcHigh = fcmax && z.fcHi ? Math.round(fcmax * z.fcHi) : null;
-        const fcStr  = fcmax ? (fcHigh ? `${fcLow}–${fcHigh} ppm` : `>${fcLow} ppm`) : '';
-
+    if (filasEl && resultado) {
+      filasEl.innerHTML = resultado.zonas.map((z, i) => {
+        const color    = COLORS[i];
+        const speedStr = z.speed;
+        const paceStr  = `${z.pace} /km`;
+        const fcStr    = z.heartRate !== 'N/A' ? `${z.heartRate} ppm` : '';
         const rowBg = i % 2 === 0 ? 'rgba(0,0,0,0.018)' : 'transparent';
-        const sep   = i < ZONAS.length - 1 ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : '';
+        const sep   = i < resultado.zonas.length - 1 ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : '';
 
-        return `<div style="display:grid;grid-template-columns:44px 1fr 120px;gap:0;padding:13px 12px;background:${rowBg};align-items:start;${sep}">
+        return `<div style="display:grid;grid-template-columns:60px 1fr 120px;gap:0;padding:13px 12px;background:${rowBg};align-items:start;${sep}">
           <div>
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:0.5px;color:${z.color};background:${z.color}18;border:1px solid ${z.color}55;border-radius:4px;padding:3px 6px;display:inline-block;">${z.id}</span>
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:0.5px;color:${color};background:${color}18;border:1px solid ${color}55;border-radius:4px;padding:3px 7px;display:inline-block;">${z.zona}</span>
+            <div style="font-family:'Barlow',sans-serif;font-size:10px;color:#bbb;margin-top:3px;text-align:center;">${z.ref}</div>
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.3px;color:#1a1a1a;">${z.nombre}</div>
-            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#bbb;margin-top:2px;">${z.desc}</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#999;margin-top:2px;">RPE ${z.rpe}</div>
           </div>
           <div style="text-align:right;">
-            ${speedStr ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#333;">${speedStr}</div>` : ''}
-            ${paceStr  ? `<div style="font-family:'Barlow',sans-serif;font-size:13px;color:#999;margin-top:2px;">${paceStr}</div>` : ''}
-            ${fcStr    ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:#555;margin-top:${vpico ? '4px' : '0'};">${fcStr}</div>` : ''}
-            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#bbb;margin-top:2px;">RPE ${z.rpe}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#333;">${speedStr}</div>
+            <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#999;margin-top:2px;">${paceStr}</div>
+            ${fcStr ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:600;color:${color};margin-top:4px;">${fcStr}</div>` : ''}
           </div>
         </div>`;
       }).join('');
