@@ -679,8 +679,15 @@
     const fcMaxStrava = Math.round(Math.max(...fcs));
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const fcGuardada = perfil.fcMax || 0;
+    const fuenteGuardada = perfil.fcMaxFuente || null;
 
-    if (fcMaxStrava > fcGuardada) {
+    // La FC máx MEDIDA (Strava) siempre gana sobre la ESTIMADA (Nes).
+    // Entre dos medidas, gana la mayor.
+    const reemplazar =
+      fuenteGuardada !== 'strava'        // estimada o vacía → medida gana siempre
+      || fcMaxStrava > fcGuardada;        // ya era medida → solo si es mayor
+
+    if (reemplazar && fcMaxStrava !== fcGuardada) {
       perfil.fcMax = fcMaxStrava;
       perfil.fcMaxFuente = 'strava';
       perfil.fcMaxFecha = new Date().toISOString().slice(0, 10);
@@ -902,6 +909,12 @@
     actualizarResumenPerfil(p);
   }
 
+  // FC máxima estimada por edad — Nes et al. (2013): 211 - 0.64 × edad
+  function calcularFCMaxNes(edad) {
+    if (!edad || edad < 5 || edad > 100) return null;
+    return Math.round(211 - 0.64 * edad);
+  }
+
   function guardarMiPerfil() {
     const peso  = parseFloat(document.getElementById('mpPeso')?.value) || null;
     const talla = parseFloat(document.getElementById('mpTalla')?.value) || null;
@@ -910,6 +923,19 @@
     // Preservar campos automáticos (fcMax detectada por Strava, etc.)
     const prev = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const p = { ...prev, peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
+
+    // FC máx estimada (Nes) SOLO si no hay medida real de Strava
+    if (p.fcMaxFuente !== 'strava' && edad) {
+      const fcNes = calcularFCMaxNes(edad);
+      if (fcNes) {
+        p.fcMax = fcNes;
+        p.fcMaxFuente = 'nes';
+        // Prellenar campo de zonas si está vacío o era estimación previa
+        const inp = document.getElementById('inputFcMax');
+        if (inp && !inp.value) inp.value = fcNes;
+      }
+    }
+
     localStorage.setItem('atletaPerfil', JSON.stringify(p));
     actualizarResumenPerfil(p);
     document.getElementById('miPerfilPanel').style.display = 'none';
@@ -936,7 +962,12 @@
     if (p.peso)  parts.push(p.peso + ' kg');
     if (p.talla) parts.push(p.talla + ' cm');
     if (p.edad)  parts.push(p.edad + ' años');
-    if (p.fcMax) parts.push('FC máx ' + p.fcMax + ' ppm');
+    if (p.fcMax) {
+      const fuente = p.fcMaxFuente === 'strava' ? 'medida'
+                   : p.fcMaxFuente === 'nes'    ? 'estimada'
+                   : '';
+      parts.push('FC máx ' + p.fcMax + ' ppm' + (fuente ? ` (${fuente})` : ''));
+    }
     el.textContent = parts.join(' · ');
   }
 
