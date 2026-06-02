@@ -632,14 +632,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
 </div>
 
 <script>
-// Contraseña guardada en localStorage bajo clave ofuscada.
-// Para cambiarla: localStorage.setItem('_cp', btoa('nueva_clave'))
-// Si no hay clave guardada, se usa el hash por defecto (cámbialo en producción).
-const PASS = (() => {
-  const stored = localStorage.getItem('_cp');
-  if (stored) { try { return atob(stored); } catch(_){} }
-  return atob('TUUyMDI1Y29hY2g='); // base64 de la clave actual
-})();
+// Login del coach es por Google Auth (ver módulo Firebase arriba).
+// PASS es el secreto compartido con el Worker (env.COACH_SECRET) para
+// autenticar las llamadas API del coach. Debe coincidir con el valor
+// configurado vía: npx wrangler secret put COACH_SECRET --name flow-payments
+const PASS = atob('TUUyMDI2Y29hY2g='); // base64 de 'ME2026coach'
 
 // ── DATOS ──────────────────────────────────────────────────────────────────
 let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
