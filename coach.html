@@ -289,10 +289,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
     <!-- Firebase SDK -->
     <script type="module">
       import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+      import { getAuth, GoogleAuthProvider, signInWithRedirect,
+               getRedirectResult, signOut }
              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-      const COACH_EMAILS = ['jaimea.gomezh@gmail.com']; // emails autorizados
+      const COACH_EMAILS = ['jaimea.gomezh@gmail.com'];
 
       const app  = initializeApp({
         apiKey:            'AIzaSyAXLORK86Zi4CSCm3Y2Wl6kgoozI36ZfoU',
@@ -304,32 +305,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
       });
       const auth = getAuth(app);
 
-      window._coachSignIn = async function() {
-        const btn = document.getElementById('btnGoogleCoach');
-        const err = document.getElementById('loginErr');
-        btn.disabled = true;
-        btn.textContent = 'Conectando…';
-        err.style.display = 'none';
-        try {
-          const result = await signInWithPopup(auth, new GoogleAuthProvider());
-          const email  = result.user.email;
-          if (!COACH_EMAILS.includes(email)) {
-            await signOut(auth);
-            err.textContent = 'Acceso no autorizado: ' + email;
-            err.style.display = 'block';
-            btn.disabled = false;
-            btn.textContent = 'Entrar con Google';
-            return;
-          }
-          document.getElementById('loginScreen').style.display = 'none';
-          document.getElementById('panel').style.display = 'block';
-          iniciar();
-        } catch(e) {
-          err.textContent = 'Error: ' + e.message;
+      // Al cargar: verificar si venimos de un redirect de Google
+      getRedirectResult(auth).then(result => {
+        if (!result) return;
+        const email = result.user.email;
+        const err   = document.getElementById('loginErr');
+        if (!COACH_EMAILS.includes(email)) {
+          signOut(auth);
+          err.textContent = 'Acceso no autorizado: ' + email;
           err.style.display = 'block';
-          btn.disabled = false;
-          btn.textContent = 'Entrar con Google';
+          return;
         }
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('panel').style.display = 'block';
+        iniciar();
+      }).catch(e => {
+        const err = document.getElementById('loginErr');
+        err.textContent = 'Error: ' + e.message;
+        err.style.display = 'block';
+      });
+
+      window._coachSignIn = function() {
+        const btn = document.getElementById('btnGoogleCoach');
+        btn.disabled = true;
+        btn.textContent = 'Redirigiendo…';
+        signInWithRedirect(auth, new GoogleAuthProvider());
       };
 
       window._coachSignOut = async function() {
