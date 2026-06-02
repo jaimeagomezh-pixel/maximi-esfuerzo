@@ -3432,8 +3432,11 @@
     }
   }
 
-  // ── ZONAS DE ENTRENAMIENTO — Test 5min Berthon + Cerezuela-Espejo (2018) ──
-  // Calcula VAM, VO2max y 5 zonas (Z1-Z5 / R0-R3+) con rangos de pace, FC y RPE.
+  // ── ZONAS DE ENTRENAMIENTO ─────────────────────────────────────────────────
+  // Test de 5 minutos de Berthon (1997) → VAM (dist×12) y VO2max (dist×39)
+  // Modelo de zonificación de Cerezuela-Espejo (2018) → reparte en 5 zonas
+  //   (% de VAM y % de FCmáx para cada zona Z1-Z5 / R0-R3+)
+  // Calcula rangos de pace (MM:SS), FC y RPE por zona.
   // distancia_5m: km recorridos en 5 min (float, requerido)
   // fc_max: pulsaciones máximas (int, opcional/nullable)
   function calcularZonasBerthon(distancia_5m, fc_max = null) {
