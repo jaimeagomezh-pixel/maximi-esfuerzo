@@ -631,7 +631,46 @@
       // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el título)
       detectarRuckingDesdeStrava(allActs);
 
+      // Detectar nueva FC máxima en las actividades y actualizar perfil
+      detectarFCMaxDesdeStrava(allActs);
+
     } catch(e) { console.error('PRs Strava error:', e); }
+  }
+
+  // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
+  function detectarFCMaxDesdeStrava(allActs) {
+    // max_heartrate viene en actividades con sensor de FC
+    const fcs = allActs
+      .map(a => a.max_heartrate)
+      .filter(fc => fc && fc > 100 && fc < 230); // rango fisiológico válido
+    if (!fcs.length) return;
+
+    const fcMaxStrava = Math.round(Math.max(...fcs));
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const fcGuardada = perfil.fcMax || 0;
+
+    if (fcMaxStrava > fcGuardada) {
+      perfil.fcMax = fcMaxStrava;
+      perfil.fcMaxFuente = 'strava';
+      perfil.fcMaxFecha = new Date().toISOString().slice(0, 10);
+      localStorage.setItem('atletaPerfil', JSON.stringify(perfil));
+
+      // Prellenar el campo de FC máx en Zonas de Carrera si está vacío
+      const inp = document.getElementById('inputFcMax');
+      if (inp && (!inp.value || parseInt(inp.value) < fcMaxStrava)) {
+        inp.value = fcMaxStrava;
+      }
+
+      // Toast informativo (reutiliza infra de PR si existe)
+      if (typeof prShowToast === 'function') {
+        prShowToast('❤️ Nueva FC máxima detectada: ' + fcMaxStrava + ' ppm');
+      }
+
+      // Actualizar resumen de perfil si está visible
+      if (typeof actualizarResumenPerfil === 'function') {
+        actualizarResumenPerfil(perfil);
+      }
+    }
   }
 
   // Revisar si hay token de Strava guardado
@@ -723,7 +762,9 @@
     const talla = parseFloat(document.getElementById('mpTalla')?.value) || null;
     const edad  = parseInt(document.getElementById('mpEdad')?.value) || null;
     const sexo  = document.getElementById('mpSexo')?.value || '';
-    const p = { peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
+    // Preservar campos automáticos (fcMax detectada por Strava, etc.)
+    const prev = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const p = { ...prev, peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
     localStorage.setItem('atletaPerfil', JSON.stringify(p));
     actualizarResumenPerfil(p);
     document.getElementById('miPerfilPanel').style.display = 'none';
@@ -750,6 +791,7 @@
     if (p.peso)  parts.push(p.peso + ' kg');
     if (p.talla) parts.push(p.talla + ' cm');
     if (p.edad)  parts.push(p.edad + ' años');
+    if (p.fcMax) parts.push('FC máx ' + p.fcMax + ' ppm');
     el.textContent = parts.join(' · ');
   }
 
