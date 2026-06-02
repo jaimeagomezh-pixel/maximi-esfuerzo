@@ -289,7 +289,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
     <!-- Firebase SDK -->
     <script type="module">
       import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut }
+      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
       const COACH_EMAILS = ['jaimea.gomezh@gmail.com'];
@@ -303,6 +303,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px
         appId:             '1:59780842874:web:60b58ec42538ef88a242c3'
       });
       const auth = getAuth(app);
+
+      // Restaurar sesión al recargar: si ya hay un coach autorizado logueado,
+      // entrar directo sin pedir login de nuevo.
+      let _sesionRestaurada = false;
+      onAuthStateChanged(auth, (user) => {
+        if (_sesionRestaurada) return;
+        if (user && COACH_EMAILS.includes(user.email)) {
+          _sesionRestaurada = true;
+          document.getElementById('loginScreen').style.display = 'none';
+          document.getElementById('panel').style.display = 'block';
+          iniciar();
+        }
+      });
 
       window._coachSignIn = async function() {
         const btn = document.getElementById('btnGoogleCoach');
