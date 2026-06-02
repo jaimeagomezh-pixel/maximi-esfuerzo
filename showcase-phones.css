@@ -137,15 +137,15 @@
   overflow: visible; /* Permitimos que el overlay sobresalga */
 }
 
-/* Superposición del Mockup PNG Real (Verde transparente) */
+/* Superposición del Mockup PNG Real (iPhone Violeta con Isla Dinámica) */
 .mockup-overlay {
   position: absolute;
   /* Posicionamiento exacto calculado según las proporciones del mockup */
-  left: -17%;
-  right: -7.1%;
-  top: -3.2%;
-  bottom: -2.8%;
-  background-image: url('Imagenes/iphone-mockup-transparent.png');
+  left: -14.2%;
+  right: -14.6%;
+  top: -6.4%;
+  bottom: -6.4%;
+  background-image: url('Imagenes/Mockup/bb552083a851c08bac067e8cc7fa3cb5-transparent.png');
   background-size: 100% 100%;
   background-position: center;
   background-repeat: no-repeat;
