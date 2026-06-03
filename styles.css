@@ -482,9 +482,60 @@
     background: rgba(212,168,67,0.1);
   }
 
-  /* ===== PLANES ===== */
-  #planes {
+  /* ===== PLANES OVERLAY ===== */
+  #planesOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
     background: var(--negro-medio);
+    z-index: 600;
+    overflow-y: auto;
+  }
+  #planesOverlay.active {
+    display: block;
+    animation: planesIn 0.28s ease;
+  }
+  @keyframes planesIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .planes-overlay-hdr {
+    position: sticky;
+    top: 0;
+    background: rgba(14,14,14,0.97);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(212,168,67,0.15);
+    padding: 13px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 10;
+  }
+  .planes-overlay-back {
+    background: none;
+    border: 1px solid rgba(245,240,235,0.25);
+    color: var(--crema);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .planes-overlay-back:hover { border-color: var(--dorado); color: var(--dorado); }
+  .planes-overlay-titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .planes-overlay-body {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 40px 28px 60px;
   }
 
   .planes-grid {
@@ -1775,12 +1826,8 @@
   #tracker .connect-banner .connect-banner-text { color: #aaa !important; }
   #tracker .connect-banner strong { color: #f5f0eb !important; }
 
-  /* Sección Planes — blanco */
-  #planes {
-    background: #ffffff !important;
-    color: #111 !important;
-  }
-  #planes .section-label { color: var(--rojo) !important; }
+  /* Overlay Planes — siempre oscuro (ignora modo claro del body) */
+  #planesOverlay { background: var(--negro-medio) !important; color: var(--crema) !important; }
   #planes .section-label::before { background: var(--rojo) !important; }
   #planes .section-title { color: #111 !important; }
   #planes .section-title span { color: var(--rojo) !important; }
@@ -2144,10 +2191,11 @@
   .dash-chart-title { color: #111111 !important; font-size: 12px !important; letter-spacing: 2px !important; font-weight: 600 !important; }
   .dash-chart-title span { color: #555555 !important; }
 
-  /* TH chart containers — fondo blanco */
+  /* TH chart containers — fondo ligeramente gris para destacar del blanco del panel */
   .th-chart-container {
-    background: #ffffff !important;
-    border: 1px solid rgba(0,0,0,0.08) !important;
+    background: #f7f9fa !important;
+    border: 1.5px solid rgba(0,122,133,0.18) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
   }
   .th-chart-title { color: #111111 !important; font-size: 12px !important; font-weight: 600 !important; }
   .th-chart-subtitle { color: #777777 !important; }
@@ -2155,29 +2203,29 @@
 
   /* Range buttons */
   .th-range-btn {
-    background: rgba(0,122,133,0.06) !important;
-    border: 1.5px solid rgba(0,122,133,0.2) !important;
-    color: #007a85 !important;
+    background: rgba(0,122,133,0.12) !important;
+    border: 1.5px solid rgba(0,122,133,0.35) !important;
+    color: #005f6b !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     padding: 7px 15px !important;
     border-radius: 22px !important;
   }
-  .th-range-btn:hover { background: rgba(0,168,179,0.12) !important; color: #006670 !important; border-color: rgba(0,168,179,0.4) !important; }
-  .th-range-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.22),rgba(0,200,212,0.15)) !important; color: #006670 !important; border-color: rgba(0,168,179,0.65) !important; box-shadow: 0 0 10px rgba(0,168,179,0.18) !important; }
+  .th-range-btn:hover { background: rgba(0,168,179,0.2) !important; color: #004d57 !important; border-color: rgba(0,168,179,0.55) !important; }
+  .th-range-btn.active { background: linear-gradient(135deg,rgba(0,122,133,0.35),rgba(0,168,179,0.28)) !important; color: #003d44 !important; border-color: rgba(0,122,133,0.75) !important; box-shadow: 0 2px 10px rgba(0,122,133,0.2) !important; }
 
   /* Dist buttons */
   .th-dist-btn {
-    background: rgba(0,122,133,0.06) !important;
-    border: 1.5px solid rgba(0,122,133,0.2) !important;
-    color: #007a85 !important;
+    background: rgba(0,122,133,0.12) !important;
+    border: 1.5px solid rgba(0,122,133,0.35) !important;
+    color: #005f6b !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     padding: 7px 15px !important;
     border-radius: 22px !important;
   }
-  .th-dist-btn:hover { background: rgba(0,168,179,0.12) !important; color: #006670 !important; border-color: rgba(0,168,179,0.4) !important; }
-  .th-dist-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.25),rgba(0,200,212,0.18)) !important; color: #005f6b !important; border-color: rgba(0,168,179,0.7) !important; box-shadow: 0 0 14px rgba(0,168,179,0.22) !important; }
+  .th-dist-btn:hover { background: rgba(0,168,179,0.2) !important; color: #004d57 !important; border-color: rgba(0,168,179,0.55) !important; }
+  .th-dist-btn.active { background: linear-gradient(135deg,rgba(0,122,133,0.4),rgba(0,168,179,0.32)) !important; color: #003d44 !important; border-color: rgba(0,122,133,0.8) !important; box-shadow: 0 2px 12px rgba(0,122,133,0.22) !important; }
 
   /* PR stats */
   .th-pr-stat {

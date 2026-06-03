@@ -200,7 +200,7 @@
 <nav>
   <div class="nav-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
   <ul class="nav-links">
-    <li><a href="#planes">Planes</a></li>
+    <li><a href="#" onclick="abrirPlanes();return false;">Planes</a></li>
     <li><a href="#blog">Blog</a></li>
     <li><a href="#resenas">Resultados</a></li>
     <li><a id="btn-nav-login" href="#" onclick="abrirLogin(); return false;" class="nav-cta">INGRESAR</a><div id="nav-user-info" style="display:none;align-items:center;gap:12px;"><span id="nav-user-name" style="font-family:'Barlow Condensed',sans-serif;font-size:0.82rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;"></span><button id="btn-nav-logout" onclick="cerrarSesion()" style="background:none;border:1px solid rgba(192,57,43,0.4);color:#888;padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:0.72rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">SALIR</button></div></li>
@@ -217,10 +217,10 @@
 </nav>
 
 <div class="mobile-menu" id="mobileMenu">
-  <a href="#planes" onclick="toggleMenu()">Planes</a>
+  <a href="#" onclick="abrirPlanes();toggleMenu();return false;">Planes</a>
   <a href="#blog" onclick="toggleMenu()">Blog</a>
   <a href="#resenas" onclick="toggleMenu()">Resultados</a>
-  <a href="#planes" class="nav-cta" onclick="toggleMenu()">Empezar Ahora</a>
+  <a href="#" class="nav-cta" onclick="abrirPlanes();toggleMenu();return false;">Empezar Ahora</a>
 </div>
 
 <!-- HERO -->
@@ -300,7 +300,7 @@
     <div class="seneca-autor">— Séneca</div>
   </div>
   <div class="hero-actions">
-    <a href="#planes" class="btn-primary">Ver Planes de Entrenamiento</a>
+    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary">Ver Planes de Entrenamiento</a>
     <a href="#filosofia" class="btn-ghost" style="border-color:rgba(245,240,235,0.7);color:#f5f0eb;background:rgba(255,255,255,0.08);">↓ Mi Filosofía</a>
   </div>
 
@@ -318,7 +318,7 @@
       Elimina la improvisación. Tu plan estructurado incluye videos técnicos, con una medición constante y automática de cargas, volúmenes, potencia y composición corporal. Tu progreso real no es azar, es ciencia.
     </p>
 
-    <a href="#planes" class="btn-primary" style="margin-top:20px;display:inline-block;">Probar un Plan →</a>
+    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary" style="margin-top:20px;display:inline-block;">Probar un Plan →</a>
   </div>
 
   <!-- Lado derecho: 3 teléfonos animados -->
@@ -451,80 +451,87 @@
 
 
 
-<!-- PLANES -->
-<section id="planes">
-  <div class="section-label">Programas</div>
-  <h2 class="section-title">ELIGE TU<br><span>PROTOCOLO</span></h2>
-
-  <div class="planes-grid">
-
-    <div class="plan-card" onclick="abrirModal('FOUNDATION', '$29.990 CLP', 'Ideal para iniciar. 8 semanas de base estructurada con progresión lineal.')">
-      <div>
-        <div class="plan-badge">Acceso Inmediato</div>
-        <div class="plan-nombre">FOUNDATION</div>
-        <div class="plan-desc">8 semanas de estructura base. Progresión lineal, técnica de fundamentos y construcción de hábitos de entrenamiento sostenibles.</div>
-        <div class="plan-features">
-          <span class="plan-tag">8 Semanas</span>
-          <span class="plan-tag">3–4 días/sem</span>
-          <span class="plan-tag">Fuerza + Cardio</span>
-          <span class="plan-tag">TrainHeroic</span>
-        </div>
-      </div>
-      <div class="plan-precio-col">
-        <div class="plan-precio-label">Precio único</div>
-        <div class="plan-precio">$29K</div>
-        <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-        <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('FOUNDATION', '$29.990 CLP', 'Base estructurada de 8 semanas.')">Adquirir</button>
-      </div>
+<!-- PLANES OVERLAY (pantalla completa, se abre con abrirPlanes()) -->
+<div id="planesOverlay">
+  <div class="planes-overlay-hdr">
+    <button class="planes-overlay-back" onclick="cerrarPlanes()">← Volver</button>
+    <div class="planes-overlay-titulo">
+      <span class="section-label" style="margin:0;">Programas</span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--crema);">ELIGE TU PROTOCOLO</span>
     </div>
-
-    <div class="plan-card destacado" onclick="abrirModal('OPERATOR', '$59.990 CLP', 'El más completo. Metodología de operaciones especiales aplicada al fitness.')">
-      <div>
-        <div class="plan-badge gold">⭐ Más Popular</div>
-        <div class="plan-nombre">OPERATOR</div>
-        <div class="plan-desc">12 semanas de entrenamiento de alto rendimiento con periodización ondulatoria, trabajo de potencia y protocolo de recuperación integrado.</div>
-        <div class="plan-features">
-          <span class="plan-tag">12 Semanas</span>
-          <span class="plan-tag">5 días/sem</span>
-          <span class="plan-tag">Fuerza • Potencia • Cond.</span>
-          <span class="plan-tag">TrainHeroic</span>
-          <span class="plan-tag">Soporte directo</span>
-        </div>
-      </div>
-      <div class="plan-precio-col">
-        <div class="plan-precio-label">Precio único</div>
-        <div class="plan-precio">$59K</div>
-        <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-        <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('OPERATOR', '$59.990 CLP', 'El más completo.')">Adquirir</button>
-      </div>
-    </div>
-
-    <div class="plan-card" onclick="abrirModal('ELITE PROTOCOL', '$89.990 CLP', 'Acceso total + seguimiento personalizado mensual.')">
-      <div>
-        <div class="plan-badge">Premium</div>
-        <div class="plan-nombre">ELITE PROTOCOL</div>
-        <div class="plan-desc">Acceso a todos los planes + seguimiento mensual personalizado, análisis de métricas y ajuste de cargas en base a tus datos de Strava y TrainHeroic.</div>
-        <div class="plan-features">
-          <span class="plan-tag">Planes Completos</span>
-          <span class="plan-tag">Seguimiento Mensual</span>
-          <span class="plan-tag">Análisis de Datos</span>
-          <span class="plan-tag">Acceso Prioritario</span>
-        </div>
-      </div>
-      <div class="plan-precio-col">
-        <div class="plan-precio-label">/ mes</div>
-        <div class="plan-precio">$89K</div>
-        <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-        <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('ELITE PROTOCOL', '$89.990 CLP/mes', 'Acceso total + seguimiento.')">Suscribirse</button>
-      </div>
-    </div>
-
   </div>
 
-  <div class="planes-nota">
-    ⚡ Después del pago recibirás automáticamente tu código de acceso a TrainHeroic por correo electrónico.
+  <div class="planes-overlay-body">
+    <div class="planes-grid">
+
+      <div class="plan-card" onclick="abrirModal('FOUNDATION', '$29.990 CLP', 'Ideal para iniciar. 8 semanas de base estructurada con progresión lineal.')">
+        <div>
+          <div class="plan-badge">Acceso Inmediato</div>
+          <div class="plan-nombre">FOUNDATION</div>
+          <div class="plan-desc">8 semanas de estructura base. Progresión lineal, técnica de fundamentos y construcción de hábitos de entrenamiento sostenibles.</div>
+          <div class="plan-features">
+            <span class="plan-tag">8 Semanas</span>
+            <span class="plan-tag">3–4 días/sem</span>
+            <span class="plan-tag">Fuerza + Cardio</span>
+            <span class="plan-tag">TrainHeroic</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">Precio único</div>
+          <div class="plan-precio">$29K</div>
+          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('FOUNDATION', '$29.990 CLP', 'Base estructurada de 8 semanas.')">Adquirir</button>
+        </div>
+      </div>
+
+      <div class="plan-card destacado" onclick="abrirModal('OPERATOR', '$59.990 CLP', 'El más completo. Metodología de operaciones especiales aplicada al fitness.')">
+        <div>
+          <div class="plan-badge gold">⭐ Más Popular</div>
+          <div class="plan-nombre">OPERATOR</div>
+          <div class="plan-desc">12 semanas de entrenamiento de alto rendimiento con periodización ondulatoria, trabajo de potencia y protocolo de recuperación integrado.</div>
+          <div class="plan-features">
+            <span class="plan-tag">12 Semanas</span>
+            <span class="plan-tag">5 días/sem</span>
+            <span class="plan-tag">Fuerza • Potencia • Cond.</span>
+            <span class="plan-tag">TrainHeroic</span>
+            <span class="plan-tag">Soporte directo</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">Precio único</div>
+          <div class="plan-precio">$59K</div>
+          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('OPERATOR', '$59.990 CLP', 'El más completo.')">Adquirir</button>
+        </div>
+      </div>
+
+      <div class="plan-card" onclick="abrirModal('ELITE PROTOCOL', '$89.990 CLP', 'Acceso total + seguimiento personalizado mensual.')">
+        <div>
+          <div class="plan-badge">Premium</div>
+          <div class="plan-nombre">ELITE PROTOCOL</div>
+          <div class="plan-desc">Acceso a todos los planes + seguimiento mensual personalizado, análisis de métricas y ajuste de cargas en base a tus datos de Strava y TrainHeroic.</div>
+          <div class="plan-features">
+            <span class="plan-tag">Planes Completos</span>
+            <span class="plan-tag">Seguimiento Mensual</span>
+            <span class="plan-tag">Análisis de Datos</span>
+            <span class="plan-tag">Acceso Prioritario</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">/ mes</div>
+          <div class="plan-precio">$89K</div>
+          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('ELITE PROTOCOL', '$89.990 CLP/mes', 'Acceso total + seguimiento.')">Suscribirse</button>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="planes-nota">
+      ⚡ Después del pago recibirás automáticamente tu código de acceso a TrainHeroic por correo electrónico.
+    </div>
   </div>
-</section>
+</div>
 
 <!-- BLOG -->
 <section id="blog">
@@ -625,7 +632,7 @@
 <footer>
   <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:26px;width:auto;opacity:0.8;"></div>
   <ul class="footer-links">
-    <li><a href="#planes">Planes</a></li>
+    <li><a href="#" onclick="abrirPlanes();return false;">Planes</a></li>
     <li><a href="#blog">Blog</a></li>
     <li><a href="#resenas">Resultados</a></li>
   </ul>
@@ -1169,7 +1176,7 @@
       <div style="font-size:13px;color:#555;line-height:1.5;">
         Para visualizar tus métricas de fuerza, dirígete a <strong style="color:#8B1A1A;">Planes</strong>
       </div>
-      <a href="#planes" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#8B1A1A;padding:6px 13px;border-radius:4px;text-decoration:none;white-space:nowrap;transition:all .2s;">Ver Planes</a>
+      <a href="#" onclick="abrirPlanes();return false;" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#8B1A1A;padding:6px 13px;border-radius:4px;text-decoration:none;white-space:nowrap;transition:all .2s;">Ver Planes</a>
     </div>
 
     <!-- Datos de fuerza (cargados por el coach vía CSV) -->
@@ -1725,6 +1732,20 @@
 
 <script src="scripts.js"></script>
 <script>
+  function abrirPlanes() {
+    const o = document.getElementById('planesOverlay');
+    if (!o) return;
+    o.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    o.scrollTop = 0;
+  }
+  function cerrarPlanes() {
+    const o = document.getElementById('planesOverlay');
+    if (!o) return;
+    o.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
   function abrirLogin() { document.getElementById('loginOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
   function cerrarLogin() { document.getElementById('loginOverlay').classList.remove('active'); document.body.style.overflow=''; limpiarMensaje(); }
   function cerrarLoginOverlay(e) { if(e.target===document.getElementById('loginOverlay')) cerrarLogin(); }
