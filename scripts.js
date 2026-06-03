@@ -294,6 +294,23 @@
       const atletaData = await atletaRes.json();
       if (atletaData.id) {
         localStorage.setItem('strava_athlete_id', String(atletaData.id));
+        // Si también tiene sesión Firebase, guardar vínculo uid→stravaId en el Worker
+        // para que el coach lo detecte sin depender de comparación de nombres
+        const uid = window._auth?.currentUser?.uid;
+        if (uid) {
+          const existingProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+          const nombreStrava = ((atletaData.firstname||'') + ' ' + (atletaData.lastname||'')).trim()
+                             || localStorage.getItem('atletaNombre') || '';
+          fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              stravaId: 'uid:' + uid,
+              nombre: nombreStrava,
+              profile: { ...existingProfile, linkedStravaId: String(atletaData.id) }
+            })
+          }).catch(() => {});
+        }
         // Sincronizar rucking guardado si hay sesiones previas
         const prevSessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
         if (prevSessions.length) pushRuckingToCloud(prevSessions);
@@ -2789,11 +2806,14 @@
     const nombre = localStorage.getItem('atletaNombre')
                 || window._auth?.currentUser?.displayName
                 || '';
+    // Preservar linkedStravaId en el perfil para que el coach siempre tenga el vínculo
+    const stravaId = localStorage.getItem('strava_athlete_id');
+    const profileToSave = stravaId ? { ...profile, linkedStravaId: stravaId } : profile;
     try {
       await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId: cloudId, nombre, profile })
+        body: JSON.stringify({ stravaId: cloudId, nombre, profile: profileToSave })
       });
     } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
   }

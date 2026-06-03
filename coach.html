@@ -957,8 +957,18 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.se)     document.getElementById('rSE').value  = cp.se;
         if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
         a.rucking = { ...a.rucking, ...cp };
+
+        // ── Auto-actualización uid→stravaId ──
+        // Si el perfil tiene linkedStravaId y el coach aún usa uid:xxx,
+        // actualizar al ID numérico real para que cargue el rucking correcto
+        if (cp.linkedStravaId && String(cloudId).startsWith('uid:')) {
+          a.stravaId = cp.linkedStravaId;
+          guardarAtletas();
+          cargarRuckingCoach(cp.linkedStravaId);
+        }
+
         guardarAtletas();
-        const src = cloudId.startsWith('uid:') ? 'Firebase (sin Strava)' : 'Strava';
+        const src = String(cloudId).startsWith('uid:') ? 'Firebase' : 'Strava';
         document.getElementById('ruckProfileSub').textContent = `✓ Perfil sincronizado · ${src} · ${cp.updatedAt?.slice(0,10)||''}`;
       }
     } catch(e) { console.warn('[Coach] Perfil rucking nube error:', e); }
@@ -1868,8 +1878,20 @@ async function autoVincularStravaId(atletaObj) {
 
     if (!match) return;
 
-    // ¡Encontrado! Vincular automáticamente
-    atletaObj.stravaId = match.stravaId;
+    // ¡Encontrado! Si el match es uid:xxx, verificar si ya tiene linkedStravaId real
+    let resolvedId = match.stravaId;
+    if (String(match.stravaId).startsWith('uid:')) {
+      try {
+        const pRes  = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(match.stravaId)}&secret=${encodeURIComponent(PASS)}`);
+        const pData = await pRes.json();
+        if (pData.ok && pData.profile?.linkedStravaId) {
+          resolvedId = pData.profile.linkedStravaId;
+        }
+      } catch(e) { /* usar uid:xxx de todas formas */ }
+    }
+
+    // Vincular automáticamente con el ID correcto (numérico si posible)
+    atletaObj.stravaId = resolvedId;
     guardarAtletas();
 
     // Actualizar UI del nombre en el título
@@ -1889,7 +1911,7 @@ async function autoVincularStravaId(atletaObj) {
     // Cargar datos de rucking
     document.getElementById('ruckCoachEmpty').style.display = 'none';
     document.getElementById('ruckCoachData').style.display  = 'block';
-    cargarRuckingCoach(match.stravaId);
+    cargarRuckingCoach(resolvedId);
 
   } catch(e) { console.warn('[Coach] Auto-vinculación Strava:', e); }
 }
