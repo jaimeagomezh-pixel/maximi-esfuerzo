@@ -572,6 +572,233 @@
   }
   .planes-nota-contrato strong { color: var(--crema); }
 
+  /* Texto introductorio de cada vista */
+  .planes-intro {
+    color: var(--gris);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-width: 640px;
+    margin: 0 0 8px;
+  }
+
+  /* ── VISTA 1: tarjetas de área (imagen arriba, sin precio) ── */
+  .areas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .area-card {
+    background: var(--negro-suave);
+    border: 1px solid rgba(245,240,235,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .area-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(212,168,67,0.45);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+  }
+  .area-card-img {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+  }
+  .area-card-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(18,18,18,0.85), rgba(18,18,18,0.1));
+  }
+  .area-card-modalidad {
+    position: absolute;
+    top: 10px; left: 10px;
+    z-index: 1;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.55);
+    color: var(--crema);
+    border: 1px solid rgba(212,168,67,0.4);
+    padding: 3px 9px;
+    border-radius: 12px;
+  }
+  .area-card-body { padding: 16px 18px 20px; }
+  .area-card-nombre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    color: var(--crema);
+    letter-spacing: 0.5px;
+    line-height: 1.05;
+  }
+  .area-card-desc {
+    color: var(--gris);
+    font-size: 0.84rem;
+    line-height: 1.5;
+    margin: 8px 0 14px;
+  }
+  .area-card-cta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    font-weight: 600;
+  }
+
+  /* ── VISTA 2: bloques por género ── */
+  .genero-bloque { margin-top: 28px; }
+  .genero-hdr {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--crema);
+    font-weight: 700;
+    border-bottom: 1px solid rgba(212,168,67,0.2);
+    padding-bottom: 8px;
+  }
+  .genero-icono { color: var(--dorado); font-size: 1.2rem; margin-right: 4px; }
+  .genero-bloque .planes-grid { margin-top: 14px; }
+
+  /* ── VISTA 3: detalle del plan (tipo TrainHeroic) ── */
+  .detalle-hero {
+    height: 320px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .detalle-hero-grad {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(14,14,14,0.95) 5%, rgba(14,14,14,0.2) 60%, rgba(14,14,14,0.4));
+  }
+  .detalle-hero-txt {
+    position: absolute;
+    left: 0; bottom: 0;
+    padding: 28px;
+    z-index: 1;
+  }
+  .detalle-modalidad {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    display: block;
+    margin-bottom: 6px;
+  }
+  .detalle-titulo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.6rem;
+    color: var(--crema);
+    line-height: 1;
+    letter-spacing: 0.5px;
+    margin: 0;
+  }
+  .detalle-body {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 28px;
+    margin-top: 28px;
+  }
+  .detalle-desc {
+    color: var(--crema);
+    font-size: 1rem;
+    line-height: 1.7;
+    opacity: 0.92;
+  }
+  .detalle-incluye-t {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    font-weight: 600;
+    margin: 24px 0 12px;
+  }
+  .detalle-incluye { list-style: none; padding: 0; margin: 0; }
+  .detalle-incluye li {
+    color: var(--gris);
+    font-size: 0.92rem;
+    padding: 8px 0 8px 26px;
+    position: relative;
+    border-bottom: 1px solid rgba(245,240,235,0.06);
+  }
+  .detalle-incluye li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--dorado);
+    font-weight: 700;
+  }
+  .detalle-side {
+    background: var(--negro-suave);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 12px;
+    padding: 24px 22px;
+    align-self: start;
+    position: sticky;
+    top: 80px;
+  }
+  .detalle-precio-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gris);
+  }
+  .detalle-precio {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    color: var(--crema);
+    line-height: 1;
+    margin: 2px 0;
+  }
+  .detalle-precio-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    color: var(--gris);
+    letter-spacing: 1px;
+  }
+  .detalle-contrato {
+    margin: 16px 0;
+    padding: 12px 14px;
+    background: rgba(212,168,67,0.06);
+    border-left: 3px solid var(--dorado);
+    border-radius: 6px;
+    color: var(--gris);
+    font-size: 0.78rem;
+    line-height: 1.5;
+  }
+  .detalle-contrato strong { color: var(--crema); }
+  .detalle-comprar {
+    width: 100%;
+    text-align: center;
+    margin-top: 16px;
+    font-size: 0.95rem;
+  }
+  .detalle-garantia {
+    text-align: center;
+    color: var(--gris);
+    font-size: 0.72rem;
+    margin-top: 12px;
+  }
+
+  @media (max-width: 720px) {
+    .detalle-body { grid-template-columns: 1fr; }
+    .detalle-side { position: static; }
+    .detalle-titulo { font-size: 2rem; }
+  }
+
   .planes-grid {
     display: grid;
     grid-template-columns: 1fr;

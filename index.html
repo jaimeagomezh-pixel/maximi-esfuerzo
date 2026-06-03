@@ -438,159 +438,15 @@
 <!-- PLANES OVERLAY (pantalla completa, se abre con abrirPlanes()) -->
 <div id="planesOverlay">
   <div class="planes-overlay-hdr">
-    <button class="planes-overlay-back" onclick="cerrarPlanes()">← Volver</button>
+    <button class="planes-overlay-back" id="planesBackBtn" onclick="planesBack()">← Volver</button>
     <div class="planes-overlay-titulo">
-      <span class="section-label" style="margin:0;">Programas</span>
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--crema);">ELIGE TU PROTOCOLO</span>
+      <span class="section-label" style="margin:0;" id="planesCrumb">Programas</span>
+      <span id="planesTitulo" style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--crema);">ELIGE TU PROTOCOLO</span>
     </div>
   </div>
 
-  <div class="planes-overlay-body">
-    <!-- ═══ MODALIDAD 1 · SELF-SERVICE ═══ -->
-    <div class="planes-modalidad-hdr">
-      <span class="section-label" style="margin:0;">Modalidad · Autogestionado</span>
-      <h3>ENTRENA A TU RITMO</h3>
-      <p>Plan estructurado de 12 semanas con asistencia por IA. Empiezas cuando quieras. Disponible en las 3 orientaciones:</p>
-      <div class="planes-orientaciones">
-        <span class="plan-tag">Estética Corporal · ♀ / ♂</span>
-        <span class="plan-tag">Acond. Táctico General</span>
-        <span class="plan-tag">Potencia Táctica</span>
-      </div>
-    </div>
-
-    <div class="planes-grid" style="margin-top:16px;">
-
-      <!-- Básico -->
-      <div class="plan-card" onclick="abrirModal('Self-Service · Básico', '$14.990 CLP/mes', 'Fundamentos y principios.')">
-        <div>
-          <div class="plan-badge">Nivel 1 · Fundamentos</div>
-          <div class="plan-nombre">BÁSICO</div>
-          <div class="plan-desc">Domina los fundamentos y principios. Base estructurada para construir hábitos sólidos antes de subir de nivel.</div>
-          <div class="plan-features">
-            <span class="plan-tag">12 Semanas</span>
-            <span class="plan-tag">Asistencia IA</span>
-            <span class="plan-tag">8 o 12 sem</span>
-            <span class="plan-tag">TrainHeroic</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">$14.990</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Básico', '$14.990 CLP/mes', 'Fundamentos y principios.')">Comenzar</button>
-        </div>
-      </div>
-
-      <!-- Intermedio (destacado) -->
-      <div class="plan-card destacado" onclick="abrirModal('Self-Service · Intermedio', '$19.990 CLP/mes', 'Mayor volumen y complejidad.')">
-        <div>
-          <div class="plan-badge gold">⭐ Recomendado</div>
-          <div class="plan-nombre">INTERMEDIO</div>
-          <div class="plan-desc">Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con más carga.</div>
-          <div class="plan-features">
-            <span class="plan-tag">12 Semanas</span>
-            <span class="plan-tag">Asistencia IA</span>
-            <span class="plan-tag">Mayor volumen</span>
-            <span class="plan-tag">TrainHeroic</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">$19.990</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Intermedio', '$19.990 CLP/mes', 'Mayor volumen y complejidad.')">Comenzar</button>
-        </div>
-      </div>
-
-      <!-- Avanzado -->
-      <div class="plan-card" onclick="abrirModal('Self-Service · Avanzado', '$24.990 CLP/mes', 'Máxima exigencia.')">
-        <div>
-          <div class="plan-badge">Nivel 3 · Alto rendimiento</div>
-          <div class="plan-nombre">AVANZADO</div>
-          <div class="plan-desc">Máxima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.</div>
-          <div class="plan-features">
-            <span class="plan-tag">12 Semanas</span>
-            <span class="plan-tag">Asistencia IA</span>
-            <span class="plan-tag">Alta intensidad</span>
-            <span class="plan-tag">TrainHeroic</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">$24.990</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Avanzado', '$24.990 CLP/mes', 'Máxima exigencia.')">Comenzar</button>
-        </div>
-      </div>
-
-    </div>
-
-    <div class="planes-nota-contrato">
-      Contrata <strong>8 semanas</strong> (entrada) o el <strong>plan completo de 12 semanas con 15% de descuento</strong>. Avanzas de nivel cuando tus datos demuestran que dominaste el anterior — la medición te guía, no te obliga.
-    </div>
-
-    <!-- ═══ MODALIDAD 2 · GRUPAL ═══ -->
-    <div class="planes-modalidad-hdr">
-      <span class="section-label" style="margin:0;">Modalidad · Grupal por cohorte</span>
-      <h3>ATLETA TÁCTICO</h3>
-      <p>Programa grupal con fecha de inicio y término. Entrenas en grupo, con un objetivo claro de principio a fin.</p>
-    </div>
-
-    <div class="planes-grid" style="margin-top:16px;">
-      <div class="plan-card" onclick="abrirModal('Grupal · Atleta Táctico', '$29.990 CLP/mes', 'Cohorte de acondicionamiento táctico.')">
-        <div>
-          <div class="plan-badge">Cohorte · Cupos por fecha</div>
-          <div class="plan-nombre">ATLETA TÁCTICO</div>
-          <div class="plan-desc">Acondicionamiento táctico general con acompañamiento grupal. Las cargas se individualizan dentro de TrainHeroic según tu nivel.</div>
-          <div class="plan-features">
-            <span class="plan-tag">8–12 Semanas</span>
-            <span class="plan-tag">Inicio por cohorte</span>
-            <span class="plan-tag">Acompañamiento grupal</span>
-            <span class="plan-tag">Cargas individualizadas</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">$29.990</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Grupal · Atleta Táctico', '$29.990 CLP/mes', 'Cohorte de acondicionamiento táctico.')">Unirme a la cohorte</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══ MODALIDAD 3 · PERSONALIZADO ═══ -->
-    <div class="planes-modalidad-hdr">
-      <span class="section-label" style="margin:0;">Modalidad · 1 a 1</span>
-      <h3>PERSONALIZADO</h3>
-      <p>Plan construido desde cero para ti. La opción premium, con cupos limitados.</p>
-    </div>
-
-    <div class="planes-grid" style="margin-top:16px;">
-      <div class="plan-card destacado" onclick="abrirModal('Personalizado', '$36.990 CLP/mes', 'Plan a medida con seguimiento en vivo.')">
-        <div>
-          <div class="plan-badge gold">Premium · Cupos limitados</div>
-          <div class="plan-nombre">PERSONALIZADO</div>
-          <div class="plan-desc">Plan diseñado desde cero según tu orientación y objetivos. Seguimiento cercano, contacto constante y videollamadas en vivo.</div>
-          <div class="plan-features">
-            <span class="plan-tag">Cualquier orientación</span>
-            <span class="plan-tag">Videollamadas en vivo</span>
-            <span class="plan-tag">Plan a medida</span>
-            <span class="plan-tag">Contacto directo</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">$36.990</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Personalizado', '$36.990 CLP/mes', 'Plan a medida con seguimiento en vivo.')">Postular a un cupo</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="planes-nota">
-      ➕ <strong>Suma nutrición</strong> a cualquier plan, atendida por nuestro nutricionista. &nbsp;·&nbsp; ⚡ Tras el pago recibes tu código de acceso a TrainHeroic por correo.
-    </div>
-  </div>
+  <!-- Contenido dinámico: se rellena por JS (renderPlanesVista) -->
+  <div class="planes-overlay-body" id="planesContent"></div>
 </div>
 
 <!-- BLOG -->
@@ -1798,18 +1654,250 @@
 
 <script src="scripts.js"></script>
 <script>
+  // ═══════════════════════════════════════════════════════════
+  //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
+  // ═══════════════════════════════════════════════════════════
+
+  const PLANES_NIVELES = [
+    { id:'basico', nombre:'Básico', precio:'$14.990', etiqueta:'Nivel 1 · Fundamentos', destacado:false,
+      desc:'Domina los fundamentos y principios. Base estructurada para construir hábitos sólidos antes de subir de nivel.',
+      detalle:'Este nivel construye tu base: técnica correcta, principios de entrenamiento y hábitos sostenibles. Ideal si recién comienzas o vuelves después de una pausa. Avanzas al siguiente nivel cuando tus datos demuestran que dominaste los fundamentos.',
+      incluye:['Programación de 12 semanas','Videos técnicos de cada movimiento','Progresión guiada por datos','Asistencia por chat'] },
+    { id:'intermedio', nombre:'Intermedio', precio:'$19.990', etiqueta:'Nivel 2 · Progresión', destacado:true,
+      desc:'Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con más carga.',
+      detalle:'Subes la exigencia: más volumen, ejercicios más complejos y periodización estructurada. Para quien ya domina los fundamentos del nivel básico y busca seguir progresando.',
+      incluye:['Programación de 12 semanas','Mayor volumen e intensidad','Periodización estructurada','Asistencia por chat'] },
+    { id:'avanzado', nombre:'Avanzado', precio:'$24.990', etiqueta:'Nivel 3 · Alto rendimiento', destacado:false,
+      desc:'Máxima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.',
+      detalle:'Máxima exigencia para atletas con base consolidada. Alta intensidad, técnicas avanzadas y periodización de rendimiento para llevar tu nivel al límite.',
+      incluye:['Programación de 12 semanas','Alta intensidad','Técnicas avanzadas','Asistencia por chat'] },
+  ];
+
+  const PLANES_AREAS = [
+    { id:'estetica', nombre:'Estética Corporal', modalidad:'Autogestionado', tipo:'orientacion',
+      img:'Imagenes/Planes/estetica-mujer.jpg',
+      desc:'Composición corporal, hipertrofia y estética. Construye el físico que buscas con un plan estructurado.',
+      generos:[ { id:'mujer',  nombre:'Mujer',  icono:'♀', img:'Imagenes/Planes/estetica-mujer.jpg' },
+                { id:'hombre', nombre:'Hombre', icono:'♂', img:'Imagenes/Planes/estetica-hombre.jpg' } ] },
+    { id:'acond', nombre:'Acondicionamiento Táctico', modalidad:'Autogestionado', tipo:'orientacion',
+      img:'Imagenes/Planes/tactico-general.jpg', generos:null,
+      desc:'Acondicionamiento físico general con enfoque táctico. Fuerza, resistencia y capacidad de trabajo.' },
+    { id:'potencia', nombre:'Potencia Táctica', modalidad:'Autogestionado', tipo:'orientacion',
+      img:'Imagenes/Planes/marines_e9ddc1bf3f5a4d1abf675303f54a6e3f.jpg', generos:null,
+      desc:'Pliometría y marcha con carga (rucking). Potencia explosiva y rendimiento. No apto para principiantes absolutos.' },
+    { id:'grupal', nombre:'Atleta Táctico', modalidad:'Grupal', tipo:'plan-unico', precio:'$29.990',
+      img:'Imagenes/Planes/marines_b260e29ceb0648088834b32d0aa7a46a.jpg',
+      desc:'Grupo continuo de acondicionamiento táctico. Te sumas y entras a la fase en curso.',
+      detalle:'Grupo continuo: te sumas cuando quieras y entras a la fase en la que va el grupo. Siempre tienes una sesión lista para ejecutar —todos o ciertos días de la semana— con el fin de mejorar tu forma general, tengas o no un objetivo definido. Las cargas se individualizan dentro de TrainHeroic según tu nivel.',
+      incluye:['Entrena en grupo','Sesiones continuas, sin fin fijo','Te sumas a la fase en curso','Cargas individualizadas','Fecha de inicio para nuevos grupos'] },
+    { id:'personalizado', nombre:'Personalizado', modalidad:'1 a 1', tipo:'plan-unico', precio:'$36.990',
+      img:'Imagenes/Planes/marines_9a1e03667a9a4cac84e4709185270e5a.jpg',
+      desc:'Plan diseñado desde cero según tu orientación y objetivos.',
+      detalle:'Plan construido desde cero para ti, según tu orientación y objetivos. Incluye seguimiento cercano, contacto constante y videollamadas en vivo. La opción premium, con cupos limitados.',
+      incluye:['Cualquier orientación','Videollamadas en vivo','Plan a medida','Contacto directo','Cupos limitados'] },
+  ];
+
+  let planesVista = { tipo:'areas' };
+
   function abrirPlanes() {
     const o = document.getElementById('planesOverlay');
     if (!o) return;
     o.classList.add('active');
     document.body.style.overflow = 'hidden';
-    o.scrollTop = 0;
+    planesVista = { tipo:'areas' };
+    renderPlanes();
   }
   function cerrarPlanes() {
     const o = document.getElementById('planesOverlay');
     if (!o) return;
     o.classList.remove('active');
     document.body.style.overflow = '';
+  }
+  function planesBack() {
+    const v = planesVista;
+    if (v.tipo === 'areas') { cerrarPlanes(); return; }
+    planesVista = v.parent || { tipo:'areas' };
+    renderPlanes();
+  }
+
+  // ── Navegación ──
+  function verArea(areaId) {
+    const a = PLANES_AREAS.find(x => x.id === areaId);
+    if (!a) return;
+    if (a.tipo === 'plan-unico') {
+      planesVista = { tipo:'detalle', plan:'unico', areaId, parent:{ tipo:'areas' } };
+    } else {
+      planesVista = { tipo:'orientacion', areaId, parent:{ tipo:'areas' } };
+    }
+    renderPlanes();
+  }
+  function verNivel(areaId, genero, nivelId) {
+    planesVista = { tipo:'detalle', plan:'nivel', areaId, genero, nivelId,
+                    parent:{ tipo:'orientacion', areaId, parent:{ tipo:'areas' } } };
+    renderPlanes();
+  }
+
+  // ── Render dispatcher ──
+  function renderPlanes() {
+    const c = document.getElementById('planesContent');
+    const back = document.getElementById('planesBackBtn');
+    const crumb = document.getElementById('planesCrumb');
+    const titulo = document.getElementById('planesTitulo');
+    const o = document.getElementById('planesOverlay');
+    const v = planesVista;
+    if (!c) return;
+
+    if (v.tipo === 'areas') {
+      crumb.textContent = 'Programas';
+      titulo.textContent = 'ELIGE TU PROTOCOLO';
+      back.innerHTML = '✕ Cerrar';
+      c.innerHTML = renderAreasHTML();
+    } else if (v.tipo === 'orientacion') {
+      const a = PLANES_AREAS.find(x => x.id === v.areaId);
+      crumb.textContent = 'Programas · ' + a.modalidad;
+      titulo.textContent = a.nombre.toUpperCase();
+      back.innerHTML = '← Volver';
+      c.innerHTML = renderOrientacionHTML(a);
+    } else if (v.tipo === 'detalle') {
+      crumb.textContent = 'Detalle del plan';
+      titulo.textContent = 'TU PLAN';
+      back.innerHTML = '← Volver';
+      c.innerHTML = renderDetalleHTML();
+    }
+    aplicarSpotlight(c);
+    if (o) o.scrollTop = 0;
+  }
+
+  // ── Vista 1: áreas (sin precios) ──
+  function renderAreasHTML() {
+    return `
+      <p class="planes-intro">Elige tu camino. Cada área tiene su enfoque — entra para ver los planes y niveles.</p>
+      <div class="areas-grid">
+        ${PLANES_AREAS.map(a => `
+          <div class="area-card" onclick="verArea('${a.id}')">
+            <div class="area-card-img" style="background-image:url('${a.img}')">
+              <span class="area-card-modalidad">${a.modalidad}</span>
+            </div>
+            <div class="area-card-body">
+              <div class="area-card-nombre">${a.nombre}</div>
+              <div class="area-card-desc">${a.desc}</div>
+              <span class="area-card-cta">${a.tipo === 'plan-unico' ? 'Ver plan' : 'Ver planes'} →</span>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="planes-nota">➕ <strong>Suma nutrición</strong> a cualquier plan, atendida por nuestro nutricionista (servicio aparte).</div>
+    `;
+  }
+
+  // ── Vista 2: orientación → niveles (con precio) ──
+  function renderOrientacionHTML(a) {
+    const intro = `<p class="planes-intro">${a.desc}</p>`;
+    let cuerpo;
+    if (a.generos) {
+      cuerpo = a.generos.map(g => `
+        <div class="genero-bloque">
+          <div class="genero-hdr"><span class="genero-icono">${g.icono}</span> ${g.nombre}</div>
+          <div class="planes-grid">
+            ${PLANES_NIVELES.map(n => nivelCardHTML(a.id, g.id, n)).join('')}
+          </div>
+        </div>`).join('');
+    } else {
+      cuerpo = `<div class="planes-grid" style="margin-top:16px;">
+        ${PLANES_NIVELES.map(n => nivelCardHTML(a.id, null, n)).join('')}
+      </div>`;
+    }
+    return intro + cuerpo + notaContratoHTML();
+  }
+
+  function nivelCardHTML(areaId, genero, n) {
+    const g = genero ? `,'${genero}'` : ',null';
+    return `
+      <div class="plan-card ${n.destacado ? 'destacado' : ''}" onclick="verNivel('${areaId}'${g},'${n.id}')">
+        <div>
+          <div class="plan-badge ${n.destacado ? 'gold' : ''}">${n.etiqueta}</div>
+          <div class="plan-nombre">${n.nombre}</div>
+          <div class="plan-desc">${n.desc}</div>
+          <div class="plan-features">
+            <span class="plan-tag">12 Semanas</span>
+            <span class="plan-tag">8 o 12 sem</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">${n.precio}</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); verNivel('${areaId}'${g},'${n.id}')">Ver plan</button>
+        </div>
+      </div>`;
+  }
+
+  function notaContratoHTML() {
+    return `<div class="planes-nota-contrato">
+      Contrata <strong>8 semanas</strong> (entrada) o el <strong>plan completo de 12 semanas con 15% de descuento</strong>. Avanzas de nivel cuando tus datos demuestran que dominaste el anterior — la medición te guía, no te obliga.
+    </div>`;
+  }
+
+  // ── Vista 3: detalle del plan (tipo TrainHeroic) ──
+  function renderDetalleHTML() {
+    const v = planesVista;
+    let titulo, modalidad, img, detalle, incluye, precio, nombrePago, cta, esNivel;
+    if (v.plan === 'unico') {
+      const a = PLANES_AREAS.find(x => x.id === v.areaId);
+      titulo = a.nombre; modalidad = a.modalidad; img = a.img;
+      detalle = a.detalle; incluye = a.incluye; precio = a.precio;
+      nombrePago = a.nombre;
+      cta = a.id === 'personalizado' ? 'Postular a un cupo' : 'Sumarme al grupo';
+      esNivel = false;
+    } else {
+      const a = PLANES_AREAS.find(x => x.id === v.areaId);
+      const n = PLANES_NIVELES.find(x => x.id === v.nivelId);
+      const gen = v.genero ? a.generos.find(x => x.id === v.genero) : null;
+      titulo = a.nombre + ' · ' + n.nombre;
+      modalidad = a.modalidad + (gen ? ' · ' + gen.nombre : '');
+      img = gen ? gen.img : a.img;
+      detalle = n.detalle; incluye = n.incluye; precio = n.precio;
+      nombrePago = a.nombre + (gen ? ' ' + gen.nombre : '') + ' · ' + n.nombre;
+      cta = 'Comenzar';
+      esNivel = true;
+    }
+    return `
+      <div class="detalle-hero" style="background-image:url('${img}')">
+        <div class="detalle-hero-grad"></div>
+        <div class="detalle-hero-txt">
+          <span class="detalle-modalidad">${modalidad}</span>
+          <h2 class="detalle-titulo">${titulo}</h2>
+        </div>
+      </div>
+      <div class="detalle-body">
+        <div class="detalle-main">
+          <p class="detalle-desc">${detalle}</p>
+          <div class="detalle-incluye-t">Qué incluye</div>
+          <ul class="detalle-incluye">
+            ${incluye.map(i => `<li>${i}</li>`).join('')}
+          </ul>
+        </div>
+        <div class="detalle-side">
+          <div class="detalle-precio-label">Desde</div>
+          <div class="detalle-precio">${precio}</div>
+          <div class="detalle-precio-sub">CLP / mes</div>
+          ${esNivel ? `<div class="detalle-contrato">Contrata 8 semanas o el plan completo de 12 semanas con <strong>15% de descuento</strong>.</div>` : ''}
+          <button class="btn-primary detalle-comprar" onclick="abrirModal('${nombrePago}', '${precio} CLP/mes', '')">${cta}</button>
+          <div class="detalle-garantia">🔒 Pago seguro · Código TrainHeroic por correo</div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Reaplica el efecto spotlight a las tarjetas dinámicas ──
+  function aplicarSpotlight(scope) {
+    if (!matchMedia('(pointer: fine)').matches) return;
+    scope.querySelectorAll('.plan-card, .area-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--mouse-x', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
+        card.style.setProperty('--mouse-y', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
+      });
+    });
   }
 
   function abrirLogin() { document.getElementById('loginOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
