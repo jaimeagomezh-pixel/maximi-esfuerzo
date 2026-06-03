@@ -1543,104 +1543,128 @@
       </button>
       <div class="me-accord-body">
 
-      <!-- Video salto -->
-      <div style="margin-bottom:16px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">
-          Video salto
-        </div>
+      <!-- Video salto — TARJETA -->
+      <div style="margin:0 16px 12px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
+        <div style="padding:14px 14px 10px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">Video Salto</div>
 
-        <!-- Selector FPS -->
-        <div style="margin-bottom:10px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Velocidad de cámara</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;" id="fpsBtns">
-            <button class="fps-btn" onclick="selFPS(60,this)" data-fps="60"
-              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
-                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);
-                     background:#f5f5f5;color:#888;cursor:pointer;transition:all .2s;">
-              60 fps
-            </button>
-            <button class="fps-btn fps-rec active-fps" onclick="selFPS(120,this)" data-fps="120"
-              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
-                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,200,212,0.4);
-                     background:rgba(0,200,212,0.08);color:#C9A84C;cursor:pointer;transition:all .2s;">
-              120 fps ★
-            </button>
-            <button class="fps-btn fps-rec" onclick="selFPS(240,this)" data-fps="240"
-              style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;
-                     padding:7px 12px;border-radius:5px;border:1px solid rgba(0,0,0,0.15);
-                     background:#f5f5f5;color:#888;cursor:pointer;transition:all .2s;">
-              240 fps ★
-            </button>
+          <!-- Selector FPS -->
+          <div style="margin-bottom:12px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Velocidad de cámara</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="fpsBtns">
+              <button class="fps-btn" onclick="selFPS(60,this)" data-fps="60"
+                style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+                       padding:8px 18px;border-radius:22px;border:1.5px solid rgba(0,122,133,0.2);
+                       background:rgba(0,122,133,0.06);color:#007a85;cursor:pointer;transition:all .2s;text-transform:uppercase;">
+                60 fps
+              </button>
+              <button class="fps-btn fps-rec active-fps" onclick="selFPS(120,this)" data-fps="120"
+                style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+                       padding:8px 18px;border-radius:22px;border:1.5px solid rgba(0,168,179,0.65);
+                       background:linear-gradient(135deg,rgba(0,168,179,0.25),rgba(0,200,212,0.18));
+                       color:#005f6b;cursor:pointer;transition:all .2s;text-transform:uppercase;
+                       box-shadow:0 0 14px rgba(0,168,179,0.22);">
+                120 fps ★
+              </button>
+              <button class="fps-btn fps-rec" onclick="selFPS(240,this)" data-fps="240"
+                style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+                       padding:8px 18px;border-radius:22px;border:1.5px solid rgba(0,122,133,0.2);
+                       background:rgba(0,122,133,0.06);color:#007a85;cursor:pointer;transition:all .2s;text-transform:uppercase;">
+                240 fps ★
+              </button>
+            </div>
+            <div style="font-size:12px;color:#888;margin-top:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">★ Recomendado para mayor precisión</div>
           </div>
-          <div style="font-size:10px;color:#bbb;margin-top:4px;">★ Recomendado para mayor precisión</div>
-        </div>
 
-        <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
-        <button onclick="document.getElementById('myJumpVideo').click()"
-          style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-                 gap:8px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;
-                 border:none;border-radius:12px;padding:18px 14px;cursor:pointer;
-                 box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:all .2s;">
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="23 7 16 12 23 17 23 7"/>
-            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
-          </svg>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Subir Video Salto</div>
-        </button>
-
-        <!-- Barra progreso -->
-        <div id="videoProgressWrap" style="display:none;margin-top:10px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-            <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:#888;text-transform:uppercase;">Subiendo a Drive…</span>
-            <span id="videoPct" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#8B1A1A;">0%</span>
-          </div>
-          <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;">
-            <div id="videoBar" style="height:4px;background:#8B1A1A;border-radius:2px;width:0%;transition:width .3s;"></div>
-          </div>
-        </div>
-        <div id="videoStatus" style="font-size:11px;color:#C9A84C;margin-top:6px;"></div>
-      </div>
-
-      <!-- Test de velocidad -->
-      <div style="border-top:1px solid rgba(0,0,0,0.06);padding-top:16px;margin-top:4px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">Test de velocidad</div>
-        <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <button onclick="selTestVel(50,this)" data-dist="50"
-            style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;padding:7px 14px;border-radius:4px;border:1px solid rgba(201,168,76,0.4);background:rgba(201,168,76,0.08);color:#C9A84C;cursor:pointer;">
-            50 m
+          <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
+          <button onclick="document.getElementById('myJumpVideo').click()"
+            style="width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+                   gap:8px;background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;
+                   border:none;border-radius:12px;padding:18px 14px;cursor:pointer;
+                   box-shadow:0 4px 16px rgba(0,0,0,0.25);transition:all .2s;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">Subir Video Salto</div>
           </button>
-          <button onclick="selTestVel(100,this)" data-dist="100"
-            style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;padding:7px 14px;border-radius:4px;border:1px solid rgba(0,0,0,0.12);background:#f5f5f5;color:#888;cursor:pointer;">
-            100 m
-          </button>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div>
-            <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Tiempo (seg)</label>
-            <input type="number" id="velTiempo" step="0.01" placeholder="ej. 6.85"
-              style="width:100%;padding:8px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;box-sizing:border-box;">
+
+          <!-- Barra progreso -->
+          <div id="videoProgressWrap" style="display:none;margin-top:10px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:#666;text-transform:uppercase;">Subiendo a Drive…</span>
+              <span id="videoPct" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#8B1A1A;">0%</span>
+            </div>
+            <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;">
+              <div id="videoBar" style="height:4px;background:#8B1A1A;border-radius:2px;width:0%;transition:width .3s;"></div>
+            </div>
           </div>
-          <div>
-            <label style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#aaa;text-transform:uppercase;">Peso corporal (kg)</label>
-            <input type="number" id="velPeso" step="0.1" placeholder="ej. 75"
-              style="width:100%;padding:8px;border:1px solid rgba(0,0,0,0.12);border-radius:4px;font-size:14px;box-sizing:border-box;">
-          </div>
-        </div>
-        <button onclick="calcularPotencia()"
-          style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:11px;border:none;border-radius:4px;cursor:pointer;">
-          Calcular Potencia
-        </button>
-        <div id="potenciaResultado" style="display:none;margin-top:12px;background:#f8f8f8;border-left:3px solid #C9A84C;padding:12px 14px;border-radius:4px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:6px;">Resultado</div>
-          <div style="display:flex;gap:20px;">
-            <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#C9A84C;" id="velResultado">—</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#888;">km/h</div></div>
-            <div><div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8B1A1A;" id="potResultado">—</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;color:#888;">Watts/kg</div></div>
-          </div>
+          <div id="videoStatus" style="font-size:12px;color:#C9A84C;margin-top:6px;font-family:'Barlow Condensed',sans-serif;"></div>
         </div>
       </div>
 
-      </div><!-- /body potencia -->
-    </div><!-- /accord potencia -->
+      <!-- Test de velocidad — TARJETA -->
+      <div style="margin:0 16px 16px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
+        <div style="padding:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">Test de Velocidad</div>
+
+          <!-- Botones 50m / 100m -->
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button onclick="selTestVel(50,this)" data-dist="50"
+              style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+                     padding:8px 22px;border-radius:22px;border:1.5px solid rgba(0,168,179,0.65);
+                     background:linear-gradient(135deg,rgba(0,168,179,0.25),rgba(0,200,212,0.18));
+                     color:#005f6b;cursor:pointer;transition:all .2s;text-transform:uppercase;
+                     box-shadow:0 0 14px rgba(0,168,179,0.22);">
+              50 m
+            </button>
+            <button onclick="selTestVel(100,this)" data-dist="100"
+              style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
+                     padding:8px 22px;border-radius:22px;border:1.5px solid rgba(0,122,133,0.2);
+                     background:rgba(0,122,133,0.06);color:#007a85;cursor:pointer;transition:all .2s;text-transform:uppercase;">
+              100 m
+            </button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Tiempo (seg)</label>
+              <input type="number" id="velTiempo" step="0.01" placeholder="ej. 6.85"
+                style="width:100%;padding:9px;border:1.5px solid rgba(0,122,133,0.2);border-radius:8px;font-size:14px;box-sizing:border-box;margin-top:4px;outline:none;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Peso corporal (kg)</label>
+              <input type="number" id="velPeso" step="0.1" placeholder="ej. 75"
+                style="width:100%;padding:9px;border:1.5px solid rgba(0,122,133,0.2);border-radius:8px;font-size:14px;box-sizing:border-box;margin-top:4px;outline:none;">
+            </div>
+          </div>
+
+          <button onclick="calcularPotencia()"
+            style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;
+                   font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;
+                   padding:13px;border:none;border-radius:8px;cursor:pointer;
+                   box-shadow:0 4px 12px rgba(139,26,26,0.25);transition:all .2s;">
+            Calcular Potencia
+          </button>
+
+          <div id="potenciaResultado" style="display:none;margin-top:12px;background:rgba(0,122,133,0.05);border-left:3px solid #007a85;padding:14px;border-radius:8px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Resultado</div>
+            <div style="display:flex;gap:24px;">
+              <div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#007a85;line-height:1;" id="velResultado">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#888;font-weight:600;">km/h</div>
+              </div>
+              <div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#8B1A1A;line-height:1;" id="potResultado">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#888;font-weight:600;">Watts/kg</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      </div><!-- /accord potencia -->
 
     <!-- NUTRICIÓN -->
     <div class="dash-section-title" style="margin-top:4px;">Nutrición</div>
