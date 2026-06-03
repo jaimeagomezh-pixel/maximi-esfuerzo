@@ -538,6 +538,40 @@
     padding: 40px 28px 60px;
   }
 
+  /* Encabezados por modalidad dentro del overlay */
+  .planes-modalidad-hdr { margin: 44px 0 0; }
+  .planes-modalidad-hdr:first-child { margin-top: 0; }
+  .planes-modalidad-hdr h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem;
+    color: var(--crema);
+    letter-spacing: 1px;
+    margin: 6px 0 6px;
+  }
+  .planes-modalidad-hdr p {
+    color: var(--gris);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    max-width: 640px;
+  }
+  .planes-orientaciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .planes-nota-contrato {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    background: rgba(212,168,67,0.06);
+    border-left: 3px solid var(--dorado);
+    border-radius: 6px;
+    color: var(--gris);
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .planes-nota-contrato strong { color: var(--crema); }
+
   .planes-grid {
     display: grid;
     grid-template-columns: 1fr;

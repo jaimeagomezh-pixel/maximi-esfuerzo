@@ -446,73 +446,149 @@
   </div>
 
   <div class="planes-overlay-body">
-    <div class="planes-grid">
-
-      <div class="plan-card" onclick="abrirModal('FOUNDATION', '$29.990 CLP', 'Ideal para iniciar. 8 semanas de base estructurada con progresión lineal.')">
-        <div>
-          <div class="plan-badge">Acceso Inmediato</div>
-          <div class="plan-nombre">FOUNDATION</div>
-          <div class="plan-desc">8 semanas de estructura base. Progresión lineal, técnica de fundamentos y construcción de hábitos de entrenamiento sostenibles.</div>
-          <div class="plan-features">
-            <span class="plan-tag">8 Semanas</span>
-            <span class="plan-tag">3–4 días/sem</span>
-            <span class="plan-tag">Fuerza + Cardio</span>
-            <span class="plan-tag">TrainHeroic</span>
-          </div>
-        </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">Precio único</div>
-          <div class="plan-precio">$29K</div>
-          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('FOUNDATION', '$29.990 CLP', 'Base estructurada de 8 semanas.')">Adquirir</button>
-        </div>
+    <!-- ═══ MODALIDAD 1 · SELF-SERVICE ═══ -->
+    <div class="planes-modalidad-hdr">
+      <span class="section-label" style="margin:0;">Modalidad · Autogestionado</span>
+      <h3>ENTRENA A TU RITMO</h3>
+      <p>Plan estructurado de 12 semanas con asistencia por IA. Empiezas cuando quieras. Disponible en las 3 orientaciones:</p>
+      <div class="planes-orientaciones">
+        <span class="plan-tag">Estética Corporal · ♀ / ♂</span>
+        <span class="plan-tag">Acond. Táctico General</span>
+        <span class="plan-tag">Potencia Táctica</span>
       </div>
+    </div>
 
-      <div class="plan-card destacado" onclick="abrirModal('OPERATOR', '$59.990 CLP', 'El más completo. Metodología de operaciones especiales aplicada al fitness.')">
+    <div class="planes-grid" style="margin-top:16px;">
+
+      <!-- Básico -->
+      <div class="plan-card" onclick="abrirModal('Self-Service · Básico', '$14.990 CLP/mes', 'Fundamentos y principios.')">
         <div>
-          <div class="plan-badge gold">⭐ Más Popular</div>
-          <div class="plan-nombre">OPERATOR</div>
-          <div class="plan-desc">12 semanas de entrenamiento de alto rendimiento con periodización ondulatoria, trabajo de potencia y protocolo de recuperación integrado.</div>
+          <div class="plan-badge">Nivel 1 · Fundamentos</div>
+          <div class="plan-nombre">BÁSICO</div>
+          <div class="plan-desc">Domina los fundamentos y principios. Base estructurada para construir hábitos sólidos antes de subir de nivel.</div>
           <div class="plan-features">
             <span class="plan-tag">12 Semanas</span>
-            <span class="plan-tag">5 días/sem</span>
-            <span class="plan-tag">Fuerza • Potencia • Cond.</span>
+            <span class="plan-tag">Asistencia IA</span>
+            <span class="plan-tag">8 o 12 sem</span>
             <span class="plan-tag">TrainHeroic</span>
-            <span class="plan-tag">Soporte directo</span>
           </div>
         </div>
         <div class="plan-precio-col">
-          <div class="plan-precio-label">Precio único</div>
-          <div class="plan-precio">$59K</div>
-          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('OPERATOR', '$59.990 CLP', 'El más completo.')">Adquirir</button>
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">$14.990</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Básico', '$14.990 CLP/mes', 'Fundamentos y principios.')">Comenzar</button>
         </div>
       </div>
 
-      <div class="plan-card" onclick="abrirModal('ELITE PROTOCOL', '$89.990 CLP', 'Acceso total + seguimiento personalizado mensual.')">
+      <!-- Intermedio (destacado) -->
+      <div class="plan-card destacado" onclick="abrirModal('Self-Service · Intermedio', '$19.990 CLP/mes', 'Mayor volumen y complejidad.')">
         <div>
-          <div class="plan-badge">Premium</div>
-          <div class="plan-nombre">ELITE PROTOCOL</div>
-          <div class="plan-desc">Acceso a todos los planes + seguimiento mensual personalizado, análisis de métricas y ajuste de cargas en base a tus datos de Strava y TrainHeroic.</div>
+          <div class="plan-badge gold">⭐ Recomendado</div>
+          <div class="plan-nombre">INTERMEDIO</div>
+          <div class="plan-desc">Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con más carga.</div>
           <div class="plan-features">
-            <span class="plan-tag">Planes Completos</span>
-            <span class="plan-tag">Seguimiento Mensual</span>
-            <span class="plan-tag">Análisis de Datos</span>
-            <span class="plan-tag">Acceso Prioritario</span>
+            <span class="plan-tag">12 Semanas</span>
+            <span class="plan-tag">Asistencia IA</span>
+            <span class="plan-tag">Mayor volumen</span>
+            <span class="plan-tag">TrainHeroic</span>
           </div>
         </div>
         <div class="plan-precio-col">
-          <div class="plan-precio-label">/ mes</div>
-          <div class="plan-precio">$89K</div>
-          <div class="plan-precio-label" style="margin-top:2px">CLP</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('ELITE PROTOCOL', '$89.990 CLP/mes', 'Acceso total + seguimiento.')">Suscribirse</button>
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">$19.990</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Intermedio', '$19.990 CLP/mes', 'Mayor volumen y complejidad.')">Comenzar</button>
+        </div>
+      </div>
+
+      <!-- Avanzado -->
+      <div class="plan-card" onclick="abrirModal('Self-Service · Avanzado', '$24.990 CLP/mes', 'Máxima exigencia.')">
+        <div>
+          <div class="plan-badge">Nivel 3 · Alto rendimiento</div>
+          <div class="plan-nombre">AVANZADO</div>
+          <div class="plan-desc">Máxima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.</div>
+          <div class="plan-features">
+            <span class="plan-tag">12 Semanas</span>
+            <span class="plan-tag">Asistencia IA</span>
+            <span class="plan-tag">Alta intensidad</span>
+            <span class="plan-tag">TrainHeroic</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">$24.990</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Self-Service · Avanzado', '$24.990 CLP/mes', 'Máxima exigencia.')">Comenzar</button>
         </div>
       </div>
 
     </div>
 
+    <div class="planes-nota-contrato">
+      Contrata <strong>8 semanas</strong> (entrada) o el <strong>plan completo de 12 semanas con 15% de descuento</strong>. Avanzas de nivel cuando tus datos demuestran que dominaste el anterior — la medición te guía, no te obliga.
+    </div>
+
+    <!-- ═══ MODALIDAD 2 · GRUPAL ═══ -->
+    <div class="planes-modalidad-hdr">
+      <span class="section-label" style="margin:0;">Modalidad · Grupal por cohorte</span>
+      <h3>ATLETA TÁCTICO</h3>
+      <p>Programa grupal con fecha de inicio y término. Entrenas en grupo, con un objetivo claro de principio a fin.</p>
+    </div>
+
+    <div class="planes-grid" style="margin-top:16px;">
+      <div class="plan-card" onclick="abrirModal('Grupal · Atleta Táctico', '$29.990 CLP/mes', 'Cohorte de acondicionamiento táctico.')">
+        <div>
+          <div class="plan-badge">Cohorte · Cupos por fecha</div>
+          <div class="plan-nombre">ATLETA TÁCTICO</div>
+          <div class="plan-desc">Acondicionamiento táctico general con acompañamiento grupal. Las cargas se individualizan dentro de TrainHeroic según tu nivel.</div>
+          <div class="plan-features">
+            <span class="plan-tag">8–12 Semanas</span>
+            <span class="plan-tag">Inicio por cohorte</span>
+            <span class="plan-tag">Acompañamiento grupal</span>
+            <span class="plan-tag">Cargas individualizadas</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">$29.990</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Grupal · Atleta Táctico', '$29.990 CLP/mes', 'Cohorte de acondicionamiento táctico.')">Unirme a la cohorte</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MODALIDAD 3 · PERSONALIZADO ═══ -->
+    <div class="planes-modalidad-hdr">
+      <span class="section-label" style="margin:0;">Modalidad · 1 a 1</span>
+      <h3>PERSONALIZADO</h3>
+      <p>Plan construido desde cero para ti. La opción premium, con cupos limitados.</p>
+    </div>
+
+    <div class="planes-grid" style="margin-top:16px;">
+      <div class="plan-card destacado" onclick="abrirModal('Personalizado', '$36.990 CLP/mes', 'Plan a medida con seguimiento en vivo.')">
+        <div>
+          <div class="plan-badge gold">Premium · Cupos limitados</div>
+          <div class="plan-nombre">PERSONALIZADO</div>
+          <div class="plan-desc">Plan diseñado desde cero según tu orientación y objetivos. Seguimiento cercano, contacto constante y videollamadas en vivo.</div>
+          <div class="plan-features">
+            <span class="plan-tag">Cualquier orientación</span>
+            <span class="plan-tag">Videollamadas en vivo</span>
+            <span class="plan-tag">Plan a medida</span>
+            <span class="plan-tag">Contacto directo</span>
+          </div>
+        </div>
+        <div class="plan-precio-col">
+          <div class="plan-precio-label">desde</div>
+          <div class="plan-precio">$36.990</div>
+          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
+          <button class="btn-plan" onclick="event.stopPropagation(); abrirModal('Personalizado', '$36.990 CLP/mes', 'Plan a medida con seguimiento en vivo.')">Postular a un cupo</button>
+        </div>
+      </div>
+    </div>
+
     <div class="planes-nota">
-      ⚡ Después del pago recibirás automáticamente tu código de acceso a TrainHeroic por correo electrónico.
+      ➕ <strong>Suma nutrición</strong> a cualquier plan, atendida por nuestro nutricionista. &nbsp;·&nbsp; ⚡ Tras el pago recibes tu código de acceso a TrainHeroic por correo.
     </div>
   </div>
 </div>
@@ -1685,8 +1761,8 @@
 <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal(event)">
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal()">✕</button>
-    <div class="modal-plan-nombre" id="modalNombre">OPERATOR</div>
-    <div class="modal-plan-precio" id="modalPrecio">$59.990 CLP</div>
+    <div class="modal-plan-nombre" id="modalNombre">Plan</div>
+    <div class="modal-plan-precio" id="modalPrecio">$—</div>
 
     <div class="modal-steps">
       <div class="modal-step">
