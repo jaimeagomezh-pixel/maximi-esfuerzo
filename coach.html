@@ -1585,6 +1585,9 @@ function abrirPerfil(id) {
     const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
     if (ruckNombreEl) ruckNombreEl.textContent = a.nombre ? `· ${a.nombre}` : '';
 
+    // Actualizar botón "Vincular" según estado del atleta
+    actualizarBtnVincular(a.stravaId);
+
     if (a.stravaId) {
       cargarRuckingCoach(a.stravaId);
     } else {
@@ -1829,6 +1832,26 @@ function updateRuckCoachView() {
   }
 }
 
+// Actualiza el botón "⚙ Vincular" según si el atleta ya tiene stravaId
+function actualizarBtnVincular(stravaId) {
+  const btn = document.querySelector('#ruckCoachSec .sec-t .f-btn');
+  const panel = document.getElementById('ruckCoachLinkPanel');
+  if (!btn) return;
+  if (stravaId) {
+    // Ya vinculado: mostrar estado, ocultar panel, deshabilitar botón de apertura
+    btn.textContent = '✓ Vinculado';
+    btn.style.cssText = 'font-size:12px;background:rgba(39,174,96,0.1);color:#27ae60;border-color:rgba(39,174,96,0.4);cursor:default;';
+    btn.onclick = null; // sin acción al hacer clic
+    if (panel) panel.style.display = 'none';
+  } else {
+    // Sin vincular: botón activo para abrir el panel manual
+    btn.textContent = '⚙ Vincular';
+    btn.style.cssText = 'font-size:12px;';
+    btn.onclick = toggleRuckCoachLink;
+    if (panel) panel.style.display = 'none'; // siempre cerrado al abrir perfil
+  }
+}
+
 async function toggleRuckCoachLink() {
   const p = document.getElementById('ruckCoachLinkPanel');
   if (!p) return;
@@ -1893,6 +1916,7 @@ async function autoVincularStravaId(atletaObj) {
     // Vincular automáticamente con el ID correcto (numérico si posible)
     atletaObj.stravaId = resolvedId;
     guardarAtletas();
+    actualizarBtnVincular(resolvedId);
 
     // Actualizar UI del nombre en el título
     const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
@@ -1922,7 +1946,7 @@ function guardarStravaIdAtleta(atletaId) {
   if (!a) return;
   a.stravaId = sid || null;
   guardarAtletas();
-  document.getElementById('ruckCoachLinkPanel').style.display='none';
+  actualizarBtnVincular(sid || null);
   if (sid) {
     document.getElementById('ruckCoachEmpty').style.display='none';
     document.getElementById('ruckCoachData').style.display='block';
