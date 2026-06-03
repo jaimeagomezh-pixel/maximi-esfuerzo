@@ -3740,9 +3740,12 @@
     }
   }
 
-  window.contratarPlan     = contratarPlan;
-  window.contratarAsesoria = contratarAsesoria;
-  window.selectResMes      = selectResMes;
+  window.contratarPlan      = contratarPlan;
+  window.contratarAsesoria  = contratarAsesoria;
+  window.selectResMes       = selectResMes;
+  window.toggleMiPerfil     = toggleMiPerfil;
+  window.guardarMiPerfil    = guardarMiPerfil;
+  window.precargarPesoVelocidad = precargarPesoVelocidad;
 
 
   if (typeof lucide !== "undefined") lucide.createIcons();

@@ -861,13 +861,13 @@
 
     <!-- RESUMEN MENSUAL -->
     <div class="dash-section-title" style="margin-top:4px;">Resumen Mensual</div>
-    <div id="resumenMensualWrap" style="margin:0 16px 6px;">
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px;">
+    <div id="resumenMensualWrap" style="margin:0 8px 6px;">
+      <div style="background:#fff;border:1.5px solid rgba(0,122,133,0.18);border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
         <!-- Selector de mes -->
         <div id="resMesSelector" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
 
         <!-- Sin datos -->
-        <div id="resSinDatos" style="font-size:13px;color:rgba(255,255,255,0.35);line-height:1.6;">
+        <div id="resSinDatos" style="font-size:13px;color:#888;line-height:1.6;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">
           Sincroniza Strava para ver tu volumen mensual de entrenamiento.
         </div>
 
@@ -875,27 +875,28 @@
         <div id="resContenido" style="display:none;">
           <!-- Stats principales -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
-            <div style="background:rgba(0,200,212,0.06);border:1px solid rgba(0,200,212,0.15);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resKm" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#00c8d4;line-height:1;">—</div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">km totales</div>
+            <div style="background:rgba(0,122,133,0.08);border:1.5px solid rgba(0,122,133,0.25);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resKm" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#007a85;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">km totales</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resSesiones" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#d4a843;line-height:1;">—</div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">sesiones</div>
+            <div style="background:rgba(212,168,67,0.08);border:1.5px solid rgba(212,168,67,0.25);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resSesiones" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#9a6e00;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">sesiones</div>
             </div>
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resTiempo" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#f5f0eb;line-height:1;">—</div>
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-top:4px;">tiempo total</div>
+            <div style="background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.1);border-radius:8px;padding:12px;text-align:center;">
+              <div id="resTiempo" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#333;line-height:1;">—</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">tiempo total</div>
             </div>
           </div>
 
           <!-- Distribución por zonas FC -->
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:8px;">Distribución por zona FC</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Distribución por zona FC</div>
           <div id="resZonasFC"></div>
-          <div id="resZonasSinFC" style="display:none;font-size:12px;color:rgba(255,255,255,0.3);font-style:italic;">Registra tu FC máxima (vía Strava) para ver la distribución por zonas.</div>
+          <div id="resZonasSinFC" style="display:none;font-size:12px;color:#999;font-style:italic;font-family:'Barlow Condensed',sans-serif;">Registra tu FC máxima (vía Strava) para ver la distribución por zonas.</div>
         </div>
       </div>
     </div>
+
 
 
     <!-- MEJORES TIEMPOS POR DISTANCIA -->
@@ -1641,8 +1642,8 @@
             </div>
             <div>
               <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Peso corporal (kg)</label>
-              <input type="number" id="velPeso" step="0.1" placeholder="ej. 75" readonly
-                style="width:100%;padding:9px;border:1.5px solid rgba(0,122,133,0.2);border-radius:8px;font-size:14px;box-sizing:border-box;margin-top:4px;outline:none;background:#f7f9fa;color:#333;">
+              <input type="number" id="velPeso" step="0.1" placeholder="ej. 75"
+                style="width:100%;padding:9px;border:1.5px solid rgba(0,122,133,0.2);border-radius:8px;font-size:14px;box-sizing:border-box;margin-top:4px;outline:none;">
               <div id="velPesoAviso" style="display:none;margin-top:5px;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#C9A84C;">
                 Sin peso en perfil —
                 <a href="#" onclick="toggleMiPerfil();return false;"
