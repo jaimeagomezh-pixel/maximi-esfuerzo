@@ -125,8 +125,9 @@
           if (typeof loadRealTHData === 'function') loadRealTHData();
           if (typeof loadManualTimes === 'function') loadManualTimes();
           if (typeof initZonasCarrera    === 'function') initZonasCarrera();
-          if (typeof initRuckingAtleta   === 'function') initRuckingAtleta();
-          if (typeof renderResumenMensual === 'function') renderResumenMensual();
+          if (typeof initRuckingAtleta      === 'function') initRuckingAtleta();
+          if (typeof renderResumenMensual   === 'function') renderResumenMensual();
+          if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
           if (typeof activarAnimaciones === 'function') activarAnimaciones();
@@ -955,6 +956,7 @@
 
     localStorage.setItem('atletaPerfil', JSON.stringify(p));
     actualizarResumenPerfil(p);
+    if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
     document.getElementById('miPerfilPanel').style.display = 'none';
     // Sincronizar peso al cloud como BM en ruckProfile
     if (peso) {
