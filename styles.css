@@ -2155,29 +2155,29 @@
 
   /* Range buttons */
   .th-range-btn {
-    background: rgba(0,0,0,0.04) !important;
-    border: 1.5px solid rgba(0,0,0,0.12) !important;
-    color: #444 !important;
+    background: rgba(0,122,133,0.06) !important;
+    border: 1.5px solid rgba(0,122,133,0.2) !important;
+    color: #007a85 !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     padding: 7px 15px !important;
     border-radius: 22px !important;
   }
-  .th-range-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
-  .th-range-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.15),rgba(0,200,212,0.1)) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.55) !important; box-shadow: 0 0 10px rgba(0,168,179,0.15) !important; }
+  .th-range-btn:hover { background: rgba(0,168,179,0.12) !important; color: #006670 !important; border-color: rgba(0,168,179,0.4) !important; }
+  .th-range-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.22),rgba(0,200,212,0.15)) !important; color: #006670 !important; border-color: rgba(0,168,179,0.65) !important; box-shadow: 0 0 10px rgba(0,168,179,0.18) !important; }
 
   /* Dist buttons */
   .th-dist-btn {
-    background: rgba(0,0,0,0.04) !important;
-    border: 1.5px solid rgba(0,0,0,0.12) !important;
-    color: #444 !important;
+    background: rgba(0,122,133,0.06) !important;
+    border: 1.5px solid rgba(0,122,133,0.2) !important;
+    color: #007a85 !important;
     font-size: 14px !important;
     font-weight: 700 !important;
     padding: 7px 15px !important;
     border-radius: 22px !important;
   }
-  .th-dist-btn:hover { background: rgba(0,168,179,0.08) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.3) !important; }
-  .th-dist-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.18),rgba(0,200,212,0.12)) !important; color: #007a85 !important; border-color: rgba(0,168,179,0.6) !important; box-shadow: 0 0 12px rgba(0,168,179,0.18) !important; }
+  .th-dist-btn:hover { background: rgba(0,168,179,0.12) !important; color: #006670 !important; border-color: rgba(0,168,179,0.4) !important; }
+  .th-dist-btn.active { background: linear-gradient(135deg,rgba(0,168,179,0.25),rgba(0,200,212,0.18)) !important; color: #005f6b !important; border-color: rgba(0,168,179,0.7) !important; box-shadow: 0 0 14px rgba(0,168,179,0.22) !important; }
 
   /* PR stats */
   .th-pr-stat {
