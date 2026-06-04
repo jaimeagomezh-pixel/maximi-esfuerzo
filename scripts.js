@@ -4,15 +4,34 @@
   }
 
   function abrirModal(nombre, precio, desc) {
-    document.getElementById('modalNombre').textContent = nombre;
-    document.getElementById('modalPrecio').textContent = precio;
-    document.getElementById('modalOverlay').classList.add('open');
+    const ov = document.getElementById('modalOverlay');
+    const nm = document.getElementById('modalNombre');
+    const pr = document.getElementById('modalPrecio');
+    if (!ov || !nm || !pr) return;
+    nm.textContent = nombre;
+    pr.textContent = precio;
+    // Mover al final del body para garantizar que quede encima de todo
+    document.body.appendChild(ov);
+    // Forzar estilos por JS además de la clase (por si el CSS queda detrás de algún overlay)
+    ov.style.display = 'flex';
+    ov.style.position = 'fixed';
+    ov.style.inset = '0';
+    ov.style.zIndex = '9000';
+    ov.style.background = 'rgba(0,0,0,0.88)';
+    ov.style.alignItems = 'center';
+    ov.style.justifyContent = 'center';
+    ov.style.padding = '20px';
+    ov.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function cerrarModal(e) {
-    if (!e || e.target === document.getElementById('modalOverlay')) {
-      document.getElementById('modalOverlay').classList.remove('open');
+    const ov = document.getElementById('modalOverlay');
+    if (!ov) return;
+    if (!e || e.target === ov) {
+      ov.style.display = '';
+      ov.style.zIndex = '';
+      ov.classList.remove('open');
       document.body.style.overflow = '';
     }
   }
