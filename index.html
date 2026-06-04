@@ -132,11 +132,9 @@
     if (user) {
       if (btnNav)   btnNav.style.display = 'none';
       if (userInfo) { userInfo.style.display = 'flex'; userName.textContent = user.displayName || user.email.split('@')[0]; }
-      // Si el dashboard estaba abierto antes de refrescar, reabrirlo
-      if (localStorage.getItem('dashboardOpen') === 'true') {
-        const nombre = user.displayName || user.email.split('@')[0];
-        setTimeout(() => abrirDashboard(nombre), 300);
-      }
+      // Abrir dashboard: si estaba abierto antes de refrescar, o si acaba de iniciar sesión
+      const nombre = user.displayName || user.email.split('@')[0];
+      setTimeout(() => abrirDashboard(nombre), 300);
     } else {
       if (btnNav)   btnNav.style.display = 'inline-block';
       if (userInfo) userInfo.style.display = 'none';
@@ -1652,7 +1650,7 @@
   </div>
 </div>
 
-<script src="scripts.js"></script>
+<script src="scripts.js?v=20260604"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -2032,7 +2030,7 @@
     const email=document.getElementById('loginEmail').value.trim();
     const password=document.getElementById('loginPassword').value;
     if(!email||!password) return mostrarMensaje('Completa todos los campos.','error');
-    try { await window._signInWithEmailAndPassword(window._auth,email,password); mostrarMensaje('¡Bienvenido de vuelta!','success'); setTimeout(cerrarLogin,1000); }
+    try { await window._signInWithEmailAndPassword(window._auth,email,password); mostrarMensaje('¡Bienvenido de vuelta!','success'); setTimeout(()=>{ cerrarLogin(); abrirDashboard(email.split('@')[0]); },800); }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function registrarse() {
@@ -2042,7 +2040,7 @@
     if(!email||!pass||!confirm) return mostrarMensaje('Completa todos los campos.','error');
     if(pass!==confirm) return mostrarMensaje('Las contraseñas no coinciden.','error');
     if(pass.length<6) return mostrarMensaje('La contraseña debe tener al menos 6 caracteres.','error');
-    try { await window._createUserWithEmailAndPassword(window._auth,email,pass); mostrarMensaje('¡Cuenta creada! Bienvenido.','success'); setTimeout(cerrarLogin,1200); }
+    try { await window._createUserWithEmailAndPassword(window._auth,email,pass); mostrarMensaje('¡Cuenta creada! Bienvenido.','success'); setTimeout(()=>{ cerrarLogin(); abrirDashboard(email.split('@')[0]); },800); }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function iniciarSesionGoogle() {
