@@ -1659,18 +1659,27 @@
   // ═══════════════════════════════════════════════════════════
 
   const PLANES_NIVELES = [
-    { id:'basico', nombre:'Básico', precio:'$14.990', etiqueta:'Nivel 1 · Fundamentos', destacado:false,
+    { id:'basico', nombre:'Básico', precio:'$14.990', total3m:'$38.220', etiqueta:'Nivel 1 · Fundamentos', destacado:false,
       desc:'Domina los fundamentos y principios. Base estructurada para construir hábitos sólidos antes de subir de nivel.',
       detalle:'Este nivel construye tu base: técnica correcta, principios de entrenamiento y hábitos sostenibles. Ideal si recién comienzas o vuelves después de una pausa. Avanzas al siguiente nivel cuando tus datos demuestran que dominaste los fundamentos.',
       incluye:['Programación de 12 semanas','Videos técnicos de cada movimiento','Progresión guiada por datos','Asistencia por chat'] },
-    { id:'intermedio', nombre:'Intermedio', precio:'$19.990', etiqueta:'Nivel 2 · Progresión', destacado:true,
+    { id:'intermedio', nombre:'Intermedio', precio:'$19.990', total3m:'$50.970', etiqueta:'Nivel 2 · Progresión', destacado:true,
       desc:'Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con más carga.',
       detalle:'Subes la exigencia: más volumen, ejercicios más complejos y periodización estructurada. Para quien ya domina los fundamentos del nivel básico y busca seguir progresando.',
       incluye:['Programación de 12 semanas','Mayor volumen e intensidad','Periodización estructurada','Asistencia por chat'] },
-    { id:'avanzado', nombre:'Avanzado', precio:'$24.990', etiqueta:'Nivel 3 · Alto rendimiento', destacado:false,
+    { id:'avanzado', nombre:'Avanzado', precio:'$24.990', total3m:'$63.720', etiqueta:'Nivel 3 · Alto rendimiento', destacado:false,
       desc:'Máxima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.',
       detalle:'Máxima exigencia para atletas con base consolidada. Alta intensidad, técnicas avanzadas y periodización de rendimiento para llevar tu nivel al límite.',
       incluye:['Programación de 12 semanas','Alta intensidad','Técnicas avanzadas','Asistencia por chat'] },
+  ];
+
+  // Características del plan (estilo TrainHeroic, sin "comunidad")
+  const PLAN_CARACTERISTICAS = [
+    { icon:'fa-comment-dots', titulo:'Soporte cuando lo necesitas', desc:'Escríbenos dentro de la app para resolver dudas, aclaraciones y apoyo — nunca quedas atascado.' },
+    { icon:'fa-calendar-days', titulo:'Programación estructurada', desc:'Una semana completa de entrenamiento: siempre sabes qué hacer para volverte más fuerte y acondicionado.' },
+    { icon:'fa-brain', titulo:'Notas y estrategia', desc:'Cada sesión con intención, señales de ritmo, orientación de carga y progresión inteligente.' },
+    { icon:'fa-circle-play', titulo:'Guía en video de ejercicios', desc:'Cada movimiento con demo en video: la técnica nunca es una excusa.' },
+    { icon:'fa-list-check', titulo:'Sesiones diarias claras', desc:'Cada sesión organizada paso a paso, con estructura y sincronización — sin adivinar.' },
   ];
 
   const PLANES_AREAS = [
@@ -1826,11 +1835,11 @@
   // ── Vista 3: detalle del plan (tipo TrainHeroic) ──
   function renderDetalleHTML() {
     const v = planesVista;
-    let titulo, modalidad, img, detalle, incluye, precio, nombrePago, cta, esNivel;
+    let titulo, modalidad, img, detalle, incluye, precioMes, total3m, nombrePago, cta, esNivel;
     if (v.plan === 'unico') {
       const a = PLANES_AREAS.find(x => x.id === v.areaId);
       titulo = a.nombre; modalidad = a.modalidad; img = a.img;
-      detalle = a.detalle; incluye = a.incluye; precio = a.precio;
+      detalle = a.detalle; incluye = a.incluye; precioMes = a.precio; total3m = null;
       nombrePago = a.nombre;
       cta = a.id === 'personalizado' ? 'Postular a un cupo' : 'Sumarme al grupo';
       esNivel = false;
@@ -1841,11 +1850,29 @@
       titulo = a.nombre + ' · ' + n.nombre;
       modalidad = a.modalidad + (gen ? ' · ' + gen.nombre : '');
       img = gen ? gen.img : a.img;
-      detalle = n.detalle; incluye = n.incluye; precio = n.precio;
+      detalle = n.detalle; incluye = n.incluye; precioMes = n.precio; total3m = n.total3m;
       nombrePago = a.nombre + (gen ? ' ' + gen.nombre : '') + ' · ' + n.nombre;
       cta = 'Comenzar';
       esNivel = true;
     }
+
+    // Panel de precio: niveles → total 3 meses primero + mes a mes; plan único → mensual
+    let precioPanel, pagoArg;
+    if (esNivel) {
+      precioPanel = `
+        <div class="detalle-precio-label">Plan completo · 3 meses</div>
+        <div class="detalle-precio">${total3m}</div>
+        <div class="detalle-precio-sub">CLP · ahorras 15% vs mes a mes</div>
+        <div class="detalle-precio-mes">o paga <strong>mes a mes</strong> · ${precioMes} / mes</div>`;
+      pagoArg = `${total3m} CLP · 3 meses`;
+    } else {
+      precioPanel = `
+        <div class="detalle-precio-label">Mensual</div>
+        <div class="detalle-precio">${precioMes}</div>
+        <div class="detalle-precio-sub">CLP / mes</div>`;
+      pagoArg = `${precioMes} CLP/mes`;
+    }
+
     return `
       <div class="detalle-hero" style="background-image:url('${img}')">
         <div class="detalle-hero-grad"></div>
@@ -1863,12 +1890,24 @@
           </ul>
         </div>
         <div class="detalle-side">
-          <div class="detalle-precio-label">Desde</div>
-          <div class="detalle-precio">${precio}</div>
-          <div class="detalle-precio-sub">CLP / mes</div>
-          ${esNivel ? `<div class="detalle-contrato">Contrata 8 semanas o el plan completo de 12 semanas con <strong>15% de descuento</strong>.</div>` : ''}
-          <button class="btn-primary detalle-comprar" onclick="abrirModal('${nombrePago}', '${precio} CLP/mes', '')">${cta}</button>
+          ${precioPanel}
+          <button class="btn-primary detalle-comprar" onclick="abrirModal('${nombrePago}', '${pagoArg}', '')">${cta}</button>
           <div class="detalle-garantia">🔒 Pago seguro · Código TrainHeroic por correo</div>
+        </div>
+      </div>
+
+      <!-- Características (estilo TrainHeroic) -->
+      <div class="detalle-features">
+        <h3 class="detalle-features-t">Características</h3>
+        <div class="detalle-features-grid">
+          ${PLAN_CARACTERISTICAS.map((f, i) => `
+            <div class="detalle-feat" style="animation-delay:${i * 0.07}s">
+              <div class="detalle-feat-icon"><i class="fa-solid ${f.icon}"></i></div>
+              <div class="detalle-feat-txt">
+                <h4>${f.titulo}</h4>
+                <p>${f.desc}</p>
+              </div>
+            </div>`).join('')}
         </div>
       </div>
     `;

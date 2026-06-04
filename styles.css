@@ -792,11 +792,70 @@
     font-size: 0.72rem;
     margin-top: 12px;
   }
+  .detalle-precio-mes {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(245,240,235,0.1);
+    color: var(--gris);
+    font-size: 0.82rem;
+  }
+  .detalle-precio-mes strong { color: var(--crema); }
+
+  /* ── Características (estilo TrainHeroic) ── */
+  .detalle-features { margin-top: 44px; }
+  .detalle-features-t {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--crema);
+    letter-spacing: 0.5px;
+    margin: 0 0 22px;
+  }
+  .detalle-features-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 36px;
+  }
+  .detalle-feat {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    opacity: 0;
+    animation: featUp 0.5s ease forwards;
+  }
+  @keyframes featUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .detalle-feat-icon {
+    flex-shrink: 0;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(212,168,67,0.1);
+    border: 1px solid rgba(212,168,67,0.3);
+    border-radius: 10px;
+    color: var(--dorado);
+    font-size: 1.1rem;
+  }
+  .detalle-feat-txt h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--crema);
+    margin: 2px 0 6px;
+    letter-spacing: 0.5px;
+  }
+  .detalle-feat-txt p {
+    color: var(--gris);
+    font-size: 0.88rem;
+    line-height: 1.55;
+    margin: 0;
+  }
 
   @media (max-width: 720px) {
     .detalle-body { grid-template-columns: 1fr; }
     .detalle-side { position: static; }
     .detalle-titulo { font-size: 2rem; }
+    .detalle-features-grid { grid-template-columns: 1fr; gap: 22px; }
   }
 
   .planes-grid {
