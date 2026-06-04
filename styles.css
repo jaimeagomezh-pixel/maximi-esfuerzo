@@ -822,6 +822,23 @@
     color: var(--gris);
     margin-top: 2px;
   }
+  .dp-completo-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    padding: 7px 10px;
+    background: rgba(39,174,96,0.12);
+    border: 1px solid rgba(39,174,96,0.45);
+    border-radius: 6px;
+    color: #d6f5e3;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+  }
+  .dp-completo-badge i { color: #27ae60; font-size: 0.9rem; }
+  .dp-completo-badge strong { color: #fff; font-weight: 700; }
 
   /* ── Características (estilo TrainHeroic) ── */
   .detalle-features { margin-top: 44px; }
