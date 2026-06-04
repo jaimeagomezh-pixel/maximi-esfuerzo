@@ -4030,8 +4030,12 @@ section:hover .section-title::after,
   display: none;
   position: fixed; inset: 0;
   z-index: 2000;
-  background: rgba(8,8,8,0.97);
-  backdrop-filter: blur(6px);
+  background:
+    linear-gradient(rgba(8,8,8,0.84), rgba(8,8,8,0.92)),
+    url('Imagenes/Planes/marines_e9ddc1bf3f5a4d1abf675303f54a6e3f.jpg');
+  background-size: cover;
+  background-position: center;
+  backdrop-filter: blur(2px);
   overflow-y: auto;
 }
 #desbloqueoOverlay.activo { display: flex; align-items: center; justify-content: center; padding: 24px; }
@@ -4041,8 +4045,8 @@ section:hover .section-title::after,
 .dsb-expediente { text-align: center; max-width: 460px; animation: dsbIn .5s ease; }
 @keyframes dsbIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 .dsb-logo {
-  width: 230px; max-width: 72%; margin-bottom: 22px;
-  filter: drop-shadow(0 0 14px rgba(212,168,67,.45));
+  width: 320px; max-width: 86%; margin-bottom: 26px;
+  filter: drop-shadow(0 0 18px rgba(212,168,67,.5));
   animation: dsbLogo .6s ease .15s both;
 }
 @keyframes dsbLogo { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
