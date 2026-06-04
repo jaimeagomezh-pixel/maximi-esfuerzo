@@ -1789,52 +1789,38 @@
     `;
   }
 
-  // ── Vista 2: orientación → niveles (con precio) ──
+  // ── Vista 2: orientación → niveles (SIN precio, estilo tarjeta-imagen) ──
   function renderOrientacionHTML(a) {
     const intro = `<p class="planes-intro">${a.desc}</p>`;
-    let cuerpo;
+    let cards = '';
     if (a.generos) {
-      cuerpo = a.generos.map(g => `
-        <div class="genero-bloque">
-          <div class="genero-hdr"><span class="genero-icono">${g.icono}</span> ${g.nombre}</div>
-          <div class="planes-grid">
-            ${PLANES_NIVELES.map(n => nivelCardHTML(a.id, g.id, n)).join('')}
-          </div>
-        </div>`).join('');
+      a.generos.forEach(g => {
+        PLANES_NIVELES.forEach(n => {
+          cards += nivelAreaCardHTML(a.id, g.id, n, g.img, g.icono + ' ' + g.nombre);
+        });
+      });
     } else {
-      cuerpo = `<div class="planes-grid" style="margin-top:16px;">
-        ${PLANES_NIVELES.map(n => nivelCardHTML(a.id, null, n)).join('')}
-      </div>`;
+      PLANES_NIVELES.forEach(n => {
+        cards += nivelAreaCardHTML(a.id, null, n, a.img, n.etiqueta);
+      });
     }
-    return intro + cuerpo + notaContratoHTML();
+    return intro + `<div class="areas-grid" style="margin-top:24px;">${cards}</div>`;
   }
 
-  function nivelCardHTML(areaId, genero, n) {
+  // Tarjeta de nivel con el MISMO estilo de la pantalla principal (imagen + texto, sin precio)
+  function nivelAreaCardHTML(areaId, genero, n, img, badge) {
     const g = genero ? `,'${genero}'` : ',null';
     return `
-      <div class="plan-card ${n.destacado ? 'destacado' : ''}" onclick="verNivel('${areaId}'${g},'${n.id}')">
-        <div>
-          <div class="plan-badge ${n.destacado ? 'gold' : ''}">${n.etiqueta}</div>
-          <div class="plan-nombre">${n.nombre}</div>
-          <div class="plan-desc">${n.desc}</div>
-          <div class="plan-features">
-            <span class="plan-tag">12 Semanas</span>
-            <span class="plan-tag">8 o 12 sem</span>
-          </div>
+      <div class="area-card" onclick="verNivel('${areaId}'${g},'${n.id}')">
+        <div class="area-card-img" style="background-image:url('${img}')">
+          <span class="area-card-modalidad">${badge}</span>
         </div>
-        <div class="plan-precio-col">
-          <div class="plan-precio-label">desde</div>
-          <div class="plan-precio">${n.precio}</div>
-          <div class="plan-precio-label" style="margin-top:2px">/ mes</div>
-          <button class="btn-plan" onclick="event.stopPropagation(); verNivel('${areaId}'${g},'${n.id}')">Ver plan</button>
+        <div class="area-card-body">
+          <div class="area-card-nombre">${n.nombre}</div>
+          <div class="area-card-desc">${n.desc}</div>
+          <span class="area-card-cta">Ver plan →</span>
         </div>
       </div>`;
-  }
-
-  function notaContratoHTML() {
-    return `<div class="planes-nota-contrato">
-      Contrata <strong>8 semanas</strong> (entrada) o el <strong>plan completo de 12 semanas con 15% de descuento</strong>. Avanzas de nivel cuando tus datos demuestran que dominaste el anterior — la medición te guía, no te obliga.
-    </div>`;
   }
 
   // ── Vista 3: detalle del plan (tipo TrainHeroic) ──
