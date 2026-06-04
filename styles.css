@@ -4005,3 +4005,73 @@ section:hover .section-title::after,
     );
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   DESBLOQUEO POST-PAGO — expediente + briefing
+   ═══════════════════════════════════════════════════════ */
+#desbloqueoOverlay {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 2000;
+  background: rgba(8,8,8,0.97);
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+}
+#desbloqueoOverlay.activo { display: flex; align-items: center; justify-content: center; padding: 24px; }
+#desbloqueoOverlay.briefing { align-items: flex-start; }
+
+/* ── Etapa 1: expediente ── */
+.dsb-expediente { text-align: center; max-width: 460px; animation: dsbIn .5s ease; }
+@keyframes dsbIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+.dsb-logo {
+  width: 230px; max-width: 72%; margin-bottom: 22px;
+  filter: drop-shadow(0 0 14px rgba(212,168,67,.45));
+  animation: dsbLogo .6s ease .15s both;
+}
+@keyframes dsbLogo { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.dsb-sello-wrap { position: relative; height: 72px; margin: 6px 0 16px; }
+.dsb-sello-clasif, .dsb-sello-ok {
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%,-50%) rotate(-9deg);
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  letter-spacing: 3px; text-transform: uppercase;
+  padding: 8px 22px; border-radius: 4px; white-space: nowrap;
+}
+.dsb-sello-clasif {
+  color: #c0392b; border: 3px solid #c0392b; font-size: 1.4rem;
+  animation: dsbClasifIn .5s ease .5s both, dsbClasifOut .35s ease 1.65s forwards;
+}
+@keyframes dsbClasifIn { from { opacity: 0; transform: translate(-50%,-50%) rotate(-9deg) scale(1.6); } to { opacity: 1; transform: translate(-50%,-50%) rotate(-9deg) scale(1); } }
+@keyframes dsbClasifOut { to { opacity: 0; } }
+.dsb-sello-ok {
+  color: #27ae60; border: 3px solid #27ae60; font-size: 1.5rem; opacity: 0;
+  animation: dsbOk .45s cubic-bezier(.2,1.4,.4,1) 1.95s both;
+}
+@keyframes dsbOk { from { opacity: 0; transform: translate(-50%,-50%) rotate(-9deg) scale(2.3); } to { opacity: 1; transform: translate(-50%,-50%) rotate(-9deg) scale(1); } }
+
+.dsb-acento {
+  font-family: 'Bebas Neue', sans-serif; font-size: 2.2rem; color: #f5f0eb;
+  letter-spacing: 2px; opacity: 0; animation: dsbUp .5s ease 2.5s both;
+}
+@keyframes dsbUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.dsb-continuar { margin-top: 26px; opacity: 0; animation: dsbUp .5s ease 3s both; }
+
+/* ── Etapa 2: briefing ── */
+.dsb-briefing { max-width: 640px; margin: 0 auto; padding: 44px 24px 64px; text-align: center; animation: dsbIn .4s ease; }
+.dsb-briefing-logo { width: 150px; margin-bottom: 18px; filter: drop-shadow(0 0 10px rgba(212,168,67,.4)); }
+.dsb-briefing-t { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #f5f0eb; margin: 0 0 6px; letter-spacing: 1px; }
+.dsb-briefing-sub { color: #9aa0a6; margin: 0 0 24px; }
+.dsb-video { position: relative; width: 100%; padding-bottom: 56.25%; border-radius: 10px; overflow: hidden; margin-bottom: 26px; border: 1px solid rgba(212,168,67,.3); }
+.dsb-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dsb-video-vacio { padding-bottom: 0; height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #1a1a1a; color: #9aa0a6; }
+.dsb-video-vacio i { font-size: 2.4rem; color: #c0392b; }
+.dsb-pasos { text-align: left; max-width: 480px; margin: 0 auto 28px; padding-left: 22px; color: #9aa0a6; line-height: 1.7; }
+.dsb-pasos li { margin-bottom: 10px; }
+.dsb-pasos strong { color: #f5f0eb; }
+.dsb-listo { display: inline-block; }
+
+@media (max-width: 600px) {
+  .dsb-acento { font-size: 1.7rem; }
+  .dsb-briefing-t { font-size: 2rem; }
+}

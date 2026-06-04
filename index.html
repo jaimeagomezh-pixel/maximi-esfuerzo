@@ -1645,7 +1645,7 @@
     </div>
 
     <div class="modal-divider"></div>
-    <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="alert('Aquí se conectará con Flow. Ingresa tu link de pago aquí.')">
+    <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="simularPagoExito()">
       💳 Pagar con Flow
     </button>
     <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>
@@ -1927,6 +1927,89 @@
         card.style.setProperty('--mouse-y', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
       });
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  //  DESBLOQUEO POST-PAGO (simulado) — expediente + briefing
+  // ═══════════════════════════════════════════════════════════
+
+  // Links de YouTube por programa (embed). '' => muestra placeholder.
+  // Reemplazar con los reales. Ej: 'https://www.youtube.com/embed/XXXXXXXX'
+  const VIDEOS_PROGRAMA = {
+    default: ''
+  };
+
+  function accentoPorPlan() {
+    const v = planesVista || {};
+    if (v.plan === 'unico') {
+      if (v.areaId === 'grupal')        return 'BIENVENIDO A LA UNIDAD';
+      if (v.areaId === 'personalizado') return 'ACCESO PRIORITARIO';
+    }
+    if (v.plan === 'nivel') {
+      if (v.nivelId === 'basico') return 'MISIÓN ASIGNADA';
+      return 'ASCENSO · OPERADOR'; // intermedio / avanzado
+    }
+    return 'ACCESO CONCEDIDO';
+  }
+
+  function videoActual() {
+    const v = planesVista || {};
+    const key = v.nivelId || v.areaId || 'default';
+    return VIDEOS_PROGRAMA[key] || VIDEOS_PROGRAMA.default || '';
+  }
+
+  // Simula un pago exitoso (luego lo dispara el redirect real de Flow)
+  function simularPagoExito() {
+    cerrarModal();
+    const acento = accentoPorPlan();
+    let ov = document.getElementById('desbloqueoOverlay');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'desbloqueoOverlay'; document.body.appendChild(ov); }
+    ov.classList.remove('briefing');
+    ov.innerHTML = `
+      <div class="dsb-expediente">
+        <img src="Imagenes/img01.png" alt="Máximo Esfuerzo · Rigor y Disciplina" class="dsb-logo">
+        <div class="dsb-sello-wrap">
+          <span class="dsb-sello-clasif">CLASIFICADO</span>
+          <span class="dsb-sello-ok">ACCESO CONCEDIDO</span>
+        </div>
+        <div class="dsb-acento">${acento}</div>
+        <button class="btn-primary dsb-continuar" onclick="irABriefing()">Continuar →</button>
+      </div>`;
+    document.body.style.overflow = 'hidden';
+    void ov.offsetWidth; // reflow para reiniciar animación
+    ov.classList.add('activo');
+  }
+
+  function irABriefing() {
+    const ov = document.getElementById('desbloqueoOverlay');
+    if (!ov) return;
+    const vid = videoActual();
+    const videoHTML = vid
+      ? `<div class="dsb-video"><iframe src="${vid}" title="Bienvenida" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
+      : `<div class="dsb-video dsb-video-vacio"><i class="fa-brands fa-youtube"></i><span>Video de bienvenida — próximamente</span></div>`;
+    ov.innerHTML = `
+      <div class="dsb-briefing">
+        <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="dsb-briefing-logo">
+        <h2 class="dsb-briefing-t">Bienvenido al protocolo</h2>
+        <p class="dsb-briefing-sub">Tu acceso está activo. Sigue estos pasos para comenzar.</p>
+        ${videoHTML}
+        <ol class="dsb-pasos">
+          <li><strong>Descarga TrainHeroic</strong> en tu teléfono (iOS / Android).</li>
+          <li><strong>Ingresa el código</strong> que te enviamos para activar tu programa.</li>
+          <li><strong>Conecta Strava</strong> en tu panel para medir tu progreso real.</li>
+          <li><strong>Ejecuta tu primera sesión</strong> — el protocolo ya está cargado.</li>
+        </ol>
+        <button class="btn-primary dsb-listo" onclick="cerrarDesbloqueo()">Entendido, comenzar</button>
+      </div>`;
+    ov.classList.add('briefing');
+    ov.scrollTop = 0;
+  }
+
+  function cerrarDesbloqueo() {
+    const ov = document.getElementById('desbloqueoOverlay');
+    if (ov) { ov.classList.remove('activo', 'briefing'); setTimeout(() => ov.remove(), 250); }
+    cerrarPlanes();
+    document.body.style.overflow = '';
   }
 
   function abrirLogin() { document.getElementById('loginOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
