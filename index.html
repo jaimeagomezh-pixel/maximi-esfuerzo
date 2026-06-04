@@ -1860,11 +1860,15 @@
     let precioPanel, pagoArg;
     if (esNivel) {
       precioPanel = `
-        <div class="detalle-precio-label">Plan completo · 3 meses</div>
-        <div class="detalle-precio">${total3m}</div>
-        <div class="detalle-precio-sub">CLP · ahorras 15% vs mes a mes</div>
-        <div class="detalle-precio-mes">o paga <strong>mes a mes</strong> · ${precioMes} / mes</div>`;
-      pagoArg = `${total3m} CLP · 3 meses`;
+        <div class="detalle-precio-label">Mes a mes</div>
+        <div class="detalle-precio">${precioMes}</div>
+        <div class="detalle-precio-sub">CLP / mes</div>
+        <div class="detalle-precio-completo">
+          <span class="dp-completo-label">Programa completo · 3 meses</span>
+          <span class="dp-completo-valor">${total3m}</span>
+          <span class="dp-completo-sub">CLP · ahorras 15%</span>
+        </div>`;
+      pagoArg = `${precioMes} CLP/mes`;
     } else {
       precioPanel = `
         <div class="detalle-precio-label">Mensual</div>
@@ -1892,7 +1896,7 @@
         <div class="detalle-side">
           ${precioPanel}
           <button class="btn-primary detalle-comprar" onclick="abrirModal('${nombrePago}', '${pagoArg}', '')">${cta}</button>
-          <div class="detalle-garantia">🔒 Pago seguro · Código TrainHeroic por correo</div>
+          <div class="detalle-garantia">🔒 Pago 100% seguro</div>
         </div>
       </div>
 

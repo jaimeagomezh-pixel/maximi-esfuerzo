@@ -792,14 +792,36 @@
     font-size: 0.72rem;
     margin-top: 12px;
   }
-  .detalle-precio-mes {
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(245,240,235,0.1);
-    color: var(--gris);
-    font-size: 0.82rem;
+  .detalle-precio-completo {
+    display: block;
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(212,168,67,0.08);
+    border: 1px solid rgba(212,168,67,0.4);
+    border-radius: 8px;
   }
-  .detalle-precio-mes strong { color: var(--crema); }
+  .dp-completo-label {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--dorado);
+    margin-bottom: 2px;
+  }
+  .dp-completo-valor {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.7rem;
+    color: var(--dorado);
+    line-height: 1;
+  }
+  .dp-completo-sub {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--gris);
+    margin-top: 2px;
+  }
 
   /* ── Características (estilo TrainHeroic) ── */
   .detalle-features { margin-top: 44px; }
