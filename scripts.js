@@ -8,11 +8,27 @@
     const nm = document.getElementById('modalNombre');
     const pr = document.getElementById('modalPrecio');
     if (!ov || !nm || !pr) return;
+
+    // Extraer monto numérico de "precio" (ej: "$14.990 CLP/mes" → 14990)
+    const montoNum = parseInt(precio.replace(/[^\d]/g, ''));
+    const total3m = montoNum * 3;
+    const descuento15 = Math.round(total3m * 0.85);
+
     nm.textContent = nombre;
     pr.textContent = precio;
+
+    // Actualizar opciones de pago
+    const precioMensual = document.getElementById('precioMensual');
+    const precioUnico = document.getElementById('precioUnico');
+    if (precioMensual) precioMensual.textContent = `3 × $${montoNum.toLocaleString('es-CL')} CLP (total $${total3m.toLocaleString('es-CL')})`;
+    if (precioUnico) precioUnico.textContent = `1 pago de $${descuento15.toLocaleString('es-CL')} CLP`;
+
+    // Guardar datos para el pago
+    window._planData = { nombre, montoNum, total3m, descuento15 };
+
     // Mover al final del body para garantizar que quede encima de todo
     document.body.appendChild(ov);
-    // Forzar estilos por JS además de la clase (por si el CSS queda detrás de algún overlay)
+    // Forzar estilos por JS además de la clase
     ov.style.display = 'flex';
     ov.style.position = 'fixed';
     ov.style.inset = '0';
@@ -3698,6 +3714,53 @@
 
   // ── FLOW PAGOS ────────────────────────────────
   const FLOW_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
+
+  // Función que procesa el pago según la opción elegida (mensual o único)
+  async function procesarPago() {
+    const tipoPago = document.querySelector('input[name="tipoPago"]:checked')?.value;
+    const planData = window._planData;
+
+    if (!tipoPago || !planData) {
+      alert('Error: no se pudo procesar el pago.');
+      return;
+    }
+
+    const user = window._auth?.currentUser;
+    if (!user) {
+      alert('Debes iniciar sesión primero para contratar un plan.');
+      return;
+    }
+
+    try {
+      // Llamar al worker pasando: tipo de pago (mensual o unico), nombre del plan, monto
+      const monto = tipoPago === 'mensual' ? planData.montoNum : planData.descuento15;
+      const tipoSuscripcion = tipoPago === 'mensual' ? 'suscripcion-3m' : 'pago-unico';
+
+      const res = await fetch(`${FLOW_WORKER}/crear-pago`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: planData.nombre,
+          monto,
+          email: user.email,
+          nombre: user.displayName || user.email.split('@')[0],
+          tipoPago, // 'mensual' o 'unico'
+          tipoSuscripcion // 'suscripcion-3m' o 'pago-unico'
+        })
+      });
+
+      const data = await res.json();
+      if (data.ok && data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Error al procesar el pago. Intenta de nuevo.');
+        console.error('Flow error:', data);
+      }
+    } catch(e) {
+      alert('Error de conexión. Intenta de nuevo.');
+      console.error(e);
+    }
+  }
 
   async function contratarPlan(plan, monto) {
     const user = window._auth?.currentUser;

@@ -1594,6 +1594,29 @@
     <div class="modal-plan-nombre" id="modalNombre">Plan</div>
     <div class="modal-plan-precio" id="modalPrecio">$—</div>
 
+    <!-- OPCIONES DE PAGO -->
+    <div class="modal-opciones-pago" style="margin:24px 0;padding:16px;border-radius:8px;background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.2);">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:14px;">Elige tu forma de pago</div>
+
+      <!-- Opción 1: Mensual -->
+      <label style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;cursor:pointer;">
+        <input type="radio" name="tipoPago" value="mensual" id="pago-mensual" checked style="margin-top:3px;">
+        <div>
+          <div style="color:#f5f0eb;font-weight:600;font-size:0.95rem;">Pago mensual (3 cuotas)</div>
+          <div style="color:#9aa0a6;font-size:0.85rem;margin-top:4px;" id="precioMensual">3 × $— CLP (total $—)</div>
+        </div>
+      </label>
+
+      <!-- Opción 2: Único con descuento -->
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;">
+        <input type="radio" name="tipoPago" value="unico" id="pago-unico" style="margin-top:3px;">
+        <div style="flex:1;">
+          <div style="color:#f5f0eb;font-weight:600;font-size:0.95rem;">Pago único con descuento <span style="color:#52c41a;font-size:0.8rem;">-15%</span></div>
+          <div style="color:#9aa0a6;font-size:0.85rem;margin-top:4px;" id="precioUnico">1 pago de $— CLP</div>
+        </div>
+      </label>
+    </div>
+
     <div class="modal-steps">
       <div class="modal-step">
         <div class="step-num">1</div>
@@ -1619,7 +1642,7 @@
     </div>
 
     <div class="modal-divider"></div>
-    <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="simularPagoExito()">
+    <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="procesarPago()">
       💳 Pagar con Flow
     </button>
     <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>

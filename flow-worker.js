@@ -69,33 +69,85 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    // ── POST /crear-pago (plan cobro único) ──────
+    // ── POST /crear-pago (pago único o suscripción 3 meses) ──────
     if (url.pathname === '/crear-pago' && request.method === 'POST') {
       try {
-        const { plan, monto, email, nombre } = await request.json();
-        const comercioOrden = `ME-${Date.now()}`;
+        const { plan, monto, email, nombre, tipoPago, tipoSuscripcion } = await request.json();
 
-        const datos = {
-          commerceOrder: comercioOrden,
-          subject:       `Plan ${plan} - Máximo Esfuerzo`,
-          currency:      'CLP',
-          amount:        String(monto),
-          email:         email,
-          urlConfirmation: 'https://flow-payments.jaimea-gomezh.workers.dev/webhook-pago',
+        // Pago único: cobro directo sin suscripción
+        if (tipoSuscripcion === 'pago-unico' || tipoPago === 'unico') {
+          const comercioOrden = `ME-${Date.now()}`;
+          const datos = {
+            commerceOrder: comercioOrden,
+            subject:       `Plan ${plan} - Máximo Esfuerzo (Pago único)`,
+            currency:      'CLP',
+            amount:        String(monto),
+            email:         email,
+            urlConfirmation: 'https://flow-payments.jaimea-gomezh.workers.dev/webhook-pago',
+            urlReturn:     'https://maximi-esfuerzo.pages.dev?pago=ok',
+            optional:      JSON.stringify({ plan, nombre, tipoPago: 'unico' }),
+          };
 
-          urlReturn:     'https://maximi-esfuerzo.pages.dev?pago=ok',
-          optional:      JSON.stringify({ plan, nombre }),
-        };
-
-        const resp = await llamarFlow('/payment/create', datos, env);
-
-        if (resp.url && resp.token) {
-          return Response.json({
-            ok: true,
-            url: `${resp.url}?token=${resp.token}`
-          }, { headers: corsHeaders() });
+          const resp = await llamarFlow('/payment/create', datos, env);
+          if (resp.url && resp.token) {
+            return Response.json({
+              ok: true,
+              url: `${resp.url}?token=${resp.token}`
+            }, { headers: corsHeaders() });
+          }
+          return Response.json({ ok: false, error: resp }, { headers: corsHeaders() });
         }
-        return Response.json({ ok: false, error: resp }, { headers: corsHeaders() });
+
+        // Suscripción 3 meses: cobros automáticos cada mes por 3 meses
+        if (tipoSuscripcion === 'suscripcion-3m' || tipoPago === 'mensual') {
+          // 1. Crear cliente en Flow
+          const cliente = await llamarFlow('/customer/create', {
+            name:  nombre,
+            email: email,
+          }, env);
+
+          const customerId = cliente.customerId || cliente.id;
+          if (!customerId) {
+            return Response.json({ ok: false, error: 'No se pudo crear cliente', detalle: cliente }, { headers: corsHeaders() });
+          }
+
+          // 2. Crear plan de suscripción con 3 cobros
+          const planId = `ME-3m-${Date.now()}`;
+          const planResp = await llamarFlow('/plan/create', {
+            planId:       planId,
+            name:         `${plan} (3 meses) - Máximo Esfuerzo`,
+            currency:     'CLP',
+            amount:       String(monto),
+            interval:     '1',
+            intervalType: 'month',
+            charges:      '3',  // ← 3 cobros automáticos
+            trialPeriodDays: '0',
+            urlCallback:  'https://flow-payments.jaimea-gomezh.workers.dev/webhook-suscripcion',
+          }, env);
+
+          if (!planResp.planId) {
+            return Response.json({ ok: false, error: 'No se pudo crear plan', detalle: planResp }, { headers: corsHeaders() });
+          }
+
+          // 3. Suscribir cliente al plan
+          const susResp = await llamarFlow('/subscription/create', {
+            planId:     planId,
+            customerId: customerId,
+            couponId:   '',
+          }, env);
+
+          if (susResp.url && susResp.token) {
+            return Response.json({
+              ok: true,
+              url: `${susResp.url}?token=${susResp.token}`,
+              subscriptionId: susResp.subscriptionId
+            }, { headers: corsHeaders() });
+          }
+
+          return Response.json({ ok: false, error: susResp }, { headers: corsHeaders() });
+        }
+
+        return Response.json({ ok: false, error: 'Tipo de pago inválido' }, { headers: corsHeaders() });
 
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { headers: corsHeaders() });
