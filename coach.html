@@ -387,6 +387,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
         <div class="sbox" style="border-top-color:var(--orange);"><div class="sbox-n" style="color:var(--orange);" id="stVencidos">0</div><div class="sbox-l">Vencidos</div></div>
         <div class="sbox" style="border-top-color:#ccc;"><div class="sbox-n" style="color:var(--text3);" id="stArchivados">0</div><div class="sbox-l">Archivados</div></div>
       </div>
+
+      <!-- Sección atletas que pagaron via Flow -->
+      <div id="secPlanAtletas" style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-family:var(--fc);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);font-weight:700;">Suscriptores Flow</div>
+          <button onclick="cargarPlanAtletas()" style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid var(--border);padding:4px 10px;border-radius:3px;cursor:pointer;color:var(--text3);">↺ Actualizar</button>
+        </div>
+        <div class="filtros" style="margin-bottom:8px;">
+          <button class="f-btn active" onclick="filtrarPlanes('todos',this)">Todos</button>
+          <button class="f-btn" style="border-color:rgba(0,168,179,0.4);color:var(--cian2);" onclick="filtrarPlanes('suscrito',this)">🏷 Suscritos</button>
+          <button class="f-btn" style="border-color:rgba(212,168,67,0.4);color:var(--gold);" onclick="filtrarPlanes('personalizado',this)">👤 Personalizados</button>
+        </div>
+        <div id="planAtletasList"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Cargando suscriptores...</div></div>
+      </div>
+
+      <div style="font-family:var(--fc);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:8px;">Atletas locales</div>
       <div class="filtros">
         <button class="f-btn active" onclick="filtrar('todos',this)">Todos</button>
         <button class="f-btn" onclick="filtrar('activo',this)">Plan Activo</button>
@@ -722,6 +738,84 @@ function iniciar() {
   renderAtletas();
   renderResumen();
   initRucking();
+  cargarPlanAtletas();
+}
+
+// ── ATLETAS CON PLAN (Flow) ────────────────────────────────────────────────
+const FLOW_WORKER_URL = 'https://flow-payments.jaimea-gomezh.workers.dev';
+let planAtletas = [];
+let filtroPlanActivo = 'todos';
+
+async function cargarPlanAtletas() {
+  const el = document.getElementById('planAtletasList');
+  el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Cargando...</div>';
+  try {
+    const res = await fetch(`${FLOW_WORKER_URL}/plan-atletas?secret=${PASS}`);
+    const data = await res.json();
+    if (data.ok) {
+      planAtletas = data.atletas;
+      renderPlanAtletas();
+    } else {
+      el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:13px;">Error al cargar suscriptores</div>';
+    }
+  } catch(e) {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:13px;">Sin conexión al worker</div>';
+  }
+}
+
+function filtrarPlanes(tipo, btn) {
+  filtroPlanActivo = tipo;
+  document.querySelectorAll('#secPlanAtletas .f-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPlanAtletas();
+}
+
+function renderPlanAtletas() {
+  const el = document.getElementById('planAtletasList');
+  const hoy = new Date();
+  let lista = planAtletas;
+  if (filtroPlanActivo !== 'todos') {
+    lista = lista.filter(a => a.tipoPlan === filtroPlanActivo);
+  }
+
+  if (!lista.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">No hay suscriptores en esta categoría</div>';
+    return;
+  }
+
+  el.innerHTML = lista.map(a => {
+    const esPers = a.tipoPlan === 'personalizado';
+    const fechaCompra = a.fechaCompra ? new Date(a.fechaCompra).toLocaleDateString('es-CL') : '—';
+    let venceStr = '—';
+    let diasRestantes = null;
+    if (a.fechaVencimiento) {
+      const fv = new Date(a.fechaVencimiento);
+      diasRestantes = Math.ceil((fv - hoy) / 86400000);
+      venceStr = fv.toLocaleDateString('es-CL');
+    }
+    const estadoColor = !a.fechaVencimiento ? 'var(--gold)' : diasRestantes > 7 ? 'var(--green)' : diasRestantes > 0 ? 'var(--orange)' : 'var(--red)';
+    const estadoTxt = !a.fechaVencimiento ? 'Indefinido' : diasRestantes > 0 ? `Vence en ${diasRestantes}d` : 'Vencido';
+
+    return `<div style="background:white;border-radius:6px;padding:14px;margin-bottom:8px;border:1px solid var(--border);border-left:4px solid ${esPers ? 'var(--gold)' : 'var(--cian2)'};">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <div>
+          <div style="font-family:var(--fc);font-size:15px;font-weight:700;">${a.nombre}</div>
+          <div style="font-size:12px;color:var(--text3);">${a.email}</div>
+        </div>
+        <span style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:${esPers ? 'rgba(212,168,67,0.12)' : 'rgba(0,168,179,0.12)'};color:${esPers ? 'var(--gold)' : 'var(--cian2)'};border:1px solid ${esPers ? 'rgba(212,168,67,0.3)' : 'rgba(0,168,179,0.3)'};">
+          ${esPers ? '👤 Personalizado' : '🏷 Suscrito'}
+        </span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+        <div><span style="color:var(--text3);">Plan:</span> <strong>${a.plan}</strong></div>
+        <div><span style="color:var(--text3);">Monto:</span> <strong>$${Number(a.monto).toLocaleString('es-CL')} CLP</strong></div>
+        <div><span style="color:var(--text3);">Compra:</span> ${fechaCompra}</div>
+        <div><span style="color:var(--text3);">Vence:</span> <span style="color:${estadoColor};font-weight:600;">${estadoTxt}</span></div>
+        ${a.tipoSuscripcion === 'suscripcion-3m' ? '<div style="grid-column:1/-1;"><span style="color:var(--text3);">Modalidad:</span> 3 cuotas mensuales</div>' : ''}
+        ${esPers ? '<div style="grid-column:1/-1;background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.2);border-radius:4px;padding:6px;color:var(--gold);font-size:11px;">⚠️ Requiere gestión manual de TrainHeroic</div>' : ''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function actualizarStats() {

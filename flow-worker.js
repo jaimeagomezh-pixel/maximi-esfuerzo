@@ -221,44 +221,49 @@ export default {
         if (estado.status === 2) { // 2 = pagado
           const opt = JSON.parse(estado.optional || '{}');
           const emailCliente = estado.payer;
+          const esPersonalizado = opt.plan?.toLowerCase().includes('personalizado') || opt.tipoPago === 'personalizado';
 
-          // ✅ ENVIAR CÓDIGO DE TRAINHEROIC AL CLIENTE
-          const codigo = obtenerCodigoTrainHeroic(opt.plan, env);
-          if (codigo) {
-            // Guardar en KV si está disponible (opcional — no detiene el flujo si falta)
-            if (env.PAGO_DATA) {
-              try {
-                await env.PAGO_DATA.put(`codigo:${emailCliente}`, JSON.stringify({
-                  codigo,
-                  plan: opt.plan,
-                  compradoEn: new Date().toISOString(),
-                  orden: estado.commerceOrder
-                }), { expirationTtl: 30 * 24 * 60 * 60 }); // 30 días
-              } catch(kvErr) {
-                console.warn('KV PAGO_DATA no disponible:', kvErr.message);
-              }
+          // ✅ GUARDAR ATLETA EN KV (para panel coach)
+          const fechaCompra = new Date().toISOString();
+          const fechaVencimiento = calcularVencimiento(opt.tipoSuscripcion || opt.tipoPago, fechaCompra);
+          const datosAtleta = {
+            email: emailCliente,
+            nombre: opt.nombre || emailCliente.split('@')[0],
+            plan: opt.plan,
+            tipoPlan: esPersonalizado ? 'personalizado' : 'suscrito',
+            tipoSuscripcion: opt.tipoSuscripcion || opt.tipoPago,
+            monto: estado.amount,
+            fechaCompra,
+            fechaVencimiento,
+            orden: estado.commerceOrder,
+            pagos: [{ fecha: fechaCompra, monto: estado.amount, orden: estado.commerceOrder }]
+          };
+          await env.RUCK_DATA.put(`plan-atleta:${emailCliente}`, JSON.stringify(datosAtleta));
+
+          // ✅ ENVIAR CÓDIGO DE TRAINHEROIC (solo planes autogestionados)
+          if (!esPersonalizado) {
+            const codigo = obtenerCodigoTrainHeroic(opt.plan, env);
+            if (codigo) {
+              await enviarEmailTrainHeroic(env, {
+                email: emailCliente,
+                codigo,
+                plan: opt.plan,
+                nombre: opt.nombre
+              });
             }
-
-            // Enviar email al cliente con el código
-            await enviarEmailTrainHeroic(env, {
-              email: emailCliente,
-              codigo,
-              plan: opt.plan,
-              nombre: opt.nombre
-            });
           }
 
-          // Notificar a Jaime (admin) por email
+          // Notificar a admin por email
           await notificarAdminEmail(env, {
-            asunto: `✅ Nuevo pago recibido — ${opt.plan}`,
+            asunto: `✅ Nuevo pago — ${opt.plan} (${esPersonalizado ? 'PERSONALIZADO' : 'Suscrito'})`,
             cuerpo: `
               Plan: ${opt.plan}
+              Tipo: ${esPersonalizado ? 'Personalizado (requiere tu gestión)' : 'Autogestionado'}
               Cliente: ${opt.nombre}
               Email: ${emailCliente}
               Monto: $${estado.amount} CLP
               Orden: ${estado.commerceOrder}
-
-              ✅ Código TrainHeroic enviado al cliente.
+              ${esPersonalizado ? '\n⚠️ Este atleta necesita gestión manual de TrainHeroic.' : '\n✅ Código TrainHeroic enviado automáticamente.'}
             `
           });
         }
@@ -398,6 +403,48 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ── GET /plan-atletas — coach consulta atletas que han pagado ──
+    if (url.pathname === '/plan-atletas' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) {
+        return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+      }
+      try {
+        const list = await env.RUCK_DATA.list({ prefix: 'plan-atleta:' });
+        const atletas = await Promise.all(
+          list.keys.map(async k => {
+            const val = await env.RUCK_DATA.get(k.name);
+            return val ? JSON.parse(val) : null;
+          })
+        );
+        return Response.json({ ok: true, atletas: atletas.filter(Boolean) }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
+    // ── GET /test-email — prueba envío de email sin pago real ──
+    if (url.pathname === '/test-email' && request.method === 'GET') {
+      const key = url.searchParams.get('key');
+      if (key !== (env.COACH_SECRET || 'ME2026coach')) {
+        return new Response('No autorizado', { status: 401 });
+      }
+      try {
+        await enviarEmailTrainHeroic(env, {
+          email: env.NOTIFY_EMAIL || 'maximoesfuerzo91@gmail.com',
+          codigo: 'TEST-2026-PRUEBA',
+          plan: 'Plan de Prueba · Intermedio',
+          nombre: 'Jaime (test)'
+        });
+        await notificarAdminEmail(env, {
+          asunto: '🧪 Test email enviado correctamente',
+          cuerpo: 'El sistema de emails funciona. Este es un test.'
+        });
+        return new Response('✅ Emails de prueba enviados. Revisa tu correo.', { status: 200 });
+      } catch(e) {
+        return new Response('❌ Error: ' + e.message, { status: 500 });
+      }
+    }
+
     // ── CRON: notificar planes por vencer ────────
     // (configurar en wrangler.toml como cron trigger)
     return new Response('Flow Worker activo', { status: 200 });
@@ -415,6 +462,21 @@ export default {
 // ══════════════════════════════════════════════
 //  FUNCIONES DE EMAIL Y CÓDIGOS
 // ══════════════════════════════════════════════
+
+// ── Calcular fecha de vencimiento según tipo de suscripción ──
+function calcularVencimiento(tipoSuscripcion, fechaCompra) {
+  const fecha = new Date(fechaCompra);
+  if (tipoSuscripcion === 'suscripcion-3m' || tipoSuscripcion === 'mensual') {
+    fecha.setMonth(fecha.getMonth() + 3);
+  } else if (tipoSuscripcion === 'pago-unico' || tipoSuscripcion === 'unico') {
+    fecha.setMonth(fecha.getMonth() + 1);
+  } else if (tipoSuscripcion === 'personalizado') {
+    return null; // indefinido — el coach decide
+  } else {
+    fecha.setMonth(fecha.getMonth() + 1); // fallback: 1 mes
+  }
+  return fecha.toISOString();
+}
 
 // ── Mapear plan al código de TrainHeroic ─────
 function obtenerCodigoTrainHeroic(plan, env) {
