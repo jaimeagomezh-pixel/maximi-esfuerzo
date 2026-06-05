@@ -220,18 +220,45 @@ export default {
 
         if (estado.status === 2) { // 2 = pagado
           const opt = JSON.parse(estado.optional || '{}');
+          const emailCliente = estado.payer;
 
-          // Notificar a Jaime por email
-          await notificarEmail(env, {
+          // ✅ ENVIAR CÓDIGO DE TRAINHEROIC AL CLIENTE
+          const codigo = obtenerCodigoTrainHeroic(opt.plan, env);
+          if (codigo) {
+            // Guardar en KV si está disponible (opcional — no detiene el flujo si falta)
+            if (env.PAGO_DATA) {
+              try {
+                await env.PAGO_DATA.put(`codigo:${emailCliente}`, JSON.stringify({
+                  codigo,
+                  plan: opt.plan,
+                  compradoEn: new Date().toISOString(),
+                  orden: estado.commerceOrder
+                }), { expirationTtl: 30 * 24 * 60 * 60 }); // 30 días
+              } catch(kvErr) {
+                console.warn('KV PAGO_DATA no disponible:', kvErr.message);
+              }
+            }
+
+            // Enviar email al cliente con el código
+            await enviarEmailTrainHeroic(env, {
+              email: emailCliente,
+              codigo,
+              plan: opt.plan,
+              nombre: opt.nombre
+            });
+          }
+
+          // Notificar a Jaime (admin) por email
+          await notificarAdminEmail(env, {
             asunto: `✅ Nuevo pago recibido — ${opt.plan}`,
             cuerpo: `
               Plan: ${opt.plan}
               Cliente: ${opt.nombre}
-              Email: ${estado.payer}
+              Email: ${emailCliente}
               Monto: $${estado.amount} CLP
               Orden: ${estado.commerceOrder}
-              
-              → Enviar código TrainHeroic al cliente.
+
+              ✅ Código TrainHeroic enviado al cliente.
             `
           });
         }
@@ -239,6 +266,7 @@ export default {
         return new Response('OK', { status: 200 });
 
       } catch(e) {
+        console.error('Error en webhook pago:', e);
         return new Response('Error', { status: 500 });
       }
     }
@@ -384,13 +412,181 @@ export default {
   }
 };
 
-// ── Enviar email de notificación ──────────────
-async function notificarEmail(env, { asunto, cuerpo }) {
-  // Usa el servicio de email de Cloudflare o un endpoint externo
-  // Por ahora registra en consola — se conecta a un servicio real en el siguiente paso
-  console.log('EMAIL:', asunto);
-  console.log(cuerpo);
+// ══════════════════════════════════════════════
+//  FUNCIONES DE EMAIL Y CÓDIGOS
+// ══════════════════════════════════════════════
 
-  // Si tienes configurado un servicio como Resend o SendGrid,
-  // se agrega aquí con env.EMAIL_API_KEY
+// ── Mapear plan al código de TrainHeroic ─────
+function obtenerCodigoTrainHeroic(plan, env) {
+  // Parsear los códigos del secret (formato: JSON con plan → código)
+  // Variable de entorno: CODIGOS_TRAINHEROIC
+  // Ej: {"ESTABIL|BAS|1":"EST-BAS-2026", "ACOND|BAS|1":"ACO-BAS-2026", ...}
+  try {
+    const codigosJson = env.CODIGOS_TRAINHEROIC || '{}';
+    const codigos = typeof codigosJson === 'string' ? JSON.parse(codigosJson) : codigosJson;
+
+    // Normalizar nombre del plan (remover espacios, minúsculas para búsqueda)
+    const planNormalizado = plan.toLowerCase().replace(/\s+/g, '');
+
+    // Buscar coincidencia: puede ser clave exacta o parcial
+    for (const [clave, codigo] of Object.entries(codigos)) {
+      const claveNormalizada = clave.toLowerCase().replace(/\s+/g, '');
+      if (planNormalizado.includes(claveNormalizada) || claveNormalizada.includes(planNormalizado)) {
+        return codigo;
+      }
+    }
+
+    // Si no hay coincidencia exacta, devolver el primer código disponible como fallback
+    const codigosArr = Object.values(codigos);
+    return codigosArr.length > 0 ? codigosArr[0] : null;
+  } catch (e) {
+    console.error('Error parseando códigos:', e);
+    return null;
+  }
+}
+
+// ── Enviar email al cliente con código ───────
+async function enviarEmailTrainHeroic(env, { email, codigo, plan, nombre }) {
+  if (!env.RESEND_API_KEY) {
+    console.error('RESEND_API_KEY no configurada');
+    return;
+  }
+
+  const emailDesde = env.EMAIL_FROM || 'noreply@maximoesfuerzo.cl';
+  const asunto = `🏋️ Tu código de TrainHeroic — ${plan}`;
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: 'Barlow', Arial, sans-serif; background: #f5f5f5; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header { background: linear-gradient(135deg, #C9630A 0%, #8B4513 100%); color: white; padding: 40px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 28px; font-weight: 700; }
+        .body { padding: 40px 20px; }
+        .plan { font-size: 16px; font-weight: 600; color: #333; margin: 20px 0; }
+        .code-box { background: #f9f9f9; border: 2px solid #C9630A; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0; }
+        .code-box .codigo { font-family: 'Courier New', monospace; font-size: 24px; font-weight: 700; color: #C9630A; letter-spacing: 2px; }
+        .instructions { background: #f0f0f0; padding: 20px; border-radius: 4px; margin: 20px 0; font-size: 14px; color: #555; }
+        .instructions ol { margin: 10px 0; padding-left: 20px; }
+        .instructions li { margin: 8px 0; }
+        .footer { background: #f5f5f5; padding: 20px; text-align: center; font-size: 12px; color: #999; border-top: 1px solid #e0e0e0; }
+        .footer a { color: #C9630A; text-decoration: none; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🏋️ MÁXIMO ESFUERZO</h1>
+          <p style="margin: 10px 0 0 0; font-size: 14px;">Tu plan está activo</p>
+        </div>
+        <div class="body">
+          <p style="margin: 0 0 20px 0; color: #555;">¡Hola ${nombre || 'atleta'}!</p>
+          <p style="color: #555; line-height: 1.6;">
+            Tu pago fue procesado exitosamente. 🎉<br>
+            A continuación encontrarás tu código de acceso a TrainHeroic para el plan que adquiriste.
+          </p>
+
+          <div class="plan">
+            Plan adquirido: <strong>${plan}</strong>
+          </div>
+
+          <div class="code-box">
+            <p style="margin: 0 0 15px 0; color: #999; font-size: 14px;">Tu código de TrainHeroic:</p>
+            <div class="codigo">${codigo}</div>
+          </div>
+
+          <div class="instructions">
+            <strong>📌 Instrucciones:</strong>
+            <ol>
+              <li>Dirígete a <strong>TrainHeroic</strong></li>
+              <li>Ingresa tu email: <strong>${email}</strong></li>
+              <li>Usa el código anterior para activar tu plan</li>
+              <li>¡Listo! Comienza tu entrenamiento</li>
+            </ol>
+          </div>
+
+          <p style="color: #999; font-size: 13px; margin-top: 30px;">
+            Si tienes preguntas, responde este email o contáctanos a través de nuestro sitio.
+          </p>
+        </div>
+        <div class="footer">
+          <p style="margin: 0;">© 2026 Máximo Esfuerzo — Plataforma de rendimiento deportivo</p>
+          <p style="margin: 8px 0 0 0;">
+            <a href="https://maximi-esfuerzo.pages.dev">maximi-esfuerzo.pages.dev</a>
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: emailDesde,
+        to: email,
+        subject: asunto,
+        html: html,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      console.log('Email enviado a', email, '—', data.id);
+    } else {
+      const err = await res.text();
+      console.error('Error enviando email:', err);
+    }
+  } catch (e) {
+    console.error('Error en enviarEmailTrainHeroic:', e);
+  }
+}
+
+// ── Notificar a admin (Jaime) ────────────────
+async function notificarAdminEmail(env, { asunto, cuerpo }) {
+  const adminEmail = env.NOTIFY_EMAIL || 'maximoesfuerzo91@gmail.com';
+  const emailDesde = env.EMAIL_FROM || 'noreply@maximoesfuerzo.cl';
+
+  if (!env.RESEND_API_KEY) {
+    console.log('Notificación (sin Resend):', asunto, cuerpo);
+    return;
+  }
+
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: emailDesde,
+        to: adminEmail,
+        subject: asunto,
+        text: cuerpo,
+      }),
+    });
+
+    if (res.ok) {
+      console.log('Admin notificado:', asunto);
+    } else {
+      console.error('Error notificando admin:', await res.text());
+    }
+  } catch (e) {
+    console.error('Error en notificarAdminEmail:', e);
+  }
+}
+
+// ── Enviar email de notificación (LEGACY) ────
+async function notificarEmail(env, { asunto, cuerpo }) {
+  // Redirigir a notificarAdminEmail para consistencia
+  await notificarAdminEmail(env, { asunto, cuerpo });
 }

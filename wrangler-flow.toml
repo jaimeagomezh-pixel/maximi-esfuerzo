@@ -5,3 +5,7 @@ compatibility_date = "2026-05-23"
 [[kv_namespaces]]
 binding = "RUCK_DATA"
 id = "785dd0d41ab34c2e868975d6d0a26bcd"
+
+# PAGO_DATA — KV opcional para registrar compras
+# Para activarlo: npx wrangler kv:namespace create "pago-data"
+# y agregar el binding aquí con el ID resultante

@@ -923,7 +923,63 @@
     }
   }
 
+  // Manejar callback de pago Flow (?pago=ok)
+  function handleFlowPaymentSuccess() {
+    const params = new URLSearchParams(window.location.search);
+    const pagoOk = params.get('pago');
+    if (pagoOk !== 'ok') return;
+
+    // Limpiar URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+
+    // Mostrar toast de éxito
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      padding: 18px 24px;
+      border-radius: 8px;
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 10000;
+      animation: slideIn 0.4s cubic-bezier(0.22,1,0.36,1);
+      max-width: 400px;
+    `;
+    toast.innerHTML = `
+      ✓ <strong>¡Pago exitoso!</strong><br>
+      Tu plan se ha activado. En breve recibirás el código de TrainHeroic por email.
+    `;
+
+    // Agregar animación
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateX(24px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+    `;
+    document.head.appendChild(style);
+    document.body.appendChild(toast);
+
+    // Auto-cerrar después de 6 segundos
+    setTimeout(() => {
+      toast.style.animation = 'slideIn 0.4s cubic-bezier(0.22,1,0.36,1) reverse forwards';
+      setTimeout(() => toast.remove(), 400);
+    }, 6000);
+
+    // Guardar en localStorage que el usuario compró (opcional, para stats)
+    const compras = JSON.parse(localStorage.getItem('comprasPagosExitosos') || '[]');
+    compras.push({ timestamp: Date.now(), tipo: 'pago' });
+    localStorage.setItem('comprasPagosExitosos', JSON.stringify(compras));
+  }
+
   // Ejecutar al cargar
+  handleFlowPaymentSuccess();
   handleStravaCallback();
   checkStravaToken();
 
