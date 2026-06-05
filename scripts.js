@@ -23,6 +23,13 @@
     if (precioMensual) precioMensual.textContent = `3 × $${montoNum.toLocaleString('es-CL')} CLP (total $${total3m.toLocaleString('es-CL')})`;
     if (precioUnico) precioUnico.textContent = `1 pago de $${descuento15.toLocaleString('es-CL')} CLP`;
 
+    // Mostrar/ocultar campo de email según si está logueado
+    const emailSection = document.getElementById('modalEmailSection');
+    const isLoggedIn = window._auth?.currentUser;
+    if (emailSection) {
+      emailSection.style.display = isLoggedIn ? 'none' : 'block';
+    }
+
     // Guardar datos para el pago
     window._planData = { nombre, montoNum, total3m, descuento15 };
 
@@ -3726,9 +3733,20 @@
     }
 
     const user = window._auth?.currentUser;
+
+    // Si NO está logueado, obtener email del campo
+    let email, nombre;
     if (!user) {
-      alert('Debes iniciar sesión primero para contratar un plan.');
-      return;
+      const emailInput = document.getElementById('modalEmail');
+      if (!emailInput?.value || !emailInput.value.includes('@')) {
+        alert('Por favor ingresa un correo electrónico válido.');
+        return;
+      }
+      email = emailInput.value;
+      nombre = email.split('@')[0]; // usar parte del email como nombre
+    } else {
+      email = user.email;
+      nombre = user.displayName || user.email.split('@')[0];
     }
 
     try {
@@ -3742,10 +3760,11 @@
         body: JSON.stringify({
           plan: planData.nombre,
           monto,
-          email: user.email,
-          nombre: user.displayName || user.email.split('@')[0],
+          email,
+          nombre,
           tipoPago, // 'mensual' o 'unico'
-          tipoSuscripcion // 'suscripcion-3m' o 'pago-unico'
+          tipoSuscripcion, // 'suscripcion-3m' o 'pago-unico'
+          isAnonymous: !user // flag para saber si fue pago anónimo
         })
       });
 
