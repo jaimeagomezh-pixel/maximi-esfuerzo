@@ -784,35 +784,60 @@ async function cargarPlanAtletas() {
     if (data.ok) {
       planAtletas = data.atletas;
 
-      // ── Auto-crear en Atletas Locales si no existen ──────────
-      let huboNuevos = false;
+      // ── Crear o actualizar atletas desde Flow ────────────────
+      let hubocambios = false;
       const hoy = new Date();
       planAtletas.forEach(fa => {
-        const yaExiste = atletas.find(x => x.email && x.email.toLowerCase() === fa.email.toLowerCase());
-        if (!yaExiste) {
-          const fv = fa.fechaVencimiento ? new Date(fa.fechaVencimiento) : null;
-          const dias = fv ? Math.ceil((fv - hoy) / 86400000) : null;
+        const fv = fa.fechaVencimiento ? new Date(fa.fechaVencimiento) : null;
+        const dias = fv ? Math.ceil((fv - hoy) / 86400000) : null;
+        const tipoNuevo = !fv || dias > 0 ? 'activo' : 'vencido';
+        const vencNuevo = fa.fechaVencimiento ? fa.fechaVencimiento.split('T')[0] : null;
+        const pagosNuevos = fa.pagos && fa.pagos.length
+          ? fa.pagos.map(p => ({ plan: fa.plan, fecha: p.fecha, monto: `$${Number(p.monto).toLocaleString('es-CL')}` }))
+          : [{ plan: fa.plan, fecha: fa.fechaCompra, monto: `$${Number(fa.monto).toLocaleString('es-CL')}` }];
+
+        const existente = atletas.find(x => x.email && x.email.toLowerCase() === fa.email.toLowerCase());
+
+        if (!existente) {
+          // Crear nuevo atleta
           atletas.push({
             id: Date.now() + Math.floor(Math.random() * 1000),
-            nombre: fa.nombre,
-            email: fa.email,
-            plan: fa.plan,
-            tipo: !fv || dias > 0 ? 'activo' : 'vencido',
-            diasActivos: 0,
-            vencimiento: fa.fechaVencimiento ? fa.fechaVencimiento.split('T')[0] : null,
-            peso: null, talla: null, edad: null,
-            archivado: false,
+            nombre: fa.nombre, email: fa.email, plan: fa.plan,
+            tipo: tipoNuevo, diasActivos: 0, vencimiento: vencNuevo,
+            peso: null, talla: null, edad: null, archivado: false,
             strava: null, fuerza: {}, prTiempos: {},
-            pagos: fa.pagos && fa.pagos.length
-              ? fa.pagos.map(p => ({ plan: fa.plan, fecha: p.fecha, monto: `$${Number(p.monto).toLocaleString('es-CL')}` }))
-              : [{ plan: fa.plan, fecha: fa.fechaCompra, monto: `$${Number(fa.monto).toLocaleString('es-CL')}` }],
+            pagos: pagosNuevos,
             notas: `Registrado vía Flow el ${new Date(fa.fechaCompra).toLocaleDateString('es-CL')}.`,
             stravaId: null, rucking: null, origenFlow: true
           });
-          huboNuevos = true;
+          hubocambios = true;
+        } else {
+          // ── Actualizar si el plan de Flow es más reciente o el atleta estaba sin plan/archivado ──
+          const necesitaActualizar =
+            existente.tipo === 'cuenta' ||          // estaba sin plan
+            existente.tipo === 'vencido' ||         // plan vencido
+            existente.archivado ||                  // estaba archivado
+            existente.plan !== fa.plan ||           // plan diferente
+            existente.vencimiento !== vencNuevo;    // vencimiento cambió
+
+          if (necesitaActualizar) {
+            existente.plan      = fa.plan;
+            existente.tipo      = tipoNuevo;
+            existente.vencimiento = vencNuevo;
+            existente.archivado = false;  // desarchivar si estaba archivado
+            // Agregar pagos nuevos que no estén ya
+            pagosNuevos.forEach(pNuevo => {
+              const yaEsta = existente.pagos?.some(p => p.fecha === pNuevo.fecha && p.monto === pNuevo.monto);
+              if (!yaEsta) {
+                if (!existente.pagos) existente.pagos = [];
+                existente.pagos.push(pNuevo);
+              }
+            });
+            hubocambios = true;
+          }
         }
       });
-      if (huboNuevos) {
+      if (hubocambios) {
         guardarAtletas();
         actualizarStats();
         renderAtletas();
