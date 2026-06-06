@@ -1590,9 +1590,9 @@ function abrirPerfil(id) {
       <div class="chart-wrap"><canvas id="cPeso"></canvas></div>
     </div>
 
-    ${a.strava ? `
     <div class="sec">
-      <div class="sec-t">Strava · Último mes</div>
+      <div class="sec-t">Endurance · Strava</div>
+      ${a.strava ? `
       <div class="s-metrics">
         <div class="sm"><div><span class="sm-v">${a.strava.km}</span><span class="sm-u">km</span></div><div class="sm-l">Distancia</div></div>
         <div class="sm"><div><span class="sm-v">${a.strava.ritmo}</span><span class="sm-u">min/km</span></div><div class="sm-l">Ritmo</div></div>
@@ -1600,11 +1600,16 @@ function abrirPerfil(id) {
         <div class="sm"><div><span class="sm-v">${a.strava.acts}</span></div><div class="sm-l">Actividades</div></div>
       </div>
       <div class="chart-wrap"><canvas id="cStrava"></canvas></div>
-    </div>` : ''}
+      ` : `<div class="empty" style="padding:16px 0;">
+        <div class="empty-i">🏃</div>
+        <div class="empty-t">Atleta aún no conecta Strava</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los datos aparecerán cuando el atleta vincule su cuenta en la plataforma</div>
+      </div>`}
+    </div>
 
-    ${prDists.length ? `
     <div class="sec">
       <div class="sec-t">Progresión de tiempos</div>
+      ${prDists.length ? `
       <div class="dist-sel" id="distSel">
         ${prDists.map((d,i)=>`<button class="d-btn${i===0?' active':''}" onclick="selDist('${d}',this)">${d.replace('km',' km')}</button>`).join('')}
       </div>
@@ -1614,11 +1619,16 @@ function abrirPerfil(id) {
         <div class="pr-stat delta"><div class="pr-stat-v" id="prDelta">—</div><div class="pr-stat-l">Mejora</div></div>
       </div>
       <div class="chart-wrap"><canvas id="cPR"></canvas></div>
-    </div>` : ''}
+      ` : `<div class="empty" style="padding:16px 0;">
+        <div class="empty-i">⏱</div>
+        <div class="empty-t">Sin registros de tiempo aún</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los PRs y progresiones se registran desde el panel del atleta</div>
+      </div>`}
+    </div>
 
-    ${exFuerza.length ? `
     <div class="sec">
       <div class="sec-t">Fuerza · TrainHeroic</div>
+      ${exFuerza.length ? `
       <div class="ex-btns" id="exBtns">
         ${exFuerza.map((ex,i)=>`<button class="ex-btn${i===0?' active':''}" onclick="selEx('${ex}',this)">${ex}</button>`).join('')}
       </div>
@@ -1628,7 +1638,12 @@ function abrirPerfil(id) {
       </div>
       <div class="chart-wrap"><canvas id="cFuerza"></canvas></div>
       <table class="sets-table" id="setsTable" style="margin-top:12px;"></table>
-    </div>` : ''}
+      ` : `<div class="empty" style="padding:16px 0;">
+        <div class="empty-i">🏋️</div>
+        <div class="empty-t">Sin datos de fuerza aún</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Sube el CSV de TrainHeroic desde el panel del atleta o desde aquí abajo</div>
+      </div>`}
+    </div>
 
     <div class="sec">
       <div class="sec-t">Historial de pagos</div>
