@@ -2120,7 +2120,17 @@
     document.body.style.overflow = '';
   }
 
-  function abrirLogin() { document.getElementById('loginOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
+  function abrirLogin() {
+    // Si ya hay sesión activa, ir directo al dashboard sin mostrar el modal
+    if (window._auth && window._auth.currentUser) {
+      const u = window._auth.currentUser;
+      const nombre = u.displayName || u.email.split('@')[0];
+      abrirDashboard(nombre);
+      return;
+    }
+    document.getElementById('loginOverlay').classList.add('active');
+    document.body.style.overflow='hidden';
+  }
   function cerrarLogin() { document.getElementById('loginOverlay').classList.remove('active'); document.body.style.overflow=''; limpiarMensaje(); }
   function cerrarLoginOverlay(e) { if(e.target===document.getElementById('loginOverlay')) cerrarLogin(); }
   function cambiarTab(tab,btn) {
