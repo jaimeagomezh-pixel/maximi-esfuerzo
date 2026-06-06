@@ -4220,13 +4220,15 @@
     ].filter(Boolean);
     if (!targets.length) return;
 
-    const sinPlanHtml = activo => `
-      <div style="color:#888;font-size:13px;">No tienes ningún plan activo.<br>
-        <button onclick="abrirPlanes();toggleMiCuenta();toggleDashMenu?.()" style="margin-top:10px;background:#d4a843;color:#000;border:none;padding:8px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Ver planes</button>
-      </div>`;
+    const banner = document.getElementById('dashSinPlanBanner');
+    const mostrarBanner = (show) => { if (banner) banner.style.display = show ? 'flex' : 'none'; };
+
+    const sinPlanHtml = () =>
+      '<div style="color:#888;font-size:13px;">No tienes ningún plan activo.</div>';
 
     if (!user) {
       targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>');
+      mostrarBanner(false);
       return;
     }
     targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;">Cargando...</div>');
@@ -4235,11 +4237,13 @@
       const data = await res.json();
       if (!data.ok || !data.plan) {
         targets.forEach(el => el.innerHTML = sinPlanHtml());
+        mostrarBanner(true);
         return;
       }
       const p = data.plan;
       const activo  = p.activo;
       const color   = activo ? '#2ecc71' : '#e74c3c';
+      mostrarBanner(!activo); // mostrar banner si el plan está vencido
       const badge   = activo ? '✅ Activo' : '❌ Vencido';
       const diasTxt = p.diasRestantes !== null
         ? (p.diasRestantes > 0 ? `${p.diasRestantes} días restantes` : 'Vence hoy')
