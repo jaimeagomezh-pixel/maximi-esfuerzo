@@ -280,6 +280,10 @@
   }
 
   function cerrarDashClick(e) {
+    // En desktop el dashboard-box no ocupa todo el ancho — los márgenes
+    // laterales también disparan este evento. Solo cerrar en móvil (< 700px)
+    // donde tocar fuera del panel es intencional.
+    if (window.innerWidth >= 700) return;
     if (e.target === document.getElementById('dashboardAtleta')) cerrarDash();
   }
 
