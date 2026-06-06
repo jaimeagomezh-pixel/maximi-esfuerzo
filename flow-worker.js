@@ -76,75 +76,68 @@ export default {
 
         // Pago único: cobro directo sin suscripción
         if (tipoSuscripcion === 'pago-unico' || tipoPago === 'unico') {
-          const comercioOrden = `ME-${Date.now()}`;
-          const datos = {
-            commerceOrder: comercioOrden,
-            subject:       `Plan ${plan} - Máximo Esfuerzo (Pago único)`,
-            currency:      'CLP',
-            amount:        String(monto),
-            email:         email,
-            urlConfirmation: 'https://flow-payments.jaimea-gomezh.workers.dev/webhook-pago',
-            urlReturn:     'https://maximi-esfuerzo.pages.dev?pago=ok',
-            optional:      JSON.stringify({ plan, nombre, tipoPago: 'unico' }),
-          };
-
-          const resp = await llamarFlow('/payment/create', datos, env);
-          if (resp.url && resp.token) {
-            return Response.json({
-              ok: true,
-              url: `${resp.url}?token=${resp.token}`
-            }, { headers: corsHeaders() });
-          }
-          return Response.json({ ok: false, error: resp }, { headers: corsHeaders() });
+          return await crearPagoUnico({ plan, monto, email, nombre, tipoPago: 'unico' }, env);
         }
 
         // Suscripción 3 meses: cobros automáticos cada mes por 3 meses
         if (tipoSuscripcion === 'suscripcion-3m' || tipoPago === 'mensual') {
-          // 1. Crear cliente en Flow
-          const cliente = await llamarFlow('/customer/create', {
-            name:  nombre,
-            email: email,
-          }, env);
+          try {
+            // 1. Crear cliente en Flow
+            const cliente = await llamarFlow('/customer/create', {
+              name:  nombre || email,
+              email: email,
+            }, env);
+            console.log('Cliente Flow:', JSON.stringify(cliente));
 
-          const customerId = cliente.customerId || cliente.id;
-          if (!customerId) {
-            return Response.json({ ok: false, error: 'No se pudo crear cliente', detalle: cliente }, { headers: corsHeaders() });
+            const customerId = cliente.customerId || cliente.id;
+            if (!customerId) {
+              console.error('Error creando cliente:', JSON.stringify(cliente));
+              // Fallback: cobrar primer mes como pago único y notificar admin
+              return await crearPagoUnico({ plan, monto, email, nombre, tipoPago: 'mensual-fallback' }, env);
+            }
+
+            // 2. Crear plan de suscripción con 3 cobros
+            const planId = `ME-3m-${Date.now()}`;
+            const planResp = await llamarFlow('/plan/create', {
+              planId:          planId,
+              name:            `${plan} - 3 meses`,
+              currency:        'CLP',
+              amount:          String(monto),
+              interval:        1,
+              intervalType:    'month',
+              charges:         3,
+              trialPeriodDays: 0,
+              urlCallback:     'https://flow-payments.jaimea-gomezh.workers.dev/webhook-suscripcion',
+            }, env);
+            console.log('Plan Flow:', JSON.stringify(planResp));
+
+            if (!planResp.planId) {
+              console.error('Error creando plan:', JSON.stringify(planResp));
+              return await crearPagoUnico({ plan, monto, email, nombre, tipoPago: 'mensual-fallback' }, env);
+            }
+
+            // 3. Suscribir cliente al plan (sin couponId vacío)
+            const susParams = { planId: planId, customerId: customerId };
+            const susResp = await llamarFlow('/subscription/create', susParams, env);
+            console.log('Suscripcion Flow:', JSON.stringify(susResp));
+
+            if (susResp.url && susResp.token) {
+              return Response.json({
+                ok: true,
+                url: `${susResp.url}?token=${susResp.token}`,
+                subscriptionId: susResp.subscriptionId,
+                tipo: 'suscripcion'
+              }, { headers: corsHeaders() });
+            }
+
+            // Si subscription/create no devuelve URL, fallback a pago único
+            console.error('Suscripcion sin URL:', JSON.stringify(susResp));
+            return await crearPagoUnico({ plan, monto, email, nombre, tipoPago: 'mensual-fallback' }, env);
+
+          } catch(subErr) {
+            console.error('Error en suscripcion:', subErr.message);
+            return await crearPagoUnico({ plan, monto, email, nombre, tipoPago: 'mensual-fallback' }, env);
           }
-
-          // 2. Crear plan de suscripción con 3 cobros
-          const planId = `ME-3m-${Date.now()}`;
-          const planResp = await llamarFlow('/plan/create', {
-            planId:       planId,
-            name:         `${plan} (3 meses) - Máximo Esfuerzo`,
-            currency:     'CLP',
-            amount:       String(monto),
-            interval:     '1',
-            intervalType: 'month',
-            charges:      '3',  // ← 3 cobros automáticos
-            trialPeriodDays: '0',
-            urlCallback:  'https://flow-payments.jaimea-gomezh.workers.dev/webhook-suscripcion',
-          }, env);
-
-          if (!planResp.planId) {
-            return Response.json({ ok: false, error: 'No se pudo crear plan', detalle: planResp }, { headers: corsHeaders() });
-          }
-
-          // 3. Suscribir cliente al plan
-          const susResp = await llamarFlow('/subscription/create', {
-            planId:     planId,
-            customerId: customerId,
-            couponId:   '',
-          }, env);
-
-          if (susResp.url && susResp.token) {
-            return Response.json({
-              ok: true,
-              url: `${susResp.url}?token=${susResp.token}`,
-              subscriptionId: susResp.subscriptionId
-            }, { headers: corsHeaders() });
-          }
-
-          return Response.json({ ok: false, error: susResp }, { headers: corsHeaders() });
         }
 
         return Response.json({ ok: false, error: 'Tipo de pago inválido' }, { headers: corsHeaders() });
@@ -462,6 +455,26 @@ export default {
 // ══════════════════════════════════════════════
 //  FUNCIONES DE EMAIL Y CÓDIGOS
 // ══════════════════════════════════════════════
+
+// ── Helper: crear pago único en Flow ─────────
+async function crearPagoUnico({ plan, monto, email, nombre, tipoPago }, env) {
+  const comercioOrden = `ME-${Date.now()}`;
+  const datos = {
+    commerceOrder:   comercioOrden,
+    subject:         `Plan ${plan} - Máximo Esfuerzo`,
+    currency:        'CLP',
+    amount:          String(monto),
+    email:           email,
+    urlConfirmation: 'https://flow-payments.jaimea-gomezh.workers.dev/webhook-pago',
+    urlReturn:       'https://maximi-esfuerzo.pages.dev?pago=ok',
+    optional:        JSON.stringify({ plan, nombre, tipoPago }),
+  };
+  const resp = await llamarFlow('/payment/create', datos, env);
+  if (resp.url && resp.token) {
+    return Response.json({ ok: true, url: `${resp.url}?token=${resp.token}`, tipo: 'pago-unico' }, { headers: corsHeaders() });
+  }
+  return Response.json({ ok: false, error: resp }, { headers: corsHeaders() });
+}
 
 // ── Calcular fecha de vencimiento según tipo de suscripción ──
 function calcularVencimiento(tipoSuscripcion, fechaCompra) {
