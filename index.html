@@ -181,9 +181,11 @@
       </button>
     </div>
     <div class="login-form" id="formRegistro">
-      <div class="login-field"><label>Correo</label><input type="email" id="regEmail" placeholder="tu@correo.com"></div>
-      <div class="login-field"><label>Contraseña</label><input type="password" id="regPassword" placeholder="Mínimo 6 caracteres"></div>
-      <div class="login-field"><label>Confirmar contraseña</label><input type="password" id="regPasswordConfirm" placeholder="Repite tu contraseña"></div>
+      <input type="text" style="display:none;" aria-hidden="true">
+      <input type="password" style="display:none;" aria-hidden="true">
+      <div class="login-field"><label>Correo</label><input type="email" id="regEmail" placeholder="tu@correo.com" autocomplete="new-password"></div>
+      <div class="login-field"><label>Contraseña</label><input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+      <div class="login-field"><label>Confirmar contraseña</label><input type="password" id="regPasswordConfirm" placeholder="Repite tu contraseña" autocomplete="new-password"></div>
       <button class="login-btn-primary" onclick="registrarse()">CREAR CUENTA</button>
       <div class="login-divider-new"><span>o</span></div>
       <button class="login-btn-google" onclick="iniciarSesionGoogle()">
