@@ -1400,6 +1400,10 @@
 
     footer { flex-direction: column; text-align: center; }
     .footer-links { flex-wrap: wrap; justify-content: center; }
+
+    /* Dashboard: ocultar nav desktop, mostrar hamburger */
+    .dash-desktop-nav { display: none !important; }
+    .dash-hamburger { display: flex !important; }
   }
 
   @media (max-width: 420px) {
@@ -1615,6 +1619,39 @@
   .dash-header { background:linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%); border-bottom:1px solid rgba(212,168,67,0.15); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
   .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; }
   .dash-header-logo img { height:36px; width:auto; display:block; }
+
+  /* ── DASH NAV RESPONSIVE ── */
+  .dash-desktop-nav { display:flex; align-items:center; gap:10px; }
+  .dash-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:6px 4px; }
+  .dash-hamburger span { display:block; width:24px; height:2px; background:#d4a843; border-radius:2px; transition:all 0.3s; }
+
+  /* Menú móvil del dashboard */
+  .dash-mobile-menu {
+    display: none;
+    position: sticky;
+    top: 65px;
+    z-index: 9;
+    background: #111;
+    border-bottom: 1px solid rgba(212,168,67,0.2);
+    flex-direction: column;
+  }
+  .dash-mobile-menu.open { display: flex; }
+  .dash-menu-link {
+    background: none;
+    border: none;
+    color: #ccc;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    transition: background 0.15s;
+    width: 100%;
+  }
+  .dash-menu-link:hover { background: rgba(255,255,255,0.05); }
 
   /* Perfil */
   .dash-profile { padding:24px 20px 16px; display:flex; align-items:center; gap:18px; border-bottom:1px solid rgba(255,255,255,0.05); }

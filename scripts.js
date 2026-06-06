@@ -4188,41 +4188,77 @@
     }
   });
 
+  // ── MENÚ MÓVIL DEL DASHBOARD ─────────────────────────────────
+  let _dashMenuAbierto = false;
+
+  function toggleDashMenu() {
+    _dashMenuAbierto = !_dashMenuAbierto;
+    const menu = document.getElementById('dashMobileMenu');
+    const hbLines = document.querySelectorAll('.dash-hamburger span');
+    if (menu) menu.classList.toggle('open', _dashMenuAbierto);
+    // Animación hamburger → X
+    if (hbLines.length === 3) {
+      if (_dashMenuAbierto) {
+        hbLines[0].style.transform = 'rotate(45deg) translate(5px,5px)';
+        hbLines[1].style.opacity   = '0';
+        hbLines[2].style.transform = 'rotate(-45deg) translate(5px,-5px)';
+      } else {
+        hbLines[0].style.transform = '';
+        hbLines[1].style.opacity   = '1';
+        hbLines[2].style.transform = '';
+      }
+    }
+    if (_dashMenuAbierto) cargarMiPlan();
+  }
+
   async function cargarMiPlan() {
     const user = window._auth?.currentUser;
-    const el = document.getElementById('miPlanContent');
-    if (!el) return;
+    // Actualizar ambos contenedores (desktop dropdown + mobile menu)
+    const targets = [
+      document.getElementById('miPlanContent'),
+      document.getElementById('miPlanContentMobile'),
+    ].filter(Boolean);
+    if (!targets.length) return;
+
+    const sinPlanHtml = activo => `
+      <div style="color:#888;font-size:13px;">No tienes ningún plan activo.<br>
+        <button onclick="abrirPlanes();toggleMiCuenta();toggleDashMenu?.()" style="margin-top:10px;background:#d4a843;color:#000;border:none;padding:8px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Ver planes</button>
+      </div>`;
+
     if (!user) {
-      el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>';
+      targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>');
       return;
     }
-    el.innerHTML = '<div style="color:#666;font-size:13px;">Cargando...</div>';
+    targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;">Cargando...</div>');
     try {
       const res = await fetch(`${FLOW_WORKER}/mi-plan?email=${encodeURIComponent(user.email)}`);
       const data = await res.json();
       if (!data.ok || !data.plan) {
-        el.innerHTML = `<div style="color:#888;font-size:13px;">No tienes ningún plan activo.<br><button onclick="abrirPlanes();toggleMiCuenta();" style="margin-top:10px;background:#d4a843;color:#000;border:none;padding:8px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Ver planes</button></div>`;
+        targets.forEach(el => el.innerHTML = sinPlanHtml());
         return;
       }
       const p = data.plan;
-      const activo = p.activo;
-      const color  = activo ? '#2ecc71' : '#e74c3c';
-      const badge  = activo ? '✅ Activo' : '❌ Vencido';
+      const activo  = p.activo;
+      const color   = activo ? '#2ecc71' : '#e74c3c';
+      const badge   = activo ? '✅ Activo' : '❌ Vencido';
       const diasTxt = p.diasRestantes !== null
         ? (p.diasRestantes > 0 ? `${p.diasRestantes} días restantes` : 'Vence hoy')
         : '';
-      el.innerHTML = `
+      const html = `
         <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;color:#fff;">${p.nombre}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:1px;color:#fff;">${p.nombre}</div>
             <span style="font-size:11px;color:${color};font-family:'Barlow Condensed';letter-spacing:1px;">${badge}</span>
           </div>
           ${p.vencimiento ? `<div style="font-size:12px;color:#aaa;margin-bottom:4px;">Vence: <strong style="color:#ccc;">${fmtFecha(p.vencimiento)}</strong></div>` : ''}
           ${diasTxt ? `<div style="font-size:12px;color:${p.diasRestantes <= 7 ? '#e67e22' : '#888'};">${diasTxt}</div>` : ''}
-          ${activo ? `<button onclick="abrirModalCancelar()" style="margin-top:12px;width:100%;background:none;border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Cancelar plan</button>` : `<button onclick="abrirPlanes();toggleMiCuenta();" style="margin-top:12px;width:100%;background:#d4a843;color:#000;border:none;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Renovar plan</button>`}
+          ${activo
+            ? `<button onclick="abrirModalCancelar()" style="margin-top:12px;width:100%;background:none;border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Cancelar plan</button>`
+            : `<button onclick="abrirPlanes();toggleMiCuenta?.();toggleDashMenu?.();" style="margin-top:12px;width:100%;background:#d4a843;color:#000;border:none;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Renovar plan</button>`}
         </div>`;
+      targets.forEach(el => el.innerHTML = html);
     } catch(e) {
-      el.innerHTML = '<div style="color:#666;font-size:13px;">Error al cargar tu plan. Intenta de nuevo.</div>';
+      targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;">Error al cargar. Intenta de nuevo.</div>');
     }
   }
 
@@ -4269,18 +4305,19 @@
   window.toggleMiPerfil     = toggleMiPerfil;
   window.guardarMiPerfil    = guardarMiPerfil;
   window.precargarPesoVelocidad = precargarPesoVelocidad;
-  // Abre Mi Perfil siempre (nunca cierra), luego cierra el dropdown
+  // Abre Mi Perfil siempre (nunca cierra), luego cierra dropdown y menú móvil
   function abrirMiPerfil() {
     const panel = document.getElementById('miPerfilPanel');
     if (panel) panel.style.display = 'block';
-    // Scroll suave al panel
     setTimeout(() => panel?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
-    // Cerrar dropdown
+    // Cerrar dropdown desktop
     const dd = document.getElementById('miCuentaDropdown');
     const ch = document.getElementById('miCuentaChevron');
     if (dd) dd.style.display = 'none';
     if (ch) ch.style.transform = '';
     _miCuentaAbierto = false;
+    // Cerrar menú móvil si está abierto
+    if (_dashMenuAbierto) toggleDashMenu();
   }
 
   window.toggleMiCuenta     = toggleMiCuenta;
@@ -4289,6 +4326,7 @@
   window.abrirModalCancelar = abrirModalCancelar;
   window.cerrarModalCancelar= cerrarModalCancelar;
   window.enviarSolicitudCancelacion = enviarSolicitudCancelacion;
+  window.toggleDashMenu     = toggleDashMenu;
   window.editRuckSession    = editRuckSession;
   // Cancelar funciona en ambos modos (agregar y editar)
   window.cancelarEditRuck   = function() {
