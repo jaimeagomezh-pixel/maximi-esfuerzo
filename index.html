@@ -101,6 +101,7 @@
   import {
     getAuth, signInWithPopup, GoogleAuthProvider,
     signInWithEmailAndPassword, createUserWithEmailAndPassword,
+    sendEmailVerification,
     signOut, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -123,6 +124,7 @@
   window._signInWithPopup = signInWithPopup;
   window._signInWithEmailAndPassword = signInWithEmailAndPassword;
   window._createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+  window._sendEmailVerification = sendEmailVerification;
   window._signOut = signOut;
 
   onAuthStateChanged(auth, (user) => {
@@ -130,6 +132,9 @@
     const userInfo = document.getElementById('nav-user-info');
     const userName = document.getElementById('nav-user-name');
     if (user) {
+      // Si es cuenta email/contraseña y aún no verificó el correo, no abrir dashboard
+      const esEmailYNoVerificado = !user.providerData.some(p => p.providerId === 'google.com') && !user.emailVerified;
+      if (esEmailYNoVerificado) return; // esperar a que verifique
       if (btnNav)   btnNav.style.display = 'none';
       if (userInfo) { userInfo.style.display = 'flex'; userName.textContent = user.displayName || user.email.split('@')[0]; }
       // Registrar usuario en el worker (para que aparezca en panel coach)
@@ -2123,12 +2128,15 @@
   }
 
   function abrirLogin() {
-    // Si ya hay sesión activa, ir directo al dashboard sin mostrar el modal
+    // Si ya hay sesión activa verificada, ir directo al dashboard sin mostrar el modal
     if (window._auth && window._auth.currentUser) {
       const u = window._auth.currentUser;
-      const nombre = u.displayName || u.email.split('@')[0];
-      abrirDashboard(nombre);
-      return;
+      const esGoogle = u.providerData.some(p => p.providerId === 'google.com');
+      if (esGoogle || u.emailVerified) {
+        const nombre = u.displayName || u.email.split('@')[0];
+        abrirDashboard(nombre);
+        return;
+      }
     }
     document.getElementById('loginOverlay').classList.add('active');
     document.body.style.overflow='hidden';
@@ -2152,7 +2160,17 @@
     const email=document.getElementById('loginEmail').value.trim();
     const password=document.getElementById('loginPassword').value;
     if(!email||!password) return mostrarMensaje('Completa todos los campos.','error');
-    try { await window._signInWithEmailAndPassword(window._auth,email,password); mostrarMensaje('¡Bienvenido de vuelta!','success'); setTimeout(()=>{ cerrarLogin(); abrirDashboard(email.split('@')[0]); },800); }
+    try {
+      const result = await window._signInWithEmailAndPassword(window._auth,email,password);
+      const user = result.user;
+      if (!user.emailVerified) {
+        mostrarMensaje('Debes verificar tu correo antes de ingresar. Revisa tu bandeja de entrada.','error');
+        await window._signOut(window._auth);
+        return;
+      }
+      mostrarMensaje('¡Bienvenido de vuelta!','success');
+      setTimeout(()=>{ cerrarLogin(); abrirDashboard(user.displayName || email.split('@')[0]); },800);
+    }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function registrarse() {
@@ -2162,7 +2180,12 @@
     if(!email||!pass||!confirm) return mostrarMensaje('Completa todos los campos.','error');
     if(pass!==confirm) return mostrarMensaje('Las contraseñas no coinciden.','error');
     if(pass.length<6) return mostrarMensaje('La contraseña debe tener al menos 6 caracteres.','error');
-    try { await window._createUserWithEmailAndPassword(window._auth,email,pass); mostrarMensaje('¡Cuenta creada! Bienvenido.','success'); setTimeout(()=>{ cerrarLogin(); abrirDashboard(email.split('@')[0]); },800); }
+    try {
+      const result = await window._createUserWithEmailAndPassword(window._auth,email,pass);
+      await window._sendEmailVerification(result.user);
+      await window._signOut(window._auth);
+      mostrarMensaje(`¡Cuenta creada! Te enviamos un correo de verificación a ${email}. Confírmalo para poder ingresar.`,'success');
+    }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function iniciarSesionGoogle() {
