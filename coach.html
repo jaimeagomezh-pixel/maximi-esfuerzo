@@ -754,6 +754,41 @@ async function cargarPlanAtletas() {
     const data = await res.json();
     if (data.ok) {
       planAtletas = data.atletas;
+
+      // ── Auto-crear en Atletas Locales si no existen ──────────
+      let huboNuevos = false;
+      const hoy = new Date();
+      planAtletas.forEach(fa => {
+        const yaExiste = atletas.find(x => x.email && x.email.toLowerCase() === fa.email.toLowerCase());
+        if (!yaExiste) {
+          const fv = fa.fechaVencimiento ? new Date(fa.fechaVencimiento) : null;
+          const dias = fv ? Math.ceil((fv - hoy) / 86400000) : null;
+          atletas.push({
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            nombre: fa.nombre,
+            email: fa.email,
+            plan: fa.plan,
+            tipo: !fv || dias > 0 ? 'activo' : 'vencido',
+            diasActivos: 0,
+            vencimiento: fa.fechaVencimiento ? fa.fechaVencimiento.split('T')[0] : null,
+            peso: null, talla: null, edad: null,
+            archivado: false,
+            strava: null, fuerza: {}, prTiempos: {},
+            pagos: fa.pagos && fa.pagos.length
+              ? fa.pagos.map(p => ({ plan: fa.plan, fecha: p.fecha, monto: `$${Number(p.monto).toLocaleString('es-CL')}` }))
+              : [{ plan: fa.plan, fecha: fa.fechaCompra, monto: `$${Number(fa.monto).toLocaleString('es-CL')}` }],
+            notas: `Registrado vía Flow el ${new Date(fa.fechaCompra).toLocaleDateString('es-CL')}.`,
+            stravaId: null, rucking: null, origenFlow: true
+          });
+          huboNuevos = true;
+        }
+      });
+      if (huboNuevos) {
+        guardarAtletas();
+        actualizarStats();
+        renderAtletas();
+      }
+
       renderPlanAtletas();
     } else {
       el.innerHTML = '<div style="text-align:center;padding:16px;color:var(--red);font-size:13px;">Error al cargar suscriptores</div>';
@@ -796,11 +831,11 @@ function renderPlanAtletas() {
     const estadoColor = !a.fechaVencimiento ? 'var(--gold)' : diasRestantes > 7 ? 'var(--green)' : diasRestantes > 0 ? 'var(--orange)' : 'var(--red)';
     const estadoTxt = !a.fechaVencimiento ? 'Indefinido' : diasRestantes > 0 ? `Vence en ${diasRestantes}d` : 'Vencido';
 
-    // ¿Ya existe como atleta local?
+    // Buscar perfil local (siempre existe porque se auto-crea al cargar)
     const atletaLocal = atletas.find(x => x.email && x.email.toLowerCase() === a.email.toLowerCase());
     const accionBtn = atletaLocal
-      ? `<button class="act-btn activar" onclick="abrirPerfil(${atletaLocal.id})">📋 Ver perfil</button>`
-      : `<button class="act-btn activar" onclick="crearAtletaDesdeFlow('${a.email.replace(/'/g,"\\'")}')">➕ Crear perfil de atleta</button>`;
+      ? `<button class="act-btn activar" onclick="abrirPerfil(${atletaLocal.id})">📋 Ver perfil completo</button>`
+      : `<button class="act-btn activar" onclick="location.reload()">↺ Actualizar</button>`;
 
     return `<div style="background:white;border-radius:6px;padding:14px;margin-bottom:8px;border:1px solid var(--border);border-left:4px solid ${esPers ? 'var(--gold)' : 'var(--cian2)'};">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
