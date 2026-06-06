@@ -266,21 +266,69 @@ export default {
             }
           }
 
-          // Notificar a admin por email
-          await notificarAdminEmail(env, {
-            asunto: `✅ Nuevo pago — ${opt.plan} (${esPersonalizado ? 'PERSONALIZADO' : 'Suscrito'})`,
-            cuerpo: `
-              Plan: ${opt.plan}
-              Tipo: ${esPersonalizado ? 'Personalizado (requiere tu gestión)' : 'Autogestionado'}
-              Cliente: ${opt.nombre}
-              Email: ${emailCliente}
-              RUT: ${rutCliente}
-              Monto: $${estado.amount} CLP
-              Orden: ${estado.commerceOrder}
-              Boleta SII: ${folioBoleta ? `Folio N° ${folioBoleta}` : '⚠️ No emitida (revisar credenciales SII)'}
-              ${esPersonalizado ? '\n⚠️ Este atleta necesita gestión manual de TrainHeroic.' : '\n✅ Código TrainHeroic enviado automáticamente.'}
-            `
-          });
+          // Notificar a admin con todos los datos para emitir boleta en SII
+          const glosaBoleta = `Servicio de entrenamiento — ${opt.plan}`;
+          const emailDesdeAdmin = env.EMAIL_FROM || 'onboarding@resend.dev';
+          const adminEmail = env.NOTIFY_EMAIL || 'maximoesfuerzo91@gmail.com';
+          const htmlAdmin = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
+<style>
+  body{font-family:Arial,sans-serif;background:#f5f5f5;margin:0;padding:0;}
+  .wrap{max-width:600px;margin:20px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+  .hdr{background:#1a1a2e;color:#fff;padding:24px 28px;}
+  .hdr h2{margin:0;font-size:20px;}
+  .hdr p{margin:6px 0 0;font-size:13px;color:#aaa;}
+  .body{padding:28px;}
+  .tag{display:inline-block;background:${esPersonalizado?'#fff3cd':'#d4edda'};color:${esPersonalizado?'#856404':'#155724'};border:1px solid ${esPersonalizado?'#ffc107':'#28a745'};border-radius:4px;padding:3px 10px;font-size:12px;font-weight:700;margin-bottom:16px;}
+  .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:14px;}
+  .row:last-child{border-bottom:none;}
+  .lbl{color:#666;}
+  .val{font-weight:600;color:#111;}
+  .boleta-box{background:#e8f4fd;border:2px solid #3498db;border-radius:8px;padding:20px;margin:20px 0;}
+  .boleta-box h3{margin:0 0 14px;color:#1a5276;font-size:15px;}
+  .dato{background:#fff;border:1px solid #bee3f8;border-radius:6px;padding:10px 14px;margin-bottom:8px;font-size:14px;}
+  .dato .lbl{font-size:11px;color:#666;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:1px;}
+  .dato .val{font-size:15px;color:#111;font-weight:700;}
+  .btn{display:block;background:#3498db;color:#fff!important;text-decoration:none;text-align:center;padding:13px;border-radius:6px;font-weight:700;font-size:15px;margin-top:16px;}
+  .warn{background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:12px;font-size:13px;color:#856404;margin-top:16px;}
+  .ftr{background:#f8f9fa;padding:16px 28px;font-size:12px;color:#999;text-align:center;}
+</style></head><body>
+<div class="wrap">
+  <div class="hdr">
+    <h2>💰 Nuevo pago recibido</h2>
+    <p>${new Date().toLocaleString('es-CL',{timeZone:'America/Santiago'})}</p>
+  </div>
+  <div class="body">
+    <span class="tag">${esPersonalizado ? '👤 PERSONALIZADO' : '✅ AUTOGESTIONADO'}</span>
+
+    <div class="row"><span class="lbl">Plan</span><span class="val">${opt.plan}</span></div>
+    <div class="row"><span class="lbl">Cliente</span><span class="val">${opt.nombre || emailCliente.split('@')[0]}</span></div>
+    <div class="row"><span class="lbl">Email</span><span class="val">${emailCliente}</span></div>
+    <div class="row"><span class="lbl">Monto</span><span class="val">$${Number(estado.amount).toLocaleString('es-CL')} CLP</span></div>
+    <div class="row"><span class="lbl">Orden Flow</span><span class="val">${estado.commerceOrder}</span></div>
+    <div class="row"><span class="lbl">TrainHeroic</span><span class="val">${esPersonalizado ? '⚠️ Requiere gestión manual' : '✅ Código enviado automáticamente'}</span></div>
+
+    <div class="boleta-box">
+      <h3>🧾 Datos para Boleta de Honorarios — emitir en SII</h3>
+      <div class="dato"><span class="lbl">RUT Receptor</span><span class="val">${rutCliente}</span></div>
+      <div class="dato"><span class="lbl">Nombre Receptor</span><span class="val">${opt.nombre || emailCliente.split('@')[0]}</span></div>
+      <div class="dato"><span class="lbl">Monto</span><span class="val">$${Number(estado.amount).toLocaleString('es-CL')} CLP</span></div>
+      <div class="dato"><span class="lbl">Glosa (descripción)</span><span class="val">${glosaBoleta}</span></div>
+      <a class="btn" href="https://www4.sii.cl/bolehicliII/index.html" target="_blank">👉 Ir a emitir boleta en SII</a>
+    </div>
+
+    ${esPersonalizado ? '<div class="warn">⚠️ <strong>Plan personalizado:</strong> Recuerda enviar manualmente el acceso a TrainHeroic a este atleta.</div>' : ''}
+  </div>
+  <div class="ftr">Máximo Esfuerzo · Sistema de pagos automático</div>
+</div>
+</body></html>`;
+
+          if (env.RESEND_API_KEY) {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ from: emailDesdeAdmin, to: adminEmail, subject: `💰 Nuevo pago — ${opt.plan} | $${Number(estado.amount).toLocaleString('es-CL')} CLP`, html: htmlAdmin }),
+            });
+          }
         }
 
         return new Response('OK', { status: 200 });
@@ -434,6 +482,46 @@ export default {
         return Response.json({ ok: true, atletas: atletas.filter(Boolean) }, { headers: corsHeaders() });
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
+    // ── GET /test-sii — verifica credenciales SII sin emitir boleta ──
+    if (url.pathname === '/test-sii' && request.method === 'GET') {
+      const key = url.searchParams.get('key');
+      if (key !== (env.COACH_SECRET || 'ME2026coach')) {
+        return new Response('No autorizado', { status: 401 });
+      }
+      try {
+        if (!env.SII_RUT || !env.SII_CLAVE) {
+          return new Response('❌ Faltan secrets: SII_RUT y/o SII_CLAVE no configurados', { status: 400 });
+        }
+        const [rutNum, dv] = env.SII_RUT.split('-');
+        // Solo hacer login (sin emitir nada) para verificar credenciales
+        const loginBody = new URLSearchParams({
+          rutcntr: rutNum,
+          dv:      dv.toUpperCase(),
+          clave:   env.SII_CLAVE,
+          referrer: 'https://www4.sii.cl/bolehicliII/',
+        });
+        const resLogin = await fetch('https://hercules.sii.cl/cgi_AUT2000/autInicio.cgi', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'User-Agent': 'Mozilla/5.0',
+            'Referer': 'https://www.sii.cl/',
+          },
+          body: loginBody.toString(),
+          redirect: 'manual',
+        });
+        const setCookie = resLogin.headers.get('set-cookie') || '';
+        const cookies = setCookie.split(',').map(c=>c.split(';')[0].trim()).filter(c=>c.includes('=')).join('; ');
+        const bodyLogin = await resLogin.text();
+        if (!cookies) {
+          return Response.json({ ok: false, paso: 'login', status: resLogin.status, respuesta: bodyLogin.slice(0, 400) });
+        }
+        return Response.json({ ok: true, mensaje: '✅ Login SII exitoso. Credenciales válidas.', rut: env.SII_RUT, cookiesObtenidas: cookies.length > 0 });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message });
       }
     }
 
@@ -695,8 +783,8 @@ async function notificarEmail(env, { asunto, cuerpo }) {
 }
 
 // ── BOLETA DE HONORARIOS ELECTRÓNICA — SII ───────────────────
-// Documentación: https://www.sii.cl/servicios_online/1039-.html
-// Requiere Secrets: SII_RUT (ej: "12345678-K"), SII_CLAVE
+// Sistema BHE para personas naturales 2ª categoría
+// Requiere Secrets: SII_RUT (ej: "12345678-K"), SII_CLAVE (clave tributaria)
 async function emitirBoleta(env, { rutEmisor, claveEmisor, rutReceptor, monto, descripcion, nombre, email }) {
   if (!rutEmisor || !claveEmisor) {
     throw new Error('Credenciales SII no configuradas (SII_RUT / SII_CLAVE)');
@@ -705,84 +793,74 @@ async function emitirBoleta(env, { rutEmisor, claveEmisor, rutReceptor, monto, d
   const [rutNum, dvEmisor] = rutEmisor.split('-');
   const [rutRecNum, dvRec] = rutReceptor.split('-');
 
-  // ── Paso 1: Obtener semilla ──────────────────────────────────
-  const resSemilla = await fetch('https://www4.sii.cl/DTEWS/GetTokenFromSeed.jws', {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '' },
-    body: `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <soapenv:Body>
-    <getSeed/>
-  </soapenv:Body>
-</soapenv:Envelope>`
+  // ── Paso 1: Login al SII (sistema BHE usa autenticación por portal) ─
+  const loginBody = new URLSearchParams({
+    rutcntr: rutNum,
+    dv:      dvEmisor.toUpperCase(),
+    clave:   claveEmisor,
+    referrer: 'https://www4.sii.cl/bolehicliII/',
   });
-  const xmlSemilla = await resSemilla.text();
-  const semilla = xmlSemilla.match(/<SEMILLA>([^<]+)<\/SEMILLA>/)?.[1];
-  if (!semilla) throw new Error(`SII no retornó semilla. Respuesta: ${xmlSemilla.slice(0, 200)}`);
 
-  // ── Paso 2: Obtener token (RUT + clave + semilla) ────────────
-  const resToken = await fetch('https://www4.sii.cl/DTEWS/GetTokenFromSeed.jws', {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '' },
-    body: `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
-  <soapenv:Body>
-    <getToken>
-      <item>
-        <Semilla>${semilla}</Semilla>
-        <RutSend>${rutNum}</RutSend>
-        <DvSend>${dvEmisor.toUpperCase()}</DvSend>
-        <Pwd>${claveEmisor}</Pwd>
-      </item>
-    </getToken>
-  </soapenv:Body>
-</soapenv:Envelope>`
-  });
-  const xmlToken = await resToken.text();
-  const token = xmlToken.match(/<TOKEN>([^<]+)<\/TOKEN>/)?.[1];
-  if (!token) throw new Error(`SII no retornó token. Respuesta: ${xmlToken.slice(0, 200)}`);
-
-  // ── Paso 3: Emitir Boleta de Honorarios Electrónica ─────────
-  const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-  const resEmision = await fetch('https://www4.sii.cl/bolehicliII/services/BHEEmitService', {
+  const resLogin = await fetch('https://hercules.sii.cl/cgi_AUT2000/autInicio.cgi', {
     method: 'POST',
     headers: {
-      'Content-Type': 'text/xml; charset=utf-8',
-      'SOAPAction': 'emitirBhe',
-      'Cookie': `TOKEN=${token}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'Mozilla/5.0',
+      'Referer': 'https://www.sii.cl/',
     },
-    body: `<?xml version="1.0" encoding="UTF-8"?>
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bhe="http://bhe.sii.cl">
-  <soapenv:Header>
-    <bhe:Token>${token}</bhe:Token>
-  </soapenv:Header>
-  <soapenv:Body>
-    <bhe:emitirBhe>
-      <bhe:RutEmisor>${rutNum}</bhe:RutEmisor>
-      <bhe:DvEmisor>${dvEmisor.toUpperCase()}</bhe:DvEmisor>
-      <bhe:RutReceptor>${rutRecNum}</bhe:RutReceptor>
-      <bhe:DvReceptor>${dvRec.toUpperCase()}</bhe:DvReceptor>
-      <bhe:NombreReceptor>${nombre}</bhe:NombreReceptor>
-      <bhe:EmailReceptor>${email}</bhe:EmailReceptor>
-      <bhe:FechaEmision>${fechaHoy}</bhe:FechaEmision>
-      <bhe:Monto>${monto}</bhe:Monto>
-      <bhe:Glosa>${descripcion}</bhe:Glosa>
-    </bhe:emitirBhe>
-  </soapenv:Body>
-</soapenv:Envelope>`
+    body: loginBody.toString(),
+    redirect: 'manual',
   });
-  const xmlEmision = await resEmision.text();
 
-  // Extraer folio de la respuesta
-  const folio = xmlEmision.match(/<FOLIO>([^<]+)<\/FOLIO>/)?.[1]
-             || xmlEmision.match(/<folio>([^<]+)<\/folio>/)?.[1]
-             || xmlEmision.match(/<numeroBhe>([^<]+)<\/numeroBhe>/)?.[1];
+  // Extraer cookies de sesión
+  const setCookie = resLogin.headers.get('set-cookie') || '';
+  const cookies = setCookie.split(',')
+    .map(c => c.split(';')[0].trim())
+    .filter(c => c.includes('='))
+    .join('; ');
 
-  if (!folio) {
-    // Loguear respuesta completa para debug
-    console.error('Respuesta SII emisión BHE:', xmlEmision.slice(0, 500));
-    throw new Error('SII no retornó folio. Ver logs para detalle.');
+  if (!cookies) {
+    const body = await resLogin.text();
+    throw new Error(`Login SII falló. Status: ${resLogin.status}. Resp: ${body.slice(0, 200)}`);
   }
 
-  return folio; // Número de folio de la boleta
+  // ── Paso 2: Emitir BHE vía API del portal SII ───────────────
+  const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  const bheBody = new URLSearchParams({
+    RUT_EMISOR:    rutNum,
+    DV_EMISOR:     dvEmisor.toUpperCase(),
+    RUT_RECEPTOR:  rutRecNum,
+    DV_RECEPTOR:   dvRec.toUpperCase(),
+    NOMBRE_RECEP:  nombre,
+    EMAIL_RECEP:   email,
+    MONTO_TOTAL:   String(monto),
+    FECHA_EMISION: fechaHoy,
+    GLOSA:         descripcion,
+  });
+
+  const resEmision = await fetch('https://www4.sii.cl/bolehicliII/ingreso_bhe.cgi', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Cookie': cookies,
+      'User-Agent': 'Mozilla/5.0',
+      'Referer': 'https://www4.sii.cl/bolehicliII/',
+    },
+    body: bheBody.toString(),
+  });
+
+  const respTexto = await resEmision.text();
+
+  // Extraer folio de la respuesta HTML/JSON del SII
+  const folio = respTexto.match(/folio["\s:>]+(\d+)/i)?.[1]
+             || respTexto.match(/N[°º]\s*(\d+)/)?.[1]
+             || respTexto.match(/"numero"\s*:\s*"?(\d+)"?/i)?.[1];
+
+  if (!folio) {
+    console.error('Respuesta BHE SII:', respTexto.slice(0, 600));
+    throw new Error('SII no retornó folio BHE. Ver Observability para detalle.');
+  }
+
+  return folio;
 }
