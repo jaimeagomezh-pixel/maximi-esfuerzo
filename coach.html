@@ -739,6 +739,44 @@ function iniciar() {
   renderResumen();
   initRucking();
   cargarPlanAtletas();
+  cargarUsuariosRegistrados();
+}
+
+// ── USUARIOS REGISTRADOS (Google login, sin plan) ─────────────────────────
+async function cargarUsuariosRegistrados() {
+  try {
+    const res = await fetch(`${FLOW_WORKER_URL}/usuarios-registrados?secret=${PASS}`);
+    const data = await res.json();
+    if (!data.ok || !data.usuarios?.length) return;
+    let huboNuevos = false;
+    data.usuarios.forEach(u => {
+      const yaExiste = atletas.find(x => x.email && x.email.toLowerCase() === u.email.toLowerCase());
+      if (!yaExiste) {
+        atletas.push({
+          id: Date.now() + Math.floor(Math.random() * 9999),
+          nombre: u.nombre,
+          email: u.email,
+          plan: 'Sin plan',
+          tipo: 'cuenta',
+          diasActivos: 0,
+          vencimiento: null,
+          peso: null, talla: null, edad: null,
+          archivado: false,
+          strava: null, fuerza: {}, prTiempos: {},
+          pagos: [],
+          notas: `Registrado vía Google el ${new Date(u.fechaRegistro).toLocaleDateString('es-CL')}.`,
+          stravaId: null, rucking: null,
+          origenGoogle: true
+        });
+        huboNuevos = true;
+      }
+    });
+    if (huboNuevos) {
+      guardarAtletas();
+      actualizarStats();
+      renderAtletas();
+    }
+  } catch(e) { /* silencioso */ }
 }
 
 // ── ATLETAS CON PLAN (Flow) ────────────────────────────────────────────────

@@ -466,6 +466,46 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ── POST /registrar-usuario — guarda usuario que se registró con Google ──
+    if (url.pathname === '/registrar-usuario' && request.method === 'POST') {
+      try {
+        const { email, nombre, uid, photoURL } = await request.json();
+        if (!email) return Response.json({ ok: false, error: 'Email requerido' }, { headers: corsHeaders() });
+        // Solo guarda si no existe ya como atleta pagado
+        const yaEsAtleta = await env.RUCK_DATA.get(`plan-atleta:${email}`);
+        if (!yaEsAtleta) {
+          const data = {
+            email, nombre: nombre || email.split('@')[0],
+            uid: uid || null, photoURL: photoURL || null,
+            tipo: 'registro', fechaRegistro: new Date().toISOString()
+          };
+          await env.RUCK_DATA.put(`usuario:${email}`, JSON.stringify(data));
+        }
+        return Response.json({ ok: true }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { headers: corsHeaders() });
+      }
+    }
+
+    // ── GET /usuarios-registrados — coach consulta usuarios sin plan ──
+    if (url.pathname === '/usuarios-registrados' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) {
+        return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+      }
+      try {
+        const list = await env.RUCK_DATA.list({ prefix: 'usuario:' });
+        const usuarios = await Promise.all(
+          list.keys.map(async k => {
+            const val = await env.RUCK_DATA.get(k.name);
+            return val ? JSON.parse(val) : null;
+          })
+        );
+        return Response.json({ ok: true, usuarios: usuarios.filter(Boolean) }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
     // ── GET /plan-atletas — coach consulta atletas que han pagado ──
     if (url.pathname === '/plan-atletas' && request.method === 'GET') {
       if (url.searchParams.get('secret') !== COACH_SECRET) {

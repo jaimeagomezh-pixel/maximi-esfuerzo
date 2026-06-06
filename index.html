@@ -132,7 +132,18 @@
     if (user) {
       if (btnNav)   btnNav.style.display = 'none';
       if (userInfo) { userInfo.style.display = 'flex'; userName.textContent = user.displayName || user.email.split('@')[0]; }
-      // Abrir dashboard: si estaba abierto antes de refrescar, o si acaba de iniciar sesión
+      // Registrar usuario en el worker (para que aparezca en panel coach)
+      fetch('https://flow-payments.jaimea-gomezh.workers.dev/registrar-usuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          nombre: user.displayName || user.email.split('@')[0],
+          uid: user.uid,
+          photoURL: user.photoURL || null
+        })
+      }).catch(() => {}); // silencioso si falla
+      // Abrir dashboard
       const nombre = user.displayName || user.email.split('@')[0];
       setTimeout(() => abrirDashboard(nombre), 300);
     } else {
