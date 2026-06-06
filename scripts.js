@@ -230,6 +230,18 @@
       const elAutor = document.getElementById('dashAutor');
       if (elAutor) elAutor.textContent = frase.autor;
       
+      // Resetear menú hamburguesa móvil (puede haber quedado abierto)
+      if (_dashMenuAbierto) {
+        const menu = document.getElementById('dashMobileMenu');
+        const hbLines = document.querySelectorAll('.dash-hamburger span');
+        if (menu) menu.classList.remove('open');
+        hbLines[0] && (hbLines[0].style.transform = '');
+        hbLines[1] && (hbLines[1].style.opacity   = '1');
+        hbLines[2] && (hbLines[2].style.transform = '');
+        _dashMenuAbierto = false;
+        _miPlanesMobileAbierto = false;
+      }
+
       // Abrir dashboard
       const dash = document.getElementById('dashboardAtleta');
       if (dash) {
