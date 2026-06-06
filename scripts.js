@@ -3945,6 +3945,13 @@
     }
   }
 
+  // ── Formato fecha dd/mm/aa ──────────────────────────────────
+  function fmtFecha(iso) {
+    if (!iso) return '';
+    const [a, m, d] = iso.split('-');
+    return `${d}/${m}/${a.slice(2)}`;
+  }
+
   // ── MI CUENTA: dropdown con Mis Planes ──────────────────────
   let _miCuentaAbierto = false;
 
@@ -3997,7 +4004,7 @@
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;color:#fff;">${p.nombre}</div>
             <span style="font-size:11px;color:${color};font-family:'Barlow Condensed';letter-spacing:1px;">${badge}</span>
           </div>
-          ${p.vencimiento ? `<div style="font-size:12px;color:#aaa;margin-bottom:4px;">Vence: <strong style="color:#ccc;">${p.vencimiento}</strong></div>` : ''}
+          ${p.vencimiento ? `<div style="font-size:12px;color:#aaa;margin-bottom:4px;">Vence: <strong style="color:#ccc;">${fmtFecha(p.vencimiento)}</strong></div>` : ''}
           ${diasTxt ? `<div style="font-size:12px;color:${p.diasRestantes <= 7 ? '#e67e22' : '#888'};">${diasTxt}</div>` : ''}
           ${activo ? `<button onclick="abrirModalCancelar()" style="margin-top:12px;width:100%;background:none;border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Cancelar plan</button>` : `<button onclick="abrirPlanes();toggleMiCuenta();" style="margin-top:12px;width:100%;background:#d4a843;color:#000;border:none;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Renovar plan</button>`}
         </div>`;
@@ -4049,8 +4056,23 @@
   window.toggleMiPerfil     = toggleMiPerfil;
   window.guardarMiPerfil    = guardarMiPerfil;
   window.precargarPesoVelocidad = precargarPesoVelocidad;
+  // Abre Mi Perfil siempre (nunca cierra), luego cierra el dropdown
+  function abrirMiPerfil() {
+    const panel = document.getElementById('miPerfilPanel');
+    if (panel) panel.style.display = 'block';
+    // Scroll suave al panel
+    setTimeout(() => panel?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    // Cerrar dropdown
+    const dd = document.getElementById('miCuentaDropdown');
+    const ch = document.getElementById('miCuentaChevron');
+    if (dd) dd.style.display = 'none';
+    if (ch) ch.style.transform = '';
+    _miCuentaAbierto = false;
+  }
+
   window.toggleMiCuenta     = toggleMiCuenta;
   window.cargarMiPlan       = cargarMiPlan;
+  window.abrirMiPerfil      = abrirMiPerfil;
   window.abrirModalCancelar = abrirModalCancelar;
   window.cerrarModalCancelar= cerrarModalCancelar;
   window.enviarSolicitudCancelacion = enviarSolicitudCancelacion;
