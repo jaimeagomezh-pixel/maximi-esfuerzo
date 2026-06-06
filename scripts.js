@@ -177,12 +177,8 @@
             if (typeof animarNumeros === 'function') animarNumeros();
             if (typeof agregarPulseDot === 'function') agregarPulseDot();
           }, 400);
-          // Cargar datos reales de Strava si hay token guardado
-          const stravaToken = localStorage.getItem('strava_token');
-          const stravaExpiry = localStorage.getItem('strava_expiry');
-          if (stravaToken && stravaExpiry && Date.now() / 1000 < parseInt(stravaExpiry)) {
-            cargarDatosStrava(stravaToken);
-          }
+          // Cargar datos Strava con auto-refresh si el token venció
+          checkStravaToken();
         }, 200);
       }
       
@@ -885,14 +881,58 @@
     renderResumenMensual();
   }
 
-  // Revisar si hay token de Strava guardado
-  function checkStravaToken() {
-    const token = localStorage.getItem('strava_token');
-    const expiry = localStorage.getItem('strava_expiry');
-    if (token && expiry && Date.now() / 1000 < parseInt(expiry)) {
+  // ── Guardar sesión Strava completa ───────────────────────────
+  function guardarSesionStrava(data) {
+    localStorage.setItem('strava_token',   data.access_token);
+    localStorage.setItem('strava_expiry',  String(data.expires_at));
+    if (data.refresh_token) {
+      localStorage.setItem('strava_refresh', data.refresh_token);
+    }
+  }
+
+  // ── Renovar token Strava silenciosamente ──────────────────────
+  async function refreshStravaToken() {
+    const refreshToken = localStorage.getItem('strava_refresh');
+    if (!refreshToken) return null;
+    try {
+      const res = await fetch('https://strava-auth.jaimea-gomezh.workers.dev/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+      const data = await res.json();
+      if (data.access_token) {
+        guardarSesionStrava(data);
+        return data.access_token;
+      }
+    } catch(e) {
+      console.error('Error renovando token Strava:', e);
+    }
+    return null;
+  }
+
+  // ── Revisar y usar token de Strava (con auto-refresh) ─────────
+  async function checkStravaToken() {
+    const token  = localStorage.getItem('strava_token');
+    const expiry = parseInt(localStorage.getItem('strava_expiry') || '0');
+    const ahora  = Math.floor(Date.now() / 1000);
+
+    if (token && expiry > ahora + 300) {
+      // Token válido (con 5 min de margen)
       cargarDatosStrava(token);
       return true;
     }
+
+    // Token expirado o próximo a vencer — intentar refresh silencioso
+    if (localStorage.getItem('strava_refresh')) {
+      const nuevoToken = await refreshStravaToken();
+      if (nuevoToken) {
+        cargarDatosStrava(nuevoToken);
+        return true;
+      }
+    }
+
+    // Sin refresh token o refresh fallido — mostrar botón conectar
     return false;
   }
 
@@ -912,8 +952,7 @@
       });
       const data = await res.json();
       if (data.access_token) {
-        localStorage.setItem('strava_token', data.access_token);
-        localStorage.setItem('strava_expiry', data.expires_at);
+        guardarSesionStrava(data); // guarda token + refresh_token + expiry
         cargarDatosStrava(data.access_token);
         const nombre = localStorage.getItem('atletaNombre') || 'Atleta';
         abrirDashboard(nombre);
