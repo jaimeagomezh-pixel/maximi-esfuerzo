@@ -342,6 +342,13 @@
 
   .pilar:hover { border-left-color: var(--dorado); }
 
+  .pilar-icon {
+    margin-bottom: 10px;
+    font-size: 1.6rem;
+    color: #C9A84C;
+    line-height: 1;
+  }
+
   .pilar-num {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 2.5rem;
@@ -2155,7 +2162,15 @@
   #filosofia .pilar-num { color: rgba(192,57,43,0.15) !important; }
   #filosofia .pilar-titulo { color: #111 !important; }
   #filosofia .pilar-texto { color: #666 !important; }
-  #filosofia .pilar i { color: var(--rojo) !important; }
+  #filosofia .pilar-icon i { color: #C9A84C !important; }
+  /* Lucide fallback: SVGs también dorados */
+  #filosofia .pilar svg {
+    color: #C9A84C !important;
+    stroke: #C9A84C !important;
+    display: block !important;
+    width: 28px !important;
+    height: 28px !important;
+  }
 
   /* Sección Tracker — gris claro */
   #tracker {
