@@ -388,27 +388,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
         <div class="sbox" style="border-top-color:#ccc;"><div class="sbox-n" style="color:var(--text3);" id="stArchivados">0</div><div class="sbox-l">Archivados</div></div>
       </div>
 
-      <!-- Sección atletas que pagaron via Flow -->
-      <div id="secPlanAtletas" style="margin-bottom:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div style="font-family:var(--fc);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);font-weight:700;">Suscriptores Flow</div>
-          <button onclick="cargarPlanAtletas()" style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid var(--border);padding:4px 10px;border-radius:3px;cursor:pointer;color:var(--text3);">↺ Actualizar</button>
+      <!-- Lista unificada de atletas -->
+      <div id="planAtletasList" style="display:none;"></div><!-- oculto, solo para auto-creación -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="filtros" style="margin-bottom:0;flex-wrap:wrap;">
+          <button class="f-btn active" onclick="filtrar('todos',this)">Todos</button>
+          <button class="f-btn" onclick="filtrar('activo',this)">Plan Activo</button>
+          <button class="f-btn f-vencido" onclick="filtrar('vencido',this)">Vencidos</button>
+          <button class="f-btn" onclick="filtrar('cuenta',this)">Sin plan</button>
+          <button class="f-btn f-archivado" onclick="filtrar('archivado',this)">Archivados</button>
         </div>
-        <div class="filtros" style="margin-bottom:8px;">
-          <button class="f-btn active" onclick="filtrarPlanes('todos',this)">Todos</button>
-          <button class="f-btn" style="border-color:rgba(0,168,179,0.4);color:var(--cian2);" onclick="filtrarPlanes('suscrito',this)">🏷 Suscritos</button>
-          <button class="f-btn" style="border-color:rgba(212,168,67,0.4);color:var(--gold);" onclick="filtrarPlanes('personalizado',this)">👤 Personalizados</button>
-        </div>
-        <div id="planAtletasList"><div style="text-align:center;padding:20px;color:var(--text3);font-size:13px;">Cargando suscriptores...</div></div>
-      </div>
-
-      <div style="font-family:var(--fc);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);font-weight:700;margin-bottom:8px;">Atletas locales</div>
-      <div class="filtros">
-        <button class="f-btn active" onclick="filtrar('todos',this)">Todos</button>
-        <button class="f-btn" onclick="filtrar('activo',this)">Plan Activo</button>
-        <button class="f-btn f-vencido" onclick="filtrar('vencido',this)">Vencidos</button>
-        <button class="f-btn" onclick="filtrar('cuenta',this)">Sin plan</button>
-        <button class="f-btn f-archivado" onclick="filtrar('archivado',this)">Archivados</button>
+        <button onclick="sincronizarAtletas()" title="Sincronizar desde Flow y Google"
+          style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid var(--border);padding:6px 12px;border-radius:3px;cursor:pointer;color:var(--text3);white-space:nowrap;flex-shrink:0;">↺ Sync</button>
       </div>
       <input type="search" class="psearch" placeholder="Buscar por nombre o correo..." oninput="buscar(this.value)">
       <div id="atletasList"></div>
@@ -836,14 +827,16 @@ async function cargarPlanAtletas() {
   }
 }
 
-function filtrarPlanes(tipo, btn) {
-  filtroPlanActivo = tipo;
-  document.querySelectorAll('#secPlanAtletas .f-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderPlanAtletas();
+function filtrarPlanes(tipo, btn) { /* ya no se usa visualmente */ }
+
+async function sincronizarAtletas() {
+  await cargarPlanAtletas();
+  await cargarUsuariosRegistrados();
 }
 
 function renderPlanAtletas() {
+  // Sección Flow eliminada — atletas ya aparecen en lista unificada
+  return;
   const el = document.getElementById('planAtletasList');
   const hoy = new Date();
   let lista = planAtletas;
@@ -1010,7 +1003,8 @@ function renderAtletas() {
       <div class="a-av">${a.nombre.charAt(0)}</div>
       <div class="a-info">
         <div class="a-name">${a.nombre}</div>
-        <div class="a-meta">${a.diasActivos}d activo · ${a.email}</div>
+        <div class="a-meta">${a.email}</div>
+        ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
         <div class="a-actions">${acciones}</div>
       </div>
       <div class="a-right">
