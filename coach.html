@@ -796,6 +796,12 @@ function renderPlanAtletas() {
     const estadoColor = !a.fechaVencimiento ? 'var(--gold)' : diasRestantes > 7 ? 'var(--green)' : diasRestantes > 0 ? 'var(--orange)' : 'var(--red)';
     const estadoTxt = !a.fechaVencimiento ? 'Indefinido' : diasRestantes > 0 ? `Vence en ${diasRestantes}d` : 'Vencido';
 
+    // ¿Ya existe como atleta local?
+    const atletaLocal = atletas.find(x => x.email && x.email.toLowerCase() === a.email.toLowerCase());
+    const accionBtn = atletaLocal
+      ? `<button class="act-btn activar" onclick="abrirPerfil(${atletaLocal.id})">📋 Ver perfil</button>`
+      : `<button class="act-btn activar" onclick="crearAtletaDesdeFlow('${a.email.replace(/'/g,"\\'")}')">➕ Crear perfil de atleta</button>`;
+
     return `<div style="background:white;border-radius:6px;padding:14px;margin-bottom:8px;border:1px solid var(--border);border-left:4px solid ${esPers ? 'var(--gold)' : 'var(--cian2)'};">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
         <div>
@@ -806,7 +812,7 @@ function renderPlanAtletas() {
           ${esPers ? '👤 Personalizado' : '🏷 Suscrito'}
         </span>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:10px;">
         <div><span style="color:var(--text3);">Plan:</span> <strong>${a.plan}</strong></div>
         <div><span style="color:var(--text3);">Monto:</span> <strong>$${Number(a.monto).toLocaleString('es-CL')} CLP</strong></div>
         <div><span style="color:var(--text3);">Compra:</span> ${fechaCompra}</div>
@@ -814,8 +820,59 @@ function renderPlanAtletas() {
         ${a.tipoSuscripcion === 'suscripcion-3m' ? '<div style="grid-column:1/-1;"><span style="color:var(--text3);">Modalidad:</span> 3 cuotas mensuales</div>' : ''}
         ${esPers ? '<div style="grid-column:1/-1;background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.2);border-radius:4px;padding:6px;color:var(--gold);font-size:11px;">⚠️ Requiere gestión manual de TrainHeroic</div>' : ''}
       </div>
+      <div style="display:flex;gap:6px;border-top:1px solid var(--border);padding-top:10px;">
+        ${accionBtn}
+        ${atletaLocal ? '<span style="font-family:var(--fc);font-size:10px;color:var(--green);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:4px;">✓ Perfil vinculado</span>' : ''}
+      </div>
     </div>`;
   }).join('');
+}
+
+function crearAtletaDesdeFlow(email) {
+  const fa = planAtletas.find(a => a.email === email);
+  if (!fa) return;
+
+  // Verificar si ya existe
+  if (atletas.find(x => x.email && x.email.toLowerCase() === email.toLowerCase())) {
+    alert('Este atleta ya tiene un perfil local. Usa "Ver perfil" para acceder.');
+    return;
+  }
+
+  const hoy = new Date();
+  const fv = fa.fechaVencimiento ? new Date(fa.fechaVencimiento) : null;
+  const diasRestantes = fv ? Math.ceil((fv - hoy) / 86400000) : null;
+  const tipo = !fv ? 'activo' : diasRestantes > 0 ? 'activo' : 'vencido';
+
+  const nuevoAtleta = {
+    id: Date.now(),
+    nombre: fa.nombre,
+    email: fa.email,
+    plan: fa.plan,
+    tipo: tipo,
+    diasActivos: 0,
+    vencimiento: fa.fechaVencimiento ? fa.fechaVencimiento.split('T')[0] : null,
+    peso: null, talla: null, edad: null,
+    archivado: false,
+    strava: null,
+    fuerza: {},
+    prTiempos: {},
+    pagos: fa.pagos && fa.pagos.length
+      ? fa.pagos.map(p => ({ plan: fa.plan, fecha: p.fecha, monto: `$${Number(p.monto).toLocaleString('es-CL')}` }))
+      : [{ plan: fa.plan, fecha: fa.fechaCompra, monto: `$${Number(fa.monto).toLocaleString('es-CL')}` }],
+    notas: `Atleta registrado vía Flow el ${new Date(fa.fechaCompra).toLocaleDateString('es-CL')}. Plan: ${fa.plan}.`,
+    stravaId: null,
+    rucking: null,
+    origenFlow: true
+  };
+
+  atletas.push(nuevoAtleta);
+  guardarAtletas();
+  actualizarStats();
+  renderAtletas();
+  renderPlanAtletas(); // Actualizar para mostrar "Ver perfil"
+
+  // Scroll suave a Atletas Locales
+  document.getElementById('atletasList').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function actualizarStats() {

@@ -3779,6 +3779,42 @@
   const FLOW_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
 
   // Función que procesa el pago según la opción elegida (mensual o único)
+  // ── RUT chileno: formato y validación ─────────────────────
+  function formatearRutInput(input) {
+    let v = input.value.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (v.length > 9) v = v.slice(0, 9);
+    if (v.length > 1) {
+      const cuerpo = v.slice(0, -1).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      input.value = cuerpo + '-' + v.slice(-1);
+    } else {
+      input.value = v;
+    }
+    // Ocultar error mientras escribe
+    const err = document.getElementById('modalRutError');
+    if (err) err.style.display = 'none';
+  }
+
+  function validarRUT(rut) {
+    const limpio = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+    if (limpio.length < 2) return false;
+    const cuerpo = limpio.slice(0, -1);
+    const dv = limpio.slice(-1);
+    let suma = 0, multiplo = 2;
+    for (let i = cuerpo.length - 1; i >= 0; i--) {
+      suma += parseInt(cuerpo[i]) * multiplo;
+      multiplo = multiplo < 7 ? multiplo + 1 : 2;
+    }
+    const dvEsperado = 11 - (suma % 11);
+    const dvCalc = dvEsperado === 11 ? '0' : dvEsperado === 10 ? 'K' : String(dvEsperado);
+    return dv === dvCalc;
+  }
+
+  function limpiarRUT(rut) {
+    // Devuelve RUT sin puntos con guión: "12345678-9"
+    const limpio = rut.replace(/[^0-9kK]/g, '').toUpperCase();
+    return limpio.slice(0, -1) + '-' + limpio.slice(-1);
+  }
+
   async function procesarPago() {
     const tipoPago = document.querySelector('input[name="tipoPago"]:checked')?.value;
     const planData = window._planData;
@@ -3799,11 +3835,22 @@
         return;
       }
       email = emailInput.value;
-      nombre = email.split('@')[0]; // usar parte del email como nombre
+      nombre = email.split('@')[0];
     } else {
       email = user.email;
       nombre = user.displayName || user.email.split('@')[0];
     }
+
+    // Validar RUT (siempre requerido para la boleta)
+    const rutInput = document.getElementById('modalRut');
+    const rutError = document.getElementById('modalRutError');
+    const rutRaw = rutInput?.value || '';
+    if (!rutRaw || !validarRUT(rutRaw)) {
+      if (rutError) rutError.style.display = 'block';
+      rutInput?.focus();
+      return;
+    }
+    const rutCliente = limpiarRUT(rutRaw);
 
     try {
       // Llamar al worker pasando: tipo de pago (mensual o unico), nombre del plan, monto
@@ -3818,9 +3865,10 @@
           monto,
           email,
           nombre,
-          tipoPago, // 'mensual' o 'unico'
-          tipoSuscripcion, // 'suscripcion-3m' o 'pago-unico'
-          isAnonymous: !user // flag para saber si fue pago anónimo
+          rutCliente,          // ← RUT para boleta SII
+          tipoPago,
+          tipoSuscripcion,
+          isAnonymous: !user
         })
       });
 

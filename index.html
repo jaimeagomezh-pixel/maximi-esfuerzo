@@ -1625,10 +1625,20 @@
     </div>
 
     <!-- CAMPO EMAIL (visible si no está logueado) -->
-    <div id="modalEmailSection" style="margin:20px 0;display:none;">
+    <div id="modalEmailSection" style="margin:20px 0 12px;display:none;">
       <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:8px;">Tu correo electrónico</label>
       <input type="email" id="modalEmail" placeholder="tu@correo.com" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;" required>
       <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Se usará para enviar tu código de acceso a TrainHeroic</div>
+    </div>
+
+    <!-- CAMPO RUT (siempre visible — requerido para boleta) -->
+    <div id="modalRutSection" style="margin:0 0 20px;">
+      <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:8px;">Tu RUT</label>
+      <input type="text" id="modalRut" placeholder="12.345.678-9" maxlength="12"
+        style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;letter-spacing:1px;"
+        oninput="formatearRutInput(this)" required>
+      <div id="modalRutError" style="font-size:0.8rem;color:#ff6b6b;margin-top:6px;display:none;">RUT inválido. Verifica el dígito verificador.</div>
+      <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Para emitir tu boleta de honorarios electrónica automáticamente</div>
     </div>
 
     <div class="modal-steps">

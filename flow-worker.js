@@ -219,9 +219,11 @@ export default {
           // ✅ GUARDAR ATLETA EN KV (para panel coach)
           const fechaCompra = new Date().toISOString();
           const fechaVencimiento = calcularVencimiento(opt.tipoSuscripcion || opt.tipoPago, fechaCompra);
+          const rutCliente = opt.rutCliente || '66666666-6'; // RUT atleta o consumidor final
           const datosAtleta = {
             email: emailCliente,
             nombre: opt.nombre || emailCliente.split('@')[0],
+            rut: rutCliente,
             plan: opt.plan,
             tipoPlan: esPersonalizado ? 'personalizado' : 'suscrito',
             tipoSuscripcion: opt.tipoSuscripcion || opt.tipoPago,
@@ -233,6 +235,23 @@ export default {
           };
           await env.RUCK_DATA.put(`plan-atleta:${emailCliente}`, JSON.stringify(datosAtleta));
 
+          // ✅ EMITIR BOLETA DE HONORARIOS EN SII
+          let folioBoleta = null;
+          try {
+            folioBoleta = await emitirBoleta(env, {
+              rutEmisor:   env.SII_RUT,
+              claveEmisor: env.SII_CLAVE,
+              rutReceptor: rutCliente,
+              monto:       estado.amount,
+              descripcion: `Servicio de entrenamiento — ${opt.plan}`,
+              nombre:      opt.nombre || emailCliente.split('@')[0],
+              email:       emailCliente,
+            });
+            console.log('Boleta emitida, folio:', folioBoleta);
+          } catch(bErr) {
+            console.error('Error emitiendo boleta SII:', bErr.message);
+          }
+
           // ✅ ENVIAR CÓDIGO DE TRAINHEROIC (solo planes autogestionados)
           if (!esPersonalizado) {
             const codigo = obtenerCodigoTrainHeroic(opt.plan, env);
@@ -241,7 +260,8 @@ export default {
                 email: emailCliente,
                 codigo,
                 plan: opt.plan,
-                nombre: opt.nombre
+                nombre: opt.nombre,
+                folioBoleta,
               });
             }
           }
@@ -254,8 +274,10 @@ export default {
               Tipo: ${esPersonalizado ? 'Personalizado (requiere tu gestión)' : 'Autogestionado'}
               Cliente: ${opt.nombre}
               Email: ${emailCliente}
+              RUT: ${rutCliente}
               Monto: $${estado.amount} CLP
               Orden: ${estado.commerceOrder}
+              Boleta SII: ${folioBoleta ? `Folio N° ${folioBoleta}` : '⚠️ No emitida (revisar credenciales SII)'}
               ${esPersonalizado ? '\n⚠️ Este atleta necesita gestión manual de TrainHeroic.' : '\n✅ Código TrainHeroic enviado automáticamente.'}
             `
           });
@@ -521,7 +543,7 @@ function obtenerCodigoTrainHeroic(plan, env) {
 }
 
 // ── Enviar email al cliente con código ───────
-async function enviarEmailTrainHeroic(env, { email, codigo, plan, nombre }) {
+async function enviarEmailTrainHeroic(env, { email, codigo, plan, nombre, folioBoleta }) {
   if (!env.RESEND_API_KEY) {
     console.error('RESEND_API_KEY no configurada');
     return;
@@ -582,6 +604,12 @@ async function enviarEmailTrainHeroic(env, { email, codigo, plan, nombre }) {
               <li>¡Listo! Comienza tu entrenamiento</li>
             </ol>
           </div>
+
+          ${folioBoleta ? `
+          <div style="background:#f0fff4;border:1px solid #68d391;border-radius:6px;padding:14px;margin:20px 0;font-size:13px;color:#276749;">
+            🧾 <strong>Boleta de honorarios emitida</strong> — Folio N° ${folioBoleta}<br>
+            <span style="color:#555;">Disponible en tu portal del SII con tu RUT.</span>
+          </div>` : ''}
 
           <p style="color: #999; font-size: 13px; margin-top: 30px;">
             Si tienes preguntas, responde este email o contáctanos a través de nuestro sitio.
@@ -664,4 +692,97 @@ async function notificarAdminEmail(env, { asunto, cuerpo }) {
 async function notificarEmail(env, { asunto, cuerpo }) {
   // Redirigir a notificarAdminEmail para consistencia
   await notificarAdminEmail(env, { asunto, cuerpo });
+}
+
+// ── BOLETA DE HONORARIOS ELECTRÓNICA — SII ───────────────────
+// Documentación: https://www.sii.cl/servicios_online/1039-.html
+// Requiere Secrets: SII_RUT (ej: "12345678-K"), SII_CLAVE
+async function emitirBoleta(env, { rutEmisor, claveEmisor, rutReceptor, monto, descripcion, nombre, email }) {
+  if (!rutEmisor || !claveEmisor) {
+    throw new Error('Credenciales SII no configuradas (SII_RUT / SII_CLAVE)');
+  }
+
+  const [rutNum, dvEmisor] = rutEmisor.split('-');
+  const [rutRecNum, dvRec] = rutReceptor.split('-');
+
+  // ── Paso 1: Obtener semilla ──────────────────────────────────
+  const resSemilla = await fetch('https://www4.sii.cl/DTEWS/GetTokenFromSeed.jws', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '' },
+    body: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <soapenv:Body>
+    <getSeed/>
+  </soapenv:Body>
+</soapenv:Envelope>`
+  });
+  const xmlSemilla = await resSemilla.text();
+  const semilla = xmlSemilla.match(/<SEMILLA>([^<]+)<\/SEMILLA>/)?.[1];
+  if (!semilla) throw new Error(`SII no retornó semilla. Respuesta: ${xmlSemilla.slice(0, 200)}`);
+
+  // ── Paso 2: Obtener token (RUT + clave + semilla) ────────────
+  const resToken = await fetch('https://www4.sii.cl/DTEWS/GetTokenFromSeed.jws', {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/xml; charset=utf-8', 'SOAPAction': '' },
+    body: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+  <soapenv:Body>
+    <getToken>
+      <item>
+        <Semilla>${semilla}</Semilla>
+        <RutSend>${rutNum}</RutSend>
+        <DvSend>${dvEmisor.toUpperCase()}</DvSend>
+        <Pwd>${claveEmisor}</Pwd>
+      </item>
+    </getToken>
+  </soapenv:Body>
+</soapenv:Envelope>`
+  });
+  const xmlToken = await resToken.text();
+  const token = xmlToken.match(/<TOKEN>([^<]+)<\/TOKEN>/)?.[1];
+  if (!token) throw new Error(`SII no retornó token. Respuesta: ${xmlToken.slice(0, 200)}`);
+
+  // ── Paso 3: Emitir Boleta de Honorarios Electrónica ─────────
+  const fechaHoy = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const resEmision = await fetch('https://www4.sii.cl/bolehicliII/services/BHEEmitService', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/xml; charset=utf-8',
+      'SOAPAction': 'emitirBhe',
+      'Cookie': `TOKEN=${token}`,
+    },
+    body: `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:bhe="http://bhe.sii.cl">
+  <soapenv:Header>
+    <bhe:Token>${token}</bhe:Token>
+  </soapenv:Header>
+  <soapenv:Body>
+    <bhe:emitirBhe>
+      <bhe:RutEmisor>${rutNum}</bhe:RutEmisor>
+      <bhe:DvEmisor>${dvEmisor.toUpperCase()}</bhe:DvEmisor>
+      <bhe:RutReceptor>${rutRecNum}</bhe:RutReceptor>
+      <bhe:DvReceptor>${dvRec.toUpperCase()}</bhe:DvReceptor>
+      <bhe:NombreReceptor>${nombre}</bhe:NombreReceptor>
+      <bhe:EmailReceptor>${email}</bhe:EmailReceptor>
+      <bhe:FechaEmision>${fechaHoy}</bhe:FechaEmision>
+      <bhe:Monto>${monto}</bhe:Monto>
+      <bhe:Glosa>${descripcion}</bhe:Glosa>
+    </bhe:emitirBhe>
+  </soapenv:Body>
+</soapenv:Envelope>`
+  });
+  const xmlEmision = await resEmision.text();
+
+  // Extraer folio de la respuesta
+  const folio = xmlEmision.match(/<FOLIO>([^<]+)<\/FOLIO>/)?.[1]
+             || xmlEmision.match(/<folio>([^<]+)<\/folio>/)?.[1]
+             || xmlEmision.match(/<numeroBhe>([^<]+)<\/numeroBhe>/)?.[1];
+
+  if (!folio) {
+    // Loguear respuesta completa para debug
+    console.error('Respuesta SII emisión BHE:', xmlEmision.slice(0, 500));
+    throw new Error('SII no retornó folio. Ver logs para detalle.');
+  }
+
+  return folio; // Número de folio de la boleta
 }
