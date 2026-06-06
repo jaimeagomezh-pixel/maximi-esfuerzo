@@ -4208,8 +4208,26 @@
         hbLines[2].style.transform = '';
       }
     }
-    if (_dashMenuAbierto) cargarMiPlan();
+    if (!_dashMenuAbierto) {
+    // Al cerrar el menú, colapsar también el acordeón de planes
+    const wrap = document.getElementById('miPlanContentMobileWrap');
+    const icon = document.getElementById('iconMiPlanesMobile');
+    if (wrap) wrap.style.display = 'none';
+    if (icon) { icon.textContent = '▼'; icon.style.transform = ''; }
+    _miPlanesMobileAbierto = false;
   }
+  }
+
+  let _miPlanesMobileAbierto = false;
+  function toggleMiPlanesMobile() {
+    _miPlanesMobileAbierto = !_miPlanesMobileAbierto;
+    const wrap = document.getElementById('miPlanContentMobileWrap');
+    const icon = document.getElementById('iconMiPlanesMobile');
+    if (wrap) wrap.style.display = _miPlanesMobileAbierto ? 'block' : 'none';
+    if (icon) { icon.style.transform = _miPlanesMobileAbierto ? 'rotate(180deg)' : ''; }
+    if (_miPlanesMobileAbierto) cargarMiPlan();
+  }
+  window.toggleMiPlanesMobile = toggleMiPlanesMobile;
 
   async function cargarMiPlan() {
     const user = window._auth?.currentUser;

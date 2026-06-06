@@ -610,9 +610,13 @@
 
     <!-- Menú móvil del dashboard -->
     <div id="dashMobileMenu" class="dash-mobile-menu">
-      <!-- Mis Planes -->
-      <div style="padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.1);">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;color:#d4a843;text-transform:uppercase;margin-bottom:10px;">📋 MIS PLANES</div>
+      <!-- Mis Planes (acordeón) -->
+      <button class="dash-menu-link" onclick="toggleMiPlanesMobile()" id="btnMiPlanesMobile"
+        style="color:#d4a843 !important;display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <span>📋 &nbsp;Mis Planes</span>
+        <span id="iconMiPlanesMobile" style="font-size:10px;transition:transform 0.25s;">▼</span>
+      </button>
+      <div id="miPlanContentMobileWrap" style="display:none;padding:0 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1);">
         <div id="miPlanContentMobile" style="font-size:13px;color:#ccc;"><div style="color:#666;font-style:italic;font-size:12px;">Cargando...</div></div>
       </div>
       <!-- Links -->
