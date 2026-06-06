@@ -2669,7 +2669,8 @@
       function ruckTimeFmt(inp) {
         const d = inp._digits;
         if (!d) { inp.value = ''; return; }
-        const padded = d.padStart(6, '0');
+        // 5 dígitos: [H][MM][SS] → máx 9:59:59
+        const padded = d.padStart(5, '0');
         const h  = parseInt(padded[0]);
         const mm = padded.slice(1, 3);
         const ss = padded.slice(3, 5);
@@ -2679,10 +2680,10 @@
       ruckTimeInp.addEventListener('keydown', function(e) {
         if (/^\d$/.test(e.key)) {
           e.preventDefault();
-          if (this._digits.length >= 6) return;
+          if (this._digits.length >= 5) return;
           const next = this._digits + e.key;
           // Validar MM y SS no mayores a 59
-          const padded = next.padStart(6, '0');
+          const padded = next.padStart(5, '0');
           if (parseInt(padded.slice(1,3)) > 59 || parseInt(padded.slice(3,5)) > 59) return;
           this._digits = next;
           ruckTimeFmt(this);

@@ -1353,7 +1353,7 @@
             <div style="position:relative;">
               <input type="tel" id="ruckATime" placeholder="0:00:00" maxlength="7"
                 style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 36px 8px 10px;font-size:15px;color:#333;outline:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">
-              <button onclick="document.getElementById('ruckATime').value='';document.getElementById('ruckATime').focus();"
+              <button onclick="const _t=document.getElementById('ruckATime');_t.value='';_t._digits='';_t.focus();"
                 style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:2px 4px;line-height:1;" title="Borrar">×</button>
             </div>
           </div>
