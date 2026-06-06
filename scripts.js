@@ -2932,17 +2932,23 @@
         tbody.innerHTML = recent.map(s=>{
           const pot     = calcPotenciaRuck(s);
           const trabajo = calcTrabajoRuck(s);
+          const esStrava = s.source === 'strava';
+          const editTitle = esStrava ? 'Editar tiempo (Strava)' : 'Editar sesión';
           return `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
-            <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);gap:8px;">
+            <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:600;color:#333;">${fmtTimerRuck(s.time)}</div>
-              <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${s.source==='strava'?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
+              <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${esStrava?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
             </div>
             <div style="text-align:right;">
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
               ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W · ${trabajo} kJ</div>` : ''}
               ${s.elev>0?`<div style="font-size:10px;color:#bbb;">↑ ${s.elev} m desnivel</div>`:''}
             </div>
+            <button onclick="editRuckSession('${s.id}')" title="${editTitle}"
+              style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
+              onmouseover="this.style.borderColor='#C9A84C';this.style.color='#C9A84C';"
+              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✎</button>
           </div>`;
         }).join('');
       }
@@ -2970,6 +2976,66 @@
     }
   }
 
+  // ID de sesión en edición (null = modo agregar)
+  let _ruckEditId = null;
+
+  function editRuckSession(id) {
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+    const s = sessions.find(x => x.id === id);
+    if (!s) return;
+    _ruckEditId = id;
+
+    // Mostrar formulario
+    const form = document.getElementById('ruckAManualForm');
+    if (form) form.style.display = 'block';
+
+    // Rellenar campos
+    const dateInp = document.getElementById('ruckADate');
+    const distInp = document.getElementById('ruckADist');
+    const loadInp = document.getElementById('ruckALoad');
+    const timeInp = document.getElementById('ruckATime');
+
+    if (dateInp) { dateInp.value = s.date; dateInp.disabled = s.source==='strava'; }
+    if (distInp) { distInp.value = s.dist; distInp.disabled = s.source==='strava'; }
+    if (loadInp) { loadInp.value = s.load; loadInp.disabled = s.source==='strava'; }
+
+    // Convertir segundos a H:MM:SS y setear _digits
+    if (timeInp) {
+      const h  = Math.floor(s.time / 3600);
+      const m  = Math.floor((s.time % 3600) / 60);
+      const sc = s.time % 60;
+      timeInp.value = h > 0
+        ? `${h}:${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`
+        : `${String(m).padStart(2,'0')}:${String(sc).padStart(2,'0')}`;
+      // _digits = 5 chars HMMSS (sin ceros iniciales de la hora si h=0)
+      timeInp._digits = String(h) + String(m).padStart(2,'0') + String(sc).padStart(2,'0');
+      timeInp._digits = timeInp._digits.replace(/^0+/,'') || '';
+    }
+
+    // Cambiar botón y título del formulario
+    const addBtn = document.querySelector('[onclick="addRuckManualSession()"]');
+    if (addBtn) addBtn.textContent = s.source==='strava' ? 'GUARDAR TIEMPO' : 'GUARDAR CAMBIOS';
+    const formTitle = document.getElementById('ruckAFormTitle');
+    if (formTitle) formTitle.textContent = s.source==='strava'
+      ? 'EDITAR TIEMPO — STRAVA'
+      : 'EDITAR SESIÓN MANUAL';
+
+    // Scroll al formulario
+    form?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function _resetRuckForm() {
+    _ruckEditId = null;
+    const addBtn = document.querySelector('[onclick="addRuckManualSession()"]');
+    if (addBtn) addBtn.textContent = 'AGREGAR';
+    const formTitle = document.getElementById('ruckAFormTitle');
+    if (formTitle) formTitle.textContent = 'AGREGAR SESIÓN MANUAL';
+    ['ruckADate','ruckADist','ruckALoad'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.disabled = false;
+    });
+  }
+
   function addRuckManualSession() {
     const date  = document.getElementById('ruckADate')?.value;
     const dist  = parseFloat(document.getElementById('ruckADist')?.value);
@@ -2980,11 +3046,25 @@
     const tSec  = parts.length===3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+(parts[1]||0);
     if (!tSec||tSec<=0) { alert('Formato de tiempo inválido (H:MM:SS).'); return; }
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
-    sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev:0, notes:'Manual', terrain:1.2, source:'manual' });
+
+    if (_ruckEditId) {
+      // ── MODO EDICIÓN ──────────────────────────────────────────
+      const idx = sessions.findIndex(x => x.id === _ruckEditId);
+      if (idx !== -1) {
+        const orig = sessions[idx];
+        sessions[idx] = orig.source === 'strava'
+          ? { ...orig, time: tSec }                          // Strava: solo tiempo
+          : { ...orig, date, dist, load, time: tSec };      // Manual: todo
+      }
+      _resetRuckForm();
+    } else {
+      // ── MODO AGREGAR ─────────────────────────────────────────
+      sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev:0, notes:'Manual', terrain:1.2, source:'manual' });
+    }
+
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     pushRuckingToCloud(sessions);
     document.getElementById('ruckAManualForm').style.display='none';
-    // Resetear buffer tiempo
     const ti = document.getElementById('ruckATime');
     if (ti) { ti.value = ''; ti._digits = ''; }
     initRuckingAtleta();
@@ -4209,6 +4289,16 @@
   window.abrirModalCancelar = abrirModalCancelar;
   window.cerrarModalCancelar= cerrarModalCancelar;
   window.enviarSolicitudCancelacion = enviarSolicitudCancelacion;
+  window.editRuckSession    = editRuckSession;
+  // Cancelar funciona en ambos modos (agregar y editar)
+  window.cancelarEditRuck   = function() {
+    _resetRuckForm();
+    const form = document.getElementById('ruckAManualForm');
+    if (form) form.style.display = 'none';
+    const ti = document.getElementById('ruckATime');
+    if (ti) { ti.value = ''; ti._digits = ''; }
+  };
+  window.addRuckManualSession = addRuckManualSession;
 
 
   if (typeof lucide !== "undefined") lucide.createIcons();
