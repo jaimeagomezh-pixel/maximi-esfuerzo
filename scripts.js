@@ -1022,6 +1022,15 @@
     if (p.talla) { const el = document.getElementById('mpTalla'); if(el) el.value = p.talla; }
     if (p.edad)  { const el = document.getElementById('mpEdad');  if(el) el.value = p.edad; }
     if (p.sexo)  { const el = document.getElementById('mpSexo');  if(el) el.value = p.sexo; }
+    // FC máx
+    const fcEl = document.getElementById('mpFcMax');
+    if (fcEl && p.fcMax) fcEl.value = p.fcMax;
+    const badge = document.getElementById('mpFcFuenteBadge');
+    if (badge) {
+      if (p.fcMaxFuente === 'strava') { badge.textContent = '✓ Strava'; badge.style.color = '#FC4C02'; badge.style.background = 'rgba(252,76,2,0.08)'; }
+      else if (p.fcMaxFuente === 'nes') { badge.textContent = 'estimada'; badge.style.color = '#888'; badge.style.background = 'rgba(0,0,0,0.06)'; }
+      else { badge.textContent = ''; }
+    }
     actualizarResumenPerfil(p);
   }
 
@@ -1032,21 +1041,30 @@
   }
 
   function guardarMiPerfil() {
-    const peso  = parseFloat(document.getElementById('mpPeso')?.value) || null;
-    const talla = parseFloat(document.getElementById('mpTalla')?.value) || null;
-    const edad  = parseInt(document.getElementById('mpEdad')?.value) || null;
-    const sexo  = document.getElementById('mpSexo')?.value || '';
+    const peso   = parseFloat(document.getElementById('mpPeso')?.value) || null;
+    const talla  = parseFloat(document.getElementById('mpTalla')?.value) || null;
+    const edad   = parseInt(document.getElementById('mpEdad')?.value) || null;
+    const sexo   = document.getElementById('mpSexo')?.value || '';
+    const fcManual = parseInt(document.getElementById('mpFcMax')?.value) || null;
     // Preservar campos automáticos (fcMax detectada por Strava, etc.)
     const prev = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const p = { ...prev, peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
 
-    // FC máx estimada (Nes) SOLO si no hay medida real de Strava
-    if (p.fcMaxFuente !== 'strava' && edad) {
+    // FC máx: manual > strava si el atleta la ingresa explícitamente
+    if (fcManual && fcManual >= 100 && fcManual <= 230) {
+      // Solo reemplaza si el atleta ingresó un valor distinto al actual
+      if (fcManual !== prev.fcMax || prev.fcMaxFuente !== 'manual') {
+        p.fcMax = fcManual;
+        p.fcMaxFuente = 'manual';
+        const inp = document.getElementById('inputFcMax');
+        if (inp) inp.value = fcManual;
+      }
+    } else if (p.fcMaxFuente !== 'strava' && p.fcMaxFuente !== 'manual' && edad) {
+      // FC estimada (Nes) SOLO si no hay medida real ni ingreso manual
       const fcNes = calcularFCMaxNes(edad);
       if (fcNes) {
         p.fcMax = fcNes;
         p.fcMaxFuente = 'nes';
-        // Prellenar campo de zonas si está vacío o era estimación previa
         const inp = document.getElementById('inputFcMax');
         if (inp && !inp.value) inp.value = fcNes;
       }
@@ -1079,12 +1097,7 @@
     if (p.peso)  parts.push(p.peso + ' kg');
     if (p.talla) parts.push(p.talla + ' cm');
     if (p.edad)  parts.push(p.edad + ' años');
-    if (p.fcMax) {
-      const fuente = p.fcMaxFuente === 'strava' ? 'medida'
-                   : p.fcMaxFuente === 'nes'    ? 'estimada'
-                   : '';
-      parts.push('FC máx ' + p.fcMax + ' ppm' + (fuente ? ` (${fuente})` : ''));
-    }
+    // FC máx ya no aparece en el resumen del header — está en Mi Perfil
     el.textContent = parts.join(' · ');
   }
 
