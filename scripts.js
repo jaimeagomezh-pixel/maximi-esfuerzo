@@ -3945,12 +3945,115 @@
     }
   }
 
+  // ── MI CUENTA: dropdown con Mis Planes ──────────────────────
+  let _miCuentaAbierto = false;
+
+  function toggleMiCuenta() {
+    const dd = document.getElementById('miCuentaDropdown');
+    const ch = document.getElementById('miCuentaChevron');
+    _miCuentaAbierto = !_miCuentaAbierto;
+    dd.style.display = _miCuentaAbierto ? 'block' : 'none';
+    if (ch) ch.style.transform = _miCuentaAbierto ? 'rotate(180deg)' : '';
+    if (_miCuentaAbierto) cargarMiPlan();
+  }
+
+  // Cerrar dropdown al click fuera
+  document.addEventListener('click', (e) => {
+    if (_miCuentaAbierto && !document.getElementById('miCuentaWrap')?.contains(e.target)) {
+      const dd = document.getElementById('miCuentaDropdown');
+      const ch = document.getElementById('miCuentaChevron');
+      if (dd) dd.style.display = 'none';
+      if (ch) ch.style.transform = '';
+      _miCuentaAbierto = false;
+    }
+  });
+
+  async function cargarMiPlan() {
+    const user = window._auth?.currentUser;
+    const el = document.getElementById('miPlanContent');
+    if (!el) return;
+    if (!user) {
+      el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>';
+      return;
+    }
+    el.innerHTML = '<div style="color:#666;font-size:13px;">Cargando...</div>';
+    try {
+      const res = await fetch(`${FLOW_WORKER}/mi-plan?email=${encodeURIComponent(user.email)}`);
+      const data = await res.json();
+      if (!data.ok || !data.plan) {
+        el.innerHTML = `<div style="color:#888;font-size:13px;">No tienes ningún plan activo.<br><button onclick="abrirPlanes();toggleMiCuenta();" style="margin-top:10px;background:#d4a843;color:#000;border:none;padding:8px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Ver planes</button></div>`;
+        return;
+      }
+      const p = data.plan;
+      const activo = p.activo;
+      const color  = activo ? '#2ecc71' : '#e74c3c';
+      const badge  = activo ? '✅ Activo' : '❌ Vencido';
+      const diasTxt = p.diasRestantes !== null
+        ? (p.diasRestantes > 0 ? `${p.diasRestantes} días restantes` : 'Vence hoy')
+        : '';
+      el.innerHTML = `
+        <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:1px;color:#fff;">${p.nombre}</div>
+            <span style="font-size:11px;color:${color};font-family:'Barlow Condensed';letter-spacing:1px;">${badge}</span>
+          </div>
+          ${p.vencimiento ? `<div style="font-size:12px;color:#aaa;margin-bottom:4px;">Vence: <strong style="color:#ccc;">${p.vencimiento}</strong></div>` : ''}
+          ${diasTxt ? `<div style="font-size:12px;color:${p.diasRestantes <= 7 ? '#e67e22' : '#888'};">${diasTxt}</div>` : ''}
+          ${activo ? `<button onclick="abrirModalCancelar()" style="margin-top:12px;width:100%;background:none;border:1px solid rgba(231,76,60,0.4);color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Cancelar plan</button>` : `<button onclick="abrirPlanes();toggleMiCuenta();" style="margin-top:12px;width:100%;background:#d4a843;color:#000;border:none;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;padding:7px;border-radius:20px;cursor:pointer;">Renovar plan</button>`}
+        </div>`;
+    } catch(e) {
+      el.innerHTML = '<div style="color:#666;font-size:13px;">Error al cargar tu plan. Intenta de nuevo.</div>';
+    }
+  }
+
+  // Modal cancelar plan
+  function abrirModalCancelar() {
+    const ov = document.getElementById('modalCancelarOverlay');
+    if (ov) { ov.style.display = 'flex'; toggleMiCuenta(); }
+    const msg = document.getElementById('cancelarMsg');
+    const ta  = document.getElementById('cancelarMotivo');
+    if (msg) msg.style.display = 'none';
+    if (ta)  ta.value = '';
+  }
+  function cerrarModalCancelar(e) {
+    if (e && e.target !== document.getElementById('modalCancelarOverlay')) return;
+    const ov = document.getElementById('modalCancelarOverlay');
+    if (ov) ov.style.display = 'none';
+  }
+  async function enviarSolicitudCancelacion() {
+    const user    = window._auth?.currentUser;
+    const motivo  = document.getElementById('cancelarMotivo')?.value || '';
+    const msg     = document.getElementById('cancelarMsg');
+    if (!user) { alert('Debes iniciar sesión.'); return; }
+    try {
+      const res = await fetch(`${FLOW_WORKER}/cancelar-plan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, nombre: user.displayName || user.email, motivo }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        if (msg) { msg.textContent = '✅ Solicitud enviada. El coach te contactará pronto.'; msg.style.display = 'block'; }
+        setTimeout(() => { const ov = document.getElementById('modalCancelarOverlay'); if (ov) ov.style.display = 'none'; }, 3000);
+      } else {
+        if (msg) { msg.textContent = '❌ Error al enviar. Intenta de nuevo.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
+      }
+    } catch(e) {
+      if (msg) { msg.textContent = '❌ Error de conexión.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
+    }
+  }
+
   window.contratarPlan      = contratarPlan;
   window.contratarAsesoria  = contratarAsesoria;
   window.selectResMes       = selectResMes;
   window.toggleMiPerfil     = toggleMiPerfil;
   window.guardarMiPerfil    = guardarMiPerfil;
   window.precargarPesoVelocidad = precargarPesoVelocidad;
+  window.toggleMiCuenta     = toggleMiCuenta;
+  window.cargarMiPlan       = cargarMiPlan;
+  window.abrirModalCancelar = abrirModalCancelar;
+  window.cerrarModalCancelar= cerrarModalCancelar;
+  window.enviarSolicitudCancelacion = enviarSolicitudCancelacion;
 
 
   if (typeof lucide !== "undefined") lucide.createIcons();

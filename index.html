@@ -574,7 +574,31 @@
 
     <div class="dash-header">
       <div class="dash-header-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
-      <div class="dash-header-right">
+      <div class="dash-header-right" style="display:flex;align-items:center;gap:10px;">
+        <!-- Mi Cuenta dropdown -->
+        <div style="position:relative;" id="miCuentaWrap">
+          <button onclick="toggleMiCuenta()" style="background:none;border:1px solid rgba(212,168,67,0.4);color:#d4a843;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;padding:6px 14px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:6px;">
+            <span>⚙</span> Mi Cuenta <span id="miCuentaChevron" style="font-size:10px;transition:transform 0.2s;">▾</span>
+          </button>
+          <div id="miCuentaDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1a1a2e;border:1px solid rgba(212,168,67,0.25);border-radius:10px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:1000;overflow:hidden;">
+            <!-- Mis Planes -->
+            <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.08);">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:#d4a843;text-transform:uppercase;margin-bottom:12px;">📋 Mis Planes</div>
+              <div id="miPlanContent" style="font-size:14px;color:#ccc;">
+                <div style="color:#666;font-style:italic;font-size:13px;">Cargando...</div>
+              </div>
+            </div>
+            <!-- Opciones adicionales -->
+            <div style="padding:10px 8px;">
+              <button onclick="toggleMiPerfil();toggleMiCuenta();" style="width:100%;background:none;border:none;color:#ccc;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">
+                ✎ &nbsp;Mi Perfil
+              </button>
+              <button onclick="cerrarSesion()" style="width:100%;background:none;border:none;color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(231,76,60,0.08)'" onmouseout="this.style.background='none'">
+                ⏻ &nbsp;Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
         <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Salir</button>
       </div>
     </div>
@@ -1681,6 +1705,24 @@
       💳 Pagar con Flow
     </button>
     <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>
+  </div>
+</div>
+
+<!-- MODAL CANCELAR PLAN -->
+<div class="modal-overlay" id="modalCancelarOverlay" onclick="cerrarModalCancelar(event)" style="display:none;">
+  <div class="modal" style="max-width:420px;">
+    <button class="modal-close" onclick="cerrarModalCancelar()">✕</button>
+    <div class="modal-plan-nombre" style="color:#e74c3c;">Cancelar Plan</div>
+    <p style="color:#aaa;font-size:14px;margin:8px 0 20px;line-height:1.5;">Tu solicitud de cancelación llegará al coach, quien la procesará en 24-48 horas. El acceso se mantiene hasta el fin del período pagado.</p>
+    <div style="margin-bottom:16px;">
+      <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:8px;">Motivo (opcional)</label>
+      <textarea id="cancelarMotivo" placeholder="Cuéntanos brevemente por qué cancelas..." rows="3"
+        style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#f5f0eb;font-size:14px;padding:10px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+    </div>
+    <button onclick="enviarSolicitudCancelacion()" style="width:100%;background:#c0392b;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;padding:14px;border:none;border-radius:6px;cursor:pointer;">
+      Solicitar cancelación
+    </button>
+    <div id="cancelarMsg" style="display:none;margin-top:12px;text-align:center;font-size:13px;color:#2ecc71;"></div>
   </div>
 </div>
 

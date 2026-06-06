@@ -60,6 +60,11 @@ const COACH_SECRET = null; // nunca hardcodeado en código
 //  HANDLER PRINCIPAL
 // ══════════════════════════════════════════════
 export default {
+  // ── Cron diario: notificar planes por vencer ──
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(notificarVencimientosProximos(env));
+  },
+
   async fetch(request, env) {
     // Leer secret desde env (Cloudflare Worker secret), nunca del código
     const COACH_SECRET = env.COACH_SECRET;
@@ -588,18 +593,67 @@ export default {
       }
     }
 
+    // ── GET /mi-plan — atleta consulta su plan activo ─────────────
+    if (url.pathname === '/mi-plan' && request.method === 'GET') {
+      const email = url.searchParams.get('email');
+      if (!email) return Response.json({ ok: false, error: 'Falta email' }, { status: 400, headers: corsHeaders() });
+      try {
+        const key = `plan-atleta:${email.toLowerCase()}`;
+        const val = await env.RUCK_DATA.get(key);
+        if (!val) return Response.json({ ok: true, plan: null }, { headers: corsHeaders() });
+        const datos = JSON.parse(val);
+        const hoy = new Date();
+        const fv = datos.fechaVencimiento ? new Date(datos.fechaVencimiento) : null;
+        const dias = fv ? Math.ceil((fv - hoy) / 86400000) : null;
+        return Response.json({
+          ok: true,
+          plan: {
+            nombre: datos.plan,
+            vencimiento: datos.fechaVencimiento ? datos.fechaVencimiento.split('T')[0] : null,
+            diasRestantes: dias,
+            activo: !fv || dias > 0,
+            subscriptionId: datos.subscriptionId || null,
+            pagos: datos.pagos || [],
+          }
+        }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
+    // ── POST /cancelar-plan — atleta solicita cancelación ─────────
+    if (url.pathname === '/cancelar-plan' && request.method === 'POST') {
+      try {
+        const { email, nombre, motivo } = await request.json();
+        if (!email) return Response.json({ ok: false, error: 'Falta email' }, { status: 400, headers: corsHeaders() });
+        // Notificar al coach por email
+        await notificarAdminEmail(env, {
+          asunto: `⚠️ Solicitud de cancelación — ${nombre || email}`,
+          cuerpo: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;">
+<div style="max-width:560px;margin:20px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+  <div style="background:#c0392b;color:#fff;padding:20px 24px;">
+    <h2 style="margin:0;">⚠️ Solicitud de cancelación</h2>
+  </div>
+  <div style="padding:24px;">
+    <p style="margin:0 0 12px;"><strong>Atleta:</strong> ${nombre || '(sin nombre)'}</p>
+    <p style="margin:0 0 12px;"><strong>Email:</strong> ${email}</p>
+    <p style="margin:0 0 12px;"><strong>Motivo:</strong> ${motivo || '(no especificado)'}</p>
+    <hr style="margin:20px 0;border:none;border-top:1px solid #eee;">
+    <p style="color:#666;font-size:13px;">El atleta ha solicitado cancelar su plan desde la plataforma. Ingresa a Flow para cancelar la suscripción manualmente si corresponde.</p>
+  </div>
+</div></body></html>`,
+          esHtml: true,
+        });
+        return Response.json({ ok: true, mensaje: 'Solicitud enviada. El coach se contactará contigo pronto.' }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
     // ── CRON: notificar planes por vencer ────────
     // (configurar en wrangler.toml como cron trigger)
     return new Response('Flow Worker activo', { status: 200 });
   },
-
-  // ── Cron diario para revisar vencimientos ────
-  async scheduled(event, env) {
-    // Aquí iría la lógica de revisar en Firebase/KV
-    // los planes que vencen en 7 días y enviar email
-    // Por ahora registra que corrió
-    console.log('Cron ejecutado:', new Date().toISOString());
-  }
 };
 
 // ══════════════════════════════════════════════
@@ -782,9 +836,9 @@ async function enviarEmailTrainHeroic(env, { email, codigo, plan, nombre, folioB
 }
 
 // ── Notificar a admin (Jaime) ────────────────
-async function notificarAdminEmail(env, { asunto, cuerpo }) {
+async function notificarAdminEmail(env, { asunto, cuerpo, esHtml = false }) {
   const adminEmail = env.NOTIFY_EMAIL || 'maximoesfuerzo91@gmail.com';
-  const emailDesde = env.EMAIL_FROM || 'noreply@maximoesfuerzo.cl';
+  const emailDesde = env.EMAIL_FROM || 'onboarding@resend.dev';
 
   if (!env.RESEND_API_KEY) {
     console.log('Notificación (sin Resend):', asunto, cuerpo);
@@ -792,18 +846,17 @@ async function notificarAdminEmail(env, { asunto, cuerpo }) {
   }
 
   try {
+    const body = esHtml
+      ? { from: emailDesde, to: adminEmail, subject: asunto, html: cuerpo }
+      : { from: emailDesde, to: adminEmail, subject: asunto, text: cuerpo };
+
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        from: emailDesde,
-        to: adminEmail,
-        subject: asunto,
-        text: cuerpo,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (res.ok) {
@@ -818,8 +871,68 @@ async function notificarAdminEmail(env, { asunto, cuerpo }) {
 
 // ── Enviar email de notificación (LEGACY) ────
 async function notificarEmail(env, { asunto, cuerpo }) {
-  // Redirigir a notificarAdminEmail para consistencia
   await notificarAdminEmail(env, { asunto, cuerpo });
+}
+
+// ── CRON: notificar vencimientos próximos al coach ─────────────
+async function notificarVencimientosProximos(env) {
+  try {
+    const list = await env.RUCK_DATA.list({ prefix: 'plan-atleta:' });
+    const hoy = new Date();
+    const alertas7  = [];
+    const alertas3  = [];
+    const vencidos  = [];
+
+    for (const k of list.keys) {
+      const val = await env.RUCK_DATA.get(k.name);
+      if (!val) continue;
+      const a = JSON.parse(val);
+      if (!a.fechaVencimiento) continue;
+      const fv   = new Date(a.fechaVencimiento);
+      const dias = Math.ceil((fv - hoy) / 86400000);
+      if (dias === 7)  alertas7.push(a);
+      if (dias === 3)  alertas3.push(a);
+      if (dias === 0)  vencidos.push(a);
+    }
+
+    const total = alertas7.length + alertas3.length + vencidos.length;
+    if (total === 0) return; // nada que notificar hoy
+
+    const filas = (arr, label) => arr.map(a =>
+      `<tr><td style="padding:8px 12px;">${a.nombre}</td><td style="padding:8px 12px;">${a.email}</td><td style="padding:8px 12px;">${a.plan}</td><td style="padding:8px 12px;font-weight:700;color:${label==='HOY'?'#e74c3c':label==='3d'?'#e67e22':'#f39c12'};">${label}</td></tr>`
+    ).join('');
+
+    const htmlCron = `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;background:#f5f5f5;">
+<div style="max-width:600px;margin:20px auto;background:#fff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+  <div style="background:#1a1a2e;color:#fff;padding:20px 24px;">
+    <h2 style="margin:0;">⏰ Planes próximos a vencer</h2>
+    <p style="margin:6px 0 0;color:#aaa;font-size:13px;">${hoy.toLocaleDateString('es-CL')}</p>
+  </div>
+  <div style="padding:24px;">
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr style="background:#f0f0f0;">
+        <th style="padding:8px 12px;text-align:left;">Atleta</th>
+        <th style="padding:8px 12px;text-align:left;">Email</th>
+        <th style="padding:8px 12px;text-align:left;">Plan</th>
+        <th style="padding:8px 12px;text-align:left;">Vence</th>
+      </tr></thead>
+      <tbody>
+        ${filas(vencidos,'HOY')}
+        ${filas(alertas3,'3d')}
+        ${filas(alertas7,'7d')}
+      </tbody>
+    </table>
+  </div>
+</div></body></html>`;
+
+    await notificarAdminEmail(env, {
+      asunto: `⏰ ${total} plan${total>1?'es':''} por vencer — Máximo Esfuerzo`,
+      cuerpo: htmlCron,
+      esHtml: true,
+    });
+  } catch(e) {
+    console.error('Error en cron vencimientos:', e);
+  }
 }
 
 // ── BOLETA DE HONORARIOS ELECTRÓNICA — SII ───────────────────
