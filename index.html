@@ -2709,10 +2709,16 @@ async function cargarInbodyHistorial() {
       </div>`;
     const cards = document.getElementById('inbodyResumenCards');
     if (cards) {
+      // Para campos de composición usar el último registro que los tenga (puede no ser el más reciente)
+      const conCompo  = lista.filter(m => m.musculo != null && m.grasa_kg != null);
+      const ultimoC   = conCompo.length ? conCompo[conCompo.length-1] : null;
+      const primeroC  = conCompo.length ? conCompo[0] : null;
       cards.innerHTML =
         miniCard('Peso', `${ultimo.peso} kg`, (lista.length > 1 ? 'vs inicio' : 'actual') + deltaStr(ultimo.peso, primero.peso, ' kg')) +
-        miniCard('IMC', isNaN(ultimo.imc) ? '—' : ultimo.imc, imcCategoria(ultimo.imc)) +
-        miniCard('Músculo', `${ultimo.musculo} kg`, (lista.length > 1 ? 'vs inicio' : 'actual') + deltaStrMusc(ultimo.musculo, primero.musculo));
+        miniCard('IMC', (!ultimo.imc || isNaN(ultimo.imc)) ? (ultimoC?.imc || '—') : ultimo.imc,
+          imcCategoria((!ultimo.imc || isNaN(ultimo.imc)) ? (ultimoC?.imc || NaN) : ultimo.imc)) +
+        miniCard('Músculo', ultimoC ? `${ultimoC.musculo} kg` : '—',
+          (conCompo.length > 1 ? 'vs inicio' : 'actual') + (ultimoC && primeroC ? deltaStrMusc(ultimoC.musculo, primeroC.musculo) : ''));
     }
 
     // Cachear historial completo de pesos con fechas para cálculos de rucking
@@ -2737,16 +2743,23 @@ function renderInbodyLista(lista) {
   if (!el) return;
   if (!lista.length) { el.innerHTML = ''; return; }
   document.getElementById('inbodyHistorial').style.display = 'block';
-  el.innerHTML = lista.slice().reverse().map(m => `
+  el.innerHTML = lista.slice().reverse().map(m => {
+    const esPerfilOnly = m.source === 'perfil' && !m.musculo && !m.grasa_kg;
+    const detalle = esPerfilOnly
+      ? `<span style="color:#bbb;margin-left:8px;font-style:italic;">solo peso registrado</span>`
+      : `<span style="color:#aaa;margin-left:8px;">${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>`;
+    return `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
       <div>
-        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#555;">${m.fecha}</span>
-        <span style="color:#aaa;margin-left:8px;">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
+        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:${esPerfilOnly ? '#aaa' : '#555'};">${m.fecha}</span>
+        <strong style="margin-left:8px;color:${esPerfilOnly ? '#999' : '#222'};">${m.peso} kg</strong>
+        ${detalle}
       </div>
       <button onclick="eliminarInbody('${m.fecha}')"
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
         title="Eliminar medición">🗑</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 async function handleVideoUpload(input) {

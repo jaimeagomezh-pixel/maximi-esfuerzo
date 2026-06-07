@@ -1256,6 +1256,10 @@
     if (fechaNac) ruckProfile.fechaNac = fechaNac;
     localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
     if (peso || fechaNac) pushRuckProfileToCloud(ruckProfile);
+
+    // Registrar peso en historial InBody si se ingresó un peso
+    if (peso) registrarPesoEnHistorial(peso);
+
     // Feedback
     const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
     if (btn) {
@@ -1263,6 +1267,49 @@
       btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
       setTimeout(() => { btn.textContent = orig; btn.style.background = '#8B1A1A'; }, 1800);
     }
+  }
+
+  async function registrarPesoEnHistorial(peso) {
+    const user = window._auth?.currentUser;
+    if (!user) return;
+    const hoy = new Date().toISOString().split('T')[0];
+    const cacheKey = 'inbodyHistorial_' + user.uid;
+    const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+
+    // No sobreescribir si ya hay una entrada completa hoy (con composición)
+    const hoyEntry = cached.find(m => m.fecha === hoy);
+    if (hoyEntry && (hoyEntry.musculo || hoyEntry.grasa_kg)) {
+      // Solo actualizar el peso de la entrada existente
+      hoyEntry.peso = peso;
+    } else if (hoyEntry) {
+      // Entrada solo-peso existente → actualizar
+      hoyEntry.peso = peso;
+    } else {
+      // Crear nueva entrada peso-solo
+      cached.push({ fecha: hoy, peso, source: 'perfil',
+        musculo: null, grasa_kg: null, grasa_pct: null,
+        agua: null, imc: null, bmr: null, lbm: null });
+    }
+
+    // Actualizar caché local inmediatamente
+    const sorted = cached.slice().sort((a,b) => a.fecha.localeCompare(b.fecha));
+    localStorage.setItem(cacheKey, JSON.stringify(sorted));
+
+    // Refrescar chart y cards si están visibles
+    if (typeof cargarInbodyHistorial === 'function') cargarInbodyHistorial();
+
+    // Guardar en cloud
+    try {
+      const mw = 'https://media.jaimea-gomezh.workers.dev';
+      const medicion = { fecha: hoy, peso, source: 'perfil',
+        musculo: null, grasa_kg: null, grasa_pct: null,
+        agua: null, imc: null, bmr: null, lbm: null };
+      await fetch(`${mw}/media/save-inbody`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: user.uid, email: user.email, medicion })
+      });
+    } catch(e) { /* silencioso — ya quedó en cache local */ }
   }
 
   function actualizarResumenPerfil(p) {
