@@ -1401,9 +1401,7 @@
     footer { flex-direction: column; text-align: center; }
     .footer-links { flex-wrap: wrap; justify-content: center; }
 
-    /* Dashboard: ocultar nav desktop, mostrar hamburger */
-    .dash-desktop-nav { display: none !important; }
-    .dash-hamburger { display: flex !important; }
+    /* Dashboard: hamburger siempre visible (nav desktop ya oculto por defecto) */
   }
 
   @media (max-width: 420px) {
@@ -1622,7 +1620,8 @@
 
   /* ── DASH NAV RESPONSIVE ── */
   .dash-desktop-nav { display:flex; align-items:center; gap:10px; }
-  .dash-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:6px 4px; }
+  .dash-desktop-nav { display:none; }
+  .dash-hamburger { display:flex; flex-direction:column; gap:5px; cursor:pointer; padding:6px 4px; }
   .dash-hamburger span { display:block; width:24px; height:2px; background:#d4a843; border-radius:2px; transition:all 0.3s; }
 
   /* Menú móvil del dashboard */

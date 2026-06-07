@@ -1578,14 +1578,13 @@ function abrirPerfil(id) {
       <div class="dato"><div class="dato-v">${a.edad}</div><div class="dato-l">Edad</div></div>
     </div>
 
-    <div class="sec">
-      <div class="sec-t">Evolución de peso</div>
-      <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
-    </div>
-
     <div class="secs-2col">
-      <!-- Columna izquierda: Strava + Tiempos -->
+      <!-- Columna izquierda: Peso + Strava + Tiempos + Rucking -->
       <div class="scol">
+        <div class="sec">
+          <div class="sec-t">Evolución de peso</div>
+          <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
+        </div>
         <div class="sec">
           <div class="sec-t">Endurance · Strava</div>
           ${a.strava ? `
@@ -1620,6 +1619,49 @@ function abrirPerfil(id) {
             <div class="empty-t">Sin registros de tiempo aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los PRs se registran desde el panel del atleta</div>
           </div>`}
+        </div>
+
+        <div class="sec" id="ruckCoachSec">
+          <div class="sec-t" style="justify-content:space-between;">
+            <span>Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></span>
+            <button class="f-btn" style="font-size:12px;" onclick="toggleRuckCoachLink()">⚙ Vincular</button>
+          </div>
+          <div id="ruckCoachLinkPanel" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:11px;margin-bottom:12px;">
+            <label class="l-label">Atletas con datos de rucking registrados</label>
+            <select id="ruckCoachAtletasSel" class="l-input" style="margin-bottom:8px;"
+              onchange="document.getElementById('ruckCoachStravaId').value=this.value">
+              <option value="">Cargando…</option>
+            </select>
+            <label class="l-label">O ingresa el Strava ID manualmente</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <input type="text" id="ruckCoachStravaId" class="l-input" placeholder="ej. 12345678"
+                     value="${a.stravaId||''}" style="flex:1;margin-bottom:0;">
+              <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Vincular</button>
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta aparece en la lista cuando sube su primera sesión de rucking con Strava conectado.</div>
+          </div>
+          <div id="ruckCoachEmpty" style="${a.stravaId?'display:none':''}text-align:center;padding:16px;color:var(--text3);font-size:12px;">
+            🎒 Vincula el Strava ID del atleta para ver su progresión de rucking
+          </div>
+          <div id="ruckCoachData" style="${a.stravaId?'':'display:none'}">
+            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;font-weight:600;">Distancia</div>
+            <div class="dist-sel" id="ruckCoachDistBtns"></div>
+            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:10px 0 6px;font-weight:600;">Lastre</div>
+            <div class="dist-sel" id="ruckCoachLoadBtns"></div>
+            <div class="pr-stats" style="margin-top:12px;">
+              <div class="pr-stat best"><div class="pr-stat-v" id="ruckCoachBest">—</div><div class="pr-stat-l">Mejor tiempo</div></div>
+              <div class="pr-stat"><div class="pr-stat-v" id="ruckCoachDate" style="font-size:1.1rem;">—</div><div class="pr-stat-l">Fecha PR</div></div>
+              <div class="pr-stat delta"><div class="pr-stat-v" id="ruckCoachDelta">—</div><div class="pr-stat-l">Vs. inicio</div></div>
+            </div>
+            <div class="ruck-result-grid" id="ruckCoachPotenciaGrid" style="margin-top:12px;display:none;">
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--orange);" id="ruckCoachWatts">—</div><div class="ruck-res-l">Watts metab.</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--cian);" id="ruckCoachKcal">—</div><div class="ruck-res-l">kcal</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--green);" id="ruckCoachKcalH">—</div><div class="ruck-res-l">kcal/h</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" id="ruckCoachVel">—</div><div class="ruck-res-l">km/h</div></div>
+            </div>
+            <div class="chart-wrap" style="margin-top:14px;"><canvas id="cRucking"></canvas></div>
+            <div id="ruckCoachList" style="margin-top:12px;"></div>
+          </div>
         </div>
       </div>
 
@@ -1690,74 +1732,6 @@ function abrirPerfil(id) {
         </button>
       </div>
       <div id="coachCSVStatus" style="margin-top:8px;font-size:11px;color:#C9A84C;"></div>
-    </div>
-
-    <!-- RUCKING del atleta -->
-    <div class="sec" id="ruckCoachSec">
-      <div class="sec-t" style="justify-content:space-between;">
-        <span>Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></span>
-        <button class="f-btn" style="font-size:12px;" onclick="toggleRuckCoachLink()">⚙ Vincular</button>
-      </div>
-
-      <!-- Campo Strava ID (colapsable) -->
-      <div id="ruckCoachLinkPanel" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:11px;margin-bottom:12px;">
-        <label class="l-label">Atletas con datos de rucking registrados</label>
-        <select id="ruckCoachAtletasSel" class="l-input" style="margin-bottom:8px;"
-          onchange="document.getElementById('ruckCoachStravaId').value=this.value">
-          <option value="">Cargando…</option>
-        </select>
-        <label class="l-label">O ingresa el Strava ID manualmente</label>
-        <div style="display:flex;gap:8px;margin-top:4px;">
-          <input type="text" id="ruckCoachStravaId" class="l-input" placeholder="ej. 12345678"
-                 value="${a.stravaId||''}" style="flex:1;margin-bottom:0;">
-          <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Vincular</button>
-        </div>
-        <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta aparece en la lista cuando sube su primera sesión de rucking con Strava conectado.</div>
-      </div>
-
-      <!-- Estado sin vincular -->
-      <div id="ruckCoachEmpty" style="${a.stravaId?'display:none':''}text-align:center;padding:16px;color:var(--text3);font-size:12px;">
-        🎒 Vincula el Strava ID del atleta para ver su progresión de rucking
-      </div>
-
-      <!-- Datos (se muestra cuando hay stravaId) -->
-      <div id="ruckCoachData" style="${a.stravaId?'':'display:none'}">
-        <!-- Selectores distancia -->
-        <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;font-weight:600;">Distancia</div>
-        <div class="dist-sel" id="ruckCoachDistBtns"></div>
-        <!-- Selectores carga -->
-        <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:10px 0 6px;font-weight:600;">Lastre</div>
-        <div class="dist-sel" id="ruckCoachLoadBtns"></div>
-        <!-- Stats PR -->
-        <div class="pr-stats" style="margin-top:12px;">
-          <div class="pr-stat best"><div class="pr-stat-v" id="ruckCoachBest">—</div><div class="pr-stat-l">Mejor tiempo</div></div>
-          <div class="pr-stat"><div class="pr-stat-v" id="ruckCoachDate" style="font-size:1.1rem;">—</div><div class="pr-stat-l">Fecha PR</div></div>
-          <div class="pr-stat delta"><div class="pr-stat-v" id="ruckCoachDelta">—</div><div class="pr-stat-l">Vs. inicio</div></div>
-        </div>
-        <!-- Cuadro de Potencia Metabólica -->
-        <div class="ruck-result-grid" id="ruckCoachPotenciaGrid" style="margin-top:12px;display:none;">
-          <div class="ruck-res-card">
-            <div class="ruck-res-v" style="color:var(--orange);" id="ruckCoachWatts">—</div>
-            <div class="ruck-res-l">Watts metab.</div>
-          </div>
-          <div class="ruck-res-card">
-            <div class="ruck-res-v" style="color:var(--cian);" id="ruckCoachKcal">—</div>
-            <div class="ruck-res-l">kcal</div>
-          </div>
-          <div class="ruck-res-card">
-            <div class="ruck-res-v" style="color:var(--green);" id="ruckCoachKcalH">—</div>
-            <div class="ruck-res-l">kcal/h</div>
-          </div>
-          <div class="ruck-res-card">
-            <div class="ruck-res-v" id="ruckCoachVel">—</div>
-            <div class="ruck-res-l">km/h</div>
-          </div>
-        </div>
-        <!-- Gráfico -->
-        <div class="chart-wrap" style="margin-top:14px;"><canvas id="cRucking"></canvas></div>
-        <!-- Lista sesiones -->
-        <div id="ruckCoachList" style="margin-top:12px;"></div>
-      </div>
     </div>
 
     <div class="sec">
