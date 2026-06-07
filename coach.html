@@ -110,10 +110,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 .dot-cuenta{background:var(--text3);}
 .dot-archivado{background:#bbb;}
 .a-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--cian2),#005f6b);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:1.1rem;color:#fff;flex-shrink:0;box-shadow:0 2px 5px rgba(0,168,179,0.25);}
-.a-info{flex:1;min-width:0;}
+.a-info{flex:0 0 auto;min-width:0;max-width:260px;}
 .a-name{font-family:var(--fc);font-size:14px;font-weight:700;color:var(--text);letter-spacing:0.3px;}
 .a-meta{font-size:12px;color:var(--text3);margin-top:2px;}
+.a-metrics{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:0 12px;}
+.a-metric-chip{display:flex;flex-direction:column;align-items:center;gap:1px;background:rgba(0,0,0,0.03);border:1px solid rgba(0,0,0,0.07);border-radius:8px;padding:6px 12px;min-width:52px;}
+.a-metric-v{font-family:var(--fd);font-size:1.05rem;color:var(--text);line-height:1;}
+.a-metric-l{font-family:var(--fc);font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-top:2px;}
 .a-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+@media(max-width:600px){.a-info{max-width:100%;}.a-metrics{display:none;}}
 .badge{font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:20px;font-weight:600;}
 .b-plan{background:rgba(0,168,179,0.12);color:var(--cian);border:1px solid rgba(0,168,179,0.35);}
 .b-asesoria{background:rgba(212,168,67,0.12);color:#9a6e00;border:1px solid rgba(212,168,67,0.35);}
@@ -1056,21 +1061,26 @@ function renderAtletas() {
       return `<span style="color:${color};font-size:10px;margin-left:2px;">${ico}${Math.abs(delta)}</span>`;
     };
 
-    // Chips de resumen
-    const chips = [];
+    // Métricas para columna central
     const it = a.inbodyTrend;
-    if (it?.peso) {
-      chips.push(`<span>${it.peso} kg${flecha(it.pesoDelta, true)}</span>`);
-    } else if (a.peso) {
-      chips.push(`<span>${a.peso} kg</span>`);
-    }
-    if (it?.musculo) chips.push(`<span>💪 ${it.musculo} kg${flecha(it.musculoDelta)}</span>`);
-    if (it?.grasa_pct) chips.push(`<span>🔥 ${it.grasa_pct}%${flecha(it.grasaDelta, true)}</span>`);
-    if (a.strava?.km) chips.push(`<span>🏃 ${a.strava.km} km</span>`);
+    const metricas = [];
 
-    const statsHtml = chips.length
-      ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:11px;color:var(--text2);">${chips.join('')}</div>`
-      : '';
+    const pesoVal  = it?.peso  || a.peso  || null;
+    const pesoDelta = it?.pesoDelta ?? null;
+    if (pesoVal) metricas.push({ v: `${pesoVal} kg`, delta: pesoDelta, invertido: true, l: 'Peso' });
+
+    if (it?.musculo)  metricas.push({ v: `${it.musculo} kg`,  delta: it.musculoDelta ?? null, invertido: false, l: 'Músculo' });
+    if (it?.grasa_pct) metricas.push({ v: `${it.grasa_pct}%`, delta: it.grasaDelta ?? null,   invertido: true,  l: 'Grasa' });
+    if (a.strava?.km) metricas.push({ v: `${a.strava.km} km`, delta: null, invertido: false, l: '30d Strava' });
+
+    const metricsHtml = metricas.length
+      ? metricas.map(m => {
+          const fl = flecha(m.delta, m.invertido);
+          return `<div class="a-metric-chip"><div class="a-metric-v">${m.v}${fl}</div><div class="a-metric-l">${m.l}</div></div>`;
+        }).join('')
+      : `<div style="font-size:11px;color:var(--text3);font-style:italic;">Sin datos · haz Sync</div>`;
+
+    const statsHtml = ''; // ya no se usa debajo del nombre
 
     // Badge cumpleaños
     let cumpleBadge = '';
@@ -1089,10 +1099,10 @@ function renderAtletas() {
         <div class="a-name">${a.nombre}</div>
         <div class="a-meta">${a.email}</div>
         ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
-        ${statsHtml}
         ${cumpleBadge}
         <div class="a-actions">${acciones}</div>
       </div>
+      <div class="a-metrics">${metricsHtml}</div>
       <div class="a-right">
         <span class="badge ${badgeCls}">${badgeTxt}</span>
         ${venceStr}
