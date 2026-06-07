@@ -1184,12 +1184,23 @@
     panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
   }
 
+  function calcularEdad(fechaNac) {
+    if (!fechaNac) return null;
+    const hoy = new Date();
+    const nac = new Date(fechaNac + 'T12:00:00');
+    if (isNaN(nac)) return null;
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const m = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad > 0 ? edad : null;
+  }
+
   function cargarMiPerfil() {
     const p = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
-    if (p.peso)  { const el = document.getElementById('mpPeso');  if(el) el.value = p.peso; }
-    if (p.talla) { const el = document.getElementById('mpTalla'); if(el) el.value = p.talla; }
-    if (p.edad)  { const el = document.getElementById('mpEdad');  if(el) el.value = p.edad; }
-    if (p.sexo)  { const el = document.getElementById('mpSexo');  if(el) el.value = p.sexo; }
+    if (p.peso)     { const el = document.getElementById('mpPeso');     if(el) el.value = p.peso; }
+    if (p.talla)    { const el = document.getElementById('mpTalla');    if(el) el.value = p.talla; }
+    if (p.fechaNac) { const el = document.getElementById('mpFechaNac'); if(el) el.value = p.fechaNac; }
+    if (p.sexo)     { const el = document.getElementById('mpSexo');     if(el) el.value = p.sexo; }
     // FC máx
     const fcEl = document.getElementById('mpFcMax');
     if (fcEl && p.fcMax) fcEl.value = p.fcMax;
@@ -1209,18 +1220,16 @@
   }
 
   function guardarMiPerfil() {
-    const peso   = parseFloat(document.getElementById('mpPeso')?.value) || null;
-    const talla  = parseFloat(document.getElementById('mpTalla')?.value) || null;
-    const edad   = parseInt(document.getElementById('mpEdad')?.value) || null;
-    const sexo   = document.getElementById('mpSexo')?.value || '';
+    const peso     = parseFloat(document.getElementById('mpPeso')?.value) || null;
+    const talla    = parseFloat(document.getElementById('mpTalla')?.value) || null;
+    const fechaNac = document.getElementById('mpFechaNac')?.value || null;
+    const edad     = calcularEdad(fechaNac);
+    const sexo     = document.getElementById('mpSexo')?.value || '';
     const fcManual = parseInt(document.getElementById('mpFcMax')?.value) || null;
-    // Preservar campos automáticos (fcMax detectada por Strava, etc.)
     const prev = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
-    const p = { ...prev, peso, talla, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
+    const p = { ...prev, peso, talla, fechaNac, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
 
-    // FC máx: manual > strava si el atleta la ingresa explícitamente
     if (fcManual && fcManual >= 100 && fcManual <= 230) {
-      // Solo reemplaza si el atleta ingresó un valor distinto al actual
       if (fcManual !== prev.fcMax || prev.fcMaxFuente !== 'manual') {
         p.fcMax = fcManual;
         p.fcMaxFuente = 'manual';
@@ -1228,7 +1237,6 @@
         if (inp) inp.value = fcManual;
       }
     } else if (p.fcMaxFuente !== 'strava' && p.fcMaxFuente !== 'manual' && edad) {
-      // FC estimada (Nes) SOLO si no hay medida real ni ingreso manual
       const fcNes = calcularFCMaxNes(edad);
       if (fcNes) {
         p.fcMax = fcNes;
@@ -1242,13 +1250,12 @@
     actualizarResumenPerfil(p);
     if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
     document.getElementById('miPerfilPanel').style.display = 'none';
-    // Sincronizar peso al cloud como BM en ruckProfile
-    if (peso) {
-      const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-      ruckProfile.bw = peso;
-      localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
-      pushRuckProfileToCloud(ruckProfile);
-    }
+    // Sincronizar peso y fechaNac al cloud
+    const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    if (peso) ruckProfile.bw = peso;
+    if (fechaNac) ruckProfile.fechaNac = fechaNac;
+    localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
+    if (peso || fechaNac) pushRuckProfileToCloud(ruckProfile);
     // Feedback
     const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
     if (btn) {
@@ -1259,14 +1266,25 @@
   }
 
   function actualizarResumenPerfil(p) {
-    const el = document.getElementById('dashPerfilResumen');
-    if (!el) return;
-    const parts = [];
-    if (p.peso)  parts.push(p.peso + ' kg');
-    if (p.talla) parts.push(p.talla + ' cm');
-    if (p.edad)  parts.push(p.edad + ' años');
-    // FC máx ya no aparece en el resumen del header — está en Mi Perfil
-    el.textContent = parts.join(' · ');
+    const edad = calcularEdad(p.fechaNac) || p.edad || null;
+    const cardsEl = document.getElementById('dashPerfilCards');
+    if (!cardsEl) return;
+    const tieneData = p.peso || p.talla || edad;
+    if (!tieneData) { cardsEl.style.display = 'none'; return; }
+    const imc = (p.peso && p.talla) ? Math.round((p.peso / Math.pow(p.talla/100, 2)) * 10) / 10 : null;
+    const card = (label, val, sub) =>
+      `<div style="flex:1;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:10px 10px 8px;min-width:0;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">${label}</div>
+        <div style="font-size:17px;font-weight:700;color:#222;line-height:1;">${val}</div>
+        ${sub ? `<div style="font-size:10px;color:#aaa;margin-top:3px;">${sub}</div>` : ''}
+      </div>`;
+    let html = '<div style="display:flex;gap:8px;">';
+    if (p.peso)  html += card('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
+    if (p.talla) html += card('Talla', p.talla + ' cm', '');
+    if (edad)    html += card('Edad', edad + ' años', '');
+    html += '</div>';
+    cardsEl.innerHTML = html;
+    cardsEl.style.display = 'block';
   }
 
 

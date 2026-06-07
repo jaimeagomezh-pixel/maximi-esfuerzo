@@ -946,6 +946,24 @@ function buscar(q) {
   renderAtletas();
 }
 
+function calcularEdadCoach(fechaNac) {
+  if (!fechaNac) return null;
+  const hoy = new Date();
+  const nac = new Date(fechaNac + 'T12:00:00');
+  if (isNaN(nac)) return null;
+  let edad = hoy.getFullYear() - nac.getFullYear();
+  const m = hoy.getMonth() - nac.getMonth();
+  if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+  return edad > 0 ? edad : null;
+}
+
+function esCumpleanos(fechaNac) {
+  if (!fechaNac) return false;
+  const hoy = new Date();
+  const nac = new Date(fechaNac + 'T12:00:00');
+  return hoy.getDate() === nac.getDate() && hoy.getMonth() === nac.getMonth();
+}
+
 function renderAtletas() {
   const hoy = new Date();
   let lista = atletas.filter(a => {
@@ -982,13 +1000,25 @@ function renderAtletas() {
              <button class="act-btn peligro" onclick="event.stopPropagation();archivar(${a.id})">Archivar</button>`
           : `<button class="act-btn peligro" onclick="event.stopPropagation();archivar(${a.id})">Archivar</button>`);
 
+    const cumple = esCumpleanos(a.fechaNac);
+    const edadMostrar = calcularEdadCoach(a.fechaNac) || a.edad;
+    const statsChips = [];
+    if (a.peso)  statsChips.push(`${a.peso} kg`);
+    if (a.talla) statsChips.push(`${a.talla} cm`);
+    if (edadMostrar) statsChips.push(`${edadMostrar} años`);
+    if (a.strava?.km) statsChips.push(`🏃 ${a.strava.km} km`);
+    const statsHtml = statsChips.length
+      ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;letter-spacing:0.3px;">${statsChips.join(' · ')}</div>`
+      : '';
+
     return `<div class="acard ${cardCls}" onclick="abrirPerfil(${a.id})">
       <div class="a-dot ${dotCls}"></div>
-      <div class="a-av">${a.nombre.charAt(0)}</div>
+      <div class="a-av" style="${cumple ? 'background:linear-gradient(135deg,#d4a843,#c8960f);' : ''}">${cumple ? '🎂' : a.nombre.charAt(0)}</div>
       <div class="a-info">
-        <div class="a-name">${a.nombre}</div>
+        <div class="a-name">${a.nombre}${cumple ? ' <span style="font-size:13px;" title="¡Cumpleaños hoy!">🎂</span>' : ''}</div>
         <div class="a-meta">${a.email}</div>
         ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
+        ${statsHtml}
         <div class="a-actions">${acciones}</div>
       </div>
       <div class="a-right">
@@ -1172,6 +1202,12 @@ async function cargarPerfilAtletaRuck(aid) {
         // ── Strava stats guardadas por el atleta ──
         if (cp.stravaStats && !a.strava) {
           a.strava = cp.stravaStats;
+          guardarAtletas();
+        }
+
+        // ── Fecha de nacimiento ──
+        if (cp.fechaNac && !a.fechaNac) {
+          a.fechaNac = cp.fechaNac;
           guardarAtletas();
         }
 
@@ -1573,9 +1609,9 @@ function abrirPerfil(id) {
     </div>
 
     <div class="datos-grid">
-      <div class="dato"><div class="dato-v">${a.peso}</div><div class="dato-l">Peso kg</div></div>
-      <div class="dato"><div class="dato-v">${a.talla}</div><div class="dato-l">Talla cm</div></div>
-      <div class="dato"><div class="dato-v">${a.edad}</div><div class="dato-l">Edad</div></div>
+      <div class="dato"><div class="dato-v">${a.peso||'—'}</div><div class="dato-l">Peso kg</div></div>
+      <div class="dato"><div class="dato-v">${a.talla||'—'}</div><div class="dato-l">Talla cm</div></div>
+      <div class="dato"><div class="dato-v">${calcularEdadCoach(a.fechaNac)||a.edad||'—'}</div><div class="dato-l">Edad</div></div>
     </div>
 
     <div class="secs-2col">
@@ -1834,34 +1870,38 @@ async function cargarInbodyCoach(email) {
             label: 'Masa Muscular (kg)',
             data: lista.map(m => m.musculo),
             fill: true,
-            backgroundColor: 'rgba(0,122,133,0.55)',
-            borderColor: '#8B1A1A',
+            backgroundColor: 'rgba(0,168,179,0.35)',
+            borderColor: '#00a8b3',
             borderWidth: 2,
             tension: 0.3,
             pointRadius: 4,
-            pointBackgroundColor: '#8B1A1A'
-          },
-          {
-            label: 'Agua (kg)',
-            data: lista.map(m => m.agua),
-            fill: true,
-            backgroundColor: 'rgba(52,152,219,0.45)',
-            borderColor: '#3498db',
-            borderWidth: 2,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#3498db'
+            pointBackgroundColor: '#00a8b3',
+            yAxisID: 'yComp'
           },
           {
             label: 'Masa Grasa (kg)',
             data: lista.map(m => m.grasa_kg),
             fill: true,
-            backgroundColor: 'rgba(231,76,60,0.45)',
+            backgroundColor: 'rgba(231,76,60,0.35)',
             borderColor: '#e74c3c',
             borderWidth: 2,
             tension: 0.3,
             pointRadius: 4,
-            pointBackgroundColor: '#e74c3c'
+            pointBackgroundColor: '#e74c3c',
+            yAxisID: 'yComp'
+          },
+          {
+            label: 'Peso total (kg)',
+            data: lista.map(m => m.peso),
+            fill: false,
+            backgroundColor: 'rgba(212,168,67,0.9)',
+            borderColor: '#d4a843',
+            borderWidth: 2.5,
+            borderDash: [5,3],
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#d4a843',
+            yAxisID: 'yPeso'
           }
         ]
       },
@@ -1869,9 +1909,16 @@ async function cargarInbodyCoach(email) {
         responsive: true, maintainAspectRatio: false,
         scales: {
           x: { ticks:{ font:{size:9,family:'Barlow Condensed'} } },
-          y: {
+          yComp: {
+            type: 'linear', position: 'left',
             stacked: true,
-            title:{ display:true, text:'kg', font:{size:10,family:'Barlow Condensed'} },
+            title:{ display:true, text:'Composición (kg)', font:{size:9,family:'Barlow Condensed'} },
+            ticks:{ font:{size:9,family:'Barlow Condensed'} }
+          },
+          yPeso: {
+            type: 'linear', position: 'right',
+            grid:{ drawOnChartArea:false },
+            title:{ display:true, text:'Peso (kg)', font:{size:9,family:'Barlow Condensed'} },
             ticks:{ font:{size:9,family:'Barlow Condensed'} }
           }
         },

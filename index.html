@@ -638,9 +638,11 @@
       <div class="dash-profile-info">
         <div class="dash-saludo">Bienvenido de vuelta</div>
         <div class="dash-nombre" id="dashNombre">ATLETA</div>
-        <div id="dashPerfilResumen" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#aaa;margin-top:4px;"></div>
+        <div id="dashPerfilResumen" style="display:none;"></div>
       </div>
     </div>
+    <!-- Mini-cards de métricas del perfil -->
+    <div id="dashPerfilCards" style="display:none;padding:12px 16px 0;"></div>
 
     <!-- BANNER SIN PLAN (visible cuando no hay plan activo) -->
     <div id="dashSinPlanBanner" style="display:none;margin:16px 16px 0;background:linear-gradient(135deg,#1a1400 0%,#2a1f00 100%);border:1px solid rgba(212,168,67,0.35);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
@@ -665,9 +667,9 @@
             style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
         </div>
         <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Edad</div>
-          <input type="number" id="mpEdad" placeholder="ej. 28" step="1" min="10" max="99"
-            style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Fecha de Nacimiento</div>
+          <input type="date" id="mpFechaNac"
+            style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:14px;outline:none;box-sizing:border-box;">
         </div>
         <div>
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Sexo</div>
@@ -2610,34 +2612,38 @@ async function cargarInbodyHistorial() {
             label: 'Masa Muscular (kg)',
             data: lista.map(m => m.musculo),
             fill: true,
-            backgroundColor: 'rgba(0,122,133,0.55)',
-            borderColor: '#8B1A1A',
+            backgroundColor: 'rgba(0,168,179,0.35)',
+            borderColor: '#00a8b3',
             borderWidth: 2,
             tension: 0.3,
             pointRadius: 4,
-            pointBackgroundColor: '#8B1A1A'
-          },
-          {
-            label: 'Agua (kg)',
-            data: lista.map(m => m.agua),
-            fill: true,
-            backgroundColor: 'rgba(52,152,219,0.45)',
-            borderColor: '#3498db',
-            borderWidth: 2,
-            tension: 0.3,
-            pointRadius: 4,
-            pointBackgroundColor: '#3498db'
+            pointBackgroundColor: '#00a8b3',
+            yAxisID: 'yComp'
           },
           {
             label: 'Masa Grasa (kg)',
             data: lista.map(m => m.grasa_kg),
             fill: true,
-            backgroundColor: 'rgba(231,76,60,0.45)',
+            backgroundColor: 'rgba(231,76,60,0.35)',
             borderColor: '#e74c3c',
             borderWidth: 2,
             tension: 0.3,
             pointRadius: 4,
-            pointBackgroundColor: '#e74c3c'
+            pointBackgroundColor: '#e74c3c',
+            yAxisID: 'yComp'
+          },
+          {
+            label: 'Peso total (kg)',
+            data: lista.map(m => m.peso),
+            fill: false,
+            borderColor: '#d4a843',
+            backgroundColor: 'rgba(212,168,67,0.9)',
+            borderWidth: 2.5,
+            borderDash: [5,3],
+            tension: 0.3,
+            pointRadius: 5,
+            pointBackgroundColor: '#d4a843',
+            yAxisID: 'yPeso'
           }
         ]
       },
@@ -2645,22 +2651,22 @@ async function cargarInbodyHistorial() {
         responsive: true, maintainAspectRatio: false,
         scales: {
           x: { ticks:{ font:{size:9,family:'Barlow Condensed'} } },
-          y: {
+          yComp: {
+            type: 'linear', position: 'left',
             stacked: true,
-            title:{ display:true, text:'kg', font:{size:10,family:'Barlow Condensed'} },
+            title:{ display:true, text:'Composición (kg)', font:{size:9,family:'Barlow Condensed'} },
+            ticks:{ font:{size:9,family:'Barlow Condensed'} }
+          },
+          yPeso: {
+            type: 'linear', position: 'right',
+            grid:{ drawOnChartArea:false },
+            title:{ display:true, text:'Peso (kg)', font:{size:9,family:'Barlow Condensed'} },
             ticks:{ font:{size:9,family:'Barlow Condensed'} }
           }
         },
         plugins: {
-          legend:{
-            display: true,
-            labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 }
-          },
-          tooltip:{
-            callbacks:{
-              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg`
-            }
-          }
+          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 } },
+          tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }
     });
