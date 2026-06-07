@@ -492,6 +492,23 @@ export default {
       }
     }
 
+    // ── GET /usuario-uid — devuelve UID de Firebase para un email ──
+    if (url.pathname === '/usuario-uid' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) {
+        return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+      }
+      try {
+        const email = url.searchParams.get('email')?.toLowerCase().trim();
+        if (!email) return Response.json({ ok: false, error: 'Email requerido' }, { headers: corsHeaders() });
+        const raw = await env.RUCK_DATA.get(`usuario:${email}`);
+        if (!raw) return Response.json({ ok: false, error: 'No encontrado' }, { headers: corsHeaders() });
+        const u = JSON.parse(raw);
+        return Response.json({ ok: true, uid: u.uid, nombre: u.nombre }, { headers: corsHeaders() });
+      } catch(e) {
+        return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
+      }
+    }
+
     // ── GET /usuarios-registrados — coach consulta usuarios sin plan ──
     if (url.pathname === '/usuarios-registrados' && request.method === 'GET') {
       if (url.searchParams.get('secret') !== COACH_SECRET) {

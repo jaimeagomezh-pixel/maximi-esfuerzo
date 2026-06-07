@@ -165,6 +165,10 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 
 /* Charts */
 .chart-wrap{height:130px;margin-top:10px;position:relative;}
+.secs-2col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0;}
+.secs-2col>.scol{display:flex;flex-direction:column;gap:16px;}
+.secs-2col .sec{margin-bottom:0;}
+@media(max-width:900px){.secs-2col{grid-template-columns:1fr;}}
 
 /* Selectores distancia PR */
 .dist-sel{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px;}
@@ -1141,6 +1145,15 @@ async function cargarPerfilAtletaRuck(aid) {
   document.getElementById('rFAT').value = p.fat || '';
   document.getElementById('rSE').value  = p.se  || '';
   document.getElementById('rTMR').value = p.tmrStr || '';
+  // Si no hay stravaId, intentar obtener UID de Firebase via email
+  if (!a.stravaId && !a.cloudId && a.email) {
+    try {
+      const r = await fetch(`${FLOW_WORKER_URL}/usuario-uid?email=${encodeURIComponent(a.email)}&secret=${encodeURIComponent(PASS)}`);
+      const d = await r.json();
+      if (d.ok && d.uid) { a.stravaId = 'uid:' + d.uid; guardarAtletas(); }
+    } catch(e) { /* silencioso */ }
+  }
+
   // Intentar leer perfil desde la nube: stravaId numérico o cloudId uid:xxx
   const cloudId = a.stravaId || a.cloudId || null;
   if (cloudId) {
@@ -1567,62 +1580,85 @@ function abrirPerfil(id) {
 
     <div class="sec">
       <div class="sec-t">Evolución de peso</div>
-      <div class="chart-wrap"><canvas id="cPeso"></canvas></div>
+      <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
     </div>
 
-    <div class="sec">
-      <div class="sec-t">Endurance · Strava</div>
-      ${a.strava ? `
-      <div class="s-metrics">
-        <div class="sm"><div><span class="sm-v">${a.strava.km}</span><span class="sm-u">km</span></div><div class="sm-l">Distancia</div></div>
-        <div class="sm"><div><span class="sm-v">${a.strava.ritmo}</span><span class="sm-u">min/km</span></div><div class="sm-l">Ritmo</div></div>
-        <div class="sm"><div><span class="sm-v">${a.strava.fc}</span><span class="sm-u">bpm</span></div><div class="sm-l">FC media</div></div>
-        <div class="sm"><div><span class="sm-v">${a.strava.acts}</span></div><div class="sm-l">Actividades</div></div>
-      </div>
-      <div class="chart-wrap"><canvas id="cStrava"></canvas></div>
-      ` : `<div class="empty" style="padding:16px 0;">
-        <div class="empty-i">🏃</div>
-        <div class="empty-t">Atleta aún no conecta Strava</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los datos aparecerán cuando el atleta vincule su cuenta en la plataforma</div>
-      </div>`}
-    </div>
+    <div class="secs-2col">
+      <!-- Columna izquierda: Strava + Tiempos -->
+      <div class="scol">
+        <div class="sec">
+          <div class="sec-t">Endurance · Strava</div>
+          ${a.strava ? `
+          <div class="s-metrics">
+            <div class="sm"><div><span class="sm-v">${a.strava.km}</span><span class="sm-u">km</span></div><div class="sm-l">Distancia</div></div>
+            <div class="sm"><div><span class="sm-v">${a.strava.ritmo}</span><span class="sm-u">min/km</span></div><div class="sm-l">Ritmo</div></div>
+            <div class="sm"><div><span class="sm-v">${a.strava.fc}</span><span class="sm-u">bpm</span></div><div class="sm-l">FC media</div></div>
+            <div class="sm"><div><span class="sm-v">${a.strava.acts}</span></div><div class="sm-l">Actividades (30d)</div></div>
+          </div>
+          <div class="chart-wrap"><canvas id="cStrava"></canvas></div>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i">🏃</div>
+            <div class="empty-t">Atleta aún no conecta Strava</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los datos aparecerán cuando el atleta abra su panel</div>
+          </div>`}
+        </div>
 
-    <div class="sec">
-      <div class="sec-t">Progresión de tiempos</div>
-      ${prDists.length ? `
-      <div class="dist-sel" id="distSel">
-        ${prDists.map((d,i)=>`<button class="d-btn${i===0?' active':''}" onclick="selDist('${d}',this)">${d.replace('km',' km')}</button>`).join('')}
+        <div class="sec">
+          <div class="sec-t">Progresión de tiempos</div>
+          ${prDists.length ? `
+          <div class="dist-sel" id="distSel">
+            ${prDists.map((d,i)=>`<button class="d-btn${i===0?' active':''}" onclick="selDist('${d}',this)">${d.replace('km',' km')}</button>`).join('')}
+          </div>
+          <div class="pr-stats">
+            <div class="pr-stat best"><div class="pr-stat-v" id="prBest">—</div><div class="pr-stat-l">Mejor</div></div>
+            <div class="pr-stat"><div class="pr-stat-v" id="prPrimero" style="color:var(--text2);">—</div><div class="pr-stat-l">Inicio</div></div>
+            <div class="pr-stat delta"><div class="pr-stat-v" id="prDelta">—</div><div class="pr-stat-l">Mejora</div></div>
+          </div>
+          <div class="chart-wrap"><canvas id="cPR"></canvas></div>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i">⏱</div>
+            <div class="empty-t">Sin registros de tiempo aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los PRs se registran desde el panel del atleta</div>
+          </div>`}
+        </div>
       </div>
-      <div class="pr-stats">
-        <div class="pr-stat best"><div class="pr-stat-v" id="prBest">—</div><div class="pr-stat-l">Mejor</div></div>
-        <div class="pr-stat"><div class="pr-stat-v" id="prPrimero" style="color:var(--text2);">—</div><div class="pr-stat-l">Inicio</div></div>
-        <div class="pr-stat delta"><div class="pr-stat-v" id="prDelta">—</div><div class="pr-stat-l">Mejora</div></div>
-      </div>
-      <div class="chart-wrap"><canvas id="cPR"></canvas></div>
-      ` : `<div class="empty" style="padding:16px 0;">
-        <div class="empty-i">⏱</div>
-        <div class="empty-t">Sin registros de tiempo aún</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los PRs y progresiones se registran desde el panel del atleta</div>
-      </div>`}
-    </div>
 
-    <div class="sec">
-      <div class="sec-t">Fuerza · TrainHeroic</div>
-      ${exFuerza.length ? `
-      <div class="ex-btns" id="exBtns">
-        ${exFuerza.map((ex,i)=>`<button class="ex-btn${i===0?' active':''}" onclick="selEx('${ex}',this)">${ex}</button>`).join('')}
+      <!-- Columna derecha: Fuerza + Composición -->
+      <div class="scol">
+        <div class="sec">
+          <div class="sec-t">Fuerza · TrainHeroic</div>
+          ${exFuerza.length ? `
+          <div class="ex-btns" id="exBtns">
+            ${exFuerza.map((ex,i)=>`<button class="ex-btn${i===0?' active':''}" onclick="selEx('${ex}',this)">${ex}</button>`).join('')}
+          </div>
+          <div class="wm-box">
+            <span class="wm-v" id="wmVal">—</span>
+            <span class="wm-u" id="wmUnit">kg working max</span>
+          </div>
+          <div class="chart-wrap"><canvas id="cFuerza"></canvas></div>
+          <table class="sets-table" id="setsTable" style="margin-top:12px;"></table>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i">🏋️</div>
+            <div class="empty-t">Sin datos de fuerza aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Sube el CSV de TrainHeroic desde aquí abajo</div>
+          </div>`}
+        </div>
+
+        <div class="sec" id="inbodyCoachSec">
+          <div class="sec-t">Composición Corporal · InBody</div>
+          <div id="inbodyCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">El atleta aún no ha subido ninguna medición InBody</div>
+          <div id="inbodyCoachChartWrap" style="display:none;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;font-weight:600;">Gráfico de Áreas Apiladas · Composición</div>
+            <div style="position:relative;height:180px;margin-bottom:6px;"><canvas id="cInbodyRadar"></canvas></div>
+            <div id="inbodyCoachLeyenda" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;"></div>
+          </div>
+          <div id="inbodyCoachHistorial"></div>
+          <div id="inbodyCoachLinks" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Archivos en Drive</div>
+            <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1" target="_blank" style="font-size:12px;color:#8B1A1A;text-decoration:none;">📁 Abrir carpeta en Google Drive →</a>
+          </div>
+        </div>
       </div>
-      <div class="wm-box">
-        <span class="wm-v" id="wmVal">—</span>
-        <span class="wm-u" id="wmUnit">kg working max</span>
-      </div>
-      <div class="chart-wrap"><canvas id="cFuerza"></canvas></div>
-      <table class="sets-table" id="setsTable" style="margin-top:12px;"></table>
-      ` : `<div class="empty" style="padding:16px 0;">
-        <div class="empty-i">🏋️</div>
-        <div class="empty-t">Sin datos de fuerza aún</div>
-        <div style="font-size:12px;color:var(--text3);margin-top:6px;">Sube el CSV de TrainHeroic desde el panel del atleta o desde aquí abajo</div>
-      </div>`}
     </div>
 
     <div class="sec">
@@ -1721,38 +1757,6 @@ function abrirPerfil(id) {
         <div class="chart-wrap" style="margin-top:14px;"><canvas id="cRucking"></canvas></div>
         <!-- Lista sesiones -->
         <div id="ruckCoachList" style="margin-top:12px;"></div>
-      </div>
-    </div>
-
-    <!-- COMPOSICIÓN CORPORAL (InBody) -->
-    <div class="sec" id="inbodyCoachSec">
-      <div class="sec-t">Composición Corporal · InBody</div>
-
-      <!-- Sin datos -->
-      <div id="inbodyCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">
-        El atleta aún no ha subido ninguna medición InBody
-      </div>
-
-      <!-- Gráfico de Áreas Apiladas (composición corporal) -->
-      <div id="inbodyCoachChartWrap" style="display:none;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;font-weight:600;">Gráfico de Áreas Apiladas · Composición</div>
-        <div style="position:relative;height:220px;margin-bottom:6px;">
-          <canvas id="cInbodyRadar"></canvas>
-        </div>
-        <div id="inbodyCoachLeyenda" style="display:flex;gap:12px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;"></div>
-      </div>
-
-      <!-- Historial -->
-      <div id="inbodyCoachHistorial"></div>
-
-      <!-- Links Drive -->
-      <div id="inbodyCoachLinks" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
-        <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Archivos en Drive</div>
-        <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1"
-           target="_blank"
-           style="font-size:12px;color:#8B1A1A;text-decoration:none;">
-          📁 Abrir carpeta en Google Drive →
-        </a>
       </div>
     </div>
 
