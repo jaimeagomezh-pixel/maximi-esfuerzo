@@ -80,6 +80,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 
 /* STATS */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px;}
+@media(max-width:600px){.stats-row{grid-template-columns:repeat(2,1fr);gap:8px;}.sbox{padding:14px;}.sbox-n{font-size:2.2rem;}}
 .sbox{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--cian2);border-radius:12px;padding:20px;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
 .sbox-n{font-family:var(--fd);font-size:2.8rem;color:var(--cian);line-height:1;}
 .sbox-l{font-family:var(--fc);font-size:14px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-top:6px;font-weight:600;}
@@ -691,6 +692,8 @@ function iniciar() {
   initRucking();
   cargarPlanAtletas();
   cargarUsuariosRegistrados();
+  // Sync silencioso de perfiles cloud en background (sin esperar click)
+  setTimeout(() => sincronizarPerfilesCloud(), 2000);
 }
 
 // ── USUARIOS REGISTRADOS (Google login, sin plan) ─────────────────────────
@@ -989,11 +992,18 @@ function calcularEdadCoach(fechaNac) {
   return edad > 0 ? edad : null;
 }
 
-function esCumpleanos(fechaNac) {
-  if (!fechaNac) return false;
+function infoCumple(fechaNac) {
+  if (!fechaNac) return null;
   const hoy = new Date();
   const nac = new Date(fechaNac + 'T12:00:00');
-  return hoy.getDate() === nac.getDate() && hoy.getMonth() === nac.getMonth();
+  if (isNaN(nac)) return null;
+  // Próximo cumpleaños este año o el siguiente
+  const proxCumple = new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate());
+  if (proxCumple < hoy) proxCumple.setFullYear(hoy.getFullYear() + 1);
+  const diasHasta = Math.ceil((proxCumple - hoy) / 86400000);
+  const hoyEsCumple = diasHasta === 0;
+  const esteMes = !hoyEsCumple && nac.getMonth() === hoy.getMonth();
+  return { diasHasta, hoyEsCumple, esteMes };
 }
 
 function renderAtletas() {
@@ -1032,7 +1042,8 @@ function renderAtletas() {
              <button class="act-btn peligro" onclick="event.stopPropagation();archivar(${a.id})">Archivar</button>`
           : `<button class="act-btn peligro" onclick="event.stopPropagation();archivar(${a.id})">Archivar</button>`);
 
-    const cumple = esCumpleanos(a.fechaNac);
+    const cumpleInfo = infoCumple(a.fechaNac);
+    const cumple = cumpleInfo?.hoyEsCumple || false;
     const edadMostrar = calcularEdadCoach(a.fechaNac) || a.edad;
 
     // Función flecha de tendencia
@@ -1061,14 +1072,25 @@ function renderAtletas() {
       ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:11px;color:var(--text2);">${chips.join('')}</div>`
       : '';
 
+    // Badge cumpleaños
+    let cumpleBadge = '';
+    if (cumpleInfo) {
+      if (cumpleInfo.hoyEsCumple) {
+        cumpleBadge = `<span style="display:inline-block;background:#fffbe6;border:1px solid #f0c040;color:#b8860b;font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:10px;margin-top:3px;">🎂 ¡Cumpleaños hoy!</span>`;
+      } else if (cumpleInfo.esteMes) {
+        cumpleBadge = `<span style="display:inline-block;background:#f0fff4;border:1px solid #a8d5b5;color:#2e7d52;font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:10px;margin-top:3px;">🎂 Cumple este mes · en ${cumpleInfo.diasHasta}d</span>`;
+      }
+    }
+
     return `<div class="acard ${cardCls}" onclick="abrirPerfil(${a.id})">
       <div class="a-dot ${dotCls}"></div>
       <div class="a-av" style="${cumple ? 'background:linear-gradient(135deg,#d4a843,#c8960f);' : ''}">${cumple ? '🎂' : a.nombre.charAt(0)}</div>
       <div class="a-info">
-        <div class="a-name">${a.nombre}${cumple ? ' <span style="font-size:13px;" title="¡Cumpleaños hoy!">🎂</span>' : ''}</div>
+        <div class="a-name">${a.nombre}</div>
         <div class="a-meta">${a.email}</div>
         ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
         ${statsHtml}
+        ${cumpleBadge}
         <div class="a-actions">${acciones}</div>
       </div>
       <div class="a-right">
