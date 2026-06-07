@@ -552,17 +552,16 @@
   <div class="section-label" style="justify-content:center">¿Estás listo?</div>
   <h2 class="cta-title">EL PROTOCOLO<br><span>EMPIEZA</span><br>HOY</h2>
   <p style="color:var(--gris); margin: 20px auto; max-width: 400px; font-size: 0.9rem; line-height: 1.7;">
-    Elige tu plan, paga en segundos con Flow y recibe tu acceso a TrainHeroic de inmediato.
+    Elige tu plan y comienza de inmediato a progresar.
   </p>
   <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:32px;">
-    <a href="#planes" class="btn-primary">Ver Planes →</a>
-    <a href="#tracker" class="btn-ghost">Conectar mis apps</a>
+    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary">Ver Planes →</a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:26px;width:auto;opacity:0.8;"></div>
+  <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:48px;width:auto;opacity:0.9;"></div>
   <ul class="footer-links">
     <li><a href="#" onclick="abrirPlanes();return false;">Planes</a></li>
     <li><a href="#blog">Blog</a></li>
@@ -1627,9 +1626,8 @@
 
       <!-- Radar chart -->
       <div id="inbodyChartWrap" style="display:none;padding:0 14px 14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:10px;font-weight:600;">
-          Progresión · Tela de Araña
-        </div>
+        <!-- Tarjetas resumen peso / IMC / grasa -->
+        <div id="inbodyResumenCards" style="display:flex;gap:8px;margin-bottom:14px;"></div>
         <div style="position:relative;height:220px;">
           <canvas id="inbodyRadar"></canvas>
         </div>
@@ -2669,6 +2667,44 @@ async function cargarInbodyHistorial() {
 
     // Leyenda custom oculta (Chart.js ya la muestra)
     document.getElementById('inbodyLeyenda').innerHTML = '';
+
+    // Tarjetas resumen peso / IMC / % grasa
+    const primero = lista[0];
+    const ultimo  = lista[lista.length - 1];
+    function deltaStr(actual, base, unidad = '') {
+      if (isNaN(actual) || isNaN(base)) return '';
+      const d = parseFloat((actual - base).toFixed(1));
+      if (d === 0) return '';
+      const color = d < 0 ? '#2ecc71' : '#e74c3c'; // bajar peso/grasa = bueno
+      return `<span style="font-size:11px;color:${color};margin-left:4px;">${d > 0 ? '+' : ''}${d}${unidad}</span>`;
+    }
+    function deltaStrMusc(actual, base) {
+      if (isNaN(actual) || isNaN(base)) return '';
+      const d = parseFloat((actual - base).toFixed(1));
+      if (d === 0) return '';
+      const color = d > 0 ? '#2ecc71' : '#e74c3c'; // subir músculo = bueno
+      return `<span style="font-size:11px;color:${color};margin-left:4px;">${d > 0 ? '+' : ''}${d} kg</span>`;
+    }
+    function imcCategoria(imc) {
+      if (isNaN(imc)) return '';
+      if (imc < 18.5) return 'Bajo peso';
+      if (imc < 25)   return 'Normal';
+      if (imc < 30)   return 'Sobrepeso';
+      return 'Obesidad';
+    }
+    const miniCard = (label, valor, sub) =>
+      `<div style="flex:1;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:10px 10px 8px;min-width:0;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">${label}</div>
+        <div style="font-size:18px;font-weight:700;color:#222;line-height:1;">${valor}</div>
+        <div style="font-size:11px;color:#888;margin-top:3px;">${sub}</div>
+      </div>`;
+    const cards = document.getElementById('inbodyResumenCards');
+    if (cards) {
+      cards.innerHTML =
+        miniCard('Peso', `${ultimo.peso} kg`, (lista.length > 1 ? 'vs inicio' : 'actual') + deltaStr(ultimo.peso, primero.peso, ' kg')) +
+        miniCard('IMC', isNaN(ultimo.imc) ? '—' : ultimo.imc, imcCategoria(ultimo.imc)) +
+        miniCard('Músculo', `${ultimo.musculo} kg`, (lista.length > 1 ? 'vs inicio' : 'actual') + deltaStrMusc(ultimo.musculo, primero.musculo));
+    }
 
     // Cachear historial completo de pesos con fechas para cálculos de rucking
     const bmHistorial = lista.map(m => ({ fecha: m.fecha, peso: m.peso }))
