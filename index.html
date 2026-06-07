@@ -2707,18 +2707,15 @@ async function cargarInbodyHistorial() {
         <div style="font-size:18px;font-weight:700;color:#222;line-height:1;">${valor}</div>
         <div style="font-size:11px;color:#888;margin-top:3px;">${sub}</div>
       </div>`;
+    // Mini-cards: solo con mediciones InBody completas (ignora entradas solo-peso)
+    const listaCompleta = lista.filter(m => m.musculo != null && m.grasa_kg != null);
     const cards = document.getElementById('inbodyResumenCards');
-    if (cards) {
-      // Para campos de composición usar el último registro que los tenga (puede no ser el más reciente)
-      const conCompo  = lista.filter(m => m.musculo != null && m.grasa_kg != null);
-      const ultimoC   = conCompo.length ? conCompo[conCompo.length-1] : null;
-      const primeroC  = conCompo.length ? conCompo[0] : null;
+    if (cards && listaCompleta.length) {
+      const p = listaCompleta[0], u = listaCompleta[listaCompleta.length-1];
       cards.innerHTML =
-        miniCard('Peso', `${ultimo.peso} kg`, (lista.length > 1 ? 'vs inicio' : 'actual') + deltaStr(ultimo.peso, primero.peso, ' kg')) +
-        miniCard('IMC', (!ultimo.imc || isNaN(ultimo.imc)) ? (ultimoC?.imc || '—') : ultimo.imc,
-          imcCategoria((!ultimo.imc || isNaN(ultimo.imc)) ? (ultimoC?.imc || NaN) : ultimo.imc)) +
-        miniCard('Músculo', ultimoC ? `${ultimoC.musculo} kg` : '—',
-          (conCompo.length > 1 ? 'vs inicio' : 'actual') + (ultimoC && primeroC ? deltaStrMusc(ultimoC.musculo, primeroC.musculo) : ''));
+        miniCard('Peso',    `${u.peso} kg`,    (listaCompleta.length > 1 ? 'vs inicio' : 'actual') + deltaStr(u.peso, p.peso, ' kg')) +
+        miniCard('IMC',     isNaN(u.imc) ? '—' : u.imc, imcCategoria(u.imc)) +
+        miniCard('Músculo', `${u.musculo} kg`, (listaCompleta.length > 1 ? 'vs inicio' : 'actual') + deltaStrMusc(u.musculo, p.musculo));
     }
 
     // Cachear historial completo de pesos con fechas para cálculos de rucking
