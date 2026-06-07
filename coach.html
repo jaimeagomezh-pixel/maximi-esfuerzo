@@ -85,8 +85,9 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 .sbox-l{font-family:var(--fc);font-size:14px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-top:6px;font-weight:600;}
 
 /* FILTROS */
-.filtros{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
-.f-btn{font-family:var(--fc);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:all .2s;font-weight:600;}
+.filtros{display:flex;gap:8px;margin-bottom:18px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
+.filtros::-webkit-scrollbar{display:none;}
+.f-btn{font-family:var(--fc);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:20px;border:1px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:all .2s;font-weight:600;white-space:nowrap;flex-shrink:0;}
 .f-btn:hover{border-color:var(--cian2);color:var(--cian);}
 .f-btn.active{background:var(--cian);color:#fff;border-color:var(--cian);}
 .f-btn.f-vencido.active{background:var(--orange);border-color:var(--orange);}
@@ -394,8 +395,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 
       <!-- Lista unificada de atletas -->
       <div id="planAtletasList" style="display:none;"></div><!-- oculto, solo para auto-creación -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <div class="filtros" style="margin-bottom:0;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;min-width:0;">
+        <div class="filtros" style="margin-bottom:0;flex:1;min-width:0;">
           <button class="f-btn active" onclick="filtrar('todos',this)">Todos</button>
           <button class="f-btn" onclick="filtrar('activo',this)">Plan Activo</button>
           <button class="f-btn f-vencido" onclick="filtrar('vencido',this)">Vencidos</button>
@@ -1876,6 +1877,7 @@ async function cargarInbodyCoach(email) {
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#00a8b3',
+            pointStyle: 'rect',
             yAxisID: 'yComp'
           },
           {
@@ -1888,19 +1890,21 @@ async function cargarInbodyCoach(email) {
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#e74c3c',
+            pointStyle: 'rect',
             yAxisID: 'yComp'
           },
           {
             label: 'Peso total (kg)',
             data: lista.map(m => m.peso),
             fill: false,
-            backgroundColor: 'rgba(212,168,67,0.9)',
+            backgroundColor: '#d4a843',
             borderColor: '#d4a843',
             borderWidth: 2.5,
             borderDash: [5,3],
             tension: 0.3,
             pointRadius: 5,
             pointBackgroundColor: '#d4a843',
+            pointStyle: 'rect',
             yAxisID: 'yPeso'
           }
         ]
@@ -1923,7 +1927,7 @@ async function cargarInbodyCoach(email) {
           }
         },
         plugins: {
-          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 } },
+          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
           tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }

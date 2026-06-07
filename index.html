@@ -2618,6 +2618,7 @@ async function cargarInbodyHistorial() {
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#00a8b3',
+            pointStyle: 'rect',
             yAxisID: 'yComp'
           },
           {
@@ -2630,6 +2631,7 @@ async function cargarInbodyHistorial() {
             tension: 0.3,
             pointRadius: 4,
             pointBackgroundColor: '#e74c3c',
+            pointStyle: 'rect',
             yAxisID: 'yComp'
           },
           {
@@ -2637,12 +2639,13 @@ async function cargarInbodyHistorial() {
             data: lista.map(m => m.peso),
             fill: false,
             borderColor: '#d4a843',
-            backgroundColor: 'rgba(212,168,67,0.9)',
+            backgroundColor: '#d4a843',
             borderWidth: 2.5,
             borderDash: [5,3],
             tension: 0.3,
             pointRadius: 5,
             pointBackgroundColor: '#d4a843',
+            pointStyle: 'rect',
             yAxisID: 'yPeso'
           }
         ]
@@ -2665,7 +2668,7 @@ async function cargarInbodyHistorial() {
           }
         },
         plugins: {
-          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12 } },
+          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
           tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }
