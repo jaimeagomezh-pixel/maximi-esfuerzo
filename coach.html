@@ -659,62 +659,17 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 const PASS = atob('TUUyMDI2Y29hY2g='); // base64 de 'ME2026coach'
 
 // ── DATOS ──────────────────────────────────────────────────────────────────
-let atletas = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [
-  { id:1, nombre:'Carlos Méndez', email:'carlos@mail.com', plan:'Plan Fitness Medio', tipo:'activo',
-    diasActivos:28, vencimiento:'2026-06-20', peso:82, talla:178, edad:31, archivado:false,
-    strava:{ km:124, ritmo:'4:52', fc:163, acts:18 },
-    fuerza:{ 'Press Banca':[{d:'2026-01-10',w:82,r:8,s:3,e:98},{d:'2026-02-05',w:88,r:6,s:3,e:103},{d:'2026-03-01',w:92,r:5,s:4,e:107},{d:'2026-04-10',w:97,r:5,s:3,e:113},{d:'2026-05-01',w:102,r:5,s:4,e:118},{d:'2026-05-20',w:105,r:5,s:3,e:122}],
-               'Peso Muerto':[{d:'2026-01-15',w:120,r:5,s:3,e:134},{d:'2026-02-20',w:130,r:5,s:3,e:145},{d:'2026-03-18',w:140,r:5,s:3,e:156},{d:'2026-04-22',w:148,r:4,s:3,e:163},{d:'2026-05-15',w:155,r:4,s:3,e:171}]},
-    prTiempos:{ '1km':[{d:'2026-01-15',t:225},{d:'2026-03-10',t:215},{d:'2026-05-01',t:205}],
-                '5km':[{d:'2026-02-01',t:1380},{d:'2026-03-20',t:1320},{d:'2026-05-10',t:1260}],
-                '10km':[{d:'2026-02-15',t:2880},{d:'2026-04-05',t:2760},{d:'2026-05-18',t:2640}] },
-    pagos:[{plan:'Plan Fitness Medio',fecha:'2026-05-20',monto:'$45.000'},{plan:'Plan Fitness Medio',fecha:'2026-04-20',monto:'$45.000'}],
-    notas:'Buena adherencia. Trabajar técnica sentadilla. Objetivo: Sub 20 en 5k.', stravaId:null,
-    rucking:{ bw:82, lbm:68, fat:14, se:38, tmrSec:870, tmrStr:'14:30' } },
+const DEMO_IDS = new Set([1, 2, 3, 4]); // IDs de atletas simulados a eliminar
+const DEMO_EMAILS = new Set(['carlos@mail.com','vale@mail.com','rodrigo@mail.com','felipe@mail.com']);
 
-  { id:2, nombre:'Valentina Ruiz', email:'vale@mail.com', plan:'Asesoría Personalizada', tipo:'activo',
-    diasActivos:45, vencimiento:'2026-07-01', peso:61, talla:165, edad:27, archivado:false,
-    strava:{ km:87, ritmo:'5:20', fc:155, acts:12 },
-    fuerza:{ 'Sentadilla':[{d:'2026-01-20',w:55,r:8,s:3,e:65},{d:'2026-02-28',w:60,r:6,s:3,e:70},{d:'2026-03-25',w:65,r:5,s:3,e:75},{d:'2026-04-30',w:70,r:5,s:3,e:81},{d:'2026-05-22',w:75,r:5,s:3,e:87}] },
-    prTiempos:{ '5km':[{d:'2026-01-10',t:1560},{d:'2026-03-01',t:1500},{d:'2026-05-15',t:1440}],
-                '10km':[{d:'2026-02-20',t:3300},{d:'2026-04-10',t:3180},{d:'2026-05-20',t:3060}],
-                '21km':[{d:'2026-03-15',t:7200},{d:'2026-05-05',t:7020}] },
-    pagos:[{plan:'Asesoría 3 meses',fecha:'2026-05-01',monto:'$90.000'}],
-    notas:'Meta: media maratón Septiembre. Volumen aumentando bien.', stravaId:null,
-    rucking:{ bw:61, lbm:48, fat:13, se:22, tmrSec:960, tmrStr:'16:00' } },
-
-  { id:3, nombre:'Rodrigo Soto', email:'rodrigo@mail.com', plan:'Sin plan', tipo:'cuenta',
-    diasActivos:0, vencimiento:null, peso:91, talla:183, edad:35, archivado:false,
-    strava:null, fuerza:{}, prTiempos:{}, pagos:[], notas:'', stravaId:null, rucking:null },
-
-  { id:4, nombre:'Felipe Torres', email:'felipe@mail.com', plan:'Plan Fitness Avanzado', tipo:'vencido',
-    diasActivos:62, vencimiento:'2026-05-10', peso:78, talla:175, edad:29, archivado:false,
-    strava:{ km:210, ritmo:'4:22', fc:170, acts:31 },
-    fuerza:{ 'Peso Muerto':[{d:'2025-12-01',w:150,r:5,s:3,e:167},{d:'2026-01-15',w:160,r:5,s:3,e:178},{d:'2026-02-20',w:168,r:4,s:3,e:185},{d:'2026-03-18',w:175,r:4,s:3,e:193},{d:'2026-04-22',w:182,r:4,s:3,e:200},{d:'2026-05-08',w:185,r:3,s:3,e:202}] },
-    prTiempos:{ '5km':[{d:'2025-12-10',t:1260},{d:'2026-02-01',t:1230},{d:'2026-04-15',t:1200}],
-                '10km':[{d:'2026-01-20',t:2640},{d:'2026-03-10',t:2580},{d:'2026-05-02',t:2520}] },
-    pagos:[{plan:'Plan Fitness Avanzado',fecha:'2026-04-10',monto:'$55.000'},{plan:'Plan Fitness Avanzado',fecha:'2026-03-10',monto:'$55.000'}],
-    notas:'Renovar plan. Excelente progresión en fuerza.', stravaId:null,
-    rucking:{ bw:78, lbm:65, fat:13, se:45, tmrSec:810, tmrStr:'13:30' } }
-];
+// Cargar desde localStorage y purgar atletas demo si aún están guardados
+let _atletasRaw = JSON.parse(localStorage.getItem('coachAtletas') || 'null') || [];
+let atletas = _atletasRaw.filter(a => !DEMO_IDS.has(a.id) && !DEMO_EMAILS.has(a.email?.toLowerCase()));
 
 function guardarAtletas() { localStorage.setItem('coachAtletas', JSON.stringify(atletas)); }
 
-// Migración: asignar datos rucking demo a atletas que no los tienen
-(function migrarRucking() {
-  const demo = { 1:{ bw:82,lbm:68,fat:14,se:38,tmrSec:870,tmrStr:'14:30' },
-                 2:{ bw:61,lbm:48,fat:13,se:22,tmrSec:960,tmrStr:'16:00' },
-                 3:null,
-                 4:{ bw:78,lbm:65,fat:13,se:45,tmrSec:810,tmrStr:'13:30' } };
-  let changed = false;
-  atletas.forEach(a => {
-    if (a.rucking === undefined) {
-      a.rucking = demo[a.id] || null;
-      changed = true;
-    }
-  });
-  if (changed) guardarAtletas();
-})();
+// Persistir la purga de demos para que no reaparezcan
+if (_atletasRaw.length !== atletas.length) guardarAtletas();
 
 // ── LOGIN — delegado a Google Auth (ver módulo Firebase arriba) ────────────
 function verificar() { window._coachSignIn?.(); } // compatibilidad
@@ -1200,6 +1155,12 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.se)     document.getElementById('rSE').value  = cp.se;
         if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
         a.rucking = { ...a.rucking, ...cp };
+
+        // ── Strava stats guardadas por el atleta ──
+        if (cp.stravaStats && !a.strava) {
+          a.strava = cp.stravaStats;
+          guardarAtletas();
+        }
 
         // ── Auto-actualización uid→stravaId ──
         // Si el perfil tiene linkedStravaId y el coach aún usa uid:xxx,

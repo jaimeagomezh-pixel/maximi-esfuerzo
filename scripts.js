@@ -796,10 +796,39 @@
       // Cachear actividades (compacto) para resumen mensual
       cachearActividades(allActs);
 
+      // Subir stats Strava al cloud para que el coach las vea
+      pushStravaStatsToCloud(allActs);
+
       // Renderizar resumen mensual con el mes más reciente
       if (typeof renderResumenMensual === 'function') renderResumenMensual();
 
     } catch(e) { console.error('PRs Strava error:', e); }
+  }
+
+  // Sube un resumen de stats Strava al cloud para que el coach las vea
+  function pushStravaStatsToCloud(allActs) {
+    try {
+      const hace30 = new Date();
+      hace30.setDate(hace30.getDate() - 30);
+      const recientes = allActs.filter(a => a.start_date_local && new Date(a.start_date_local) >= hace30);
+      const km  = recientes.reduce((s, a) => s + (a.distance || 0) / 1000, 0);
+      const sec = recientes.reduce((s, a) => s + (a.moving_time || 0), 0);
+      const fcs = recientes.map(a => a.average_heartrate).filter(Boolean);
+      const avgFC = fcs.length ? Math.round(fcs.reduce((s,v) => s+v, 0) / fcs.length) : null;
+      const ritmoSeg = km > 0 && sec > 0 ? sec / km : null;
+      const ritmo = ritmoSeg ? `${Math.floor(ritmoSeg/60)}:${String(Math.round(ritmoSeg%60)).padStart(2,'0')}` : null;
+
+      const stats = {
+        km:    Math.round(km * 10) / 10,
+        ritmo: ritmo || '—',
+        fc:    avgFC || 0,
+        acts:  recientes.length,
+        totalActs: allActs.length,
+      };
+
+      const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      pushRuckProfileToCloud({ ...profile, stravaStats: stats });
+    } catch(e) { /* silencioso */ }
   }
 
   // Guarda un cache compacto de actividades para el resumen mensual
@@ -1010,21 +1039,29 @@
     const ahora  = Math.floor(Date.now() / 1000);
 
     if (token && expiry > ahora + 300) {
-      // Token válido (con 5 min de margen)
       cargarDatosStrava(token);
       return true;
     }
 
-    // Token expirado o próximo a vencer — intentar refresh silencioso
-    if (localStorage.getItem('strava_refresh')) {
+    // Si hay refresh token, mostrar estado "reconectando" inmediatamente
+    // para que el atleta no vea el botón "Conectar" durante el refresh
+    const refreshToken = localStorage.getItem('strava_refresh');
+    if (refreshToken) {
+      const stravaCard   = document.getElementById('btnStrava');
+      const stravaStatus = document.getElementById('stravaStatus');
+      if (stravaCard)   stravaCard.classList.add('sincronizando');
+      if (stravaStatus) stravaStatus.textContent = 'Reconectando…';
+
       const nuevoToken = await refreshStravaToken();
       if (nuevoToken) {
         cargarDatosStrava(nuevoToken);
         return true;
       }
+      // Refresh fallido: limpiar estado cargando pero no mostrar error crítico
+      if (stravaCard)   stravaCard.classList.remove('sincronizando');
+      if (stravaStatus) stravaStatus.textContent = 'Conectar';
     }
 
-    // Sin refresh token o refresh fallido — mostrar botón conectar
     return false;
   }
 
