@@ -2580,9 +2580,37 @@ async function guardarInbody() {
     document.getElementById('inbodyFormBtn').style.display = 'block';
     document.getElementById('inbodyPDFStatus').textContent = '✓ Medición guardada';
     await cargarInbodyHistorial();
+    // Empujar tendencias al cloud para que el coach las vea en la tarjeta
+    const cacheKey = 'inbodyHistorial_' + user.uid;
+    const listaActual = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+    empujarTendenciasInbody(listaActual);
   } catch(e) {
     alert('Error guardando: ' + e.message);
   }
+}
+
+function empujarTendenciasInbody(lista) {
+  try {
+    const completas = lista.filter(m => m.musculo != null && m.grasa_kg != null)
+                          .sort((a,b) => a.fecha.localeCompare(b.fecha));
+    if (!completas.length) return;
+    const u = completas[completas.length - 1];
+    const p = completas[0];
+    const trend = {
+      peso:        u.peso,
+      pesoDelta:   completas.length > 1 ? parseFloat((u.peso - p.peso).toFixed(1)) : null,
+      musculo:     u.musculo,
+      musculoDelta: completas.length > 1 ? parseFloat((u.musculo - p.musculo).toFixed(1)) : null,
+      grasa_pct:   u.grasa_pct,
+      grasaDelta:  completas.length > 1 ? parseFloat((u.grasa_pct - p.grasa_pct).toFixed(1)) : null,
+      fecha:       u.fecha,
+      totalMediciones: completas.length
+    };
+    const rp = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    rp.inbodyTrend = trend;
+    localStorage.setItem('ruckProfile', JSON.stringify(rp));
+    if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(rp);
+  } catch(e) { /* silencioso */ }
 }
 
 async function cargarInbodyHistorial() {

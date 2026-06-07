@@ -817,6 +817,37 @@ function filtrarPlanes(tipo, btn) { /* ya no se usa visualmente */ }
 async function sincronizarAtletas() {
   await cargarPlanAtletas();
   await cargarUsuariosRegistrados();
+  // Cargar perfiles cloud de todos los atletas en background
+  sincronizarPerfilesCloud();
+}
+
+async function sincronizarPerfilesCloud() {
+  const btn = document.querySelector('[onclick="sincronizarAtletas()"]');
+  if (btn) { btn.textContent = '↺ Sync…'; btn.disabled = true; }
+  let actualizados = 0;
+  for (const a of atletas.filter(x => !x.archivado)) {
+    try {
+      // Resolver cloudId
+      let cloudId = a.stravaId || null;
+      if (!cloudId && a.email) {
+        const r = await fetch(`${FLOW_WORKER_URL}/usuario-uid?email=${encodeURIComponent(a.email)}&secret=${encodeURIComponent(PASS)}`);
+        const d = await r.json();
+        if (d.ok && d.uid) { cloudId = 'uid:' + d.uid; a.stravaId = cloudId; }
+      }
+      if (!cloudId) continue;
+      const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
+      const cp = await res.json();
+      if (!cp || cp.error) continue;
+      let cambio = false;
+      if (cp.stravaStats && JSON.stringify(a.strava) !== JSON.stringify(cp.stravaStats)) { a.strava = cp.stravaStats; cambio = true; }
+      if (cp.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(cp.inbodyTrend)) { a.inbodyTrend = cp.inbodyTrend; cambio = true; }
+      if (cp.fechaNac && !a.fechaNac) { a.fechaNac = cp.fechaNac; cambio = true; }
+      if (cp.bw && !a.peso) { a.peso = cp.bw; cambio = true; }
+      if (cambio) actualizados++;
+    } catch(e) { /* silencioso por atleta */ }
+  }
+  if (actualizados) { guardarAtletas(); renderAtletas(); }
+  if (btn) { btn.textContent = '↺ Sync'; btn.disabled = false; }
 }
 
 function renderPlanAtletas() {
@@ -1003,13 +1034,31 @@ function renderAtletas() {
 
     const cumple = esCumpleanos(a.fechaNac);
     const edadMostrar = calcularEdadCoach(a.fechaNac) || a.edad;
-    const statsChips = [];
-    if (a.peso)  statsChips.push(`${a.peso} kg`);
-    if (a.talla) statsChips.push(`${a.talla} cm`);
-    if (edadMostrar) statsChips.push(`${edadMostrar} años`);
-    if (a.strava?.km) statsChips.push(`🏃 ${a.strava.km} km`);
-    const statsHtml = statsChips.length
-      ? `<div style="font-size:11px;color:var(--text3);margin-top:3px;letter-spacing:0.3px;">${statsChips.join(' · ')}</div>`
+
+    // Función flecha de tendencia
+    const flecha = (delta, invertido = false) => {
+      if (delta === null || delta === undefined) return '';
+      const bueno = invertido ? delta < 0 : delta > 0;
+      const malo  = invertido ? delta > 0 : delta < 0;
+      const color = bueno ? '#27ae60' : malo ? '#e74c3c' : '#aaa';
+      const ico   = delta > 0 ? '↑' : delta < 0 ? '↓' : '→';
+      return `<span style="color:${color};font-size:10px;margin-left:2px;">${ico}${Math.abs(delta)}</span>`;
+    };
+
+    // Chips de resumen
+    const chips = [];
+    const it = a.inbodyTrend;
+    if (it?.peso) {
+      chips.push(`<span>${it.peso} kg${flecha(it.pesoDelta, true)}</span>`);
+    } else if (a.peso) {
+      chips.push(`<span>${a.peso} kg</span>`);
+    }
+    if (it?.musculo) chips.push(`<span>💪 ${it.musculo} kg${flecha(it.musculoDelta)}</span>`);
+    if (it?.grasa_pct) chips.push(`<span>🔥 ${it.grasa_pct}%${flecha(it.grasaDelta, true)}</span>`);
+    if (a.strava?.km) chips.push(`<span>🏃 ${a.strava.km} km</span>`);
+
+    const statsHtml = chips.length
+      ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;font-size:11px;color:var(--text2);">${chips.join('')}</div>`
       : '';
 
     return `<div class="acard ${cardCls}" onclick="abrirPerfil(${a.id})">
@@ -1207,10 +1256,11 @@ async function cargarPerfilAtletaRuck(aid) {
         }
 
         // ── Fecha de nacimiento ──
-        if (cp.fechaNac && !a.fechaNac) {
-          a.fechaNac = cp.fechaNac;
-          guardarAtletas();
-        }
+        if (cp.fechaNac && !a.fechaNac) { a.fechaNac = cp.fechaNac; guardarAtletas(); }
+        // ── InBody trend ──
+        if (cp.inbodyTrend) { a.inbodyTrend = cp.inbodyTrend; guardarAtletas(); }
+        // ── Peso desde bw ──
+        if (cp.bw && !a.peso) { a.peso = cp.bw; guardarAtletas(); }
 
         // ── Auto-actualización uid→stravaId ──
         // Si el perfil tiene linkedStravaId y el coach aún usa uid:xxx,
@@ -1737,16 +1787,16 @@ function abrirPerfil(id) {
             <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1" target="_blank" style="font-size:12px;color:#8B1A1A;text-decoration:none;">📁 Abrir carpeta en Google Drive →</a>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="sec">
-      <div class="sec-t">Historial de pagos</div>
-      ${a.pagos.length ? a.pagos.map(p=>`
-        <div class="pago-row">
-          <div><div class="pago-plan">${p.plan}</div><div class="pago-fecha">${p.fecha}</div></div>
-          <div style="text-align:right;"><div class="pago-monto">${p.monto}</div><span class="p-ok">Pagado</span></div>
-        </div>`).join('') : '<div class="empty" style="padding:16px 0;"><div class="empty-t">Sin pagos</div></div>'}
+        <div class="sec">
+          <div class="sec-t">Historial de pagos</div>
+          ${a.pagos.length ? a.pagos.map(p=>`
+            <div class="pago-row">
+              <div><div class="pago-plan">${p.plan}</div><div class="pago-fecha">${p.fecha}</div></div>
+              <div style="text-align:right;"><div class="pago-monto">${p.monto}</div><span class="p-ok">Pagado</span></div>
+            </div>`).join('') : '<div class="empty" style="padding:16px 0;"><div class="empty-t">Sin pagos</div></div>'}
+        </div>
+      </div>
     </div>
 
     <div class="sec">
