@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1698,11 +1698,32 @@ function abrirPerfil(id) {
     </div>
 
     <div class="secs-2col">
-      <!-- Columna izquierda: Peso + Strava + Tiempos + Rucking -->
+      <!-- Columna izquierda: Rucking + Strava + Tiempos + Peso -->
       <div class="scol">
-        <div class="sec">
-          <div class="sec-t">Evolución de peso</div>
-          <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
+        <div class="sec" id="ruckCoachSec">
+          <div class="sec-t">Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></div>
+          <div id="ruckCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">
+            <span id="ruckCoachEmptyMsg">🔍 Buscando datos de rucking…</span>
+          </div>
+          <div id="ruckCoachData" style="${a.stravaId?'':'display:none'}">
+            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;font-weight:600;">Distancia</div>
+            <div class="dist-sel" id="ruckCoachDistBtns"></div>
+            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:10px 0 6px;font-weight:600;">Lastre</div>
+            <div class="dist-sel" id="ruckCoachLoadBtns"></div>
+            <div class="pr-stats" style="margin-top:12px;">
+              <div class="pr-stat best"><div class="pr-stat-v" id="ruckCoachBest">—</div><div class="pr-stat-l">Mejor tiempo</div></div>
+              <div class="pr-stat"><div class="pr-stat-v" id="ruckCoachDate" style="font-size:1.1rem;">—</div><div class="pr-stat-l">Fecha PR</div></div>
+              <div class="pr-stat delta"><div class="pr-stat-v" id="ruckCoachDelta">—</div><div class="pr-stat-l">Vs. inicio</div></div>
+            </div>
+            <div class="ruck-result-grid" id="ruckCoachPotenciaGrid" style="margin-top:12px;display:none;">
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--orange);" id="ruckCoachWatts">—</div><div class="ruck-res-l">Watts metab.</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--cian);" id="ruckCoachKcal">—</div><div class="ruck-res-l">kcal</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--green);" id="ruckCoachKcalH">—</div><div class="ruck-res-l">kcal/h</div></div>
+              <div class="ruck-res-card"><div class="ruck-res-v" id="ruckCoachVel">—</div><div class="ruck-res-l">km/h</div></div>
+            </div>
+            <div class="chart-wrap" style="margin-top:14px;"><canvas id="cRucking"></canvas></div>
+            <div id="ruckCoachList" style="margin-top:12px;"></div>
+          </div>
         </div>
         <div class="sec">
           <div class="sec-t">Endurance · Strava</div>
@@ -1740,47 +1761,9 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
-        <div class="sec" id="ruckCoachSec">
-          <div class="sec-t" style="justify-content:space-between;">
-            <span>Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></span>
-            <button class="f-btn" style="font-size:12px;" onclick="toggleRuckCoachLink()">⚙ Vincular</button>
-          </div>
-          <div id="ruckCoachLinkPanel" style="display:none;background:#f7f9fa;border:1px solid var(--border);border-radius:6px;padding:11px;margin-bottom:12px;">
-            <label class="l-label">Atletas con datos de rucking registrados</label>
-            <select id="ruckCoachAtletasSel" class="l-input" style="margin-bottom:8px;"
-              onchange="document.getElementById('ruckCoachStravaId').value=this.value">
-              <option value="">Cargando…</option>
-            </select>
-            <label class="l-label">O ingresa el Strava ID manualmente</label>
-            <div style="display:flex;gap:8px;margin-top:4px;">
-              <input type="text" id="ruckCoachStravaId" class="l-input" placeholder="ej. 12345678"
-                     value="${a.stravaId||''}" style="flex:1;margin-bottom:0;">
-              <button class="l-btn" onclick="guardarStravaIdAtleta(${a.id})" style="white-space:nowrap;">Vincular</button>
-            </div>
-            <div style="font-size:10px;color:var(--text3);margin-top:6px;">El atleta aparece en la lista cuando sube su primera sesión de rucking con Strava conectado.</div>
-          </div>
-          <div id="ruckCoachEmpty" style="${a.stravaId?'display:none':''}text-align:center;padding:16px;color:var(--text3);font-size:12px;">
-            🎒 Vincula el Strava ID del atleta para ver su progresión de rucking
-          </div>
-          <div id="ruckCoachData" style="${a.stravaId?'':'display:none'}">
-            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;font-weight:600;">Distancia</div>
-            <div class="dist-sel" id="ruckCoachDistBtns"></div>
-            <div style="font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin:10px 0 6px;font-weight:600;">Lastre</div>
-            <div class="dist-sel" id="ruckCoachLoadBtns"></div>
-            <div class="pr-stats" style="margin-top:12px;">
-              <div class="pr-stat best"><div class="pr-stat-v" id="ruckCoachBest">—</div><div class="pr-stat-l">Mejor tiempo</div></div>
-              <div class="pr-stat"><div class="pr-stat-v" id="ruckCoachDate" style="font-size:1.1rem;">—</div><div class="pr-stat-l">Fecha PR</div></div>
-              <div class="pr-stat delta"><div class="pr-stat-v" id="ruckCoachDelta">—</div><div class="pr-stat-l">Vs. inicio</div></div>
-            </div>
-            <div class="ruck-result-grid" id="ruckCoachPotenciaGrid" style="margin-top:12px;display:none;">
-              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--orange);" id="ruckCoachWatts">—</div><div class="ruck-res-l">Watts metab.</div></div>
-              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--cian);" id="ruckCoachKcal">—</div><div class="ruck-res-l">kcal</div></div>
-              <div class="ruck-res-card"><div class="ruck-res-v" style="color:var(--green);" id="ruckCoachKcalH">—</div><div class="ruck-res-l">kcal/h</div></div>
-              <div class="ruck-res-card"><div class="ruck-res-v" id="ruckCoachVel">—</div><div class="ruck-res-l">km/h</div></div>
-            </div>
-            <div class="chart-wrap" style="margin-top:14px;"><canvas id="cRucking"></canvas></div>
-            <div id="ruckCoachList" style="margin-top:12px;"></div>
-          </div>
+        <div class="sec">
+          <div class="sec-t">Evolución de peso</div>
+          <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
         </div>
       </div>
 
@@ -1898,18 +1881,20 @@ function abrirPerfil(id) {
 
     refreshCoachCSVStatus();
 
-    // Cargar rucking del atleta si tiene Strava ID vinculado
+    // Cargar rucking del atleta — siempre automático, sin intervención manual
     const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
     if (ruckNombreEl) ruckNombreEl.textContent = a.nombre ? `· ${a.nombre}` : '';
 
-    // Actualizar botón "Vincular" según estado del atleta
-    actualizarBtnVincular(a.stravaId);
-
     if (a.stravaId) {
       cargarRuckingCoach(a.stravaId);
+    } else if (a.email) {
+      // Resolver uid por email → usar como cloudId de rucking
+      resolverRuckingIdPorEmail(a);
     } else {
-      // ── Auto-vincular: buscar en el Worker si el atleta ya subió rucking ──
-      autoVincularStravaId(a);
+      const emptyEl = document.getElementById('ruckCoachEmpty');
+      const msgEl   = document.getElementById('ruckCoachEmptyMsg');
+      if (emptyEl) emptyEl.style.display = 'block';
+      if (msgEl)   msgEl.textContent = '🎒 Atleta sin email registrado';
     }
 
     // Cargar InBody del atleta (usa email como identificador hacia el atleta)
@@ -2163,131 +2148,44 @@ function updateRuckCoachView() {
   }
 }
 
-// Actualiza el botón "⚙ Vincular" según si el atleta ya tiene stravaId
-function actualizarBtnVincular(stravaId) {
-  const btn = document.querySelector('#ruckCoachSec .sec-t .f-btn');
-  const panel = document.getElementById('ruckCoachLinkPanel');
-  if (!btn) return;
-  if (stravaId) {
-    // Ya vinculado: mostrar estado, ocultar panel, deshabilitar botón de apertura
-    btn.textContent = '✓ Vinculado';
-    btn.style.cssText = 'font-size:12px;background:rgba(39,174,96,0.1);color:#27ae60;border-color:rgba(39,174,96,0.4);cursor:default;';
-    btn.onclick = null; // sin acción al hacer clic
-    if (panel) panel.style.display = 'none';
-  } else {
-    // Sin vincular: botón activo para abrir el panel manual
-    btn.textContent = '⚙ Vincular';
-    btn.style.cssText = 'font-size:12px;';
-    btn.onclick = toggleRuckCoachLink;
-    if (panel) panel.style.display = 'none'; // siempre cerrado al abrir perfil
-  }
-}
+// Busca uid por email y carga rucking sin intervencion manual
+async function resolverRuckingIdPorEmail(atletaObj) {
+  const emptyEl = document.getElementById('ruckCoachEmpty');
+  const msgEl   = document.getElementById('ruckCoachEmptyMsg');
+  if (msgEl) msgEl.textContent = 'Buscando datos de rucking...';
+  if (emptyEl) emptyEl.style.display = 'block';
 
-async function toggleRuckCoachLink() {
-  const p = document.getElementById('ruckCoachLinkPanel');
-  if (!p) return;
-  if (p.style.display !== 'none') { p.style.display='none'; return; }
-  p.style.display = 'block';
-
-  // Intentar cargar lista de atletas registrados desde el Worker
-  const sel = document.getElementById('ruckCoachAtletasSel');
-  if (!sel) return;
-  sel.innerHTML = '<option value="">Cargando…</option>';
   try {
-    const res  = await fetch(`${RUCK_WORKER}/rucking/lista?secret=${encodeURIComponent(PASS)}`);
-    const json = await res.json();
-    if (json.ok && json.atletas.length) {
-      sel.innerHTML = '<option value="">— Seleccionar atleta —</option>' +
-        json.atletas.map(a=>`<option value="${a.stravaId}">${a.nombre} (${a.stravaId})</option>`).join('');
-    } else {
-      sel.innerHTML = '<option value="">Sin atletas registrados aún</option>';
-    }
-  } catch(e) {
-    sel.innerHTML = '<option value="">Error al cargar — ingresa manualmente</option>';
-  }
-}
-
-// ── AUTO-VINCULAR STRAVA ID ─────────────────────────────────────
-// Cuando el coach abre el perfil de un atleta sin stravaId vinculado,
-// consulta el Worker para ver si ese atleta ya subió datos de rucking.
-// Si hay coincidencia por nombre, vincula automáticamente.
-async function autoVincularStravaId(atletaObj) {
-  try {
-    const res = await fetch(`${RUCK_WORKER}/rucking/lista?secret=${encodeURIComponent(PASS)}`);
+    const emailEnc = encodeURIComponent(atletaObj.email.toLowerCase().trim());
+    const res = await fetch(`${RUCK_WORKER}/usuario-uid?email=${emailEnc}&secret=${encodeURIComponent(PASS)}`);
     const d   = await res.json();
-    if (!d.ok || !d.atletas?.length) return;
-
-    // Normalizar nombre para comparación flexible (sin tildes, minúsculas)
-    const norm = s => (s||'').toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
-
-    const nombreCoach = norm(atletaObj.nombre);
-    if (!nombreCoach) return;
-
-    // Buscar coincidencia: nombre contiene alguna parte o viceversa
-    const match = d.atletas.find(a => {
-      const n = norm(a.nombre);
-      return n && (n.includes(nombreCoach) || nombreCoach.includes(n));
-    });
-
-    if (!match) return;
-
-    // ¡Encontrado! Si el match es uid:xxx, verificar si ya tiene linkedStravaId real
-    let resolvedId = match.stravaId;
-    if (String(match.stravaId).startsWith('uid:')) {
-      try {
-        const pRes  = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(match.stravaId)}&secret=${encodeURIComponent(PASS)}`);
-        const pData = await pRes.json();
-        if (pData.ok && pData.profile?.linkedStravaId) {
-          resolvedId = pData.profile.linkedStravaId;
-        }
-      } catch(e) { /* usar uid:xxx de todas formas */ }
+    if (!d.ok || !d.uid) {
+      if (msgEl) msgEl.textContent = 'El atleta aun no ha iniciado sesion en la plataforma.';
+      return;
     }
 
-    // Vincular automáticamente con el ID correcto (numérico si posible)
-    atletaObj.stravaId = resolvedId;
+    let cloudId = 'uid:' + d.uid;
+
+    // Verificar si el perfil tiene Strava ID numerico real
+    try {
+      const pRes  = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
+      const pData = await pRes.json();
+      if (pData.ok && pData.profile?.linkedStravaId) {
+        cloudId = pData.profile.linkedStravaId;
+      }
+    } catch(e) { /* continuar con uid:xxx */ }
+
+    // Guardar ID resuelto para futuras visitas
+    atletaObj.stravaId = cloudId;
     guardarAtletas();
-    actualizarBtnVincular(resolvedId);
 
-    // Actualizar UI del nombre en el título
-    const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
-    if (ruckNombreEl) ruckNombreEl.textContent = `· ${atletaObj.nombre}`;
+    cargarRuckingCoach(cloudId);
 
-    // Mostrar badge de vinculación automática por 3 segundos
-    const secTitle = document.querySelector('#ruckCoachSec .sec-t span:first-child');
-    if (secTitle) {
-      const badge = document.createElement('span');
-      badge.style.cssText = 'font-size:10px;background:rgba(39,174,96,0.15);color:#27ae60;border:1px solid rgba(39,174,96,0.3);padding:2px 7px;border-radius:10px;margin-left:6px;';
-      badge.textContent = '✓ vinculado automáticamente';
-      secTitle.appendChild(badge);
-      setTimeout(() => badge.remove(), 4000);
-    }
-
-    // Cargar datos de rucking
-    document.getElementById('ruckCoachEmpty').style.display = 'none';
-    document.getElementById('ruckCoachData').style.display  = 'block';
-    cargarRuckingCoach(resolvedId);
-
-  } catch(e) { console.warn('[Coach] Auto-vinculación Strava:', e); }
-}
-
-function guardarStravaIdAtleta(atletaId) {
-  const sid = document.getElementById('ruckCoachStravaId')?.value?.trim();
-  const a   = atletas.find(x=>x.id===atletaId);
-  if (!a) return;
-  a.stravaId = sid || null;
-  guardarAtletas();
-  actualizarBtnVincular(sid || null);
-  if (sid) {
-    document.getElementById('ruckCoachEmpty').style.display='none';
-    document.getElementById('ruckCoachData').style.display='block';
-    cargarRuckingCoach(sid);
-  } else {
-    document.getElementById('ruckCoachEmpty').style.display='block';
-    document.getElementById('ruckCoachData').style.display='none';
+  } catch(e) {
+    if (msgEl) msgEl.textContent = 'Sin datos de rucking aun.';
+    console.warn('[Coach] resolverRuckingIdPorEmail:', e);
   }
 }
-
 // Helpers charts
 function mkOpts(extra={}) {
   return {
