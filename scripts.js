@@ -2858,6 +2858,48 @@
       if (!s.id) { s.id = (s.stravaId ? 'st_'+s.stravaId : 'sess_'+i+'_'+(s.date||'')+'_'+(s.time||'')); _idFix = true; }
     });
     if (_idFix) localStorage.setItem('ruckSessions', JSON.stringify(sessions));
+
+    // ── Binding robusto por closure (inmune a fallos de window.*) ──
+    // Delegación en la lista de sesiones: editar / eliminar
+    const listEl = document.getElementById('ruckASessionsList');
+    if (listEl && !listEl._ruckBound) {
+      listEl._ruckBound = true;
+      listEl.addEventListener('click', function(e) {
+        const btn = e.target.closest('[data-ruck-act]');
+        if (!btn) return;
+        const id  = btn.getAttribute('data-ruck-id');
+        const act = btn.getAttribute('data-ruck-act');
+        if (act === 'edit') {
+          editRuckSession(id);
+        } else if (act === 'del') {
+          if (!confirm('¿Eliminar esta sesión de rucking?')) return;
+          const arr = JSON.parse(localStorage.getItem('ruckSessions')||'[]').filter(s => String(s.id) !== String(id));
+          localStorage.setItem('ruckSessions', JSON.stringify(arr));
+          if (typeof pushRuckingToCloud === 'function') pushRuckingToCloud(arr);
+          if (_ruckEditId === id) { _ruckEditId = null; const f=document.getElementById('ruckAManualForm'); if(f) f.style.display='none'; }
+          initRuckingAtleta();
+        }
+      });
+    }
+    // Botón Cancelar del formulario manual
+    const cancelBtn = document.getElementById('ruckCancelBtn');
+    if (cancelBtn && !cancelBtn._ruckBound) {
+      cancelBtn._ruckBound = true;
+      cancelBtn.addEventListener('click', function() {
+        _resetRuckForm();
+        const form = document.getElementById('ruckAManualForm');
+        if (form) form.style.display = 'none';
+        ['ruckATime','ruckAElev','ruckANotes'].forEach(idd => { const el=document.getElementById(idd); if(el){ el.value=''; if(idd==='ruckATime') el._digits=''; } });
+        const terr = document.getElementById('ruckATerrain'); if (terr) terr.value = 'trail';
+      });
+    }
+    // Botón Agregar / Guardar del formulario manual
+    const addBtnEl = document.getElementById('ruckAddBtn');
+    if (addBtnEl && !addBtnEl._ruckBound) {
+      addBtnEl._ruckBound = true;
+      addBtnEl.addEventListener('click', function() { addRuckManualSession(); });
+    }
+
     const distBtns = document.getElementById('ruckADistBtns');
     const loadBtns = document.getElementById('ruckALoadBtns');
     if (!distBtns || !loadBtns) return;
@@ -3089,11 +3131,11 @@
               ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W · ${trabajo} kJ</div>` : ''}
               ${s.elev>0?`<div style="font-size:10px;color:#bbb;">↑ ${s.elev} m desnivel</div>`:''}
             </div>
-            <button onclick="editRuckSession('${s.id}')" title="${editTitle}"
+            <button data-ruck-act="edit" data-ruck-id="${s.id}" title="${editTitle}"
               style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
               onmouseover="this.style.borderColor='#C9A84C';this.style.color='#C9A84C';"
               onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✎</button>
-            <button onclick="deleteRuckSessionAtleta('${s.id}')" title="Eliminar sesión"
+            <button data-ruck-act="del" data-ruck-id="${s.id}" title="Eliminar sesión"
               style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
               onmouseover="this.style.borderColor='#d32f2f';this.style.color='#d32f2f';"
               onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✕</button>
@@ -3169,7 +3211,7 @@
     }
 
     // Cambiar botón y título del formulario
-    const addBtn = document.querySelector('[onclick="addRuckManualSession()"]');
+    const addBtn = document.getElementById('ruckAddBtn');
     if (addBtn) addBtn.textContent = s.source==='strava' ? 'GUARDAR TIEMPO' : 'GUARDAR CAMBIOS';
     const formTitle = document.getElementById('ruckAFormTitle');
     if (formTitle) formTitle.textContent = s.source==='strava'
@@ -3182,7 +3224,7 @@
 
   function _resetRuckForm() {
     _ruckEditId = null;
-    const addBtn = document.querySelector('[onclick="addRuckManualSession()"]');
+    const addBtn = document.getElementById('ruckAddBtn');
     if (addBtn) addBtn.textContent = 'AGREGAR';
     const formTitle = document.getElementById('ruckAFormTitle');
     if (formTitle) formTitle.textContent = 'AGREGAR SESIÓN MANUAL';
