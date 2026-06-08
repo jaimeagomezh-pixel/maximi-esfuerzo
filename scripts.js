@@ -651,7 +651,7 @@
         time:     tSec,
         elev:     elevM,
         notes:    a.name,
-        terrain:  1.2,
+        terrain:  'trail',
         source:   'strava'
       });
       knownIds.add(String(a.id));
@@ -2749,18 +2749,42 @@
     return getBMHistorial().length > 0;
   }
 
+  // ── POTENCIA MECÁNICA RUCKING (Watts) ──────────────────────────────────────
+  // Física newtoniana: aísla trabajo de fricción horizontal + trabajo contra
+  // gravedad en ascensos. Usa tiempo NETO en movimiento (no penaliza pausas).
+  //   Power(W) = (Masa × g × (μ·distancia_m + desnivel_m)) / tiempo_movimiento_s
+  const G_RUCK = 9.81;
+  const MU_TERRENO = { asfalto: 0.10, tierra: 0.15, trail: 0.20, arena: 0.28 };
+
+  function calcPotenciaRucking(bodyWeight, packWeight, distanceM, elevationGain, movingTime, terrainType) {
+    const warnings = [];
+    const totalMass = bodyWeight + packWeight;
+    // Validación biomecánica: carga > 40% del peso corporal
+    if (packWeight > 0.40 * bodyWeight) {
+      warnings.push('Carga extrema: la fórmula de potencia puede subestimar la fatiga real debido al colapso biomecánico');
+    }
+    if (!movingTime || movingTime <= 0) {
+      return { power_watts: null, total_mass: totalMass, warnings };
+    }
+    const mu = MU_TERRENO[terrainType] != null ? MU_TERRENO[terrainType] : MU_TERRENO.trail;
+    const trabajo = totalMass * G_RUCK * (mu * distanceM + (elevationGain || 0));
+    const power = trabajo / movingTime;
+    return { power_watts: Math.round(power * 10) / 10, total_mass: totalMass, warnings };
+  }
+
   function calcPotenciaRuck(session) {
     const bm = getBMForDate(session.date);
     if (!bm || !session.time || !session.dist) return null;
-    const distM   = session.dist * 1000;
-    const trabajo = (bm + session.load) * 9.81 * distM;
-    return Math.round(trabajo / session.time); // Watts
+    const r = calcPotenciaRucking(bm, session.load, session.dist * 1000, session.elev || 0, session.time, session.terrain || 'trail');
+    return r.power_watts != null ? Math.round(r.power_watts) : null;
   }
 
   function calcTrabajoRuck(session) {
     const bm = getBMForDate(session.date);
     if (!bm || !session.dist) return null;
-    return Math.round((bm + session.load) * 9.81 * session.dist * 1000 / 1000); // kJ
+    const mu = MU_TERRENO[session.terrain] != null ? MU_TERRENO[session.terrain] : MU_TERRENO.trail;
+    const trabajoJ = (bm + session.load) * G_RUCK * (mu * session.dist * 1000 + (session.elev || 0));
+    return Math.round(trabajoJ / 1000); // kJ
   }
 
   function fmtTimerRuck(sec) {
@@ -3063,6 +3087,10 @@
               style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
               onmouseover="this.style.borderColor='#C9A84C';this.style.color='#C9A84C';"
               onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✎</button>
+            <button onclick="deleteRuckSessionAtleta('${s.id}')" title="Eliminar sesión"
+              style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
+              onmouseover="this.style.borderColor='#d32f2f';this.style.color='#d32f2f';"
+              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✕</button>
           </div>`;
         }).join('');
       }
@@ -3113,6 +3141,14 @@
     if (distInp) { distInp.value = s.dist; distInp.disabled = s.source==='strava'; }
     if (loadInp) { loadInp.value = s.load; loadInp.disabled = s.source==='strava'; }
 
+    // Desnivel, terreno y notas (terreno editable también para sesiones Strava)
+    const elevInp = document.getElementById('ruckAElev');
+    if (elevInp) elevInp.value = s.elev || '';
+    const terrInp = document.getElementById('ruckATerrain');
+    if (terrInp) terrInp.value = (typeof s.terrain === 'string' && MU_TERRENO[s.terrain]) ? s.terrain : 'trail';
+    const notesInp = document.getElementById('ruckANotes');
+    if (notesInp) notesInp.value = (s.notes && s.notes !== 'Manual') ? s.notes : '';
+
     // Convertir segundos a H:MM:SS y setear _digits
     if (timeInp) {
       const h  = Math.floor(s.time / 3600);
@@ -3159,8 +3195,9 @@
     const parts = tStr.split(':').map(Number);
     const tSec  = parts.length===3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+(parts[1]||0);
     if (!tSec||tSec<=0) { alert('Formato de tiempo inválido (H:MM:SS).'); return; }
-    const elev  = parseFloat(document.getElementById('ruckAElev')?.value)||0;
-    const notes = document.getElementById('ruckANotes')?.value?.trim()||'Manual';
+    const elev    = parseFloat(document.getElementById('ruckAElev')?.value)||0;
+    const terrain = document.getElementById('ruckATerrain')?.value || 'trail';
+    const notes   = document.getElementById('ruckANotes')?.value?.trim()||'Manual';
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
 
     if (_ruckEditId) {
@@ -3169,22 +3206,33 @@
       if (idx !== -1) {
         const orig = sessions[idx];
         sessions[idx] = orig.source === 'strava'
-          ? { ...orig, time: tSec }                                       // Strava: solo tiempo
-          : { ...orig, date, dist, load, time: tSec, elev, notes };      // Manual: todo
+          ? { ...orig, time: tSec, terrain }                                       // Strava: tiempo + terreno editable
+          : { ...orig, date, dist, load, time: tSec, elev, notes, terrain };       // Manual: todo
       }
       _resetRuckForm();
     } else {
       // ── MODO AGREGAR ─────────────────────────────────────────
-      sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev, notes, terrain:1.2, source:'manual' });
+      sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev, notes, terrain, source:'manual' });
     }
 
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     pushRuckingToCloud(sessions);
+
+    // Alerta biomecánica: carga > 40% del peso corporal
+    const bmHoy = getBMForDate(date);
+    if (bmHoy && load > 0.40 * bmHoy) {
+      if (typeof prShowToast === 'function') {
+        prShowToast('⚠ Carga extrema (' + Math.round(load/bmHoy*100) + '% del peso corporal): la potencia puede subestimar la fatiga real por colapso biomecánico.');
+      }
+    }
+
     document.getElementById('ruckAManualForm').style.display='none';
     const ti = document.getElementById('ruckATime');
     if (ti) { ti.value = ''; ti._digits = ''; }
     const elevEl = document.getElementById('ruckAElev');
     if (elevEl) elevEl.value = '';
+    const terrEl = document.getElementById('ruckATerrain');
+    if (terrEl) terrEl.value = 'trail';
     const notesEl = document.getElementById('ruckANotes');
     if (notesEl) notesEl.value = '';
     initRuckingAtleta();
@@ -4478,6 +4526,14 @@
   window.enviarSolicitudCancelacion = enviarSolicitudCancelacion;
   window.toggleDashMenu     = toggleDashMenu;
   window.editRuckSession    = editRuckSession;
+  window.deleteRuckSessionAtleta = function(id) {
+    if (!confirm('¿Eliminar esta sesión de rucking?')) return;
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]').filter(s => s.id !== id);
+    localStorage.setItem('ruckSessions', JSON.stringify(sessions));
+    if (typeof pushRuckingToCloud === 'function') pushRuckingToCloud(sessions);
+    if (_ruckEditId === id) { _ruckEditId = null; const f=document.getElementById('ruckAManualForm'); if(f) f.style.display='none'; }
+    initRuckingAtleta();
+  };
   // Cancelar funciona en ambos modos (agregar y editar)
   window.cancelarEditRuck   = function() {
     _resetRuckForm();
@@ -4487,6 +4543,8 @@
     if (ti) { ti.value = ''; ti._digits = ''; }
     const elev = document.getElementById('ruckAElev');
     if (elev) elev.value = '';
+    const terr = document.getElementById('ruckATerrain');
+    if (terr) terr.value = 'trail';
     const notes = document.getElementById('ruckANotes');
     if (notes) notes.value = '';
   };

@@ -581,6 +581,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
               <input type="number" class="l-input" id="sElev" placeholder="0" min="0">
             </div>
             <div>
+              <label class="l-label">Terreno</label>
+              <select class="l-input" id="sTerrain">
+                <option value="asfalto">Asfalto / Cemento (μ 0.10)</option>
+                <option value="tierra">Tierra compacta (μ 0.15)</option>
+                <option value="trail" selected>Trail / Montaña (μ 0.20)</option>
+                <option value="arena">Arena / Nieve (μ 0.28)</option>
+              </select>
+            </div>
+            <div>
               <label class="l-label">Notas</label>
               <input type="text" class="l-input" id="sNotes" placeholder="ej. Cerro San Cristóbal">
             </div>
@@ -1165,6 +1174,24 @@ let ruckSelDist = null;
 let ruckSelLoad = null;
 let ruckCoachMetrica = 'tiempo'; // 'tiempo' | 'potencia'
 
+// ── POTENCIA MECÁNICA RUCKING (Watts) ──────────────────────────────────────
+// Power(W) = (Masa × g × (μ·distancia_m + desnivel_m)) / tiempo_movimiento_s
+const G_RUCK = 9.81;
+const MU_TERRENO = { asfalto: 0.10, tierra: 0.15, trail: 0.20, arena: 0.28 };
+// Factor de terreno T de Pandolf (para coste metabólico / kcal)
+const PANDOLF_T = { asfalto: 1.0, tierra: 1.1, trail: 1.2, arena: 2.1 };
+function pandolfTfor(terrain) {
+  if (typeof terrain === 'number') return terrain;            // compatibilidad sesiones viejas
+  return PANDOLF_T[terrain] != null ? PANDOLF_T[terrain] : 1.2;
+}
+
+function calcPotenciaRuckingW(bodyWeight, packWeight, distanceM, elevationGain, movingTime, terrainType) {
+  if (!movingTime || movingTime <= 0 || !bodyWeight) return null;
+  const mu = MU_TERRENO[terrainType] != null ? MU_TERRENO[terrainType] : MU_TERRENO.trail;
+  const trabajo = (bodyWeight + packWeight) * G_RUCK * (mu * distanceM + (elevationGain || 0));
+  return Math.round(trabajo / movingTime);
+}
+
 // Obtener BW disponible: perfil guardado → campo rBW activo → 0
 function getCoachBW() {
   const p = getRuckProfile();
@@ -1450,15 +1477,24 @@ function addRuckSession() {
   const load = parseFloat(document.getElementById('sLoad').value);
   const tStr = document.getElementById('sTime').value.trim();
   const elev = parseFloat(document.getElementById('sElev').value)||0;
+  const terrain = document.getElementById('sTerrain').value || 'trail';
   const notes = document.getElementById('sNotes').value.trim();
   if (!date||!dist||!load||!tStr) { alert('Completa fecha, distancia, lastre y tiempo.'); return; }
   const tSec = parseMmSs(tStr);
   if (!tSec||tSec<=0) { alert('Formato de tiempo inválido.'); return; }
   const sessions = getRuckSessions();
-  sessions.push({ id: Date.now().toString(), date, dist, load, time: tSec, elev, notes, terrain:1.2 });
+  sessions.push({ id: Date.now().toString(), date, dist, load, time: tSec, elev, notes, terrain });
   saveRuckSessions(sessions);
+
+  // Alerta biomecánica: carga > 40% del peso corporal
+  const bw = getCoachBW();
+  if (bw && load > 0.40 * bw) {
+    alert('⚠ Carga extrema (' + Math.round(load/bw*100) + '% del peso corporal): la potencia puede subestimar la fatiga real por colapso biomecánico.');
+  }
+
   document.getElementById('sTime').value='';
   document.getElementById('sElev').value='';
+  document.getElementById('sTerrain').value='trail';
   document.getElementById('sNotes').value='';
   document.getElementById('ruckAddForm').style.display='none';
   updateRuckingUI();
@@ -1521,10 +1557,10 @@ function updateRuckChart(sessions) {
   let datos, color, bgColor, reverseY, tickCb;
 
   if (esPotencia && bw) {
-    // Misma fórmula que panel atleta: (BM + carga) × 9.81 × dist_m / tiempo_s
+    // Fórmula unificada con fricción por terreno + desnivel
     datos = sessions.map(s => {
       if (!s.dist || !s.time || !s.load) return null;
-      return Math.round((bw + s.load) * 9.81 * s.dist * 1000 / s.time);
+      return calcPotenciaRuckingW(bw, s.load, s.dist*1000, s.elev||0, s.time, s.terrain||'trail');
     });
     color = '#d4a843';
     bgColor = 'rgba(212,168,67,0.10)';
@@ -1563,7 +1599,7 @@ function updateRuckChart(sessions) {
 function updateRuckTable(sessions) {
   const tbody = document.getElementById('ruckSessionTable');
   if (!tbody) return;
-  const profile = getRuckProfile();
+  const bw = getCoachBW();
   const sorted = [...sessions].sort((a,b)=>b.date.localeCompare(a.date));
   let html = '<tr><th>Fecha</th><th>Dist.</th><th>Lastre</th><th>Tiempo</th><th>Kcal</th><th></th></tr>';
   if (!sorted.length) {
@@ -1571,10 +1607,10 @@ function updateRuckTable(sessions) {
   } else {
     sorted.forEach(s => {
       let kcal = '—';
-      if (profile.bw && s.dist && s.time && s.load) {
+      if (bw && s.dist && s.time && s.load) {
         const V = (s.dist*1000)/s.time;
         const G = s.elev>0?((s.elev/1000)/s.dist)*100:0;
-        const {kcal:k} = pandolfCalc(profile.bw, s.load, V, G, s.terrain||1.2, s.time);
+        const {kcal:k} = pandolfCalc(bw, s.load, V, G, pandolfTfor(s.terrain), s.time);
         kcal = Math.round(k);
       }
       html += `<tr>
@@ -2224,7 +2260,7 @@ function updateRuckCoachView() {
     const V_ms   = distM / tSec;
     const elevM  = best.elev || 0;
     const G      = distM > 0 ? (elevM / distM) * 100 : 0;
-    const T      = best.terrain || 1.0;
+    const T      = pandolfTfor(best.terrain);
     const bwKg   = best.bw || 75; // usa el peso guardado en la sesión si existe
     const M      = 1.5*bwKg + 2.0*(bwKg+ruckCoachLoad)*Math.pow(ruckCoachLoad/bwKg,2) + T*(bwKg+ruckCoachLoad)*(1.5*V_ms*V_ms + 0.35*V_ms*G);
     const kcal   = M * tSec / 4184;
