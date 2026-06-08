@@ -3183,10 +3183,10 @@
     document.getElementById('ruckAManualForm').style.display='none';
     const ti = document.getElementById('ruckATime');
     if (ti) { ti.value = ''; ti._digits = ''; }
-    const elev = document.getElementById('ruckAElev');
-    if (elev) elev.value = '';
-    const notes = document.getElementById('ruckANotes');
-    if (notes) notes.value = '';
+    const elevEl = document.getElementById('ruckAElev');
+    if (elevEl) elevEl.value = '';
+    const notesEl = document.getElementById('ruckANotes');
+    if (notesEl) notesEl.value = '';
     initRuckingAtleta();
   }
 
