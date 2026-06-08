@@ -880,6 +880,7 @@ async function sincronizarPerfilesCloud() {
       if (prof.stravaStats && JSON.stringify(a.strava) !== JSON.stringify(prof.stravaStats)) { a.strava = prof.stravaStats; cambio = true; }
       if (prof.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(prof.inbodyTrend)) { a.inbodyTrend = prof.inbodyTrend; cambio = true; }
       if (prof.endurance && JSON.stringify(a.endurance) !== JSON.stringify(prof.endurance)) { a.endurance = prof.endurance; cambio = true; }
+      if (prof.cargaRTSS && JSON.stringify(a.cargaRTSS) !== JSON.stringify(prof.cargaRTSS)) { a.cargaRTSS = prof.cargaRTSS; cambio = true; }
       if (prof.fechaNac && !a.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
       if (prof.bw && !a.peso) { a.peso = prof.bw; cambio = true; }
       if (cambio) actualizados++;
@@ -1406,6 +1407,8 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.inbodyTrend) { a.inbodyTrend = cp.inbodyTrend; guardarAtletas(); }
         // ── Endurance (VAM/FTP) ──
         if (cp.endurance) { a.endurance = cp.endurance; guardarAtletas(); }
+        // ── Carga rTSS (resumen semanal) ──
+        if (cp.cargaRTSS) { a.cargaRTSS = cp.cargaRTSS; guardarAtletas(); }
         // ── Peso desde bw ──
         if (cp.bw && !a.peso) { a.peso = cp.bw; guardarAtletas(); }
 
@@ -1801,7 +1804,7 @@ function renderResumen() {
 }
 
 // ── PERFIL ATLETA ──────────────────────────────────────────────────────────
-let chartPeso=null, chartStrava=null, chartFuerza=null, chartPR=null;
+let chartPeso=null, chartStrava=null, chartFuerza=null, chartPR=null, chartCargaRTSS=null;
 let prDataActual={}, prDistActual='';
 
 function abrirPerfil(id) {
@@ -1918,6 +1921,24 @@ function abrirPerfil(id) {
         </div>
 
         <div class="sec">
+          <div class="sec-t">Carga de Entrenamiento · rTSS</div>
+          ${a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length ? `
+          <div class="pr-stats">
+            <div class="pr-stat best"><div class="pr-stat-v">${Math.round((a.cargaRTSS.ultima?.rtss||0) / Math.pow((a.endurance&&a.endurance.ftpMultiplier)||1, 2))}</div><div class="pr-stat-l">Última · rTSS</div></div>
+            <div class="pr-stat"><div class="pr-stat-v" style="font-size:1.1rem;">${a.cargaRTSS.ultima?.km||'—'} km</div><div class="pr-stat-l">${a.cargaRTSS.ultima?.date ? a.cargaRTSS.ultima.date.slice(8,10)+'/'+a.cargaRTSS.ultima.date.slice(5,7) : '—'}</div></div>
+          </div>
+          <div class="chart-wrap" style="margin-top:12px;height:130px;"><canvas id="cCargaRTSS"></canvas></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">
+            Carga semanal (10 sem). ${(a.endurance&&a.endurance.ftpMultiplier&&a.endurance.ftpMultiplier!==1) ? `Reescalado ×${(1/Math.pow(a.endurance.ftpMultiplier,2)).toFixed(2)} por tu multiplicador (${a.endurance.ftpMultiplier}).` : 'Con FTP base del atleta.'}
+          </div>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i">📊</div>
+            <div class="empty-t">Sin carga rTSS aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere FTP (test 20 min) + Strava sincronizado en el panel del atleta</div>
+          </div>`}
+        </div>
+
+        <div class="sec">
           <div class="sec-t">Progresión de tiempos</div>
           ${prDists.length ? `
           <div class="dist-sel" id="distSel">
@@ -2024,6 +2045,23 @@ function abrirPerfil(id) {
   setTimeout(() => {
     const cp = document.getElementById('cPeso');
     if (cp) chartPeso = mkLineChart(cp, meses6, pesoEvol, '#C9A84C', v=>v+' kg', {min:a.peso-4,max:a.peso+1});
+
+    // ── Carga rTSS (reescalada por el multiplicador del coach) ──
+    if (a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length) {
+      const cc = document.getElementById('cCargaRTSS');
+      if (cc) {
+        const mult = (a.endurance && a.endurance.ftpMultiplier) || 1;
+        const factor = 1 / (mult * mult);   // rTSS escala como 1/mult²
+        const labels = a.cargaRTSS.semanas.map(w => { const d = new Date(w.wk+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1); });
+        const data   = a.cargaRTSS.semanas.map(w => Math.round((w.val||0) * factor));
+        if (chartCargaRTSS) chartCargaRTSS.destroy();
+        chartCargaRTSS = new Chart(cc, {
+          type:'bar',
+          data:{ labels, datasets:[{ data, backgroundColor:'rgba(139,26,26,0.7)', borderRadius:4, maxBarThickness:30 }] },
+          options: mkOpts({ y:{ beginAtZero:true, ticks:{ callback:v=>v } } })
+        });
+      }
+    }
 
     if (a.strava) {
       const cs = document.getElementById('cStrava');
@@ -2389,6 +2427,13 @@ async function aplicarMultiplicadorFTP(aid) {
   const ftpEl = document.getElementById('endFtpValCoach');
   if (ftpEl) ftpEl.textContent = ftpPace;
   if (statusEl) statusEl.innerHTML = 'Guardando…';
+
+  // Reescalar la carga rTSS en vivo (rTSS ∝ 1/mult²)
+  if (a.cargaRTSS && a.cargaRTSS.semanas && chartCargaRTSS) {
+    const factor = 1 / (mult * mult);
+    chartCargaRTSS.data.datasets[0].data = a.cargaRTSS.semanas.map(w => Math.round((w.val||0) * factor));
+    chartCargaRTSS.update();
+  }
 
   const cloudId = a.stravaId || a.cloudId;
   if (!cloudId) { if (statusEl) statusEl.innerHTML = '<span style="color:var(--orange);">Atleta sin vínculo cloud — guardado solo local.</span>'; return; }

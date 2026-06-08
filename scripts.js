@@ -3561,20 +3561,36 @@
     });
 
     const ctx = document.getElementById('chartRTSS');
-    if (!ctx || typeof Chart === 'undefined') return;
-    if (_chartRTSS) _chartRTSS.destroy();
-    _chartRTSS = new Chart(ctx, {
-      type: 'bar',
-      data: { labels, datasets: [{ data, backgroundColor: 'rgba(139,26,26,0.7)', borderRadius: 4, maxBarThickness: 34 }] },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
-        scales: {
-          y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#999' }, grid: { color: 'rgba(0,0,0,0.05)' } },
-          x: { ticks: { font: { size: 9 }, color: '#999' }, grid: { display: false } }
+    if (ctx && typeof Chart !== 'undefined') {
+      if (_chartRTSS) _chartRTSS.destroy();
+      _chartRTSS = new Chart(ctx, {
+        type: 'bar',
+        data: { labels, datasets: [{ data, backgroundColor: 'rgba(139,26,26,0.7)', borderRadius: 4, maxBarThickness: 34 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
+          scales: {
+            y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#999' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+            x: { ticks: { font: { size: 9 }, color: '#999' }, grid: { display: false } }
+          }
         }
-      }
-    });
+      });
+    }
+
+    // ── Subir resumen de carga al cloud para que el coach lo vea ──
+    // rTSS calculado con FTP crudo (mult=1); el coach lo reescala con su multiplicador.
+    const resumen = {
+      semanas: arr.map(w => ({ wk: w.key, val: w.val })),
+      ultima:  { date: ult.date, km: ult.km, rtss: ult.rtss, iff: ult.iff },
+      ftpMs:   ftp,
+      actualizado: new Date().toISOString().slice(0, 10),
+    };
+    // Solo subir si cambió (evita fetches redundantes en cada apertura del panel)
+    if (JSON.stringify(profile.cargaRTSS) !== JSON.stringify(resumen)) {
+      profile.cargaRTSS = resumen;
+      localStorage.setItem('ruckProfile', JSON.stringify(profile));
+      if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+    }
   }
   window.renderCargaRTSS = renderCargaRTSS;
 
