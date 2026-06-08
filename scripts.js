@@ -663,22 +663,19 @@
   const STRAVA_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
 
   async function fetchTodasLasCarreras(token) {
-    const acts = [];
-    for (let page = 1; page <= 5; page++) {          // máx 5 páginas × 200 = 1000 actividades
-      // Frenar antes de cada página si estamos cerca del límite de 15 min
-      if (!puedeLlamarStrava()) {
-        console.warn('[Strava] Límite de 15 min cerca — deteniendo paginación, se usa lo descargado.');
-        break;
-      }
-      const res = await stravaFetch(
-        `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`, token
-      );
-      const batch = await res.json();
-      if (!Array.isArray(batch) || batch.length === 0) break;
-      acts.push(...batch.filter(a => a.distance > 0));  // todas las actividades con distancia
-      if (batch.length < 200) break;                    // última página
+    // UNA sola llamada: las 200 actividades más recientes.
+    // Suficiente para rTSS (10 sem), resumen mensual (~9 meses) y PRs recientes,
+    // y evita el golpe de hasta 5 llamadas en la conexión inicial.
+    if (!puedeLlamarStrava()) {
+      console.warn('[Strava] Límite cerca — se usa el cache existente.');
+      return [];
     }
-    return acts;
+    const res = await stravaFetch(
+      'https://www.strava.com/api/v3/athlete/activities?per_page=200&page=1', token
+    );
+    const batch = await res.json();
+    if (!Array.isArray(batch)) return [];
+    return batch.filter(a => a.distance > 0);
   }
 
   // ── RUCKING: detección desde Strava ───────────────────────────
