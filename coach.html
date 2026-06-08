@@ -1165,21 +1165,27 @@ let ruckSelDist = null;
 let ruckSelLoad = null;
 let ruckCoachMetrica = 'tiempo'; // 'tiempo' | 'potencia'
 
+// Obtener BW disponible: perfil guardado → campo rBW activo → 0
+function getCoachBW() {
+  const p = getRuckProfile();
+  if (p.bw) return p.bw;
+  const v = parseFloat(document.getElementById('rBW')?.value);
+  return v > 0 ? v : 0;
+}
+
 function setRuckCoachMetrica(modo, btn) {
-  const profile = getRuckProfile();
-  if (modo === 'potencia' && !profile.bw) {
-    const w = document.getElementById('ruckCoachBMWarn');
-    if (w) w.style.display = 'block';
+  const bw = getCoachBW();
+  const w  = document.getElementById('ruckCoachBMWarn');
+  if (modo === 'potencia' && !bw) {
+    if (w) { w.style.display='block'; w.textContent='⚠ Ingresa tu peso corporal en el perfil de la sección Rucking para ver potencia.'; }
     return;
   }
-  const w = document.getElementById('ruckCoachBMWarn');
   if (w) w.style.display = 'none';
   ruckCoachMetrica = modo;
-  // Actualizar estilos de los botones
   const btnT = document.getElementById('ruckCoachToggleTiempo');
   const btnP = document.getElementById('ruckCoachTogglePotencia');
-  if (btnT) { btnT.style.background = modo==='tiempo'?'rgba(139,26,26,0.1)':'#fff'; btnT.style.color = modo==='tiempo'?'var(--cian)':'var(--text3)'; btnT.style.borderColor = modo==='tiempo'?'rgba(139,26,26,0.4)':'var(--border)'; btnT.style.fontWeight = modo==='tiempo'?'700':'400'; }
-  if (btnP) { btnP.style.background = modo==='potencia'?'rgba(212,168,67,0.12)':'#fff'; btnP.style.color = modo==='potencia'?'var(--gold)':'var(--text3)'; btnP.style.borderColor = modo==='potencia'?'rgba(212,168,67,0.5)':'var(--border)'; btnP.style.fontWeight = modo==='potencia'?'700':'400'; }
+  if (btnT) { btnT.style.cssText = modo==='tiempo' ? 'font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid rgba(139,26,26,0.4);background:rgba(139,26,26,0.1);color:var(--cian);cursor:pointer;font-weight:700;' : 'font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid rgba(0,0,0,0.13);background:#fff;color:var(--text3);cursor:pointer;'; }
+  if (btnP) { btnP.style.cssText = modo==='potencia' ? 'font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid rgba(212,168,67,0.5);background:rgba(212,168,67,0.12);color:var(--gold);cursor:pointer;font-weight:700;' : 'font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid rgba(0,0,0,0.13);background:#fff;color:var(--text3);cursor:pointer;'; }
   updateRuckPR();
 }
 
@@ -1510,18 +1516,15 @@ function updateRuckChart(sessions) {
   if (!sessions.length) return;
 
   const esPotencia = ruckCoachMetrica === 'potencia';
-  const profile = getRuckProfile();
+  const bw = getCoachBW();
 
   let datos, color, bgColor, reverseY, tickCb;
 
-  if (esPotencia && profile.bw) {
-    // Calcular watts metabólicos Pandolf para cada sesión
+  if (esPotencia && bw) {
+    // Misma fórmula que panel atleta: (BM + carga) × 9.81 × dist_m / tiempo_s
     datos = sessions.map(s => {
       if (!s.dist || !s.time || !s.load) return null;
-      const V = (s.dist*1000)/s.time;
-      const G = (s.elev>0) ? ((s.elev/1000)/s.dist)*100 : 0;
-      const { watts } = pandolfCalc(profile.bw, s.load, V, G, s.terrain||1.2, s.time);
-      return Math.round(watts);
+      return Math.round((bw + s.load) * 9.81 * s.dist * 1000 / s.time);
     });
     color = '#d4a843';
     bgColor = 'rgba(212,168,67,0.10)';
