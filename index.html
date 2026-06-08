@@ -1128,29 +1128,15 @@
       <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:16px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:10px;">Parámetros del test</div>
 
-        <!-- Tabs: modo V PICO -->
-        <div style="display:flex;gap:6px;margin-bottom:12px;">
-          <button id="tabVpicoDirecto" class="zona-tab zona-tab-active" onclick="setVpicoTab('directo',this)">V PICO directo</button>
-          <button id="tabVpico5min" class="zona-tab" onclick="setVpicoTab('5min',this)">Test 5 min</button>
-        </div>
-
-        <!-- Panel: V PICO directo (desde test incremental) -->
-        <div id="panelVpicoDirecto">
-          <label class="zona-label">Velocidad Pico — V PICO (km/h)</label>
-          <input type="number" id="inputVpico" class="zona-input" step="0.1" min="0" max="40" placeholder="ej. 18.0">
-        </div>
-
-        <!-- Panel: Test 5 minutos -->
-        <div id="panelVpico5min" style="display:none;">
-          <label class="zona-label">Distancia recorrida en 5 minutos (km)</label>
-          <input type="number" id="inputDist5min" class="zona-input" step="0.01" min="0" placeholder="ej. 1.50" oninput="onDist5minInput()">
-          <div id="vPicoDerivada" style="display:none;margin-top:7px;font-family:'Barlow',sans-serif;font-size:12px;color:#888;">
-            V PICO calculada: <strong id="vPicoCalcVal" style="color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;font-size:14px;"></strong> km/h
-          </div>
+        <!-- VAM / V PICO — se alimenta del Test de Campo, editable como override -->
+        <label class="zona-label">VAM · Velocidad aeróbica máxima (km/h)</label>
+        <input type="number" id="inputVpico" class="zona-input" step="0.1" min="0" max="40" placeholder="ej. 18.0">
+        <div id="vpicoHint" style="display:none;margin-top:6px;font-family:'Barlow',sans-serif;font-size:11px;color:#007a85;">
+          ✓ Tomada de tu Test de Campo · puedes editarla manualmente
         </div>
 
         <!-- FC máx (opcional) -->
-        <label class="zona-label">FC máxima (ppm) <span style="color:#ccc;font-weight:400;text-transform:none;letter-spacing:0;">— opcional</span></label>
+        <label class="zona-label" style="margin-top:12px;">FC máxima (ppm) <span style="color:#ccc;font-weight:400;text-transform:none;letter-spacing:0;">— opcional</span></label>
         <input type="number" id="inputFcMax" class="zona-input" step="1" min="100" max="250" placeholder="ej. 185">
 
         <button class="manual-save-btn" style="margin-top:12px;" onclick="guardarYCalcularZonas()">

@@ -3410,6 +3410,19 @@
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
     if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
     mostrarEnduranceResultados(profile.endurance);
+
+    // ── UNIFICACIÓN: la VAM del Test de Campo alimenta las Zonas de Carrera ──
+    const vamKmh = parseFloat((r.vam.ms * 3.6).toFixed(1));
+    const inpVpico = document.getElementById('inputVpico');
+    if (inpVpico) inpVpico.value = vamKmh;
+    const hint = document.getElementById('vpicoHint');
+    if (hint) hint.style.display = 'block';
+    // Conservar la FC máx si ya estaba guardada
+    const zp = JSON.parse(localStorage.getItem('zonaParams') || '{}');
+    localStorage.setItem('zonaParams', JSON.stringify({
+      vpico: vamKmh, fcmax: zp.fcmax || null, mode: 'directo', dist5min: null
+    }));
+    if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
   }
 
   function bindEnduranceTest() {
@@ -3870,61 +3883,20 @@
   }
 
   // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
-  let _vPicoMode = 'directo';
-
-  function setVpicoTab(mode, btn) {
-    _vPicoMode = mode;
-    document.querySelectorAll('.zona-tab').forEach(b => b.classList.remove('zona-tab-active'));
-    if (btn) btn.classList.add('zona-tab-active');
-    const pDirecto = document.getElementById('panelVpicoDirecto');
-    const p5min    = document.getElementById('panelVpico5min');
-    if (pDirecto) pDirecto.style.display = mode === 'directo' ? '' : 'none';
-    if (p5min)    p5min.style.display    = mode === '5min'    ? '' : 'none';
-    if (mode === '5min') {
-      const inp = document.getElementById('inputVpico');
-      if (inp) inp.value = '';
-    } else {
-      const inp5  = document.getElementById('inputDist5min');
-      const calcEl = document.getElementById('vPicoDerivada');
-      if (inp5)   inp5.value = '';
-      if (calcEl) calcEl.style.display = 'none';
-    }
-  }
-
-  function onDist5minInput() {
-    const dist   = parseFloat(document.getElementById('inputDist5min').value);
-    const calcEl = document.getElementById('vPicoDerivada');
-    const valEl  = document.getElementById('vPicoCalcVal');
-    if (!isNaN(dist) && dist > 0) {
-      if (calcEl) calcEl.style.display = '';
-      if (valEl)  valEl.textContent = (dist * 12).toFixed(1);
-    } else {
-      if (calcEl) calcEl.style.display = 'none';
-    }
-  }
-
   function guardarYCalcularZonas() {
-    let vpico = null;
-    if (_vPicoMode === 'directo') {
-      vpico = parseFloat(document.getElementById('inputVpico')?.value);
-    } else {
-      const dist = parseFloat(document.getElementById('inputDist5min')?.value);
-      if (!isNaN(dist) && dist > 0) vpico = parseFloat((dist * 12).toFixed(1));
-    }
+    const vpico = parseFloat(document.getElementById('inputVpico')?.value);
     const fcmax = parseFloat(document.getElementById('inputFcMax')?.value);
     const hasVpico = vpico && !isNaN(vpico) && vpico > 0;
     const hasFc    = fcmax && !isNaN(fcmax) && fcmax > 0;
     if (!hasVpico && !hasFc) {
-      alert('Ingresa al menos V PICO o FC máx para calcular las zonas.');
+      alert('Ingresa al menos la VAM (o haz tu Test de Campo) o la FC máx para calcular las zonas.');
       return;
     }
     localStorage.setItem('zonaParams', JSON.stringify({
-      vpico:   hasVpico ? vpico : null,
-      fcmax:   hasFc    ? fcmax : null,
-      mode:    _vPicoMode,
-      dist5min: _vPicoMode === '5min'
-        ? parseFloat(document.getElementById('inputDist5min')?.value) || null
-        : null
+      vpico: hasVpico ? vpico : null,
+      fcmax: hasFc    ? fcmax : null,
+      mode:  'directo',
+      dist5min: null
     }));
     calcularZonasCarrera();
   }
@@ -3969,8 +3941,7 @@
   function usarStrava5kmParaZonas() {
     const pending = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
     if (!pending) return;
-    // Cambiar a modo directo y prellenar V PICO estimada
-    setVpicoTab('directo', document.getElementById('tabVpicoDirecto'));
+    // Prellenar V PICO estimada (flujo unificado, campo VAM)
     const inp = document.getElementById('inputVpico');
     if (inp) inp.value = pending.vPicoEst;
     // Leer FC máx si ya estaba ingresada
@@ -4073,18 +4044,14 @@
   function usarEv5minStrava() {
     const pending = JSON.parse(localStorage.getItem('ev5min_pending') || 'null');
     if (!pending) return;
-    // Cambiar a modo 5min y prellenar distancia
-    if (typeof setVpicoTab === 'function') setVpicoTab('5min', document.getElementById('tabVpico5min'));
-    const inp = document.getElementById('inputDist5min');
-    if (inp) {
-      inp.value = pending.distKm;
-      if (typeof onDist5minInput === 'function') onDist5minInput();
-    }
+    // Flujo unificado: la V PICO estimada va directo al campo VAM
+    const inp = document.getElementById('inputVpico');
+    if (inp) inp.value = pending.vPico;
     localStorage.setItem('zonaParams', JSON.stringify({
       vpico:    pending.vPico,
       fcmax:    parseFloat(document.getElementById('inputFcMax')?.value) || null,
-      mode:     '5min',
-      dist5min: pending.distKm,
+      mode:     'directo',
+      dist5min: null,
       fromStrava: pending.date
     }));
     localStorage.setItem('ev5minStravaDate', pending.date);
@@ -4103,26 +4070,34 @@
 
   // ── INIT ZONAS ─────────────────────────────────────────────────────────────
   function initZonasCarrera() {
+    const inp   = document.getElementById('inputVpico');
+    const hint  = document.getElementById('vpicoHint');
+    // VAM del Test de Campo (km/h) si existe
+    const prof  = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const vamKmh = prof.endurance && prof.endurance.vamMs
+      ? parseFloat((prof.endurance.vamMs * 3.6).toFixed(1)) : null;
+
     // Restaurar parámetros guardados
     const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     if (saved) {
-      if (saved.mode === '5min') {
-        setVpicoTab('5min', document.getElementById('tabVpico5min'));
-        if (saved.dist5min) {
-          const inp5 = document.getElementById('inputDist5min');
-          if (inp5) { inp5.value = saved.dist5min; onDist5minInput(); }
-        }
-      } else {
-        if (saved.vpico) {
-          const inp = document.getElementById('inputVpico');
-          if (inp) inp.value = saved.vpico;
-        }
+      // Compatibilidad con datos viejos en modo '5min' → derivar V PICO (dist×12)
+      let vpicoGuardado = saved.vpico;
+      if (!vpicoGuardado && saved.mode === '5min' && saved.dist5min) {
+        vpicoGuardado = parseFloat((saved.dist5min * 12).toFixed(1));
       }
+      if (vpicoGuardado && inp) inp.value = vpicoGuardado;
       if (saved.fcmax) {
         const fcInp = document.getElementById('inputFcMax');
         if (fcInp) fcInp.value = saved.fcmax;
       }
       calcularZonasCarrera();
+    } else if (vamKmh && inp) {
+      // Sin params guardados pero hay Test de Campo → precargar VAM
+      inp.value = vamKmh;
+    }
+    // Marcar de dónde viene la VAM
+    if (hint && vamKmh && inp && parseFloat(inp.value) === vamKmh) {
+      hint.style.display = 'block';
     }
     // Restaurar banners de Strava pendientes de sesión anterior
     const pending5km = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
