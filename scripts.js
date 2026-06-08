@@ -256,6 +256,7 @@
           if (typeof loadManualTimes === 'function') loadManualTimes();
           if (typeof initZonasCarrera    === 'function') initZonasCarrera();
           if (typeof initRuckingAtleta      === 'function') initRuckingAtleta();
+          if (typeof window.bindEnduranceTest === 'function') window.bindEnduranceTest();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -3346,6 +3347,89 @@
       });
     } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
   }
+
+  // ══════════════════════════════════════════════════════════════
+  // ENDURANCE · Test de campo (VAM / FTP) — panel del atleta
+  // ══════════════════════════════════════════════════════════════
+  function mostrarEnduranceResultados(e) {
+    const res = document.getElementById('endResultados');
+    if (!res || !e) return;
+    const vamPace = document.getElementById('endVamPace');
+    const vamMs   = document.getElementById('endVamMs');
+    const ftpPace = document.getElementById('endFtpPace');
+    const ftpMs   = document.getElementById('endFtpMs');
+    if (vamPace) vamPace.textContent = e.vamPace || '—';
+    if (vamMs)   vamMs.textContent   = e.vamMs ? e.vamMs.toFixed(2) + ' m/s' : '—';
+    if (ftpPace) ftpPace.textContent = e.ftpPace || '—';
+    if (ftpMs)   ftpMs.textContent   = e.ftpMs ? e.ftpMs.toFixed(2) + ' m/s' : '—';
+
+    const multNota = document.getElementById('endMultNota');
+    if (multNota) {
+      if (e.ftpMultiplier && e.ftpMultiplier !== 1) {
+        multNota.style.display = 'block';
+        multNota.textContent = `FTP recalibrado por el coach · ×${e.ftpMultiplier} (test crudo ${e.raw20minMs ? e.raw20minMs.toFixed(2) : '—'} m/s)`;
+      } else {
+        multNota.style.display = 'none';
+      }
+    }
+    const fechaEl = document.getElementById('endFecha');
+    if (fechaEl) fechaEl.textContent = e.fecha ? 'Última evaluación: ' + e.fecha : '';
+    res.style.display = 'block';
+  }
+
+  function calcularYGuardarEndurance() {
+    const errEl = document.getElementById('endError');
+    if (errEl) errEl.style.display = 'none';
+
+    if (typeof window.calcularPerfilEndurance !== 'function') {
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Módulo de endurance no cargado. Recarga la página.'; }
+      return;
+    }
+
+    const d5  = parseFloat(document.getElementById('endD5')?.value);
+    const d20 = parseFloat(document.getElementById('endD20')?.value);
+
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    // El multiplicador lo controla el coach; si no existe, 1.0 por defecto
+    const mult = (profile.endurance && profile.endurance.ftpMultiplier) || 1.0;
+
+    const r = window.calcularPerfilEndurance(d5, d20, mult);
+    if (!r.ok) {
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
+      return;
+    }
+
+    profile.endurance = {
+      d5, d20,
+      vamMs: r.vam.ms, vamPace: r.vam.pace,
+      ftpMs: r.ftp.ms, ftpPace: r.ftp.pace,
+      ftpMultiplier: r.ftp.multiplier,
+      raw20minMs: r.ftp.raw20minMs,
+      fecha: new Date().toISOString().slice(0, 10),
+    };
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+    mostrarEnduranceResultados(profile.endurance);
+  }
+
+  function bindEnduranceTest() {
+    const btn = document.getElementById('endCalcBtn');
+    if (btn && !btn._endBound) {
+      btn._endBound = true;
+      btn.addEventListener('click', calcularYGuardarEndurance);
+    }
+    // Precargar valores guardados
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const e = profile.endurance;
+    if (e) {
+      const i5  = document.getElementById('endD5');
+      const i20 = document.getElementById('endD20');
+      if (i5 && e.d5)   i5.value  = e.d5;
+      if (i20 && e.d20) i20.value = e.d20;
+      mostrarEnduranceResultados(e);
+    }
+  }
+  window.bindEnduranceTest = bindEnduranceTest;
 
   // Al iniciar, cargar SE guardado si existe
   function cargarRuckSEGuardado() {

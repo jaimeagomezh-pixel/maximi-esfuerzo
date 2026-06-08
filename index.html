@@ -105,6 +105,9 @@
     signOut, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+  // Módulo de Endurance (fuente de verdad de los cálculos VAM/FTP/rTSS)
+  import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo } from "./endurance-module.js?v=20260608";
+
   const firebaseConfig = {
     apiKey: "AIzaSyAXLORK86Zi4CSCm3Y2Wl6kgoozI36ZfoU",
     authDomain: "maximoesfuerzo-f8869.firebaseapp.com",
@@ -126,6 +129,11 @@
   window._createUserWithEmailAndPassword = createUserWithEmailAndPassword;
   window._sendEmailVerification = sendEmailVerification;
   window._signOut = signOut;
+
+  // Exponer funciones de endurance para el código no-modular (scripts.js + onclick)
+  window.calcularPerfilEndurance = calcularPerfilEndurance;
+  window.calcularFatigaDiaria    = calcularFatigaDiaria;
+  window.msARitmo                = msARitmo;
 
   onAuthStateChanged(auth, (user) => {
     const btnNav   = document.getElementById('btn-nav-login');
@@ -822,6 +830,55 @@
         <div class="dash-zone-label">Z1 Calent</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z1" id="zBar1" style="width:2%"></div></div>
         <div class="dash-zone-time" id="zTime1">1:04</div><div class="dash-zone-pct" id="zPct1">2%</div>
+      </div>
+    </div>
+
+
+    <!-- TEST DE CAMPO · UMBRALES (VAM / FTP) -->
+    <div class="dash-section-title" style="margin-top:4px;">Test de Campo · Umbrales</div>
+    <div style="margin:0 16px 8px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
+      <div style="padding:14px 14px 12px;">
+        <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:12px;">
+          Realiza dos tests máximos <strong>en terreno plano</strong> e ingresa los metros recorridos.
+          El de 5 min calcula tu <strong>VAM</strong>; el de 20 min tu <strong>FTP</strong> (ritmo umbral).
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 5 min (m)</div>
+            <input type="number" id="endD5" placeholder="ej. 1500" min="1" step="1"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 20 min (m)</div>
+            <input type="number" id="endD20" placeholder="ej. 5400" min="1" step="1"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
+          </div>
+        </div>
+
+        <button id="endCalcBtn"
+          style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">
+          Calcular Perfil
+        </button>
+        <div id="endError" style="display:none;font-size:11px;color:#d32f2f;margin-top:8px;"></div>
+
+        <!-- Resultados -->
+        <div id="endResultados" style="display:none;margin-top:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="background:rgba(0,122,133,0.05);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.8);text-transform:uppercase;margin-bottom:4px;">VAM · 5 min</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#007a85;line-height:1;" id="endVamPace">—</div>
+              <div style="font-size:10px;color:#999;margin-top:3px;" id="endVamMs">—</div>
+            </div>
+            <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:12px;text-align:center;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#a8842a;text-transform:uppercase;margin-bottom:4px;">FTP · Umbral</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A84C;line-height:1;" id="endFtpPace">—</div>
+              <div style="font-size:10px;color:#999;margin-top:3px;" id="endFtpMs">—</div>
+            </div>
+          </div>
+          <div id="endMultNota" style="display:none;font-size:10px;color:#a8842a;margin-top:8px;text-align:center;"></div>
+          <div id="endFecha" style="font-size:10px;color:#bbb;margin-top:8px;text-align:center;"></div>
+        </div>
       </div>
     </div>
 
@@ -1800,7 +1857,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260605"></script>
+<script src="scripts.js?v=20260608"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
