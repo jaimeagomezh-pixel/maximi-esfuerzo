@@ -3386,41 +3386,51 @@
       return;
     }
 
-    const d5  = parseFloat(document.getElementById('endD5')?.value);
-    const d20 = parseFloat(document.getElementById('endD20')?.value);
+    const d5    = parseFloat(document.getElementById('endD5')?.value);
+    const d20   = parseFloat(document.getElementById('endD20')?.value);
+    const fcRaw = parseFloat(document.getElementById('inputFcMax')?.value);
+    const fcmax = (!isNaN(fcRaw) && fcRaw > 0) ? fcRaw : null;
 
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     // El multiplicador lo controla el coach; si no existe, 1.0 por defecto
     const mult = (profile.endurance && profile.endurance.ftpMultiplier) || 1.0;
 
-    const r = window.calcularPerfilEndurance(d5, d20, mult);
-    if (!r.ok) {
-      if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
+    const hayTest = !isNaN(d5) && d5 > 0 && !isNaN(d20) && d20 > 0;
+    let vamKmh = null;
+
+    // 1) Si hay test completo, calcular y guardar perfil (VAM + FTP)
+    if (hayTest) {
+      const r = window.calcularPerfilEndurance(d5, d20, mult);
+      if (!r.ok) {
+        if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
+        return;
+      }
+      profile.endurance = {
+        d5, d20,
+        vamMs: r.vam.ms, vamPace: r.vam.pace,
+        ftpMs: r.ftp.ms, ftpPace: r.ftp.pace,
+        ftpMultiplier: r.ftp.multiplier,
+        raw20minMs: r.ftp.raw20minMs,
+        fecha: new Date().toISOString().slice(0, 10),
+      };
+      localStorage.setItem('ruckProfile', JSON.stringify(profile));
+      if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+      mostrarEnduranceResultados(profile.endurance);
+      vamKmh = parseFloat((r.vam.ms * 3.6).toFixed(1));
+    } else if (profile.endurance && profile.endurance.vamMs) {
+      // Sin test nuevo, pero ya existe una VAM previa → usarla para las zonas
+      vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
+    }
+
+    // 2) Validación: se necesita al menos VAM (test) o FC máx
+    if (!vamKmh && !fcmax) {
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa los dos tests (5 y 20 min) o al menos la FC máx.'; }
       return;
     }
 
-    profile.endurance = {
-      d5, d20,
-      vamMs: r.vam.ms, vamPace: r.vam.pace,
-      ftpMs: r.ftp.ms, ftpPace: r.ftp.pace,
-      ftpMultiplier: r.ftp.multiplier,
-      raw20minMs: r.ftp.raw20minMs,
-      fecha: new Date().toISOString().slice(0, 10),
-    };
-    localStorage.setItem('ruckProfile', JSON.stringify(profile));
-    if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
-    mostrarEnduranceResultados(profile.endurance);
-
-    // ── UNIFICACIÓN: la VAM del Test de Campo alimenta las Zonas de Carrera ──
-    const vamKmh = parseFloat((r.vam.ms * 3.6).toFixed(1));
-    const inpVpico = document.getElementById('inputVpico');
-    if (inpVpico) inpVpico.value = vamKmh;
-    const hint = document.getElementById('vpicoHint');
-    if (hint) hint.style.display = 'block';
-    // Conservar la FC máx si ya estaba guardada
-    const zp = JSON.parse(localStorage.getItem('zonaParams') || '{}');
+    // 3) Alimentar zonas y recalcular
     localStorage.setItem('zonaParams', JSON.stringify({
-      vpico: vamKmh, fcmax: zp.fcmax || null, mode: 'directo', dist5min: null
+      vpico: vamKmh, fcmax, mode: 'directo', dist5min: null
     }));
     if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
   }
@@ -3431,7 +3441,7 @@
       btn._endBound = true;
       btn.addEventListener('click', calcularYGuardarEndurance);
     }
-    // Precargar valores guardados
+    // Precargar valores guardados (tests + resultados)
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     const e = profile.endurance;
     if (e) {
@@ -3440,6 +3450,12 @@
       if (i5 && e.d5)   i5.value  = e.d5;
       if (i20 && e.d20) i20.value = e.d20;
       mostrarEnduranceResultados(e);
+    }
+    // Precargar FC máx desde los parámetros de zonas guardados
+    const zp = JSON.parse(localStorage.getItem('zonaParams') || 'null');
+    if (zp && zp.fcmax) {
+      const fcInp = document.getElementById('inputFcMax');
+      if (fcInp && !fcInp.value) fcInp.value = zp.fcmax;
     }
   }
   window.bindEnduranceTest = bindEnduranceTest;
@@ -3883,24 +3899,6 @@
   }
 
   // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
-  function guardarYCalcularZonas() {
-    const vpico = parseFloat(document.getElementById('inputVpico')?.value);
-    const fcmax = parseFloat(document.getElementById('inputFcMax')?.value);
-    const hasVpico = vpico && !isNaN(vpico) && vpico > 0;
-    const hasFc    = fcmax && !isNaN(fcmax) && fcmax > 0;
-    if (!hasVpico && !hasFc) {
-      alert('Ingresa al menos la VAM (o haz tu Test de Campo) o la FC máx para calcular las zonas.');
-      return;
-    }
-    localStorage.setItem('zonaParams', JSON.stringify({
-      vpico: hasVpico ? vpico : null,
-      fcmax: hasFc    ? fcmax : null,
-      mode:  'directo',
-      dist5min: null
-    }));
-    calcularZonasCarrera();
-  }
-
   // ── BANNER STRAVA → ZONAS ──────────────────────────────────────────────────
   function mostrarZonaStravaBanner(pending) {
     const banner = document.getElementById('zonaStravaBanner');
@@ -4070,34 +4068,28 @@
 
   // ── INIT ZONAS ─────────────────────────────────────────────────────────────
   function initZonasCarrera() {
-    const inp   = document.getElementById('inputVpico');
-    const hint  = document.getElementById('vpicoHint');
     // VAM del Test de Campo (km/h) si existe
     const prof  = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     const vamKmh = prof.endurance && prof.endurance.vamMs
       ? parseFloat((prof.endurance.vamMs * 3.6).toFixed(1)) : null;
 
-    // Restaurar parámetros guardados
     const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     if (saved) {
-      // Compatibilidad con datos viejos en modo '5min' → derivar V PICO (dist×12)
-      let vpicoGuardado = saved.vpico;
-      if (!vpicoGuardado && saved.mode === '5min' && saved.dist5min) {
-        vpicoGuardado = parseFloat((saved.dist5min * 12).toFixed(1));
+      // Compatibilidad con datos viejos en modo '5min' → derivar VAM (dist×12)
+      if (!saved.vpico && saved.mode === '5min' && saved.dist5min) {
+        saved.vpico = parseFloat((saved.dist5min * 12).toFixed(1));
+        localStorage.setItem('zonaParams', JSON.stringify(saved));
       }
-      if (vpicoGuardado && inp) inp.value = vpicoGuardado;
-      if (saved.fcmax) {
-        const fcInp = document.getElementById('inputFcMax');
-        if (fcInp) fcInp.value = saved.fcmax;
+      // Si el test tiene VAM y los params no, sincronizar
+      if (!saved.vpico && vamKmh) {
+        saved.vpico = vamKmh;
+        localStorage.setItem('zonaParams', JSON.stringify(saved));
       }
       calcularZonasCarrera();
-    } else if (vamKmh && inp) {
-      // Sin params guardados pero hay Test de Campo → precargar VAM
-      inp.value = vamKmh;
-    }
-    // Marcar de dónde viene la VAM
-    if (hint && vamKmh && inp && parseFloat(inp.value) === vamKmh) {
-      hint.style.display = 'block';
+    } else if (vamKmh) {
+      // Sin params guardados pero hay Test de Campo → generar zonas desde la VAM
+      localStorage.setItem('zonaParams', JSON.stringify({ vpico: vamKmh, fcmax: null, mode: 'directo', dist5min: null }));
+      calcularZonasCarrera();
     }
     // Restaurar banners de Strava pendientes de sesión anterior
     const pending5km = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
