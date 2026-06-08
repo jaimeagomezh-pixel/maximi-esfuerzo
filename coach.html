@@ -510,7 +510,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
           </div>
           <div>
             <label class="l-label">Tiempo en movimiento (H:MM:SS)</label>
-            <input type="text" class="l-input" id="pTime" placeholder="ej. 1:45:00" maxlength="8">
+            <input type="text" class="l-input" id="pTime" placeholder="ej. 1:45:00" maxlength="8"
+              oninput="autoFormatTimeInput(this)" onblur="normalizeTimeInput(this)">
           </div>
           <div>
             <label class="l-label">Peso lastre (kg)</label>
@@ -572,7 +573,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
             </div>
             <div>
               <label class="l-label">Tiempo total (H:MM:SS)</label>
-              <input type="text" class="l-input" id="sTime" placeholder="ej. 1:45:00" maxlength="8">
+              <input type="text" class="l-input" id="sTime" placeholder="ej. 1:45:00" maxlength="8"
+                oninput="autoFormatTimeInput(this)" onblur="normalizeTimeInput(this)">
             </div>
             <div>
               <label class="l-label">Desnivel (m) — opcional</label>
@@ -1153,8 +1155,47 @@ function getRuckProfile(){ return JSON.parse(localStorage.getItem('ruckProfile')
 function getRuckSessions(){ return JSON.parse(localStorage.getItem('ruckSessions')||'[]'); }
 function saveRuckSessions(s){ localStorage.setItem('ruckSessions', JSON.stringify(s)); }
 
+// ── Auto-formato campos de tiempo H:MM:SS ──────────────────────
+function autoFormatTimeInput(el) {
+  // Permite solo dígitos y ":"
+  let v = el.value.replace(/[^\d:]/g,'');
+  // Insertar ":" automáticamente si el usuario escribe solo números
+  const digits = v.replace(/:/g,'');
+  if (!v.includes(':')) {
+    // Sin separadores: insertar según longitud
+    if (digits.length > 4) {
+      // H:MM:SS  (hasta 6 dígitos)
+      const d = digits.slice(0,6);
+      if (d.length <= 4) v = d.slice(0,-2)+':'+d.slice(-2);
+      else v = d.slice(0,-4)+':'+d.slice(-4,-2)+':'+d.slice(-2);
+    }
+    // menos de 5 dígitos: dejar escribir sin interrumpir
+  }
+  el.value = v;
+}
+
+function normalizeTimeInput(el) {
+  const raw = el.value.trim();
+  if (!raw) return;
+  const secs = parseMmSs(raw);
+  if (secs && secs > 0) el.value = secsToHms(secs);
+}
+
+function secsToHms(s) {
+  const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), ss = s%60;
+  return h > 0
+    ? h+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0')
+    : m+':'+String(ss).padStart(2,'0');
+}
+// ───────────────────────────────────────────────────────────────
+
 function parseMmSs(str) {
   if (!str) return null;
+  // Aceptar segundos puros (número sin ":")
+  if (!str.includes(':') && /^\d+$/.test(str.trim())) {
+    const s = parseInt(str.trim());
+    return s > 0 ? s : null;
+  }
   const p = str.split(':').map(Number);
   if (p.length===3) return p[0]*3600+p[1]*60+p[2];
   if (p.length===2) return p[0]*60+p[1];
