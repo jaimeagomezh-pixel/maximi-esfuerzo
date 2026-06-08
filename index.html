@@ -1149,6 +1149,39 @@
     </div>
     </div><!-- cierre extra balance -->
 
+    <!-- CARGA DE ENTRENAMIENTO · rTSS -->
+    <div class="dash-section-title" style="margin-top:4px;">Carga de Entrenamiento · rTSS</div>
+    <div style="margin:0 16px 8px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
+      <div style="padding:14px;">
+        <!-- Sin FTP: gate -->
+        <div id="rtssSinFtp" style="text-align:center;padding:8px 0;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#ccc;text-transform:uppercase;line-height:1.8;">
+            Haz tu test de 20 min (arriba) para activar<br>el cálculo de carga rTSS
+          </div>
+        </div>
+        <!-- Con FTP: contenido -->
+        <div id="rtssContenido" style="display:none;">
+          <!-- Última carrera -->
+          <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.12);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+            <div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;">Última carrera</div>
+              <div id="rtssUltimaInfo" style="font-size:12px;color:#666;margin-top:2px;">—</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8B1A1A;line-height:1;" id="rtssUltimaVal">—</div>
+              <div style="font-size:9px;color:#aaa;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="rtssUltimaIF">rTSS · IF —</div>
+            </div>
+          </div>
+          <!-- Gráfico carga semanal -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:6px;">Carga semanal (últimas 10 semanas)</div>
+          <div class="th-chart-wrap" style="height:140px;"><canvas id="chartRTSS"></canvas></div>
+          <div style="font-size:10px;color:#bbb;margin-top:8px;line-height:1.5;">
+            rTSS = carga de estrés de cada carrera (100 ≈ 1 h a tu umbral FTP). La suma semanal muestra tu tendencia de volumen.
+          </div>
+        </div>
+      </div>
+    </div>
+
       </div><!-- /body endurance -->
     </div><!-- /accord endurance -->
 
@@ -1827,7 +1860,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260608c"></script>
+<script src="scripts.js?v=20260608d"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

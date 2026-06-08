@@ -257,6 +257,7 @@
           if (typeof initZonasCarrera    === 'function') initZonasCarrera();
           if (typeof initRuckingAtleta      === 'function') initRuckingAtleta();
           if (typeof window.bindEnduranceTest === 'function') window.bindEnduranceTest();
+          if (typeof window.renderCargaRTSS   === 'function') window.renderCargaRTSS();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -802,6 +803,8 @@
 
       // Renderizar resumen mensual con el mes más reciente
       if (typeof renderResumenMensual === 'function') renderResumenMensual();
+      // Recalcular carga rTSS con las actividades recién sincronizadas
+      if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
 
     } catch(e) { console.error('PRs Strava error:', e); }
   }
@@ -3441,6 +3444,8 @@
       vpico: vamKmh, fcmax, mode: 'directo', dist5min: null
     }));
     if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
+    // 4) Si cambió el FTP, refrescar la carga rTSS
+    if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
   }
 
   function bindEnduranceTest() {
@@ -3467,6 +3472,111 @@
     }
   }
   window.bindEnduranceTest = bindEnduranceTest;
+
+  // ══════════════════════════════════════════════════════════════
+  // CARGA DE ENTRENAMIENTO · rTSS (client-side, sin llamadas extra a Strava)
+  // Usa el FTP del Test de Campo + velocidad media derivada del cache (km*1000/sec)
+  // ══════════════════════════════════════════════════════════════
+  let _chartRTSS = null;
+  const RTSS_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
+
+  function _lunesDeSemana(dateStr) {
+    const d = new Date(dateStr + 'T12:00:00');
+    const day = (d.getDay() + 6) % 7;       // 0 = lunes
+    d.setDate(d.getDate() - day);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function renderCargaRTSS() {
+    const sinFtp = document.getElementById('rtssSinFtp');
+    const cont   = document.getElementById('rtssContenido');
+    if (!sinFtp || !cont) return;
+
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const ftp = profile.endurance && profile.endurance.ftpMs;
+
+    // Gate: necesita FTP (test 20 min) y el módulo cargado
+    if (!ftp || ftp <= 0 || typeof window.calcularFatigaDiaria !== 'function') {
+      sinFtp.style.display = 'block';
+      sinFtp.querySelector('div').innerHTML = 'Haz tu test de 20 min (arriba) para activar<br>el cálculo de carga rTSS';
+      cont.style.display = 'none';
+      if (_chartRTSS) { _chartRTSS.destroy(); _chartRTSS = null; }
+      return;
+    }
+
+    const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const runs = cache
+      .filter(a => RTSS_RUN_TYPES.has(a.type) && a.sec > 0 && a.km > 0)
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    if (!runs.length) {
+      sinFtp.style.display = 'block';
+      sinFtp.querySelector('div').innerHTML = 'Sincroniza Strava para ver tu carga de entrenamiento';
+      cont.style.display = 'none';
+      if (_chartRTSS) { _chartRTSS.destroy(); _chartRTSS = null; }
+      return;
+    }
+
+    sinFtp.style.display = 'none';
+    cont.style.display = 'block';
+
+    // rTSS por carrera (velocidad media = km*1000 / sec)
+    const conRTSS = runs.map(r => {
+      const avgMs = (r.km * 1000) / r.sec;
+      const res = window.calcularFatigaDiaria(ftp, r.sec, avgMs);
+      return { date: r.date, km: r.km, rtss: res.ok ? res.rTSS : 0, iff: res.ok ? res.if : 0 };
+    });
+
+    // Última carrera
+    const ult = conRTSS[conRTSS.length - 1];
+    const elVal = document.getElementById('rtssUltimaVal');
+    const elIF  = document.getElementById('rtssUltimaIF');
+    const elInfo= document.getElementById('rtssUltimaInfo');
+    if (elVal)  elVal.textContent  = ult.rtss;
+    if (elIF)   elIF.textContent   = 'rTSS · IF ' + ult.iff;
+    if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} · ${ult.km} km`; }
+
+    // Agrupar por semana (lunes)
+    const porSemana = {};
+    conRTSS.forEach(r => {
+      const wk = _lunesDeSemana(r.date);
+      porSemana[wk] = (porSemana[wk] || 0) + r.rtss;
+    });
+
+    // Últimas 10 semanas consecutivas (incluye semanas con 0)
+    const semanas = Object.keys(porSemana).sort();
+    const ultimaWk = semanas[semanas.length - 1];
+    const labels = [], data = [];
+    const cursor = new Date(ultimaWk + 'T12:00:00');
+    const arr = [];
+    for (let i = 0; i < 10; i++) {
+      const key = cursor.toISOString().slice(0, 10);
+      arr.unshift({ key, val: porSemana[key] || 0 });
+      cursor.setDate(cursor.getDate() - 7);
+    }
+    arr.forEach(w => {
+      const d = new Date(w.key + 'T12:00:00');
+      labels.push(d.getDate() + '/' + (d.getMonth() + 1));
+      data.push(w.val);
+    });
+
+    const ctx = document.getElementById('chartRTSS');
+    if (!ctx || typeof Chart === 'undefined') return;
+    if (_chartRTSS) _chartRTSS.destroy();
+    _chartRTSS = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: 'rgba(139,26,26,0.7)', borderRadius: 4, maxBarThickness: 34 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#999' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+          x: { ticks: { font: { size: 9 }, color: '#999' }, grid: { display: false } }
+        }
+      }
+    });
+  }
+  window.renderCargaRTSS = renderCargaRTSS;
 
   // Al iniciar, cargar SE guardado si existe
   function cargarRuckSEGuardado() {
