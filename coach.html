@@ -303,6 +303,11 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
       import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
+      // Módulo de Endurance (misma fuente de verdad que el panel del atleta)
+      import { calcularPerfilEndurance, msARitmo } from './endurance-module.js?v=20260608';
+      window.calcularPerfilEndurance = calcularPerfilEndurance;
+      window.msARitmo = msARitmo;
+
       const COACH_EMAILS = ['jaimea.gomezh@gmail.com'];
 
       const app  = initializeApp({
@@ -871,10 +876,12 @@ async function sincronizarPerfilesCloud() {
       const cp = await res.json();
       if (!cp || cp.error) continue;
       let cambio = false;
-      if (cp.stravaStats && JSON.stringify(a.strava) !== JSON.stringify(cp.stravaStats)) { a.strava = cp.stravaStats; cambio = true; }
-      if (cp.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(cp.inbodyTrend)) { a.inbodyTrend = cp.inbodyTrend; cambio = true; }
-      if (cp.fechaNac && !a.fechaNac) { a.fechaNac = cp.fechaNac; cambio = true; }
-      if (cp.bw && !a.peso) { a.peso = cp.bw; cambio = true; }
+      const prof = cp.profile || cp; // get-profile puede venir envuelto en {profile}
+      if (prof.stravaStats && JSON.stringify(a.strava) !== JSON.stringify(prof.stravaStats)) { a.strava = prof.stravaStats; cambio = true; }
+      if (prof.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(prof.inbodyTrend)) { a.inbodyTrend = prof.inbodyTrend; cambio = true; }
+      if (prof.endurance && JSON.stringify(a.endurance) !== JSON.stringify(prof.endurance)) { a.endurance = prof.endurance; cambio = true; }
+      if (prof.fechaNac && !a.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
+      if (prof.bw && !a.peso) { a.peso = prof.bw; cambio = true; }
       if (cambio) actualizados++;
     } catch(e) { /* silencioso por atleta */ }
   }
@@ -1397,6 +1404,8 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.fechaNac && !a.fechaNac) { a.fechaNac = cp.fechaNac; guardarAtletas(); }
         // ── InBody trend ──
         if (cp.inbodyTrend) { a.inbodyTrend = cp.inbodyTrend; guardarAtletas(); }
+        // ── Endurance (VAM/FTP) ──
+        if (cp.endurance) { a.endurance = cp.endurance; guardarAtletas(); }
         // ── Peso desde bw ──
         if (cp.bw && !a.peso) { a.peso = cp.bw; guardarAtletas(); }
 
@@ -1883,6 +1892,32 @@ function abrirPerfil(id) {
         </div>
 
         <div class="sec">
+          <div class="sec-t">Endurance · Umbrales</div>
+          ${a.endurance ? `
+          <div class="pr-stats">
+            <div class="pr-stat best"><div class="pr-stat-v">${a.endurance.vamPace||'—'}</div><div class="pr-stat-l">VAM · 5 min</div></div>
+            <div class="pr-stat delta"><div class="pr-stat-v" id="endFtpValCoach" style="color:var(--gold);">${a.endurance.ftpPace||'—'}</div><div class="pr-stat-l">FTP umbral</div></div>
+          </div>
+          <div style="margin-top:14px;display:flex;align-items:flex-end;gap:8px;">
+            <div style="flex:1;">
+              <label class="l-label">Multiplicador FTP</label>
+              <input type="number" id="endMultInput" class="l-input" step="0.01" min="0.80" max="1.10"
+                     value="${a.endurance.ftpMultiplier!=null?a.endurance.ftpMultiplier:1}" style="margin-bottom:0;">
+            </div>
+            <button class="l-btn" style="width:auto;white-space:nowrap;" onclick="aplicarMultiplicadorFTP(${a.id})">Aplicar</button>
+          </div>
+          <div id="endMultStatus" style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">
+            1.00 = ritmo crudo de 20 min · baja a 0.95 si se quema en rodajes largos.<br>
+            Test crudo: ${a.endurance.raw20minMs?a.endurance.raw20minMs.toFixed(2)+' m/s':'—'} · Última eval: ${a.endurance.fecha||'—'}
+          </div>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i">📈</div>
+            <div class="empty-t">Sin test de campo aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">El atleta registra sus tests de 5 y 20 min desde su panel</div>
+          </div>`}
+        </div>
+
+        <div class="sec">
           <div class="sec-t">Progresión de tiempos</div>
           ${prDists.length ? `
           <div class="dist-sel" id="distSel">
@@ -2326,6 +2361,57 @@ async function resolverRuckingIdPorEmail(atletaObj) {
     console.warn('[Coach] resolverRuckingIdPorEmail:', e);
   }
 }
+
+// ── ENDURANCE · Multiplicador FTP (recalibración del coach) ───────────────
+// Lee el perfil COMPLETO del cloud, modifica solo endurance y lo reescribe
+// (save-profile sobreescribe, por eso read-modify-write para no perder datos).
+async function aplicarMultiplicadorFTP(aid) {
+  const a = atletas.find(x => x.id === aid);
+  const statusEl = document.getElementById('endMultStatus');
+  if (!a || !a.endurance) return;
+
+  let mult = parseFloat(document.getElementById('endMultInput')?.value);
+  if (isNaN(mult) || mult <= 0) { if (statusEl) statusEl.innerHTML = '<span style="color:var(--red);">Multiplicador inválido.</span>'; return; }
+  if (mult < 0.80) mult = 0.80;
+  if (mult > 1.10) mult = 1.10;
+
+  const raw = a.endurance.raw20minMs;
+  if (!raw) { if (statusEl) statusEl.innerHTML = '<span style="color:var(--red);">Falta el dato crudo del test.</span>'; return; }
+
+  const ftpMs   = +(raw * mult).toFixed(3);
+  const ftpPace = window.msARitmo ? window.msARitmo(ftpMs) : a.endurance.ftpPace;
+
+  // Actualizar local
+  a.endurance = { ...a.endurance, ftpMultiplier: +mult.toFixed(3), ftpMs, ftpPace };
+  guardarAtletas();
+
+  // Reflejar en UI inmediatamente
+  const ftpEl = document.getElementById('endFtpValCoach');
+  if (ftpEl) ftpEl.textContent = ftpPace;
+  if (statusEl) statusEl.innerHTML = 'Guardando…';
+
+  const cloudId = a.stravaId || a.cloudId;
+  if (!cloudId) { if (statusEl) statusEl.innerHTML = '<span style="color:var(--orange);">Atleta sin vínculo cloud — guardado solo local.</span>'; return; }
+
+  try {
+    // 1) Leer perfil completo actual del cloud
+    const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
+    const d   = await res.json();
+    const prof = (d && (d.profile || d)) || {};
+    // 2) Modificar solo endurance
+    prof.endurance = a.endurance;
+    // 3) Reescribir
+    await fetch(`${RUCK_WORKER}/rucking/save-profile`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stravaId: cloudId, nombre: a.nombre, profile: prof })
+    });
+    if (statusEl) statusEl.innerHTML = `✓ FTP recalibrado ×${mult.toFixed(2)} → ${ftpPace} · sincronizado con el atleta`;
+  } catch(e) {
+    if (statusEl) statusEl.innerHTML = '<span style="color:var(--orange);">Guardado local, error al sincronizar al cloud.</span>';
+    console.warn('[Coach] aplicarMultiplicadorFTP:', e);
+  }
+}
+
 // Helpers charts
 function mkOpts(extra={}) {
   return {
