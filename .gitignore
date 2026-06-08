@@ -4,3 +4,10 @@
 !.dev.vars.example
 .env*
 !.env.example
+
+# dependencias
+node_modules/
+**/node_modules/
+
+# herramientas temporales
+temp_png_tool/
