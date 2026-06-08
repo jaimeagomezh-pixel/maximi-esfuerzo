@@ -3159,6 +3159,8 @@
     const parts = tStr.split(':').map(Number);
     const tSec  = parts.length===3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+(parts[1]||0);
     if (!tSec||tSec<=0) { alert('Formato de tiempo inválido (H:MM:SS).'); return; }
+    const elev  = parseFloat(document.getElementById('ruckAElev')?.value)||0;
+    const notes = document.getElementById('ruckANotes')?.value?.trim()||'Manual';
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
 
     if (_ruckEditId) {
@@ -3167,13 +3169,13 @@
       if (idx !== -1) {
         const orig = sessions[idx];
         sessions[idx] = orig.source === 'strava'
-          ? { ...orig, time: tSec }                          // Strava: solo tiempo
-          : { ...orig, date, dist, load, time: tSec };      // Manual: todo
+          ? { ...orig, time: tSec }                                       // Strava: solo tiempo
+          : { ...orig, date, dist, load, time: tSec, elev, notes };      // Manual: todo
       }
       _resetRuckForm();
     } else {
       // ── MODO AGREGAR ─────────────────────────────────────────
-      sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev:0, notes:'Manual', terrain:1.2, source:'manual' });
+      sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev, notes, terrain:1.2, source:'manual' });
     }
 
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
@@ -3181,6 +3183,10 @@
     document.getElementById('ruckAManualForm').style.display='none';
     const ti = document.getElementById('ruckATime');
     if (ti) { ti.value = ''; ti._digits = ''; }
+    const elev = document.getElementById('ruckAElev');
+    if (elev) elev.value = '';
+    const notes = document.getElementById('ruckANotes');
+    if (notes) notes.value = '';
     initRuckingAtleta();
   }
 
@@ -4479,6 +4485,10 @@
     if (form) form.style.display = 'none';
     const ti = document.getElementById('ruckATime');
     if (ti) { ti.value = ''; ti._digits = ''; }
+    const elev = document.getElementById('ruckAElev');
+    if (elev) elev.value = '';
+    const notes = document.getElementById('ruckANotes');
+    if (notes) notes.value = '';
   };
   window.addRuckManualSession = addRuckManualSession;
 
