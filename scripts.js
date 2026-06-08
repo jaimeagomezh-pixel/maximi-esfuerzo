@@ -2852,6 +2852,12 @@
       btnP.style.background='rgba(139,26,26,0.1)'; btnP.style.color='#8B1A1A'; btnP.style.borderColor='rgba(139,26,26,0.4)';
     }
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+    // Backfill: garantizar id estable en toda sesión (las del cloud pueden perderlo)
+    let _idFix = false;
+    sessions.forEach((s, i) => {
+      if (!s.id) { s.id = (s.stravaId ? 'st_'+s.stravaId : 'sess_'+i+'_'+(s.date||'')+'_'+(s.time||'')); _idFix = true; }
+    });
+    if (_idFix) localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     const distBtns = document.getElementById('ruckADistBtns');
     const loadBtns = document.getElementById('ruckALoadBtns');
     if (!distBtns || !loadBtns) return;
