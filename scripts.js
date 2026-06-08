@@ -348,6 +348,71 @@
     window.location.href = authUrl;
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // CONTROL DE RATE LIMIT DE STRAVA (autorregulación client-side)
+  // El header X-RateLimit-Usage reporta el uso GLOBAL de la app, así que
+  // cada navegador puede frenar antes de que Strava bloquee (429).
+  //   Límites: ~100 cada 15 min (corto) · ~1000 al día (diario)
+  // ══════════════════════════════════════════════════════════════
+  const STRAVA_MARGEN_15M = 5;  // margen de seguridad bajo el límite de 15 min
+
+  function _getStravaRate() {
+    try { return JSON.parse(localStorage.getItem('stravaRate') || 'null'); } catch(e) { return null; }
+  }
+
+  // ¿Podemos llamar a Strava sin arriesgar el bloqueo?
+  function puedeLlamarStrava() {
+    // ¿Estamos en un bloqueo activo por 429?
+    const bloqueoHasta = parseInt(localStorage.getItem('stravaBlockedUntil') || '0');
+    if (Date.now() < bloqueoHasta) return false;
+
+    const r = _getStravaRate();
+    if (!r) return true; // sin datos aún → permitir (la primera llamada nos dará los headers)
+
+    // La ventana de 15 min de Strava se reinicia en los minutos :00 :15 :30 :45.
+    // Si el último dato es de una ventana anterior, el contador corto ya se reinició.
+    const ventanaActual = Math.floor(Date.now() / (15 * 60 * 1000));
+    if (r.ventana !== ventanaActual) return true; // ventana nueva → contador corto reiniciado
+
+    // Misma ventana: frenar si estamos cerca del límite corto
+    if (r.shortLimit && r.short >= (r.shortLimit - STRAVA_MARGEN_15M)) return false;
+    // Frenar también si tocamos el diario
+    if (r.dailyLimit && r.daily >= r.dailyLimit) return false;
+    return true;
+  }
+
+  // Wrapper: hace la llamada, registra el uso y maneja el 429.
+  async function stravaFetch(url, accessToken) {
+    if (!puedeLlamarStrava()) {
+      const err = new Error('STRAVA_RATE_LIMIT'); err.rateLimited = true; throw err;
+    }
+    const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + accessToken } });
+
+    // Registrar uso desde los headers (formato "corto,diario", p. ej. "100,1000")
+    const lim = res.headers.get('x-ratelimit-limit');
+    const use = res.headers.get('x-ratelimit-usage');
+    if (lim && use) {
+      const [sl, dl] = lim.split(',').map(n => parseInt(n));
+      const [su, du] = use.split(',').map(n => parseInt(n));
+      localStorage.setItem('stravaRate', JSON.stringify({
+        short: su, shortLimit: sl, daily: du, dailyLimit: dl,
+        ventana: Math.floor(Date.now() / (15 * 60 * 1000)),
+        ts: Date.now()
+      }));
+    }
+
+    if (res.status === 429) {
+      // Bloqueo: respetar Retry-After o esperar al fin de la ventana de 15 min
+      const retry = parseInt(res.headers.get('retry-after') || '0');
+      const ahora = Date.now();
+      const finVentana = (Math.floor(ahora / (15*60*1000)) + 1) * (15*60*1000);
+      const hasta = retry > 0 ? ahora + retry * 1000 : finVentana;
+      localStorage.setItem('stravaBlockedUntil', String(hasta));
+      const err = new Error('STRAVA_RATE_LIMIT'); err.rateLimited = true; throw err;
+    }
+    return res;
+  }
+
   async function cargarDatosStrava(accessToken) {
     try {
       // Marcar Strava como conectado
@@ -359,9 +424,7 @@
       }
 
       // Última actividad
-      const actRes = await fetch('https://www.strava.com/api/v3/athlete/activities?per_page=1', {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      });
+      const actRes = await stravaFetch('https://www.strava.com/api/v3/athlete/activities?per_page=1', accessToken);
       const actividades = await actRes.json();
 
       if (actividades.length > 0) {
@@ -421,9 +484,7 @@
       cargarPRsStrava(accessToken);
 
       // Info del atleta — guardar ID para sincronización de rucking
-      const atletaRes  = await fetch('https://www.strava.com/api/v3/athlete', {
-        headers: { 'Authorization': 'Bearer ' + accessToken }
-      });
+      const atletaRes  = await stravaFetch('https://www.strava.com/api/v3/athlete', accessToken);
       const atletaData = await atletaRes.json();
       if (atletaData.id) {
         localStorage.setItem('strava_athlete_id', String(atletaData.id));
@@ -451,8 +512,19 @@
       return atletaData;
 
     } catch(e) {
+      if (e && e.rateLimited) { mostrarEstadoRateLimit(); return; }
       console.error('Strava error:', e);
     }
+  }
+
+  // Muestra un estado amigable cuando Strava está limitando (no es un error real)
+  function mostrarEstadoRateLimit() {
+    const bloqueoHasta = parseInt(localStorage.getItem('stravaBlockedUntil') || '0');
+    const min = Math.max(1, Math.ceil((bloqueoHasta - Date.now()) / 60000));
+    const stravaStatus = document.getElementById('stravaStatus');
+    if (stravaStatus) stravaStatus.textContent = `Strava ocupado · reintenta en ~${min} min`;
+    const card = document.getElementById('btnStrava');
+    if (card) card.classList.remove('sincronizando');
   }
 
   // ── ICONOS POR TIPO DE ACTIVIDAD ──
@@ -511,9 +583,8 @@
       if (elBar)  elBar.style.width  = '0%';
     }
     try {
-      const res = await fetch(
-        `https://www.strava.com/api/v3/activities/${actId}/zones`,
-        { headers: { 'Authorization': 'Bearer ' + token } }
+      const res = await stravaFetch(
+        `https://www.strava.com/api/v3/activities/${actId}/zones`, token
       );
       const zonas = await res.json();
       // Buscar la distribución de HR zones
@@ -551,9 +622,8 @@
     try {
       // Cargar zonas FC en paralelo
       cargarZonasActividad(token, actId);
-      const res = await fetch(
-        `https://www.strava.com/api/v3/activities/${actId}/streams?keys=time,heartrate,velocity_smooth&key_by_type=true`,
-        { headers: { 'Authorization': 'Bearer ' + token } }
+      const res = await stravaFetch(
+        `https://www.strava.com/api/v3/activities/${actId}/streams?keys=time,heartrate,velocity_smooth&key_by_type=true`, token
       );
       const s = await res.json();
       const N = 22;
@@ -595,9 +665,13 @@
   async function fetchTodasLasCarreras(token) {
     const acts = [];
     for (let page = 1; page <= 5; page++) {          // máx 5 páginas × 200 = 1000 actividades
-      const res = await fetch(
-        `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`,
-        { headers: { 'Authorization': 'Bearer ' + token } }
+      // Frenar antes de cada página si estamos cerca del límite de 15 min
+      if (!puedeLlamarStrava()) {
+        console.warn('[Strava] Límite de 15 min cerca — deteniendo paginación, se usa lo descargado.');
+        break;
+      }
+      const res = await stravaFetch(
+        `https://www.strava.com/api/v3/athlete/activities?per_page=200&page=${page}`, token
       );
       const batch = await res.json();
       if (!Array.isArray(batch) || batch.length === 0) break;
@@ -806,7 +880,10 @@
       // Recalcular carga rTSS con las actividades recién sincronizadas
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
 
-    } catch(e) { console.error('PRs Strava error:', e); }
+    } catch(e) {
+      if (e && e.rateLimited) { mostrarEstadoRateLimit(); return; }
+      console.error('PRs Strava error:', e);
+    }
   }
 
   // Sube un resumen de stats Strava al cloud para que el coach las vea
