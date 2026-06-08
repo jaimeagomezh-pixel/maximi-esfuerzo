@@ -96,11 +96,13 @@ export function calcularPerfilEndurance(distancia5Minutos, distancia20Minutos, f
     const d5  = Number(distancia5Minutos);
     const d20 = Number(distancia20Minutos);
 
-    if (!Number.isFinite(d5) || !Number.isFinite(d20)) {
-      throw new Error('Las distancias deben ser números válidos.');
-    }
-    if (d5 <= 0 || d20 <= 0) {
-      throw new Error('Las distancias deben ser mayores a cero.');
+    const tiene5  = Number.isFinite(d5)  && d5  > 0;  // test 5 min → VAM
+    const tiene20 = Number.isFinite(d20) && d20 > 0;  // test 20 min → FTP
+
+    // Cada test es independiente; basta con uno. La VAM (5 min) alimenta las
+    // zonas; el FTP (20 min) es opcional y solo se usa para el rTSS.
+    if (!tiene5 && !tiene20) {
+      throw new Error('Ingresa al menos el test de 5 min (VAM) o el de 20 min (FTP).');
     }
 
     // Multiplicador: fallback seguro a 1.00 si es inválido, y clamp a rango sensato
@@ -109,20 +111,25 @@ export function calcularPerfilEndurance(distancia5Minutos, distancia20Minutos, f
     if (mult < FTP_MULT_MIN) mult = FTP_MULT_MIN;
     if (mult > FTP_MULT_MAX) mult = FTP_MULT_MAX;
 
-    const vamMs      = d5  / SEG_TEST_VAM;        // m/s
-    const ftpRawMs   = d20 / SEG_TEST_FTP;        // ritmo crudo de 20 min (m/s)
-    const ftpFinalMs = ftpRawMs * mult;           // FTP ajustado por multiplicador
+    const result = { ok: true };
 
-    return {
-      ok: true,
-      vam: { ms: Number(vamMs.toFixed(3)), pace: msARitmo(vamMs) },
-      ftp: {
+    if (tiene5) {
+      const vamMs = d5 / SEG_TEST_VAM; // m/s
+      result.vam = { ms: Number(vamMs.toFixed(3)), pace: msARitmo(vamMs) };
+    }
+
+    if (tiene20) {
+      const ftpRawMs   = d20 / SEG_TEST_FTP;  // ritmo crudo de 20 min (m/s)
+      const ftpFinalMs = ftpRawMs * mult;     // FTP ajustado por multiplicador
+      result.ftp = {
         ms: Number(ftpFinalMs.toFixed(3)),
         pace: msARitmo(ftpFinalMs),
         multiplier: Number(mult.toFixed(3)),
         raw20minMs: Number(ftpRawMs.toFixed(3)),
-      },
-    };
+      };
+    }
+
+    return result;
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }

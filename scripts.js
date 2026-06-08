@@ -3395,36 +3395,44 @@
     // El multiplicador lo controla el coach; si no existe, 1.0 por defecto
     const mult = (profile.endurance && profile.endurance.ftpMultiplier) || 1.0;
 
-    const hayTest = !isNaN(d5) && d5 > 0 && !isNaN(d20) && d20 > 0;
+    const tiene5  = !isNaN(d5)  && d5  > 0;
+    const tiene20 = !isNaN(d20) && d20 > 0;
     let vamKmh = null;
 
-    // 1) Si hay test completo, calcular y guardar perfil (VAM + FTP)
-    if (hayTest) {
+    // 1) Si hay al menos un test, calcular y complementar el perfil
+    if (tiene5 || tiene20) {
       const r = window.calcularPerfilEndurance(d5, d20, mult);
       if (!r.ok) {
         if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
         return;
       }
+      const prev = profile.endurance || {};
       profile.endurance = {
-        d5, d20,
-        vamMs: r.vam.ms, vamPace: r.vam.pace,
-        ftpMs: r.ftp.ms, ftpPace: r.ftp.pace,
-        ftpMultiplier: r.ftp.multiplier,
-        raw20minMs: r.ftp.raw20minMs,
+        ...prev,
+        // VAM: solo se recalcula si hay test de 5 min; si no, se conserva
+        d5:      tiene5  ? d5            : prev.d5,
+        vamMs:   r.vam   ? r.vam.ms      : prev.vamMs,
+        vamPace: r.vam   ? r.vam.pace    : prev.vamPace,
+        // FTP: solo se recalcula si hay test de 20 min; si no, se conserva
+        d20:           tiene20 ? d20             : prev.d20,
+        ftpMs:         r.ftp   ? r.ftp.ms        : prev.ftpMs,
+        ftpPace:       r.ftp   ? r.ftp.pace      : prev.ftpPace,
+        ftpMultiplier: r.ftp   ? r.ftp.multiplier: prev.ftpMultiplier,
+        raw20minMs:    r.ftp   ? r.ftp.raw20minMs: prev.raw20minMs,
         fecha: new Date().toISOString().slice(0, 10),
       };
       localStorage.setItem('ruckProfile', JSON.stringify(profile));
       if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
       mostrarEnduranceResultados(profile.endurance);
-      vamKmh = parseFloat((r.vam.ms * 3.6).toFixed(1));
+      if (profile.endurance.vamMs) vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
     } else if (profile.endurance && profile.endurance.vamMs) {
       // Sin test nuevo, pero ya existe una VAM previa → usarla para las zonas
       vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
     }
 
-    // 2) Validación: se necesita al menos VAM (test) o FC máx
+    // 2) Validación: se necesita al menos VAM (test 5 min) o FC máx
     if (!vamKmh && !fcmax) {
-      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa los dos tests (5 y 20 min) o al menos la FC máx.'; }
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa el test de 5 min (para VAM y zonas) o al menos la FC máx.'; }
       return;
     }
 
