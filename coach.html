@@ -1995,8 +1995,6 @@ function abrirPerfil(id) {
     ? (() => { const d=Math.ceil((new Date(a.vencimiento)-hoy)/86400000); return d>=0?`Vence en ${d}d`:`Venció hace ${Math.abs(d)}d`; })()
     : 'Sin vencimiento';
 
-  const meses6 = Array.from({length:6},(_,i)=>{const d=new Date(hoy);d.setMonth(d.getMonth()-5+i);return d.toLocaleString('es',{month:'short'});});
-  const pesoEvol = Array.from({length:6},(_,i)=>(a.peso - 3 + i*0.5 + (Math.random()-.4)*0.6).toFixed(1)*1);
 
   const exFuerza = Object.keys(a.fuerza);
   const prDists = Object.keys(a.prTiempos);
@@ -2131,7 +2129,8 @@ function abrirPerfil(id) {
 
         <div class="sec">
           <div class="sec-t">Evolución de peso</div>
-          <div class="chart-wrap" style="height:90px;"><canvas id="cPeso"></canvas></div>
+          <div id="cPesoEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Sin registros de peso aún</div>
+          <div class="chart-wrap" id="cPesoWrap" style="height:90px;display:none;"><canvas id="cPeso"></canvas></div>
         </div>
       </div>
 
@@ -2215,8 +2214,8 @@ function abrirPerfil(id) {
   window._atleta = a;
 
   setTimeout(() => {
-    const cp = document.getElementById('cPeso');
-    if (cp) chartPeso = mkLineChart(cp, meses6, pesoEvol, '#C9A84C', v=>v+' kg', {min:a.peso-4,max:a.peso+1});
+    // La "Evolución de peso" se renderiza con datos reales del historial InBody
+    // (ver cargarInbodyCoach). Sin datos → estado vacío. No hay relleno demo.
 
     // ── Carga rTSS (reescalada por el multiplicador del coach) ──
     if (a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length) {
@@ -2235,16 +2234,11 @@ function abrirPerfil(id) {
       }
     }
 
-    if (a.strava) {
-      const cs = document.getElementById('cStrava');
-      if (cs) {
-        const kmData = meses6.map((_,i)=>Math.round(a.strava.km*(0.5+i*0.1)+(Math.random()-.5)*12));
-        chartStrava = new Chart(cs, {
-          type:'bar', data:{labels:meses6, datasets:[{data:kmData, backgroundColor:'rgba(0,168,179,0.2)', borderColor:'#8B1A1A', borderWidth:1, borderRadius:3}]},
-          options: mkOpts({y:{ticks:{callback:v=>v+' km'}}})
-        });
-      }
-    }
+    // Nota: el mini-gráfico mensual de Strava se omite — no tenemos serie
+    // mensual real del atleta en el cloud (solo el agregado de 30 días que ya
+    // se muestra en las métricas de arriba). Sin relleno demo.
+    const csWrap = document.getElementById('cStrava');
+    if (csWrap && csWrap.parentElement) csWrap.parentElement.style.display = 'none';
 
     if (prDists.length) {
       prDataActual = a.prTiempos;
@@ -2312,6 +2306,19 @@ async function cargarInbodyCoach(email) {
     linksEl.style.display = 'block';
 
     const fechas = lista.map(m => m.fecha);
+
+    // ── Evolución de peso (datos REALES del historial, no demo) ──
+    const pesoSerie = lista.filter(m => m.peso != null);
+    const cpEmpty = document.getElementById('cPesoEmpty');
+    const cpWrap  = document.getElementById('cPesoWrap');
+    const cpCanvas = document.getElementById('cPeso');
+    if (pesoSerie.length && cpCanvas) {
+      if (cpEmpty) cpEmpty.style.display = 'none';
+      if (cpWrap)  cpWrap.style.display  = 'block';
+      if (chartPeso) { try { chartPeso.destroy(); } catch(e){} }
+      chartPeso = mkLineChart(cpCanvas, pesoSerie.map(m=>m.fecha), pesoSerie.map(m=>m.peso), '#C9A84C', v=>v+' kg');
+    }
+
     if (inbodyCoachChart) inbodyCoachChart.destroy();
     const ctx = document.getElementById('cInbodyRadar').getContext('2d');
     inbodyCoachChart = new Chart(ctx, {
