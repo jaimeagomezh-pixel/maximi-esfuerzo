@@ -2740,20 +2740,6 @@ async function cargarInbodyHistorial() {
             pointBackgroundColor: '#e74c3c',
             pointStyle: 'rect',
             yAxisID: 'yComp'
-          },
-          {
-            label: 'Peso total (kg)',
-            data: lista.map(m => m.peso),
-            fill: false,
-            borderColor: '#d4a843',
-            backgroundColor: '#d4a843',
-            borderWidth: 2.5,
-            borderDash: [5,3],
-            tension: 0.3,
-            pointRadius: 5,
-            pointBackgroundColor: '#d4a843',
-            pointStyle: 'rect',
-            yAxisID: 'yPeso'
           }
         ]
       },
@@ -2766,17 +2752,11 @@ async function cargarInbodyHistorial() {
             stacked: true,
             title:{ display:true, text:'Composición (kg)', font:{size:9,family:'Barlow Condensed'} },
             ticks:{ font:{size:9,family:'Barlow Condensed'} }
-          },
-          yPeso: {
-            type: 'linear', position: 'right',
-            grid:{ drawOnChartArea:false },
-            title:{ display:true, text:'Peso (kg)', font:{size:9,family:'Barlow Condensed'} },
-            ticks:{ font:{size:9,family:'Barlow Condensed'} }
           }
         },
         plugins: {
           legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
-          tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
+          tooltip:{ callbacks:{ label: ctx => ctx.parsed.y == null ? null : ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }
     });
