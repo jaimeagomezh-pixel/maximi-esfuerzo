@@ -1634,7 +1634,7 @@
             g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: 'end', // eje invertido: rellena hacia abajo
+          fill: 'start', // rellena hacia el borde inferior (área coloreada DEBAJO de la curva)
         }]
       },
       options: { ...thDefaults, scales: { ...thDefaults.scales,
@@ -1814,7 +1814,7 @@
             g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: 'end', // eje invertido: rellena hacia abajo (como el de fuerza)
+          fill: 'start', // rellena hacia el borde inferior (área coloreada DEBAJO de la curva)
           pointRadius: 0,
           pointHoverRadius: 0,
         }]
