@@ -934,128 +934,101 @@
     </div>
 
 
-    <!-- TIEMPOS DE REFERENCIA — Manual -->
+    <!-- ENTRADA MANUAL — MEJORES TIEMPOS SIN STRAVA -->
     <div class="dash-section-title" style="margin-top:4px;">Tiempos de Referencia</div>
-    <div style="margin:0 8px 6px;background:#fff;border:1.5px solid rgba(0,122,133,0.18);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);overflow:hidden;">
-      <div style="padding:14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:4px;">Récords Personales — Ingreso Manual</div>
-        <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5;">Registra tus mejores tiempos y aparecerán en tu gráfico de progresión.</div>
+    <div style="padding:0 16px 6px;">
+      <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:10px;">
+      <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:16px;margin:0 16px 6px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:8px;">
+          ¿Sin Strava o tiempo anterior?
+        </div>
+        <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5;">
+          Ingrésalo manualmente y aparecerá en tu gráfico de progresión.
+        </div>
 
-        <!-- Toggle -->
-        <button class="manual-toggle" onclick="toggleManual(this)" style="font-weight:700;font-size:13px;color:#007a85;border:1.5px solid rgba(0,122,133,0.3);background:rgba(0,122,133,0.07);padding:7px 16px;border-radius:20px;">
-          <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
-          Ingresar tiempos manualmente
-          <span class="manual-toggle-icon">▼</span>
-        </button>
+      <!-- Toggle para mostrar/ocultar -->
+      <button class="manual-toggle" onclick="toggleManual(this)" style="font-weight:600;font-size:13px;">
+        <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
+        Ingresar tiempos manualmente
+        <span class="manual-toggle-icon">▼</span>
+      </button>
 
-        <div id="manualPanel" style="display:none;margin-top:12px;">
-          <div class="manual-entry-panel">
-            <div class="manual-entry-title">
-              <i data-lucide="clock" style="width:14px;height:14px;"></i>
-              Registrar tiempo — formato MM:SS o H:MM:SS
-            </div>
-
-            <div class="manual-dist-grid">
-              <!-- 1 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">1 km</div>
-                <input class="manual-time-input" id="mt_1km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_1km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('1km')" title="Guardar">✓</button>
-              </div>
+      <div id="manualPanel" style="display:none;">
+        <div class="manual-entry-panel" style="background:#f8f9fa;border:1px solid rgba(0,0,0,0.06);border-radius:8px;margin-top:10px;">
+          <div class="manual-entry-title" style="font-weight:700;font-size:12px;letter-spacing:1px;color:#333;">
+            <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
+            Registrar tiempo — MM:SS o H:MM:SS
+          </div>
+          <div class="manual-dist-grid">
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">1 km</div>
+              <input class="manual-time-input" id="mt_1km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_1km" type="date">
               <div class="manual-last" id="mlast_1km"></div>
-
-              <!-- 2 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">2 km</div>
-                <input class="manual-time-input" id="mt_2km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_2km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('2km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">2 km</div>
+              <input class="manual-time-input" id="mt_2km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_2km" type="date">
               <div class="manual-last" id="mlast_2km"></div>
-
-              <!-- 2.4 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">2.4 km</div>
-                <input class="manual-time-input" id="mt_2400m" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_2400m" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('2400m')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">2.4 km</div>
+              <input class="manual-time-input" id="mt_2400m" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_2400m" type="date">
               <div class="manual-last" id="mlast_2400m"></div>
-
-              <!-- 3.2 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">3.2 km</div>
-                <input class="manual-time-input" id="mt_3200m" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_3200m" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('3200m')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">3.2 km</div>
+              <input class="manual-time-input" id="mt_3200m" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_3200m" type="date">
               <div class="manual-last" id="mlast_3200m"></div>
-
-              <!-- 5 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">5 km</div>
-                <input class="manual-time-input" id="mt_5km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_5km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('5km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">5 km</div>
+              <input class="manual-time-input" id="mt_5km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_5km" type="date">
               <div class="manual-last" id="mlast_5km"></div>
-
-              <!-- 8 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">8 km</div>
-                <input class="manual-time-input" id="mt_8km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_8km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('8km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">8 km</div>
+              <input class="manual-time-input" id="mt_8km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_8km" type="date">
               <div class="manual-last" id="mlast_8km"></div>
-
-              <!-- 10 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">10 km</div>
-                <input class="manual-time-input" id="mt_10km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_10km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('10km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">10 km</div>
+              <input class="manual-time-input" id="mt_10km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_10km" type="date">
               <div class="manual-last" id="mlast_10km"></div>
-
-              <!-- 12 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">12 km</div>
-                <input class="manual-time-input" id="mt_12km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_12km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('12km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">12 km</div>
+              <input class="manual-time-input" id="mt_12km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_12km" type="date">
               <div class="manual-last" id="mlast_12km"></div>
-
-              <!-- 15 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">15 km</div>
-                <input class="manual-time-input" id="mt_15km" placeholder="00:00" maxlength="8">
-                <input class="manual-date-input" id="md_15km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('15km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">15 km</div>
+              <input class="manual-time-input" id="mt_15km" placeholder="00:00" maxlength="8">
+              <input class="manual-date-input" id="md_15km" type="date">
               <div class="manual-last" id="mlast_15km"></div>
-
-              <!-- 21 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">21 km</div>
-                <input class="manual-time-input" id="mt_21km" placeholder="0:00:00" maxlength="9">
-                <input class="manual-date-input" id="md_21km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('21km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">21 km</div>
+              <input class="manual-time-input" id="mt_21km" placeholder="00:00:00" maxlength="9">
+              <input class="manual-date-input" id="md_21km" type="date">
               <div class="manual-last" id="mlast_21km"></div>
-
-              <!-- 42 km -->
-              <div class="manual-dist-item">
-                <div class="manual-dist-label">42 km</div>
-                <input class="manual-time-input" id="mt_42km" placeholder="0:00:00" maxlength="9">
-                <input class="manual-date-input" id="md_42km" type="date">
-                <button class="manual-row-save" onclick="saveOneTime('42km')" title="Guardar">✓</button>
-              </div>
+            </div>
+            <div class="manual-dist-item">
+              <div class="manual-dist-label">42 km</div>
+              <input class="manual-time-input" id="mt_42km" placeholder="00:00:00" maxlength="9">
+              <input class="manual-date-input" id="md_42km" type="date">
               <div class="manual-last" id="mlast_42km"></div>
             </div>
           </div>
+          <button class="manual-save-btn" onclick="saveManualTimes()">
+            <i data-lucide="save" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i>
             Agregar Registro
           </button>
         </div>
@@ -3217,65 +3190,6 @@ async function refreshResumenMensual() {
     }, 1500);
   }
 })();
-</script>
-
-<script>
-// ── GUARDAR TIEMPO INDIVIDUAL + CERRAR PANEL ──────────────────────────
-function saveOneTime(dist) {
-  const timeVal = document.getElementById('mt_' + dist)?.value.trim();
-  const dateVal = document.getElementById('md_' + dist)?.value || new Date().toISOString().slice(0,10);
-  const btn     = event?.currentTarget;
-
-  if (!timeVal) {
-    if (btn) { btn.textContent = '!'; setTimeout(() => btn.textContent = '✓', 1500); }
-    return;
-  }
-  const parts = timeVal.split(':');
-  if (parts.length < 2 || parts.length > 3) {
-    if (btn) { btn.textContent = '!'; setTimeout(() => btn.textContent = '✓', 1500); }
-    return;
-  }
-
-  // Guardar en historial
-  let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
-  if (!history[dist]) history[dist] = [];
-  const dup = history[dist].some(e => e.date === dateVal && e.time === timeVal);
-  if (!dup) {
-    history[dist].push({ date: dateVal, time: timeVal, source: 'manual' });
-    history[dist].sort((a, b) => a.date.localeCompare(b.date));
-    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
-  }
-
-  // Feedback visual ✓ → verde → cerrar panel
-  if (btn) {
-    btn.textContent = '✓';
-    btn.classList.add('guardado');
-    setTimeout(() => { btn.textContent = '✓'; btn.classList.remove('guardado'); }, 1800);
-  }
-
-  // Actualizar mlast
-  const lastEl = document.getElementById('mlast_' + dist);
-  if (lastEl) lastEl.textContent = `Guardado: ${timeVal} · ${dateVal}`;
-
-  // Limpiar inputs
-  const tInp = document.getElementById('mt_' + dist);
-  const dInp = document.getElementById('md_' + dist);
-  if (tInp) tInp.value = '';
-  if (dInp) dInp.value = '';
-
-  // Cerrar el panel después de 1.2s
-  setTimeout(() => {
-    const panel  = document.getElementById('manualPanel');
-    const toggle = document.querySelector('.manual-toggle');
-    const icon   = toggle?.querySelector('.manual-toggle-icon');
-    if (panel)  panel.style.display = 'none';
-    if (icon)   icon.classList.remove('open');
-  }, 1200);
-
-  // Refrescar gráficos si la función existe
-  if (typeof buildPRDataFromHistory === 'function') buildPRDataFromHistory(history);
-  if (typeof selectDist === 'function' && window._currentDist) selectDist(window._currentDist, null);
-}
 </script>
 
 </body>
