@@ -1338,12 +1338,13 @@
     actualizarResumenPerfil(p);
     if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
     document.getElementById('miPerfilPanel').style.display = 'none';
-    // Sincronizar peso y fechaNac al cloud
+    // Sincronizar peso, talla y fechaNac al cloud (para que el coach los vea)
     const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     if (peso) ruckProfile.bw = peso;
+    if (talla) ruckProfile.talla = talla;
     if (fechaNac) ruckProfile.fechaNac = fechaNac;
     localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
-    if (peso || fechaNac) pushRuckProfileToCloud(ruckProfile);
+    if (peso || talla || fechaNac) pushRuckProfileToCloud(ruckProfile);
 
     // Registrar peso en historial InBody si se ingresó un peso
     if (peso) registrarPesoEnHistorial(peso);

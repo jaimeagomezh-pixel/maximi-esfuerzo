@@ -1043,8 +1043,9 @@ async function sincronizarPerfilesCloud() {
       if (prof.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(prof.inbodyTrend)) { a.inbodyTrend = prof.inbodyTrend; cambio = true; }
       if (prof.endurance && JSON.stringify(a.endurance) !== JSON.stringify(prof.endurance)) { a.endurance = prof.endurance; cambio = true; }
       if (prof.cargaRTSS && JSON.stringify(a.cargaRTSS) !== JSON.stringify(prof.cargaRTSS)) { a.cargaRTSS = prof.cargaRTSS; cambio = true; }
-      if (prof.fechaNac && !a.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
-      if (prof.bw && !a.peso) { a.peso = prof.bw; cambio = true; }
+      if (prof.fechaNac && a.fechaNac !== prof.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
+      if (prof.talla && a.talla !== prof.talla) { a.talla = prof.talla; cambio = true; }
+      if (prof.bw && a.peso !== prof.bw) { a.peso = prof.bw; cambio = true; }
       if (cambio) actualizados++;
     } catch(e) { /* silencioso por atleta */ }
   }
@@ -1580,6 +1581,8 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.endurance) { a.endurance = cp.endurance; guardarAtletas(); }
         // ── Carga rTSS (resumen semanal) ──
         if (cp.cargaRTSS) { a.cargaRTSS = cp.cargaRTSS; guardarAtletas(); }
+        // ── Talla ──
+        if (cp.talla && a.talla !== cp.talla) { a.talla = cp.talla; guardarAtletas(); }
         // ── Peso desde bw ──
         if (cp.bw && !a.peso) { a.peso = cp.bw; guardarAtletas(); }
 
@@ -2014,7 +2017,7 @@ function abrirPerfil(id) {
     </div>
 
     <div class="datos-grid">
-      <div class="dato"><div class="dato-v">${a.peso||'—'}</div><div class="dato-l">Peso kg</div></div>
+      <div class="dato"><div class="dato-v">${a.peso || a.inbodyTrend?.peso || '—'}</div><div class="dato-l">Peso kg</div></div>
       <div class="dato"><div class="dato-v">${a.talla||'—'}</div><div class="dato-l">Talla cm</div></div>
       <div class="dato"><div class="dato-v">${calcularEdadCoach(a.fechaNac)||a.edad||'—'}</div><div class="dato-l">Edad</div></div>
     </div>
@@ -2130,6 +2133,14 @@ function abrirPerfil(id) {
         <div class="sec">
           <div class="sec-t">Evolución de peso</div>
           <div id="cPesoEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Sin registros de peso aún</div>
+          <div id="cPesoResumen" style="display:none;margin-bottom:8px;">
+            <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+              <span id="cPesoActual" style="font-family:var(--fd);font-size:2rem;line-height:1;color:var(--text);">—</span>
+              <span style="font-size:11px;color:var(--text3);">kg actual</span>
+              <span id="cPesoDelta" style="font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:0.5px;"></span>
+            </div>
+            <div id="cPesoRango" style="font-size:10px;color:var(--text3);margin-top:2px;"></div>
+          </div>
           <div class="chart-wrap" id="cPesoWrap" style="height:90px;display:none;"><canvas id="cPeso"></canvas></div>
         </div>
       </div>
@@ -2308,13 +2319,36 @@ async function cargarInbodyCoach(email) {
     const fechas = lista.map(m => m.fecha);
 
     // ── Evolución de peso (datos REALES del historial, no demo) ──
-    const pesoSerie = lista.filter(m => m.peso != null);
+    // Ordenar por fecha ascendente para calcular el cambio desde el inicio
+    const pesoSerie = lista.filter(m => m.peso != null).slice().sort((a,b)=>String(a.fecha).localeCompare(String(b.fecha)));
     const cpEmpty = document.getElementById('cPesoEmpty');
     const cpWrap  = document.getElementById('cPesoWrap');
+    const cpResumen = document.getElementById('cPesoResumen');
     const cpCanvas = document.getElementById('cPeso');
     if (pesoSerie.length && cpCanvas) {
       if (cpEmpty) cpEmpty.style.display = 'none';
       if (cpWrap)  cpWrap.style.display  = 'block';
+      if (cpResumen) cpResumen.style.display = 'block';
+
+      const pIni = pesoSerie[0].peso, pFin = pesoSerie[pesoSerie.length-1].peso;
+      const diff = +(pFin - pIni).toFixed(1);
+      const pct  = pIni ? (diff / pIni * 100).toFixed(1) : '0.0';
+      const actEl = document.getElementById('cPesoActual');
+      const delEl = document.getElementById('cPesoDelta');
+      const rngEl = document.getElementById('cPesoRango');
+      if (actEl) actEl.textContent = pFin;
+      if (delEl) {
+        if (pesoSerie.length < 2 || diff === 0) {
+          delEl.innerHTML = '<span style="color:var(--text3);">— sin cambio</span>';
+        } else {
+          const baja = diff < 0;
+          const color = baja ? '#1e8c3a' : '#e07b00';
+          const ico = baja ? '▼' : '▲';
+          delEl.innerHTML = `<span style="color:${color};">${ico} ${Math.abs(diff)} kg · ${Math.abs(pct)}%</span> <span style="color:var(--text3);font-weight:400;">desde el inicio</span>`;
+        }
+      }
+      if (rngEl) rngEl.textContent = `${pesoSerie[0].fecha} → ${pesoSerie[pesoSerie.length-1].fecha} · ${pesoSerie.length} registro${pesoSerie.length!==1?'s':''}`;
+
       if (chartPeso) { try { chartPeso.destroy(); } catch(e){} }
       chartPeso = mkLineChart(cpCanvas, pesoSerie.map(m=>m.fecha), pesoSerie.map(m=>m.peso), '#C9A84C', v=>v+' kg');
     }
@@ -2353,20 +2387,6 @@ async function cargarInbodyCoach(email) {
             pointBackgroundColor: '#e74c3c',
             pointStyle: 'rect',
             yAxisID: 'yComp'
-          },
-          {
-            label: 'Peso total (kg)',
-            data: lista.map(m => m.peso),
-            fill: false,
-            backgroundColor: '#d4a843',
-            borderColor: '#d4a843',
-            borderWidth: 2.5,
-            borderDash: [5,3],
-            tension: 0.3,
-            pointRadius: 5,
-            pointBackgroundColor: '#d4a843',
-            pointStyle: 'rect',
-            yAxisID: 'yPeso'
           }
         ]
       },
@@ -2378,12 +2398,6 @@ async function cargarInbodyCoach(email) {
             type: 'linear', position: 'left',
             stacked: true,
             title:{ display:true, text:'Composición (kg)', font:{size:9,family:'Barlow Condensed'} },
-            ticks:{ font:{size:9,family:'Barlow Condensed'} }
-          },
-          yPeso: {
-            type: 'linear', position: 'right',
-            grid:{ drawOnChartArea:false },
-            title:{ display:true, text:'Peso (kg)', font:{size:9,family:'Barlow Condensed'} },
             ticks:{ font:{size:9,family:'Barlow Condensed'} }
           }
         },
