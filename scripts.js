@@ -423,9 +423,9 @@
         if (stravaStatus) stravaStatus.textContent = '✓ Conectado';
       }
 
-      // Última actividad
-      const actRes = await stravaFetch('https://www.strava.com/api/v3/athlete/activities?per_page=1', accessToken);
-      const actividades = await actRes.json();
+      // Historial reciente en UNA sola llamada; la actividad más reciente (con
+      // distancia) es la primera de la lista → sirve para el hero sin pedirla aparte.
+      const actividades = await fetchTodasLasCarreras(accessToken);
 
       if (actividades.length > 0) {
         const a = actividades[0];
@@ -480,8 +480,8 @@
         cargarStreamsActividad(accessToken, a.id, a.type);
       }
 
-      // PRs automáticos en background
-      cargarPRsStrava(accessToken);
+      // PRs automáticos en background — reusa el historial ya descargado (sin re-fetch)
+      cargarPRsStrava(accessToken, actividades);
 
       // Info del atleta — guardar ID para sincronización de rucking
       const atletaRes  = await stravaFetch('https://www.strava.com/api/v3/athlete', accessToken);
@@ -763,7 +763,7 @@
     } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
 
-  async function cargarPRsStrava(token) {
+  async function cargarPRsStrava(token, preActs) {
     try {
       // Indicador de sincronización
       const stravaCard   = document.getElementById('btnStrava');
@@ -771,7 +771,8 @@
       if (stravaCard)   stravaCard.classList.add('sincronizando');
       if (stravaStatus) stravaStatus.textContent = 'Sincronizando historial…';
 
-      const allActs = await fetchTodasLasCarreras(token);
+      // Reusa el historial pasado por cargarDatosStrava; solo refetcha si no vino
+      const allActs = (preActs && preActs.length) ? preActs : await fetchTodasLasCarreras(token);
       const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type));
 
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
