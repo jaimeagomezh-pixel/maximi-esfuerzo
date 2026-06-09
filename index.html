@@ -737,8 +737,8 @@
 
     <div class="dash-activity-header">
       <div>
-        <div class="dash-activity-name" id="actNombre">Temuco Carrera</div>
-        <div class="dash-activity-date" id="actFecha">20 May · 16:45</div>
+        <div class="dash-activity-name" id="actNombre">Sin actividad</div>
+        <div class="dash-activity-date" id="actFecha">Conecta Strava para ver tus datos</div>
       </div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#FC4C02;display:flex;align-items:center;gap:6px;">
         <svg viewBox="0 0 24 24" width="13" height="13"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
@@ -749,29 +749,29 @@
     <div class="dash-stats-row" style="padding:0 16px;">
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Distancia</div>
-        <div class="dash-stat-value" id="actDist">10.02</div>
+        <div class="dash-stat-value" id="actDist">—</div>
         <div class="dash-stat-unit">km</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Tiempo</div>
-        <div class="dash-stat-value" id="actTiempo">43:31</div>
+        <div class="dash-stat-value" id="actTiempo">—</div>
         <div class="dash-stat-unit">h:m:s</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Ritmo</div>
-        <div class="dash-stat-value" id="actRitmo">4:21</div>
+        <div class="dash-stat-value" id="actRitmo">—</div>
         <div class="dash-stat-unit">min/km</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">FC Media</div>
-        <div class="dash-stat-value" id="actFC">163</div>
+        <div class="dash-stat-value" id="actFC">—</div>
         <div class="dash-stat-unit">ppm</div>
       </div>
     </div>
 
     <!-- Gráfico FC -->
     <div class="dash-chart-card" style="margin:6px 16px 0;border-radius:8px;">
-      <div class="dash-chart-title">Frecuencia Cardíaca <span>163 ppm media · 185 máx</span></div>
+      <div class="dash-chart-title">Frecuencia Cardíaca <span id="fcChartSub">—</span></div>
       <div class="dash-chart-wrap"><canvas id="chartFC"></canvas></div>
     </div>
 
@@ -788,8 +788,8 @@
         <div>
           <div class="th-wm-label">Ritmo Medio · Última carrera</div>
           <div style="display:flex;align-items:baseline;gap:6px;">
-            <div class="th-wm-value" style="color:#C9A84C;">4:21</div>
-            <div class="th-wm-unit">min/km · Óptimo 3:21</div>
+            <div class="th-wm-value" style="color:#C9A84C;" id="ritmoWmValue">—</div>
+            <div class="th-wm-unit">min/km</div>
           </div>
         </div>
       </div>
@@ -808,28 +808,28 @@
     <div class="dash-zones-card" style="margin:0 16px;border-radius:8px;">
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z5 Máx</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z5" id="zBar5" style="width:4%"></div></div>
-        <div class="dash-zone-time" id="zTime5">1:58</div><div class="dash-zone-pct" id="zPct5">4%</div>
+        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z5" id="zBar5" style="width:0%"></div></div>
+        <div class="dash-zone-time" id="zTime5">--:--</div><div class="dash-zone-pct" id="zPct5">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z4 Umbral</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z4" id="zBar4" style="width:48%"></div></div>
-        <div class="dash-zone-time" id="zTime4">20:54</div><div class="dash-zone-pct" id="zPct4">48%</div>
+        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z4" id="zBar4" style="width:0%"></div></div>
+        <div class="dash-zone-time" id="zTime4">--:--</div><div class="dash-zone-pct" id="zPct4">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z3 Aerób</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z3" id="zBar3" style="width:34%"></div></div>
-        <div class="dash-zone-time" id="zTime3">14:51</div><div class="dash-zone-pct" id="zPct3">34%</div>
+        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z3" id="zBar3" style="width:0%"></div></div>
+        <div class="dash-zone-time" id="zTime3">--:--</div><div class="dash-zone-pct" id="zPct3">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z2 Suave</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z2" id="zBar2" style="width:9%"></div></div>
-        <div class="dash-zone-time" id="zTime2">4:06</div><div class="dash-zone-pct" id="zPct2">9%</div>
+        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z2" id="zBar2" style="width:0%"></div></div>
+        <div class="dash-zone-time" id="zTime2">--:--</div><div class="dash-zone-pct" id="zPct2">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z1 Calent</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z1" id="zBar1" style="width:2%"></div></div>
-        <div class="dash-zone-time" id="zTime1">1:04</div><div class="dash-zone-pct" id="zPct1">2%</div>
+        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z1" id="zBar1" style="width:0%"></div></div>
+        <div class="dash-zone-time" id="zTime1">--:--</div><div class="dash-zone-pct" id="zPct1">—</div>
       </div>
     </div>
 
@@ -1860,7 +1860,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260608g"></script>
+<script src="scripts.js?v=20260608h"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

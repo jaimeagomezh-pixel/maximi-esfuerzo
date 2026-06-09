@@ -459,12 +459,21 @@
           const rSeg = Math.round(ritmoSeg % 60).toString().padStart(2,'0');
           const elRitmo = document.getElementById('actRitmo');
           if (elRitmo) elRitmo.textContent = `${rMin}:${rSeg}`;
+          const elWm = document.getElementById('ritmoWmValue');
+          if (elWm) elWm.textContent = `${rMin}:${rSeg}`;
         }
 
         // FC media
         const fcProm = a.average_heartrate || '--';
         const elFC = document.getElementById('actFC');
         if (elFC) elFC.textContent = typeof fcProm === 'number' ? Math.round(fcProm) : fcProm;
+        // Subtítulo del gráfico FC (media · máx reales)
+        const fcSub = document.getElementById('fcChartSub');
+        if (fcSub) {
+          const media = typeof fcProm === 'number' ? Math.round(fcProm) + ' ppm media' : '';
+          const max   = a.max_heartrate ? ' · ' + Math.round(a.max_heartrate) + ' máx' : '';
+          fcSub.textContent = media ? media + max : '—';
+        }
 
         // Métricas globales
         const kcal = a.calories || Math.round(totalSeg / 60 * 8);
@@ -1425,31 +1434,38 @@
     else updateRitmoChart(range);
   }
 
+  // Datos reales por rango desde el cache de Strava (un punto por carrera).
+  // Sin datos → arrays vacíos (gráfico limpio, sin relleno demo).
+  function _datosRangoStrava(range) {
+    const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const RUN = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
+    let runs = cache.filter(a => RUN.has(a.type) && a.km > 0 && a.sec > 0)
+                    .sort((a, b) => a.date.localeCompare(b.date));
+    const dias = range === '7d' ? 7 : range === '1m' ? 31 : range === '3m' ? 92 : null;
+    if (dias) {
+      const desde = new Date(); desde.setDate(desde.getDate() - dias);
+      runs = runs.filter(r => new Date(r.date + 'T12:00:00') >= desde);
+    }
+    return {
+      labels: runs.map(r => { const d = new Date(r.date + 'T12:00:00'); return d.getDate() + '/' + (d.getMonth() + 1); }),
+      fc:     runs.map(r => r.hr || null),
+      pace:   runs.map(r => +(r.sec / 60 / r.km).toFixed(2)) // min/km decimal
+    };
+  }
+
   function updateFCChart(range) {
     if (!chartFC) return;
-    // Demo: datos simulados según rango
-    const datasets = {
-      '7d': [142,145,138,163,155,148,160],
-      '1m': [138,142,145,150,148,155,160,158,163,155,148,145,142,150,155,160,163,158,155,148,142,138,145,150,155,158,163,155,148,145],
-      '3m': Array.from({length:90},(_,i)=>130+Math.sin(i/8)*15+Math.random()*10),
-      'all': Array.from({length:120},(_,i)=>128+Math.sin(i/10)*18+Math.random()*8)
-    };
-    const labels = { '7d':['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'], '1m':Array.from({length:30},(_,i)=>i+1+' May'), '3m':['Feb','Mar','Abr','May'].flatMap(m=>Array.from({length:30/4},(_,i)=>i===0?m:'')), 'all':Array.from({length:120},(_,i)=>i%30===0?`M${Math.floor(i/30)+1}`:'') };
-    chartFC.data.labels = labels[range] || labels['all'];
-    chartFC.data.datasets[0].data = datasets[range] || datasets['all'];
+    const d = _datosRangoStrava(range);
+    chartFC.data.labels = d.labels;
+    chartFC.data.datasets[0].data = d.fc;
     chartFC.update('active');
   }
 
   function updateRitmoChart(range) {
     if (!chartRitmo) return;
-    const datasets = {
-      '7d': [5.2,4.9,5.1,4.4,4.8,5.0,4.6],
-      '1m': Array.from({length:30},(_,i)=>5.5-i*0.03+Math.random()*0.3),
-      '3m': Array.from({length:90},(_,i)=>5.8-i*0.012+Math.random()*0.25),
-      'all': Array.from({length:120},(_,i)=>6.0-i*0.013+Math.random()*0.2)
-    };
-    chartRitmo.data.labels = Array.from({length:(datasets[range]||datasets['all']).length},(_,i)=>i);
-    chartRitmo.data.datasets[0].data = datasets[range] || datasets['all'];
+    const d = _datosRangoStrava(range);
+    chartRitmo.data.labels = d.labels;
+    chartRitmo.data.datasets[0].data = d.pace;
     chartRitmo.update('active');
   }
 
@@ -1467,14 +1483,11 @@
     if (chartFC)    { try { chartFC.destroy();    } catch(e){} chartFC    = null; }
     if (chartRitmo) { try { chartRitmo.destroy(); } catch(e){} chartRitmo = null; }
 
-    // Datos demo FC (simulando carrera de 43 min)
-    const labels = Array.from({length: 22}, (_, i) => {
-      const mins = i * 2;
-      return mins + ':00';
-    });
-
-    const fcData = [95,112,128,138,145,152,158,161,163,165,164,166,168,165,163,164,166,168,170,172,168,163];
-    const ritmoData = [5.2,4.8,4.5,4.4,4.3,4.3,4.2,4.3,4.2,4.2,4.3,4.2,4.1,4.2,4.3,4.2,4.1,4.2,4.3,4.1,4.2,4.4];
+    // Sin relleno: los gráficos arrancan vacíos y se llenan con los streams
+    // reales de la última actividad de Strava (cargarStreamsActividad).
+    const labels = [];
+    const fcData = [];
+    const ritmoData = [];
 
     const chartDefaults = {
       responsive: true,
