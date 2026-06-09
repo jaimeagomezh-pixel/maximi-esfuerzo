@@ -395,6 +395,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
   </div>
   <div class="pcont">
 
+    <!-- BARRA DE FILTRO POR GRUPO (global a todas las pestañas) -->
+    <div id="grupoFiltroBar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
+
+    <!-- MODAL DE GRUPOS -->
+    <div id="grupoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:20px;" onclick="cerrarGrupoModal()">
+      <div style="background:#fff;border-radius:12px;max-width:440px;width:100%;max-height:85vh;overflow:auto;padding:22px;" onclick="event.stopPropagation()">
+        <div id="grupoModalBody"></div>
+      </div>
+    </div>
+
     <!-- TAB ATLETAS -->
     <div class="psec active" id="tab-atletas">
       <div class="stats-row">
@@ -708,6 +718,157 @@ let atletas = _atletasRaw.filter(a => !DEMO_IDS.has(a.id) && !DEMO_EMAILS.has(a.
 
 function guardarAtletas() { localStorage.setItem('coachAtletas', JSON.stringify(atletas)); }
 
+// ══════════════════════════════════════════════════════════════
+// GRUPOS DE ATLETAS (multi-grupo / etiquetas) + filtro global
+// ══════════════════════════════════════════════════════════════
+let _grupoFiltro = null;
+let _grupoColorSel = '#8B1A1A';
+const GRUPO_COLORES = ['#8B1A1A','#007a85','#d4a843','#1e8c3a','#7b4dd4','#e07b00','#c2185b','#0277bd'];
+
+function getGrupos(){ try { return JSON.parse(localStorage.getItem('gruposCoach')||'[]'); } catch(e){ return []; } }
+function saveGrupos(g){ localStorage.setItem('gruposCoach', JSON.stringify(g)); }
+function atletaEnFiltro(a){ return !_grupoFiltro || (a.grupos||[]).includes(_grupoFiltro); }
+
+function setGrupoFiltro(gid){
+  _grupoFiltro = gid;
+  renderGrupoChips();
+  if (typeof renderAtletas==='function')   renderAtletas();
+  if (typeof renderRuckStats==='function') renderRuckStats();
+  if (typeof renderResumen==='function')   renderResumen();
+}
+
+function renderGrupoChips(){
+  const bar = document.getElementById('grupoFiltroBar');
+  if (!bar) return;
+  const grupos = getGrupos();
+  const chip = (gid, nombre, color, count) => {
+    const activo = _grupoFiltro === gid;
+    const bg = activo ? (color||'#444') : '#fff';
+    const fg = activo ? '#fff' : (color||'#444');
+    const bd = color || 'var(--border)';
+    const onc = gid===null ? 'setGrupoFiltro(null)' : `setGrupoFiltro('${gid}')`;
+    return `<button onclick="${onc}" style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:16px;border:1px solid ${bd};background:${bg};color:${fg};cursor:pointer;font-weight:${activo?'700':'400'};white-space:nowrap;">${nombre}${count!=null?' · '+count:''}</button>`;
+  };
+  const total = atletas.filter(a=>!a.archivado).length;
+  let html = chip(null, 'Todos', '#444', total);
+  grupos.forEach(g => {
+    const count = atletas.filter(a=>!a.archivado && (a.grupos||[]).includes(g.id)).length;
+    html += chip(g.id, g.nombre, g.color, count);
+  });
+  html += `<button onclick="abrirGestionGrupos()" style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:16px;border:1px dashed var(--border);background:none;color:var(--text3);cursor:pointer;white-space:nowrap;">⚙ Grupos</button>`;
+  bar.innerHTML = html;
+}
+
+function abrirGrupoModal(){ const m=document.getElementById('grupoModal'); if(m) m.style.display='flex'; }
+function cerrarGrupoModal(){ const m=document.getElementById('grupoModal'); if(m) m.style.display='none'; }
+
+function renderColorSwatches(){
+  const c = document.getElementById('nuevoGrupoColores');
+  if(!c) return;
+  c.innerHTML = GRUPO_COLORES.map(col=>`<button onclick="_grupoColorSel='${col}';renderColorSwatches()" style="width:26px;height:26px;border-radius:50%;background:${col};border:2px solid ${_grupoColorSel===col?'#000':'transparent'};cursor:pointer;"></button>`).join('');
+}
+
+function abrirGestionGrupos(){
+  const body = document.getElementById('grupoModalBody');
+  if(!body) return;
+  body.innerHTML = `
+    <div style="font-family:var(--fd);font-size:1.6rem;letter-spacing:2px;margin-bottom:4px;">Gestionar grupos</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Crea grupos y asígnalos a cada atleta desde el botón 🏷 de su tarjeta.</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <input id="nuevoGrupoNombre" class="l-input" placeholder="Nombre del grupo" style="flex:1;margin-bottom:0;" onkeydown="if(event.key==='Enter')crearGrupo()">
+      <button class="l-btn" style="width:auto;white-space:nowrap;" onclick="crearGrupo()">Crear</button>
+    </div>
+    <div id="nuevoGrupoColores" style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;"></div>
+    <div style="font-family:var(--fc);font-size:10px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:8px;">Grupos existentes</div>
+    <div id="listaGruposGestion"></div>
+    <button class="f-btn" style="margin-top:16px;width:100%;" onclick="cerrarGrupoModal()">Cerrar</button>
+  `;
+  renderColorSwatches();
+  renderListaGruposGestion();
+  abrirGrupoModal();
+}
+
+function crearGrupo(){
+  const inp = document.getElementById('nuevoGrupoNombre');
+  const nombre = inp ? inp.value.trim() : '';
+  if(!nombre){ alert('Ponle un nombre al grupo.'); return; }
+  const grupos = getGrupos();
+  grupos.push({ id:'g'+Date.now(), nombre, color:_grupoColorSel });
+  saveGrupos(grupos);
+  if(inp) inp.value='';
+  renderListaGruposGestion();
+  renderGrupoChips();
+}
+
+function renderListaGruposGestion(){
+  const el = document.getElementById('listaGruposGestion');
+  if(!el) return;
+  const grupos = getGrupos();
+  if(!grupos.length){ el.innerHTML='<div style="font-size:12px;color:var(--text3);font-style:italic;">Aún no hay grupos.</div>'; return; }
+  el.innerHTML = grupos.map(g=>{
+    const count = atletas.filter(a=>(a.grupos||[]).includes(g.id)).length;
+    return `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <span style="width:14px;height:14px;border-radius:50%;background:${g.color};flex-shrink:0;"></span>
+      <span style="flex:1;font-size:14px;">${g.nombre} <span style="color:var(--text3);font-size:12px;">· ${count} atleta${count!==1?'s':''}</span></span>
+      <button class="act-btn" onclick="renombrarGrupo('${g.id}')">Renombrar</button>
+      <button class="act-btn peligro" onclick="eliminarGrupo('${g.id}')">Eliminar</button>
+    </div>`;
+  }).join('');
+}
+
+function renombrarGrupo(id){
+  const grupos = getGrupos();
+  const g = grupos.find(x=>x.id===id);
+  if(!g) return;
+  const nuevo = prompt('Nuevo nombre del grupo:', g.nombre);
+  if(nuevo && nuevo.trim()){ g.nombre=nuevo.trim(); saveGrupos(grupos); renderListaGruposGestion(); renderGrupoChips(); }
+}
+
+function eliminarGrupo(id){
+  if(!confirm('¿Eliminar este grupo? Los atletas no se borran, solo se les quita la etiqueta.')) return;
+  saveGrupos(getGrupos().filter(g=>g.id!==id));
+  atletas.forEach(a=>{ if(a.grupos) a.grupos=a.grupos.filter(x=>x!==id); });
+  guardarAtletas();
+  if(_grupoFiltro===id) _grupoFiltro=null;
+  renderListaGruposGestion(); renderGrupoChips(); renderAtletas();
+}
+
+function abrirAsignarGrupos(aid){
+  const a = atletas.find(x=>x.id===aid);
+  if(!a) return;
+  if(!a.grupos) a.grupos=[];
+  const grupos = getGrupos();
+  const body = document.getElementById('grupoModalBody');
+  if(!body) return;
+  const lista = grupos.length ? grupos.map(g=>{
+    const checked = a.grupos.includes(g.id);
+    return `<label style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleAtletaGrupo(${aid},'${g.id}',this.checked)">
+      <span style="width:14px;height:14px;border-radius:50%;background:${g.color};"></span>
+      <span style="font-size:14px;">${g.nombre}</span>
+    </label>`;
+  }).join('') : '<div style="font-size:12px;color:var(--text3);font-style:italic;margin-bottom:10px;">No hay grupos todavía. Crea uno primero.</div>';
+  body.innerHTML = `
+    <div style="font-family:var(--fd);font-size:1.5rem;letter-spacing:2px;margin-bottom:2px;">Grupos de ${a.nombre}</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:14px;">Marca a qué grupos pertenece.</div>
+    ${lista}
+    <button class="f-btn" style="margin-top:14px;width:100%;" onclick="abrirGestionGrupos()">+ Crear grupo nuevo</button>
+    <button class="l-btn" style="margin-top:8px;width:100%;" onclick="cerrarGrupoModal()">Listo</button>
+  `;
+  abrirGrupoModal();
+}
+
+function toggleAtletaGrupo(aid, gid, checked){
+  const a = atletas.find(x=>x.id===aid);
+  if(!a) return;
+  if(!a.grupos) a.grupos=[];
+  if(checked){ if(!a.grupos.includes(gid)) a.grupos.push(gid); }
+  else { a.grupos = a.grupos.filter(x=>x!==gid); }
+  guardarAtletas();
+  renderGrupoChips();
+  renderAtletas();
+}
+
 // Persistir la purga de demos para que no reaparezcan
 if (_atletasRaw.length !== atletas.length) guardarAtletas();
 
@@ -721,6 +882,7 @@ let busquedaActiva = '';
 
 function iniciar() {
   actualizarStats();
+  renderGrupoChips();
   renderAtletas();
   renderResumen();
   initRucking();
@@ -1054,11 +1216,14 @@ function renderAtletas() {
   if (busquedaActiva) {
     lista = lista.filter(a => a.nombre.toLowerCase().includes(busquedaActiva) || a.email.toLowerCase().includes(busquedaActiva));
   }
+  lista = lista.filter(atletaEnFiltro); // filtro por grupo activo
 
   if (!lista.length) {
     document.getElementById('atletasList').innerHTML = '<div class="empty"><div class="empty-i">🤼</div><div class="empty-t">Sin atletas en esta categoría</div></div>';
     return;
   }
+
+  const _gruposAll = getGrupos();
 
   document.getElementById('atletasList').innerHTML = lista.map(a => {
     const dotCls = a.archivado ? 'dot-archivado' : a.tipo==='activo' ? 'dot-activo' : a.tipo==='vencido' ? 'dot-vencido' : 'dot-cuenta';
@@ -1124,6 +1289,11 @@ function renderAtletas() {
       }
     }
 
+    // Badges de grupos + botón de asignación
+    const misGrupos = (a.grupos||[]).map(gid=>_gruposAll.find(g=>g.id===gid)).filter(Boolean);
+    const gruposBadges = misGrupos.map(g=>`<span style="display:inline-block;background:${g.color}1a;border:1px solid ${g.color};color:${g.color};font-size:9px;letter-spacing:0.5px;padding:1px 7px;border-radius:9px;margin-right:3px;">${g.nombre}</span>`).join('');
+    const gruposHtml = `<div style="margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:3px;">${gruposBadges}<button class="act-btn" onclick="event.stopPropagation();abrirAsignarGrupos(${a.id})" style="font-size:10px;padding:2px 8px;">🏷 Grupos</button></div>`;
+
     return `<div class="acard ${cardCls}" onclick="abrirPerfil(${a.id})">
       <div class="a-dot ${dotCls}"></div>
       <div class="a-av" style="${cumple ? 'background:linear-gradient(135deg,#d4a843,#c8960f);' : ''}">${cumple ? '🎂' : a.nombre.charAt(0)}</div>
@@ -1132,6 +1302,7 @@ function renderAtletas() {
         <div class="a-meta">${a.email}</div>
         ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
         ${cumpleBadge}
+        ${gruposHtml}
         <div class="a-actions">${acciones}</div>
       </div>
       <div class="a-metrics">${metricsHtml}</div>
@@ -1430,7 +1601,7 @@ async function cargarPerfilAtletaRuck(aid) {
 }
 
 function renderRuckStats() {
-  const activos = atletas.filter(a => !a.archivado);
+  const activos = atletas.filter(a => !a.archivado && atletaEnFiltro(a));
   const conDatos = activos.filter(a => a.rucking && a.rucking.bw);
 
   // BM promedio — todos los activos con peso
@@ -1785,14 +1956,15 @@ function showTab(id, btn) {
 }
 
 function renderResumen() {
-  const pagos = atletas.flatMap(a=>a.pagos.map(p=>({...p,atleta:a.nombre}))).slice(0,8);
+  const _atl = atletas.filter(atletaEnFiltro);
+  const pagos = _atl.flatMap(a=>a.pagos.map(p=>({...p,atleta:a.nombre}))).slice(0,8);
   document.getElementById('pagosRes').innerHTML = pagos.length ? pagos.map(p=>`
     <div class="pago-row"><div><div class="pago-plan">${p.atleta} · ${p.plan}</div><div class="pago-fecha">${p.fecha}</div></div>
     <div style="text-align:right;"><div class="pago-monto">${p.monto}</div><span class="p-ok">Pagado</span></div></div>`).join('')
     : '<div class="empty"><div class="empty-t">Sin pagos</div></div>';
 
   const hoy = new Date();
-  const prox = atletas.filter(a=>a.vencimiento&&!a.archivado)
+  const prox = _atl.filter(a=>a.vencimiento&&!a.archivado)
     .map(a=>({...a,dias:Math.ceil((new Date(a.vencimiento)-hoy)/86400000)}))
     .sort((a,b)=>a.dias-b.dias).slice(0,6);
   document.getElementById('vencRes').innerHTML = prox.map(a=>`
