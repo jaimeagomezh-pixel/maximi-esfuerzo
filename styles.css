@@ -2518,6 +2518,46 @@
     background: #f2f4f5 !important;
   }
 
+  /* ── RESUMEN MENSUAL — override colores dark del JS ── */
+
+  /* Botones de mes generados por JS (inline styles con rgba(255,255,255,...)) */
+  #resMesSelector button {
+    color: #007a85 !important;
+    border-color: rgba(0,122,133,0.25) !important;
+    background: rgba(0,122,133,0.07) !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+  }
+  /* El activo tiene border rgba(0,200,212,0.4) — tomamos ese caso con borde más intenso */
+  #resMesSelector button[style*="rgba(0,200,212"] {
+    color: #005f6b !important;
+    border-color: rgba(0,122,133,0.6) !important;
+    background: linear-gradient(135deg,rgba(0,122,133,0.18),rgba(0,168,179,0.12)) !important;
+    box-shadow: 0 2px 8px rgba(0,122,133,0.15) !important;
+  }
+
+  /* Etiquetas zonas FC (color:rgba(255,255,255,0.6)) */
+  #resZonasFC div[style*="rgba(255,255,255,0.6)"],
+  #resZonasFC div[style*="rgba(255,255,255,.6)"] {
+    color: #444 !important;
+  }
+  /* Tiempo por zona (color:rgba(255,255,255,0.5)) */
+  #resZonasFC div[style*="rgba(255,255,255,0.5)"],
+  #resZonasFC div[style*="rgba(255,255,255,.5)"] {
+    color: #555 !important;
+  }
+  /* Barra de fondo de zona (background:rgba(255,255,255,0.05)) */
+  #resZonasFC div[style*="rgba(255,255,255,0.05)"] {
+    background: rgba(0,0,0,0.08) !important;
+  }
+  /* Fallback general: cualquier texto blanco dentro del resumen */
+  #resumenMensualWrap [style*="color:rgba(255,255,255"] {
+    color: #444 !important;
+  }
+  #resumenMensualWrap [style*="color: rgba(255,255,255"] {
+    color: #444 !important;
+  }
+
   .dashboard-box {
     background: #f2f4f5 !important;
   }
