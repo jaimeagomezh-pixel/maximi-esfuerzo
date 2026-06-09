@@ -725,6 +725,13 @@ let _grupoFiltro = null;
 let _grupoColorSel = '#8B1A1A';
 const GRUPO_COLORES = ['#8B1A1A','#007a85','#d4a843','#1e8c3a','#7b4dd4','#e07b00','#c2185b','#0277bd'];
 
+// Segundos → "Xh Ym" / "Ym" (para volumen de entrenamiento)
+function fmtVol(seg){
+  if (!seg || seg <= 0) return '0m';
+  const h = Math.floor(seg/3600), m = Math.round((seg%3600)/60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+}
+
 function getGrupos(){ try { return JSON.parse(localStorage.getItem('gruposCoach')||'[]'); } catch(e){ return []; } }
 function saveGrupos(g){ localStorage.setItem('gruposCoach', JSON.stringify(g)); }
 function atletaEnFiltro(a){ return !_grupoFiltro || (a.grupos||[]).includes(_grupoFiltro); }
@@ -2054,11 +2061,24 @@ function abrirPerfil(id) {
           <div class="sec-t">Endurance · Strava</div>
           ${a.strava ? `
           <div class="s-metrics">
-            <div class="sm"><div><span class="sm-v">${a.strava.km}</span><span class="sm-u">km</span></div><div class="sm-l">Distancia</div></div>
+            <div class="sm"><div><span class="sm-v">${a.strava.km}</span><span class="sm-u">km</span></div><div class="sm-l">Distancia (30d)</div></div>
             <div class="sm"><div><span class="sm-v">${a.strava.ritmo}</span><span class="sm-u">min/km</span></div><div class="sm-l">Ritmo</div></div>
             <div class="sm"><div><span class="sm-v">${a.strava.fc}</span><span class="sm-u">bpm</span></div><div class="sm-l">FC media</div></div>
             <div class="sm"><div><span class="sm-v">${a.strava.acts}</span></div><div class="sm-l">Actividades (30d)</div></div>
           </div>
+          ${a.strava.volumen ? `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">
+            <div style="background:rgba(0,122,133,0.05);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.8);text-transform:uppercase;">Esta semana</div>
+              <div style="font-family:var(--fd);font-size:1.5rem;color:var(--cian2);line-height:1.1;margin-top:3px;">${a.strava.volumen.semana.km} km</div>
+              <div style="font-size:10px;color:var(--text3);">${a.strava.volumen.semana.n} ses · ${fmtVol(a.strava.volumen.semana.seg)}</div>
+            </div>
+            <div style="background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.3);border-radius:8px;padding:10px;text-align:center;">
+              <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:#a8842a;text-transform:uppercase;">Este mes</div>
+              <div style="font-family:var(--fd);font-size:1.5rem;color:var(--gold);line-height:1.1;margin-top:3px;">${a.strava.volumen.mes.km} km</div>
+              <div style="font-size:10px;color:var(--text3);">${a.strava.volumen.mes.n} ses · ${fmtVol(a.strava.volumen.mes.seg)}</div>
+            </div>
+          </div>` : ''}
           <div class="chart-wrap"><canvas id="cStrava"></canvas></div>
           ` : `<div class="empty" style="padding:16px 0;">
             <div class="empty-i">🏃</div>

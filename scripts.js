@@ -906,12 +906,28 @@
       const ritmoSeg = km > 0 && sec > 0 ? sec / km : null;
       const ritmo = ritmoSeg ? `${Math.floor(ritmoSeg/60)}:${String(Math.round(ritmoSeg%60)).padStart(2,'0')}` : null;
 
+      // ── Volumen actual: semana en curso (desde el lunes) + mes en curso ──
+      const hoy = new Date();
+      const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - ((hoy.getDay()+6)%7)); lunes.setHours(0,0,0,0);
+      const mesAct = hoy.toISOString().slice(0,7); // YYYY-MM
+      const vol = { semana:{km:0,n:0,seg:0}, mes:{km:0,n:0,seg:0} };
+      allActs.forEach(a => {
+        if (!a.start_date_local || !(a.distance > 0)) return;
+        const f = new Date(a.start_date_local);
+        const kmA = (a.distance||0)/1000, segA = a.moving_time||0;
+        if (f >= lunes) { vol.semana.km += kmA; vol.semana.n++; vol.semana.seg += segA; }
+        if (a.start_date_local.slice(0,7) === mesAct) { vol.mes.km += kmA; vol.mes.n++; vol.mes.seg += segA; }
+      });
+      vol.semana.km = Math.round(vol.semana.km*10)/10;
+      vol.mes.km    = Math.round(vol.mes.km*10)/10;
+
       const stats = {
         km:    Math.round(km * 10) / 10,
         ritmo: ritmo || '—',
         fc:    avgFC || 0,
         acts:  recientes.length,
         totalActs: allActs.length,
+        volumen: vol,
       };
 
       const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -1614,11 +1630,11 @@
           borderColor: '#C9A84C',
           backgroundColor: (ctx) => {
             const g = ctx.chart.ctx.createLinearGradient(0,0,0,120);
-            g.addColorStop(0,'rgba(0,200,212,0.12)');
-            g.addColorStop(1,'rgba(0,200,212,0)');
+            g.addColorStop(0,'rgba(201,168,76,0.22)');
+            g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: true,
+          fill: 'end', // eje invertido: rellena hacia abajo
         }]
       },
       options: { ...thDefaults, scales: { ...thDefaults.scales,
@@ -1794,11 +1810,11 @@
           borderColor: '#C9A84C',
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0,0,0,160);
-            g.addColorStop(0,'rgba(0,200,212,0.12)');
-            g.addColorStop(1,'rgba(0,200,212,0)');
+            g.addColorStop(0,'rgba(201,168,76,0.22)');
+            g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: true,
+          fill: 'end', // eje invertido: rellena hacia abajo (como el de fuerza)
           pointRadius: 0,
           pointHoverRadius: 0,
         }]
@@ -3423,21 +3439,31 @@
   }
 
   async function pushRuckProfileToCloud(profile) {
-    const cloudId = getAthleteCloudId();
-    if (!cloudId) return;
     const nombre = localStorage.getItem('atletaNombre')
                 || window._auth?.currentUser?.displayName
                 || '';
-    // Preservar linkedStravaId en el perfil para que el coach siempre tenga el vínculo
     const stravaId = localStorage.getItem('strava_athlete_id');
+    const uid = window._auth?.currentUser?.uid;
+    // Preservar linkedStravaId en el perfil para que el coach siempre tenga el vínculo
     const profileToSave = stravaId ? { ...profile, linkedStravaId: stravaId } : profile;
-    try {
-      await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId: cloudId, nombre, profile: profileToSave })
-      });
-    } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
+
+    // Guardar el perfil bajo TODAS las llaves del atleta (uid Firebase + Strava ID).
+    // El coach resuelve por email→uid, así que el perfil debe existir bajo uid:xxx
+    // aunque el atleta tenga Strava conectado (donde antes solo se guardaba).
+    const llaves = [];
+    if (uid)      llaves.push('uid:' + uid);
+    if (stravaId) llaves.push(stravaId);
+    if (!llaves.length) return;
+
+    for (const key of llaves) {
+      try {
+        await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ stravaId: key, nombre, profile: profileToSave })
+        });
+      } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
+    }
   }
 
   // ══════════════════════════════════════════════════════════════
@@ -3649,12 +3675,39 @@
       data.push(w.val);
     });
 
+    // Interpretabilidad: colorear semanas según su carga vs el promedio del atleta.
+    // Verde = suave · rojo = habitual · naranja = carga alta (pico, ojo recuperación)
+    const _nz = data.filter(v => v > 0);
+    const _prom = _nz.length ? _nz.reduce((s,v)=>s+v,0) / _nz.length : 0;
+    const _colores = data.map(v => {
+      if (v === 0) return 'rgba(0,0,0,0.06)';
+      if (_prom && v > _prom * 1.35) return 'rgba(224,123,0,0.85)';   // pico de carga
+      if (_prom && v < _prom * 0.6)  return 'rgba(30,140,58,0.6)';    // semana suave
+      return 'rgba(139,26,26,0.7)';                                    // carga habitual
+    });
+
+    // Titular en lenguaje claro: última semana vs anterior
+    const ultima = data[data.length - 1] || 0;
+    const previa = data[data.length - 2] || 0;
+    const resumenEl = document.getElementById('rtssResumenSemanal');
+    if (resumenEl) {
+      let txt = `Última semana: <strong>${ultima} rTSS</strong>`;
+      if (previa > 0) {
+        const dif = Math.round((ultima - previa) / previa * 100);
+        const sube = dif > 0;
+        const col = Math.abs(dif) < 15 ? '#888' : (sube ? '#e07b00' : '#1e8c3a');
+        const ico = sube ? '▲' : (dif < 0 ? '▼' : '·');
+        txt += ` · <span style="color:${col};font-weight:600;">${ico} ${Math.abs(dif)}% vs semana anterior</span>`;
+      }
+      resumenEl.innerHTML = txt;
+    }
+
     const ctx = document.getElementById('chartRTSS');
     if (ctx && typeof Chart !== 'undefined') {
       if (_chartRTSS) _chartRTSS.destroy();
       _chartRTSS = new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets: [{ data, backgroundColor: 'rgba(139,26,26,0.7)', borderRadius: 4, maxBarThickness: 34 }] },
+        data: { labels, datasets: [{ data, backgroundColor: _colores, borderRadius: 4, maxBarThickness: 34 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
@@ -4072,6 +4125,75 @@
     setTimeout(() => { btn.innerHTML = orig; btn.style.color=''; btn.style.borderColor=''; if(typeof lucide!=='undefined') lucide.createIcons(); }, 2200);
   }
 
+  // Guarda UN solo tiempo (el de la distancia d) — botón por fila
+  function saveManualTime(d) {
+    const timeVal = document.getElementById('mt_'+d)?.value.trim();
+    const dateEl  = document.getElementById('md_'+d);
+    const dateVal = dateEl?.value || todayISO();
+    const feedEl  = document.getElementById('mlast_'+d);
+    const aviso = (txt, color) => { if (feedEl) { feedEl.textContent = txt; feedEl.style.color = color; } };
+
+    if (!timeVal) { aviso('Ingresa un tiempo', '#e07b00'); return; }
+    const parts = timeVal.split(':');
+    if (parts.length < 2 || parts.length > 3 || parts.some(p => p === '' || isNaN(parseInt(p)))) {
+      aviso('Formato MM:SS o H:MM:SS', '#e74c3c'); return;
+    }
+
+    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    if (!history[d]) history[d] = [];
+    if (history[d].some(e => e.date === dateVal && e.time === timeVal)) { aviso('Ya estaba registrado', '#888'); return; }
+    history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
+    history[d].sort((a, b) => a.date.localeCompare(b.date));
+
+    // 3200m → sincronizar TMR para Kraemer
+    if (d === '3200m') {
+      const p3 = timeVal.split(':').map(Number);
+      const tmrSec = p3.length === 3 ? p3[0]*3600+p3[1]*60+p3[2] : p3[0]*60+(p3[1]||0);
+      if (tmrSec > 0) {
+        const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+        profile.tmrSec = tmrSec; profile.tmrStr = timeVal;
+        localStorage.setItem('ruckProfile', JSON.stringify(profile));
+        if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+      }
+    }
+
+    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+    buildPRDataFromHistory(history);
+    mostrarUltimosRegistros(history);
+    calcularZonasCarrera();
+    const activeBtn = document.querySelector('.th-dist-btn.active');
+    const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
+    const dist = m ? m[1] : '5km';
+    if (prData[dist]) updatePRChart(dist);
+
+    const timeEl = document.getElementById('mt_'+d);
+    if (timeEl) timeEl.value = '';
+    aviso('✓ Guardado', '#2ecc71');
+    setTimeout(() => { if (feedEl) feedEl.style.color = ''; mostrarUltimosRegistros(JSON.parse(localStorage.getItem('manualTimesHistory')||'{}')); }, 2000);
+  }
+  window.saveManualTime = saveManualTime;
+
+  // Inyecta un botón "Guardar" en cada fila de distancia + guardar con Enter
+  function _injectManualSaveButtons() {
+    document.querySelectorAll('.manual-dist-item').forEach(item => {
+      const inp = item.querySelector('.manual-time-input');
+      if (!inp) return;
+      const d = inp.id.replace('mt_', '');
+      if (!item.querySelector('.manual-row-save')) {
+        const b = document.createElement('button');
+        b.className = 'manual-row-save';
+        b.textContent = '✓ Guardar';
+        b.style.cssText = 'margin-top:6px;width:100%;background:rgba(0,122,133,0.08);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:\'Barlow Condensed\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:6px;border-radius:5px;cursor:pointer;';
+        b.onclick = () => saveManualTime(d);
+        item.appendChild(b);
+      }
+      if (!inp._enterBound) {
+        inp._enterBound = true;
+        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveManualTime(d); } });
+      }
+    });
+  }
+
   function loadManualTimes() {
     // Migrar formato antiguo si existe
     let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
@@ -4094,6 +4216,7 @@
 
     buildPRDataFromHistory(history);
     mostrarUltimosRegistros(history);
+    _injectManualSaveButtons(); // botón "Guardar" por fila + guardar con Enter
 
     // Actualizar gráfico con la distancia activa
     const activeBtn = document.querySelector('.th-dist-btn.active');
