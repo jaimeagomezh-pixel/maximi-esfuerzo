@@ -2151,6 +2151,7 @@ async function cargarInbodyCoach(email) {
             label: 'Masa Muscular (kg)',
             data: lista.map(m => m.musculo),
             fill: true,
+            spanGaps: true,
             backgroundColor: 'rgba(0,168,179,0.35)',
             borderColor: '#00a8b3',
             borderWidth: 2,
@@ -2164,6 +2165,7 @@ async function cargarInbodyCoach(email) {
             label: 'Masa Grasa (kg)',
             data: lista.map(m => m.grasa_kg),
             fill: true,
+            spanGaps: true,
             backgroundColor: 'rgba(231,76,60,0.35)',
             borderColor: '#e74c3c',
             borderWidth: 2,
@@ -2208,18 +2210,24 @@ async function cargarInbodyCoach(email) {
         },
         plugins: {
           legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
-          tooltip:{ callbacks:{ label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
+          tooltip:{ callbacks:{ label: ctx => ctx.parsed.y == null ? null : ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }
     });
 
     document.getElementById('inbodyCoachLeyenda').innerHTML = '';
 
-    histEl.innerHTML = lista.slice().reverse().map(m => `
+    histEl.innerHTML = lista.slice().reverse().map(m => {
+      const completa = m.musculo != null && m.grasa_pct != null;
+      const detalle = completa
+        ? `${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa`
+        : `${m.peso} kg · <span style="font-style:italic;color:var(--text3);">solo peso</span>`;
+      return `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
         <span style="font-family:var(--fc);letter-spacing:1px;color:var(--text2);">${m.fecha}</span>
-        <span style="color:var(--text3);">${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>
-      </div>`).join('');
+        <span style="color:var(--text3);">${detalle}</span>
+      </div>`;
+    }).join('');
 
   } catch(e) {
     console.error('Error InBody coach:', e);
