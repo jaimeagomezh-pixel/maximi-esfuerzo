@@ -1759,7 +1759,16 @@
   function selectDist(dist, btn) {
     currentDist = dist;
     document.querySelectorAll('.th-dist-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
+
+    // Animación flip en el panel de stats al cambiar distancia
+    const statsBox = document.querySelector('.th-pr-stats');
+    if (statsBox) {
+      statsBox.classList.remove('flipping');
+      void statsBox.offsetWidth; // fuerza reflow
+      statsBox.classList.add('flipping');
+      statsBox.addEventListener('animationend', () => statsBox.classList.remove('flipping'), { once: true });
+    }
     updatePRChart(dist);
   }
 

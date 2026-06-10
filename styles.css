@@ -3070,6 +3070,16 @@
     45%  { transform: scaleY(0); color: #d4a843; }
     100% { transform: scaleY(1); }
   }
+  /* Flip del bloque completo de stats al cambiar distancia */
+  .th-pr-stats.flipping {
+    animation: pr-stats-flip 0.32s ease-in-out;
+  }
+  @keyframes pr-stats-flip {
+    0%   { opacity: 1; transform: rotateY(0deg); }
+    40%  { opacity: 0; transform: rotateY(90deg); }
+    60%  { opacity: 0; transform: rotateY(-90deg); }
+    100% { opacity: 1; transform: rotateY(0deg); }
+  }
   .pr-flip-sep {
     font-family: 'Bebas Neue', sans-serif;
     font-size: 1.3rem;
