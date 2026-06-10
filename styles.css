@@ -4241,15 +4241,16 @@ section:hover .section-title::after,
 }
 #cta-final > *:not(.section-aurora) { position: relative; z-index: 1; }
 
-/* En pantallas táctiles (móvil) no hay cursor: la aurora deriva sola,
-   con un movimiento lento y suave, para seguir viva y visible. */
-@media (hover: none) {
-  .section-aurora { animation: auroraDrift 11s ease-in-out infinite alternate; }
+/* En pantallas táctiles (móvil) no hay cursor: la aurora deriva sola.
+   Animamos transform (soporte universal), NO variables CSS (@property
+   no está disponible en muchos navegadores móviles). */
+@media (hover: none), (pointer: coarse) {
+  .section-aurora { animation: auroraDrift 12s ease-in-out infinite alternate; }
 }
 @keyframes auroraDrift {
-  0%   { --mx: 30%; --my: 28%; }
-  50%  { --mx: 58%; --my: 46%; }
-  100% { --mx: 70%; --my: 30%; }
+  0%   { transform: translate(-14%, -10%) scale(1.05); }
+  50%  { transform: translate(12%, 8%)   scale(1.12); }
+  100% { transform: translate(10%, -8%)  scale(1.05); }
 }
 
 /* Tarjetas 3D: durante el tilt acortamos la transición de transform
@@ -4297,7 +4298,7 @@ section:hover .section-title::after,
 }
 
 /* Móvil/táctil: el reflejo se reproduce solo, lento y escalonado. */
-@media (hover: none) {
+@media (hover: none), (pointer: coarse) {
   .area-card::after,
   .plan-card::after { animation: cardShine 5s ease-in-out infinite; }
   .area-card:nth-child(3n+2)::after,
