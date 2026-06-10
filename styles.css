@@ -3071,7 +3071,8 @@
     100% { transform: scaleY(1); }
   }
   /* Flip del bloque completo de stats al cambiar distancia */
-  .th-pr-stats.flipping {
+  .th-pr-stats.flipping,
+  .flip-y {
     animation: pr-stats-flip 0.32s ease-in-out;
   }
   @keyframes pr-stats-flip {

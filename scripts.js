@@ -1104,6 +1104,7 @@
   function selectResMes(mes) {
     _resMesActivo = mes;
     renderResumenMensual();
+    flipEl(document.getElementById('resContenido'));
   }
 
   // ── Guardar sesión Strava completa ───────────────────────────
@@ -2102,6 +2103,15 @@
     }).join('');
   }
 
+  // Animación flip (rotateY) reutilizable para revelar contenido actualizado
+  function flipEl(el) {
+    if (!el) return;
+    el.classList.remove('flip-y');
+    void el.offsetWidth; // fuerza reflow para reiniciar la animación
+    el.classList.add('flip-y');
+    el.addEventListener('animationend', () => el.classList.remove('flip-y'), { once: true });
+  }
+
   // Calcula y muestra la tira RM (12→1) desde el mejor est1RM
   function computeAndShowRMStrip(best1rm) {
     const strip = document.getElementById('thRMStrip');
@@ -2116,6 +2126,9 @@
         <div class="th-rm-unit">kg</div>
       </div>`;
     }).join('');
+    // Flip de las proyecciones al cambiar de ejercicio
+    flipEl(strip);
+    flipEl(document.getElementById('thWorkingMax'));
   }
 
   function loadRealTHData() {
@@ -2831,6 +2844,8 @@
     }
     // Actualizar tabla
     updateStrengthTable(ex);
+    // Flip de las proyecciones al cambiar de ejercicio
+    flipEl(document.getElementById('thWorkingMax'));
   }
 
   function updateStrengthTable(ex) {
