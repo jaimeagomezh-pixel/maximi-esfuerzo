@@ -703,6 +703,21 @@
         style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:3px;text-transform:uppercase;padding:12px;border:none;border-radius:5px;cursor:pointer;">
         Guardar
       </button>
+
+      <!-- EVOLUCIÓN DE PESO (se administra aquí) -->
+      <div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.08);padding-top:14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:10px;">Evolución de peso</div>
+        <div id="mpPesoEmpty" style="font-size:12px;color:#aaa;font-style:italic;">Guarda tu peso arriba para empezar a registrar tu progresión.</div>
+        <div id="mpPesoResumen" style="display:none;">
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <span id="mpPesoActual" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:#222;">—</span>
+            <span style="font-size:11px;color:#999;">kg actual</span>
+            <span id="mpPesoDelta" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.5px;"></span>
+          </div>
+          <div class="th-chart-wrap" style="height:90px;margin-bottom:8px;"><canvas id="mpPesoChart"></canvas></div>
+          <div id="mpPesoLista" style="max-height:140px;overflow:auto;"></div>
+        </div>
+      </div>
     </div>
 
     <!-- STRAVA CONNECT — al inicio -->
@@ -940,10 +955,10 @@
       <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:10px;">
       <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:16px;margin:0 16px 6px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:8px;">
-          ¿Sin Strava o tiempo anterior?
+          Récords Personales — Ingreso Manual
         </div>
         <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5;">
-          Ingrésalo manualmente y aparecerá en tu gráfico de progresión.
+          Registra tus mejores tiempos y aparecerán en tu gráfico de progresión.
         </div>
 
       <!-- Toggle para mostrar/ocultar -->
@@ -964,66 +979,77 @@
               <div class="manual-dist-label">1 km</div>
               <input class="manual-time-input" id="mt_1km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_1km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('1km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_1km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2 km</div>
               <input class="manual-time-input" id="mt_2km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('2km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_2km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2.4 km</div>
               <input class="manual-time-input" id="mt_2400m" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2400m" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('2400m')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_2400m"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">3.2 km</div>
               <input class="manual-time-input" id="mt_3200m" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_3200m" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('3200m')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_3200m"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">5 km</div>
               <input class="manual-time-input" id="mt_5km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_5km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('5km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_5km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">8 km</div>
               <input class="manual-time-input" id="mt_8km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_8km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('8km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_8km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">10 km</div>
               <input class="manual-time-input" id="mt_10km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_10km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('10km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_10km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">12 km</div>
               <input class="manual-time-input" id="mt_12km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_12km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('12km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_12km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">15 km</div>
               <input class="manual-time-input" id="mt_15km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_15km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('15km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_15km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">21 km</div>
               <input class="manual-time-input" id="mt_21km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_21km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('21km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_21km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">42 km</div>
               <input class="manual-time-input" id="mt_42km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_42km" type="date">
+              <button class="manual-row-save" onclick="saveOneTime('42km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_42km"></div>
             </div>
           </div>
@@ -1869,7 +1895,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260609b"></script>
+<script src="scripts.js?v=20260609c"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

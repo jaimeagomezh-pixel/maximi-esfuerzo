@@ -1315,7 +1315,51 @@
       else { badge.textContent = ''; }
     }
     actualizarResumenPerfil(p);
+    renderPesoProgresion();
   }
+
+  // ── Evolución de peso dentro de "Mi Perfil" (el atleta la administra aquí) ──
+  let _mpPesoChart = null;
+  function renderPesoProgresion() {
+    const empty   = document.getElementById('mpPesoEmpty');
+    const resumen = document.getElementById('mpPesoResumen');
+    if (!empty || !resumen) return;
+    const user = window._auth?.currentUser;
+    const lista = user ? JSON.parse(localStorage.getItem('inbodyHistorial_' + user.uid) || '[]') : [];
+    const serie = lista.filter(m => m.peso != null).sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+    if (!serie.length) { empty.style.display = 'block'; resumen.style.display = 'none'; return; }
+    empty.style.display = 'none'; resumen.style.display = 'block';
+
+    const pIni = serie[0].peso, pFin = serie[serie.length - 1].peso;
+    const diff = +(pFin - pIni).toFixed(1);
+    const pct  = pIni ? (diff / pIni * 100).toFixed(1) : '0.0';
+    document.getElementById('mpPesoActual').textContent = pFin;
+    const delEl = document.getElementById('mpPesoDelta');
+    if (serie.length < 2 || diff === 0) {
+      delEl.innerHTML = '<span style="color:#aaa;">— sin cambio</span>';
+    } else {
+      const baja = diff < 0, c = baja ? '#2ecc71' : '#e07b00', ic = baja ? '▼' : '▲';
+      delEl.innerHTML = `<span style="color:${c};">${ic} ${Math.abs(diff)} kg · ${Math.abs(pct)}%</span> <span style="color:#999;font-weight:400;">desde el inicio</span>`;
+    }
+    document.getElementById('mpPesoLista').innerHTML = serie.slice().reverse().map(m => `
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
+        <span style="color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">${m.fecha}</span>
+        <span style="color:#333;font-weight:600;">${m.peso} kg</span>
+      </div>`).join('');
+
+    if (typeof Chart !== 'undefined') {
+      const ctx = document.getElementById('mpPesoChart');
+      if (ctx) {
+        if (_mpPesoChart) { try { _mpPesoChart.destroy(); } catch(e){} }
+        _mpPesoChart = new Chart(ctx, {
+          type: 'line',
+          data: { labels: serie.map(m => m.fecha), datasets: [{ data: serie.map(m => m.peso), borderColor: '#C9A84C', backgroundColor: 'rgba(201,168,76,0.15)', fill: 'start', tension: 0.3, pointRadius: 3, pointBackgroundColor: '#C9A84C' }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 8 }, maxTicksLimit: 6 } }, y: { ticks: { font: { size: 8 }, callback: v => v + 'kg' } } } }
+        });
+      }
+    }
+  }
+  window.renderPesoProgresion = renderPesoProgresion;
 
   // FC máxima estimada por edad — Nes et al. (2013): 211 - 0.64 × edad
   function calcularFCMaxNes(edad) {
@@ -1402,6 +1446,7 @@
 
     // Refrescar chart y cards si están visibles
     if (typeof cargarInbodyHistorial === 'function') cargarInbodyHistorial();
+    if (typeof renderPesoProgresion === 'function') renderPesoProgresion();
 
     // Guardar en cloud
     try {
