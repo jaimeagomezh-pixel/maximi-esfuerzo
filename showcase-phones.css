@@ -291,6 +291,14 @@
   z-index: 1;
   font-size: 2.5rem;
   color: #0a0a0a;
+  /* SVG stroke icons: tamaño fijo */
+  width: 48px;
+  height: 48px;
+  display: block;
+}
+/* Para los SVGs el color viene del atributo stroke, no de color */
+.af-icon svg {
+  color: unset;
 }
 
 .af-item-title {
