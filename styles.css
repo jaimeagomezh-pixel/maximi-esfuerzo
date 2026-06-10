@@ -4264,6 +4264,60 @@ section:hover .section-title::after,
 }
 #cta-final > *:not(.section-aurora) { position: relative; z-index: 1; }
 
+/* ── TARJETA-CANDADO PREMIUM (gating de plan: Fuerza / Potencia) ── */
+.plan-lock {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  margin: 4px 16px 12px;
+  padding: 28px 20px;
+  text-align: center;
+  border: 1px solid rgba(212,168,67,0.3);
+  border-radius: 12px;
+  background: #0c0c0c;
+}
+.plan-lock .pl-aura {
+  position: absolute;
+  inset: -40%;
+  z-index: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(300px 300px at 50% 42%, rgba(212,168,67,0.28), transparent 60%),
+    radial-gradient(360px 360px at 80% 110%, rgba(192,57,43,0.12), transparent 60%);
+  animation: auroraDrift 12s ease-in-out infinite alternate;
+}
+.plan-lock > *:not(.pl-aura) { position: relative; z-index: 1; }
+.pl-ic {
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid rgba(212,168,67,0.45);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 13px;
+}
+.pl-ic svg { width: 22px; height: 22px; stroke: #d4a843; }
+.pl-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem; letter-spacing: 1.5px; color: #f5f0eb; line-height: 1;
+}
+.pl-title span { color: #d4a843; }
+.pl-sub {
+  font-size: 13px; color: #9a948c; line-height: 1.5;
+  max-width: 260px; margin: 9px auto 17px;
+}
+.pl-btn {
+  background: #d4a843; color: #0a0a0a;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 2px;
+  border: none; padding: 12px 26px; font-size: 14px;
+  border-radius: 7px; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(212,168,67,0.35);
+}
+/* Gating: contenido real oculto hasta que el plan esté activo */
+.plan-gated { display: none; }
+body.plan-activo .plan-gated { display: block; }
+body.plan-activo .plan-lock  { display: none; }
+@media (prefers-reduced-motion: reduce) { .plan-lock .pl-aura { animation: none; } }
+
 /* En pantallas táctiles (móvil) no hay cursor: la aurora deriva sola.
    Animamos transform (soporte universal), NO variables CSS (@property
    no está disponible en muchos navegadores móviles). */

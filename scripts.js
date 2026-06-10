@@ -259,6 +259,7 @@
           if (typeof window.bindEnduranceTest === 'function') window.bindEnduranceTest();
           if (typeof window.renderCargaRTSS   === 'function') window.renderCargaRTSS();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
+          if (typeof cargarMiPlan           === 'function') cargarMiPlan(); // fija body.plan-activo (gating Potencia)
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
@@ -695,9 +696,13 @@
     return m ? parseInt(m[1]) : null;
   }
 
+  // Tipos a pie que pueden llevar lastre. La palabra "Lastre XX kg" en el
+  // título es el interruptor maestro: cualquier actividad a pie con lastre → rucking.
+  const FOOT_RUCK_TYPES = new Set(['Walk','Hike','Run','TrailRun','VirtualRun','Treadmill']);
+
   function detectarRuckingDesdeStrava(allActs) {
     const ruckActs = allActs.filter(a =>
-      (a.type === 'Walk' || a.type === 'Hike') && parseLastreKg(a.name) !== null
+      parseLastreKg(a.name) !== null && FOOT_RUCK_TYPES.has(a.sport_type || a.type)
     );
     if (!ruckActs.length) return;
 
@@ -734,6 +739,7 @@
         elev:     elevM,
         notes:    a.name,
         terrain:  'trail',
+        actType:  a.sport_type || a.type,
         source:   'strava'
       });
       knownIds.add(String(a.id));
@@ -782,7 +788,8 @@
 
       // Reusa el historial pasado por cargarDatosStrava; solo refetcha si no vino
       const allActs = (preActs && preActs.length) ? preActs : await fetchTodasLasCarreras(token);
-      const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type));
+      // Una carrera con "Lastre" se desvía a rucking → se excluye del pool de endurance
+      const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null);
 
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
       if (stravaStatus) stravaStatus.textContent = `✓ ${runs.length} carreras cargadas`;
@@ -940,11 +947,13 @@
     const compact = allActs
       .filter(a => a.distance > 0 && a.start_date_local)
       .map(a => ({
-        date: a.start_date_local.slice(0, 10),     // YYYY-MM-DD
-        km:   +(a.distance / 1000).toFixed(2),
-        sec:  a.moving_time || 0,
-        hr:   a.average_heartrate ? Math.round(a.average_heartrate) : null,
-        type: a.type
+        date:  a.start_date_local.slice(0, 10),     // YYYY-MM-DD
+        km:    +(a.distance / 1000).toFixed(2),
+        sec:   a.moving_time || 0,
+        hr:    a.average_heartrate ? Math.round(a.average_heartrate) : null,
+        type:  a.type,
+        sport: a.sport_type || a.type,              // distingue Carrera de montaña
+        name:  a.name || ''                         // para excluir "Lastre" del pool endurance
       }));
     localStorage.setItem('stravaActsCache', JSON.stringify(compact));
   }
@@ -1502,7 +1511,7 @@
   function _datosRangoStrava(range) {
     const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
     const RUN = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
-    let runs = cache.filter(a => RUN.has(a.type) && a.km > 0 && a.sec > 0)
+    let runs = cache.filter(a => RUN.has(a.type) && a.km > 0 && a.sec > 0 && parseLastreKg(a.name) === null)
                     .sort((a, b) => a.date.localeCompare(b.date));
     const dias = range === '7d' ? 7 : range === '1m' ? 31 : range === '3m' ? 92 : null;
     if (dias) {
@@ -4929,6 +4938,7 @@
     if (!user) {
       targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>');
       mostrarBanner(false);
+      document.body.classList.remove('plan-activo');
       return;
     }
     targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;">Cargando...</div>');
@@ -4938,12 +4948,15 @@
       if (!data.ok || !data.plan) {
         targets.forEach(el => el.innerHTML = sinPlanHtml());
         mostrarBanner(true);
+        document.body.classList.remove('plan-activo');
         return;
       }
       const p = data.plan;
       const activo  = p.activo;
       const color   = activo ? '#2ecc71' : '#e74c3c';
       mostrarBanner(!activo); // mostrar banner si el plan está vencido
+      // Gating: desbloquear secciones de plan (Potencia, etc.) solo si está activo
+      document.body.classList.toggle('plan-activo', !!activo);
       const badge   = activo ? '✅ Activo' : '❌ Vencido';
       const diasTxt = p.diasRestantes !== null
         ? (p.diasRestantes > 0 ? `${p.diasRestantes} días restantes` : 'Vence hoy')
