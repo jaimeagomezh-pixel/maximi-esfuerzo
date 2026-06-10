@@ -688,17 +688,34 @@
       <!-- Mis Planes (acordeón) -->
       <button class="dash-menu-link" onclick="toggleMiPlanesMobile()" id="btnMiPlanesMobile"
         style="color:#d4a843 !important;display:flex;align-items:center;justify-content:space-between;width:100%;">
-        <span>📋 &nbsp;Mis Planes</span>
+        <span style="display:inline-flex;align-items:center;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+            <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+            <rect x="9" y="3" width="6" height="4" rx="1"/>
+            <path d="M9 12h6M9 16h6"/>
+          </svg>Mis Planes</span>
         <span id="iconMiPlanesMobile" style="font-size:10px;transition:transform 0.25s;">▼</span>
       </button>
       <div id="miPlanContentMobileWrap" style="display:none;padding:0 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1);">
         <div id="miPlanContentMobile" style="font-size:13px;color:#ccc;"><div style="color:#666;font-style:italic;font-size:12px;">Cargando...</div></div>
       </div>
       <!-- Links -->
-      <button onclick="abrirPlanes();toggleDashMenu()" class="dash-menu-link" style="color:#d4a843 !important;">▶ &nbsp;Ver Planes</button>
-      <button onclick="abrirMiPerfil()" class="dash-menu-link">✎ &nbsp;Mi Perfil</button>
-      <button onclick="cerrarDash();setTimeout(()=>{document.getElementById('blog')?.scrollIntoView({behavior:'smooth'})},300)" class="dash-menu-link">↗ &nbsp;Blog</button>
-      <button onclick="cerrarSesion()" class="dash-menu-link" style="color:#e74c3c !important;border-top:1px solid rgba(231,76,60,0.15);">⏻ &nbsp;Cerrar Sesión</button>
+      <button onclick="abrirPlanes();toggleDashMenu()" class="dash-menu-link" style="color:#d4a843 !important;display:flex;align-items:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+          <rect x="4" y="4" width="7" height="7" rx="1"/><rect x="13" y="4" width="7" height="7" rx="1"/><rect x="4" y="13" width="7" height="7" rx="1"/><rect x="13" y="13" width="7" height="7" rx="1"/>
+        </svg>Ver Planes</button>
+      <button onclick="abrirMiPerfil()" class="dash-menu-link" style="display:flex;align-items:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+          <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
+        </svg>Mi Perfil</button>
+      <button onclick="cerrarDash();setTimeout(()=>{document.getElementById('blog')?.scrollIntoView({behavior:'smooth'})},300)" class="dash-menu-link" style="display:flex;align-items:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+          <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>
+        </svg>Blog</button>
+      <button onclick="cerrarSesion()" class="dash-menu-link" style="color:#e74c3c !important;border-top:1px solid rgba(231,76,60,0.15);display:flex;align-items:center;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
+        </svg>Cerrar Sesión</button>
     </div>
 
     <div class="dash-profile">
@@ -974,7 +991,14 @@
 
 
     <!-- MEJORES TIEMPOS POR DISTANCIA -->
-    <div class="dash-section-title" style="margin-top:4px;">Mejores Tiempos por Distancia</div>
+    <div class="dash-section-title" style="margin-top:4px;">
+      <svg width="18" height="18" viewBox="0 0 48 48" fill="none" stroke="#d4a843" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:8px;">
+        <path d="M16 9 H32 L31 18 Q24 23.5 17 18 Z"/>
+        <path d="M16.5 11 Q11 11 12 16 Q12.5 19.5 16.5 19.5"/>
+        <path d="M31.5 11 Q37 11 36 16 Q35.5 19.5 31.5 19.5"/>
+        <path d="M24 23.5 V28"/><path d="M19 31 H29"/><path d="M21 28 H27"/>
+        <path d="M24 12.6 l1 2 2.2 .3 -1.6 1.55 .37 2.2 -1.97 -1.04 -1.97 1.04 .37 -2.2 -1.6 -1.55 2.2 -.3 z"/>
+      </svg>Mejores Tiempos por Distancia</div>
     <div class="th-chart-container" style="margin:0 8px 6px;">
       <div class="th-chart-header">
         <div>
@@ -1030,7 +1054,13 @@
       <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:10px;">
       <div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:16px;margin:0 16px 6px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:8px;">
-          Récords Personales — Ingreso Manual
+          <svg width="17" height="17" viewBox="0 0 48 48" fill="none" stroke="#b8860b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:7px;">
+            <path d="M16 9 H32 L31 18 Q24 23.5 17 18 Z"/>
+            <path d="M16.5 11 Q11 11 12 16 Q12.5 19.5 16.5 19.5"/>
+            <path d="M31.5 11 Q37 11 36 16 Q35.5 19.5 31.5 19.5"/>
+            <path d="M24 23.5 V28"/><path d="M19 31 H29"/><path d="M21 28 H27"/>
+            <path d="M24 12.6 l1 2 2.2 .3 -1.6 1.55 .37 2.2 -1.97 -1.04 -1.97 1.04 .37 -2.2 -1.6 -1.55 2.2 -.3 z"/>
+          </svg>Récords Personales — Ingreso Manual
         </div>
         <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5;">
           Registra tus mejores tiempos y aparecerán en tu gráfico de progresión.
@@ -1526,12 +1556,12 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- RUCKING: Tabler backpack.svg oficial -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3" />
-            <path d="M10 6v-1a2 2 0 1 1 4 0v1" />
-            <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
-            <path d="M11 10h2" />
+          <!-- RUCKING: montaña con nieve y río (diseño propio) -->
+          <svg viewBox="0 0 48 48" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 35 L19 11 L29 28 L34 21 L43 35 Z" />
+            <path d="M14.5 19.5 l2.2 -2.2 2.3 2.3 2.3 -2.3 1.9 1.9" />
+            <path d="M30.5 26 l1.6 -1.6 1.7 1.7 1.6 -1.6" />
+            <path d="M6 40 q4 -3 8 0 t8 0 t8 0 t8 0" />
           </svg>
         </div>
         <span class="me-accord-label">Rucking</span>
@@ -1712,13 +1742,14 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- COMPOSICIÓN: Tabler man.svg oficial -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10 16v5" />
-            <path d="M14 16v5" />
-            <path d="M9 9h6l-1 7h-4l-1 -7" />
-            <path d="M5 11c1.333 -1.333 2.667 -2 4 -2" />
-            <path d="M19 11c-1.333 -1.333 -2.667 -2 -4 -2" />
+          <!-- COMPOSICIÓN: cuerpo atlético con tronco en V (diseño propio) -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.3 16.2 L9.8 21" />
+            <path d="M13.7 16.2 L14.2 21" />
+            <path d="M8.4 9.2 Q12 7.8 15.6 9.2 L13.2 16.2 Q12 16.7 10.8 16.2 Z" />
+            <path d="M10.7 12 Q12 12.6 13.3 12" opacity="0.55" />
+            <path d="M5 11.5 Q7 9.4 9 9" />
+            <path d="M19 11.5 Q17 9.4 15 9" />
             <path d="M10 4a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
           </svg>
         </div>
