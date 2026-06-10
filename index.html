@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260609e">
+<link rel="stylesheet" href="styles.css?v=20260609h">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -333,7 +333,6 @@
 
 <!-- FILOSOFÍA -->
 <section id="filosofia">
-  <div class="section-aurora" id="filoAurora"></div>
   <div class="filosofia-inner">
     <div class="section-label">Mi Filosofía</div>
     <h2 class="section-title">DISCIPLINA<br><span>SOBRE</span> MOTIVACIÓN</h2>
@@ -558,6 +557,7 @@
 
 <!-- CTA FINAL -->
 <section id="cta-final">
+  <div class="section-aurora" id="ctaAurora"></div>
   <div class="section-label" style="justify-content:center">¿Estás listo?</div>
   <h2 class="cta-title">EL PROTOCOLO<br><span>EMPIEZA</span><br>HOY</h2>
   <p style="color:var(--gris); margin: 20px auto; max-width: 400px; font-size: 0.9rem; line-height: 1.7;">
@@ -3246,12 +3246,12 @@ async function refreshResumenMensual() {
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
 
-  // Aurora dorada que sigue al cursor en la sección Filosofía
-  var filo = document.getElementById('filosofia');
-  var aura = document.getElementById('filoAurora');
-  if (filo && aura) {
-    filo.addEventListener('mousemove', function(e){
-      var r = filo.getBoundingClientRect();
+  // Aurora dorada que sigue al cursor en el CTA final (fondo negro plano)
+  var ctaSec = document.getElementById('cta-final');
+  var aura = document.getElementById('ctaAurora');
+  if (ctaSec && aura) {
+    ctaSec.addEventListener('mousemove', function(e){
+      var r = ctaSec.getBoundingClientRect();
       aura.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
       aura.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
     });
