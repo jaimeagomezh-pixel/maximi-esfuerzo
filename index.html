@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260605">
+<link rel="stylesheet" href="styles.css?v=20260609e">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -65,7 +65,7 @@
   width:52px; height:52px; flex-shrink:0;
   background:#C9630A; display:flex; align-items:center; justify-content:center;
 }
-.me-accord-icon svg { width:28px; height:28px; fill:white; }
+.me-accord-icon svg { width:28px; height:28px; fill:none; stroke:#00c8d4; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 
 .me-accord-label {
   flex:1; font-family:'Barlow Condensed',sans-serif;
@@ -333,6 +333,7 @@
 
 <!-- FILOSOFÍA -->
 <section id="filosofia">
+  <div class="section-aurora" id="filoAurora"></div>
   <div class="filosofia-inner">
     <div class="section-label">Mi Filosofía</div>
     <h2 class="section-title">DISCIPLINA<br><span>SOBRE</span> MOTIVACIÓN</h2>
@@ -739,9 +740,13 @@
     <!-- ══ ACORDEÓN ENDURANCE ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
-        <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <i class="fa-solid fa-person-running" style="color:white;font-size:22px;"></i>
-        </div>
+          <!-- ENDURANCE: corredor stroke -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="13" cy="4" r="1.5"/>
+            <path d="M5 20l3.5-7 2.5 3 3-4 3.5 5"/>
+            <path d="M9 13l-2 4M17 8l-2 1.5-3 .5"/>
+          </svg>
+
         <span class="me-accord-label">Endurance</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
@@ -1309,7 +1314,10 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <i class="fa-solid fa-bolt" style="color:white;font-size:22px;"></i>
+          <!-- POTENCIA: rayo stroke -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
         </div>
         <span class="me-accord-label">Potencia</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1448,7 +1456,12 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <i class="fa-solid fa-boot" style="color:white;font-size:22px;"></i>
+          <!-- RUCKING: mochila/montaña stroke -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+            <path d="M9 12h6M12 9v6"/>
+          </svg>
         </div>
         <span class="me-accord-label">Rucking</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1628,7 +1641,12 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <i class="fa-solid fa-weight-scale" style="color:white;font-size:22px;"></i>
+          <!-- COMPOSICIÓN: cuerpo/báscula stroke -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="5" r="2"/>
+            <path d="M12 7v5M9 10l3 2 3-2"/>
+            <path d="M9 17l-2 4M15 17l2 4M9 17h6a1 1 0 0 0 1-1v-3H8v3a1 1 0 0 0 1 1z"/>
+          </svg>
         </div>
         <span class="me-accord-label">Composición</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -1763,7 +1781,11 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <i class="fa-solid fa-apple-whole" style="color:white;font-size:22px;"></i>
+          <!-- NUTRICIÓN: manzana stroke -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4"/>
+            <path d="M8.5 7C5 7 3 10 3 13.5 3 18 6 22 9 22c1.5 0 2.5-.5 3-.5s1.5.5 3 .5c3 0 6-4 6-8.5C21 10 19 7 15.5 7A5 5 0 0 0 12 9a5 5 0 0 0-3.5-2z"/>
+          </svg>
         </div>
         <span class="me-accord-label">Nutrición</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
@@ -3215,6 +3237,40 @@ async function refreshResumenMensual() {
       }
     }, 1500);
   }
+})();
+</script>
+
+<!-- Efectos premium: Aurora reactiva + Tilt 3D -->
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;
+
+  // Aurora dorada que sigue al cursor en la sección Filosofía
+  var filo = document.getElementById('filosofia');
+  var aura = document.getElementById('filoAurora');
+  if (filo && aura) {
+    filo.addEventListener('mousemove', function(e){
+      var r = filo.getBoundingClientRect();
+      aura.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
+      aura.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
+    });
+  }
+
+  // Tilt 3D delegado (funciona también en tarjetas creadas por JS)
+  var cur = null;
+  function reset(c){ c.classList.remove('tilting'); c.style.transform = ''; }
+  document.addEventListener('mousemove', function(e){
+    var card = e.target.closest && e.target.closest('.area-card, .plan-card');
+    if (card !== cur){ if (cur) reset(cur); cur = card; if (card) card.classList.add('tilting'); }
+    if (!card) return;
+    var r = card.getBoundingClientRect();
+    var x = (e.clientX - r.left) / r.width;
+    var y = (e.clientY - r.top)  / r.height;
+    card.style.transform = 'perspective(900px) rotateY(' + ((x - 0.5) * 10) + 'deg) rotateX(' + ((0.5 - y) * 10) + 'deg) translateY(-4px)';
+    card.style.setProperty('--cx', (x * 100) + '%');
+    card.style.setProperty('--cy', (y * 100) + '%');
+  }, { passive: true });
 })();
 </script>
 
