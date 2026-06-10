@@ -1579,7 +1579,9 @@
           <div class="th-chart-title">Progresión de Rucking</div>
           <div class="th-chart-subtitle" id="ruckACount">Sincronizando con Strava…</div>
         </div>
-        <button onclick="toggleRuckManualAdd()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid rgba(0,122,133,0.3);color:rgba(0,122,133,0.7);padding:5px 10px;border-radius:4px;cursor:pointer;">+ Manual</button>
+        <button onclick="toggleRuckManualAdd()" style="font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:#007a85;border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 3px 10px rgba(0,122,133,0.35);white-space:nowrap;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Manual</button>
       </div>
 
       <!-- Formulario entrada manual (colapsado) -->
@@ -1905,9 +1907,25 @@
           </div>
           <button class="btn-agendar" onclick="alert('Próximamente: calendario de agenda')"><i data-lucide="calendar" style="width:14px;height:14px;vertical-align:middle;margin-right:5px;"></i> Agendar</button>
         </div>
-        <div style="margin:0 16px 16px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;padding:16px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:#888;text-transform:uppercase;margin-bottom:10px;">Próximamente</div>
-          <div style="color:#aaa;font-size:13px;line-height:1.6;">📊 Seguimiento de macros &nbsp;·&nbsp; 🥗 Minuta semanal &nbsp;·&nbsp; 📅 Agenda de consultas</div>
+        <div style="margin:0 16px 18px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:22px 20px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:3px;color:#888;text-transform:uppercase;margin-bottom:16px;">Próximamente</div>
+          <div style="color:#777;font-size:15px;font-weight:500;display:flex;flex-direction:column;gap:14px;">
+            <span style="display:inline-flex;align-items:center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:11px;flex-shrink:0;">
+                <path d="M10 3.2a9 9 0 1 0 10.8 10.8a1 1 0 0 0 -1 -1h-6.8a2 2 0 0 1 -2 -2v-6.8a1 1 0 0 0 -1 -1"/>
+                <path d="M15 3.5a9 9 0 0 1 5.5 5.5h-4.5a1 1 0 0 1 -1 -1z"/>
+              </svg>Seguimiento de macros</span>
+            <span style="display:inline-flex;align-items:center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:11px;flex-shrink:0;">
+                <path d="M4 12 a8 8 0 0 0 16 0 Z"/>
+                <path d="M8.5 8.5 q3.5 -2.5 7 0"/>
+              </svg>Minuta semanal</span>
+            <span style="display:inline-flex;align-items:center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:11px;flex-shrink:0;">
+                <rect x="4" y="5" width="16" height="16" rx="2"/>
+                <path d="M16 3v4M8 3v4M4 10h16"/>
+              </svg>Agenda de consultas</span>
+          </div>
         </div>
       </div>
     </div><!-- /accord nutricion -->
