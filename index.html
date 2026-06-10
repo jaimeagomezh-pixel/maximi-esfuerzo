@@ -62,10 +62,16 @@
 .me-accord-btn.is-open { background:#111; }
 
 .me-accord-icon {
-  width:52px; height:52px; flex-shrink:0;
-  background:#C9630A; display:flex; align-items:center; justify-content:center;
+  width:56px; height:56px; flex-shrink:0;
+  background:#0d1117;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  display:flex; align-items:center; justify-content:center;
+  position:relative;
+  transition: background 0.2s;
 }
-.me-accord-icon svg { width:28px; height:28px; fill:none; stroke:#00c8d4; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.me-accord-btn:hover .me-accord-icon { background:#111820; }
+.me-accord-btn.is-open .me-accord-icon { background:#0d1117; }
+.me-accord-icon svg { width:32px; height:32px; fill:none; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
 
 .me-accord-label {
   flex:1; font-family:'Barlow Condensed',sans-serif;
@@ -428,10 +434,11 @@
   <div class="af-grid">
     <div class="af-item">
       <div class="af-icon">
-        <!-- Smartphone/mobile: stroke teal -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-          <line x1="12" y1="18" x2="12.01" y2="18"/>
+        <!-- Smartphone: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-14z" />
+          <path d="M11 4h2" />
+          <path d="M12 17v.01" />
         </svg>
       </div>
       <h3 class="af-item-title">Entrena en cualquier lugar</h3>
@@ -439,12 +446,14 @@
     </div>
     <div class="af-item">
       <div class="af-icon icon-red">
-        <!-- Calendario: stroke rojo -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
+        <!-- Calendario: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z" />
+          <path d="M16 3v4" />
+          <path d="M8 3v4" />
+          <path d="M4 11h16" />
+          <path d="M11 15h1" />
+          <path d="M12 15v3" />
         </svg>
       </div>
       <h3 class="af-item-title">Controla tu calendario</h3>
@@ -452,13 +461,14 @@
     </div>
     <div class="af-item">
       <div class="af-icon icon-gold">
-        <!-- Trofeo: stroke dorado -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="8 21 12 17 16 21"/>
-          <line x1="12" y1="17" x2="12" y2="11"/>
-          <path d="M7 4H4a1 1 0 0 0-1 1v2a4 4 0 0 0 4 4h1"/>
-          <path d="M17 4h3a1 1 0 0 1 1 1v2a4 4 0 0 1-4 4h-1"/>
-          <rect x="7" y="2" width="10" height="9" rx="1"/>
+        <!-- Trofeo: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 21l8 0" />
+          <path d="M12 17l0 4" />
+          <path d="M7 4l10 0" />
+          <path d="M17 4v8a5 5 0 0 1 -10 0v-8" />
+          <path d="M5 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M19 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
         </svg>
       </div>
       <h3 class="af-item-title">Celebra tu progreso</h3>
@@ -466,17 +476,17 @@
     </div>
     <div class="af-item">
       <div class="af-icon icon-gold">
-        <!-- Sliders/configuración: stroke dorado -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" y1="21" x2="4" y2="14"/>
-          <line x1="4" y1="10" x2="4" y2="3"/>
-          <line x1="12" y1="21" x2="12" y2="12"/>
-          <line x1="12" y1="8" x2="12" y2="3"/>
-          <line x1="20" y1="21" x2="20" y2="16"/>
-          <line x1="20" y1="12" x2="20" y2="3"/>
-          <line x1="1" y1="14" x2="7" y2="14"/>
-          <line x1="9" y1="8" x2="15" y2="8"/>
-          <line x1="17" y1="16" x2="23" y2="16"/>
+        <!-- Sliders: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 4l0 6" />
+          <path d="M19 14l0 6" />
+          <path d="M5 20l0 -2" />
+          <path d="M19 4l0 2" />
+          <path d="M12 4l0 9" />
+          <path d="M5 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M12 13m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M19 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+          <path d="M12 15l0 5" />
         </svg>
       </div>
       <h3 class="af-item-title">Adapta tu entrenamiento</h3>
@@ -484,17 +494,16 @@
     </div>
     <div class="af-item">
       <div class="af-icon">
-        <!-- Calculadora/herramientas: stroke teal -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="4" y="2" width="16" height="20" rx="2"/>
-          <line x1="8" y1="6" x2="16" y2="6"/>
-          <line x1="8" y1="10" x2="8" y2="10"/>
-          <line x1="12" y1="10" x2="12" y2="10"/>
-          <line x1="16" y1="10" x2="16" y2="10"/>
-          <line x1="8" y1="14" x2="8" y2="14"/>
-          <line x1="12" y1="14" x2="12" y2="14"/>
-          <line x1="16" y1="14" x2="16" y2="14"/>
-          <line x1="8" y1="18" x2="16" y2="18"/>
+        <!-- Calculadora: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 3m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z" />
+          <path d="M8 7m0 1a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1v2a1 1 0 0 1 -1 1h-6a1 1 0 0 1 -1 -1z" />
+          <path d="M8 14l0 .01" />
+          <path d="M12 14l0 .01" />
+          <path d="M16 14l0 .01" />
+          <path d="M8 17l0 .01" />
+          <path d="M12 17l0 .01" />
+          <path d="M16 17l0 .01" />
         </svg>
       </div>
       <h3 class="af-item-title">Herramientas integradas</h3>
@@ -502,12 +511,13 @@
     </div>
     <div class="af-item">
       <div class="af-icon icon-red">
-        <!-- Biblioteca/ejercicios: stroke rojo -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-          <line x1="9" y1="7" x2="15" y2="7"/>
-          <line x1="9" y1="11" x2="15" y2="11"/>
+        <!-- Libro/ejercicios: Tabler stroke -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+          <path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" />
+          <path d="M3 6l0 13" />
+          <path d="M12 6l0 13" />
+          <path d="M21 6l0 13" />
         </svg>
       </div>
       <h3 class="af-item-title">Librería de ejercicios</h3>
@@ -798,13 +808,12 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- ENDURANCE: corredor profesional -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="13" cy="4" r="1"/>
-            <path d="M5 21l2 -3h5l2 -3.5"/>
-            <path d="M6 12l1 -3l4 1l3 3l3 1"/>
-            <path d="M14.5 10.5l1.5 2.5l3 1"/>
-            <path d="M3 12h2"/>
+          <!-- ENDURANCE: Tabler run.svg oficial -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.007 5a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+            <path d="M4 17l5 1l.75 -1.5" />
+            <path d="M15 21v-4l-4 -3l1 -6" />
+            <path d="M7 12v-3l5 -1l3 3l3 1" />
           </svg>
         </div>
         <span class="me-accord-label">Endurance</span>
@@ -1375,10 +1384,9 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- POTENCIA: rayo profesional -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 2l10 0"/>
-            <path d="M7 2l-4 7l5 0l-4 13l12 -13l-5 0l5 -7z"/>
+          <!-- POTENCIA: Tabler bolt.svg oficial -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" />
           </svg>
         </div>
         <span class="me-accord-label">Potencia</span>
@@ -1518,13 +1526,12 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- RUCKING: mochila profesional -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M5 18v-6a7 7 0 0 1 14 0v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3z"/>
-            <path d="M10 9a3.5 3.5 0 0 0 4 0"/>
-            <path d="M8 21l0 -5a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2l0 5"/>
-            <path d="M9 5a3 3 0 0 1 6 0"/>
-            <path d="M10 14h4"/>
+          <!-- RUCKING: Tabler backpack.svg oficial -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 18v-6a6 6 0 0 1 6 -6h2a6 6 0 0 1 6 6v6a3 3 0 0 1 -3 3h-8a3 3 0 0 1 -3 -3" />
+            <path d="M10 6v-1a2 2 0 1 1 4 0v1" />
+            <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+            <path d="M11 10h2" />
           </svg>
         </div>
         <span class="me-accord-label">Rucking</span>
@@ -1705,18 +1712,17 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- COMPOSICIÓN: cuerpo profesional -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="5" r="2"/>
-            <path d="M10 9h4"/>
-            <path d="M9 9v5l1 3h4l1 -3v-5"/>
-            <path d="M9 14h6"/>
-            <path d="M9 12l-3 2"/>
-            <path d="M15 12l3 2"/>
-            <path d="M10 17l-1 4"/>
-            <path d="M14 17l1 4"/>
+          <!-- COMPOSICIÓN: Tabler man.svg oficial -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 16v5" />
+            <path d="M14 16v5" />
+            <path d="M9 9h6l-1 7h-4l-1 -7" />
+            <path d="M5 11c1.333 -1.333 2.667 -2 4 -2" />
+            <path d="M19 11c-1.333 -1.333 -2.667 -2 -4 -2" />
+            <path d="M10 4a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
           </svg>
         </div>
+
         <span class="me-accord-label">Composición</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
@@ -1850,13 +1856,11 @@
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- NUTRICIÓN: manzana profesional -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 14c-3.314 0-6-2.686-6-6s2.686-6 6-6 6 2.686 6 6-2.686 6-6 6z"/>
-            <path d="M12 14v7"/>
-            <path d="M9 18h6"/>
-            <path d="M12 8c0 0 1.5-2 3-2"/>
-            <path d="M7 11a5 5 0 0 0 5 3 5 5 0 0 0 5-3"/>
+          <!-- NUTRICIÓN: Tabler apple.svg oficial -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 11.319c0 3.102 .444 5.319 2.222 7.978c1.351 1.797 3.156 2.247 5.08 .988c.426 -.268 .97 -.268 1.397 0c1.923 1.26 3.728 .809 5.079 -.988c1.778 -2.66 2.222 -4.876 2.222 -7.977c0 -2.661 -1.99 -5.32 -4.444 -5.32c-1.267 0 -2.41 .693 -3.22 1.44a.5 .5 0 0 1 -.672 0c-.809 -.746 -1.953 -1.44 -3.22 -1.44c-2.454 0 -4.444 2.66 -4.444 5.319" />
+            <path d="M7 12c0 -1.47 .454 -2.34 1.5 -3" />
+            <path d="M12 7c0 -1.2 .867 -4 3 -4" />
           </svg>
         </div>
         <span class="me-accord-label">Nutrición</span>
