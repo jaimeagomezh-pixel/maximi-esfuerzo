@@ -340,12 +340,12 @@
 
   // ── STRAVA INTEGRATION ──
   const STRAVA_CLIENT_ID = '249036';
-  const STRAVA_REDIRECT   = encodeURIComponent('https://maximi-esfuerzo.pages.dev');
+  const STRAVA_REDIRECT   = encodeURIComponent('https://maximoesfuerzo.cl');
   const STRAVA_SCOPE      = 'read,activity:read_all';
   const STRAVA_WORKER     = 'https://strava-auth.jaimea-gomezh.workers.dev/exchange';
 
   function conectarStrava() {
-    const authUrl = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=https://maximi-esfuerzo.pages.dev&response_type=code&scope=${STRAVA_SCOPE}&approval_prompt=force`;
+    const authUrl = `https://www.strava.com/oauth/authorize?client_id=${STRAVA_CLIENT_ID}&redirect_uri=https://maximoesfuerzo.cl&response_type=code&scope=${STRAVA_SCOPE}&approval_prompt=force`;
     window.location.href = authUrl;
   }
 
