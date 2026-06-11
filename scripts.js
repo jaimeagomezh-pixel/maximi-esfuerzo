@@ -414,15 +414,29 @@
     return res;
   }
 
-  async function cargarDatosStrava(accessToken) {
+  let _stravaYaCargado   = false;          // se resetea en cada carga de página
+  let _stravaSyncEnCurso = false;          // evita disparos concurrentes (doble llamada)
+  const STRAVA_FRESH_MS  = 10 * 60 * 1000; // 10 min: no re-llamar a Strava si está fresco
+
+  function _marcarStravaConectado() {
+    const card = document.getElementById('btnStrava');
+    if (card) card.classList.add('conectado');
+    const st = document.getElementById('stravaStatus');
+    if (st) st.textContent = '✓ Conectado';
+  }
+
+  async function cargarDatosStrava(accessToken, force = false) {
+    // Anti doble disparo: si ya hay una sincronización en curso, no lances otra
+    if (_stravaSyncEnCurso) return;
+    // Frescura: si ya cargamos en esta sesión y los datos son recientes, no re-llamamos
+    if (!force && _stravaYaCargado) {
+      const last = parseInt(localStorage.getItem('strava_last_sync') || '0');
+      if (Date.now() - last < STRAVA_FRESH_MS) { _marcarStravaConectado(); return; }
+    }
+    _stravaSyncEnCurso = true;
     try {
       // Marcar Strava como conectado
-      const stravaCard = document.getElementById('btnStrava');
-      if (stravaCard) {
-        stravaCard.classList.add('conectado');
-        const stravaStatus = document.getElementById('stravaStatus');
-        if (stravaStatus) stravaStatus.textContent = '✓ Conectado';
-      }
+      _marcarStravaConectado();
 
       // Historial reciente en UNA sola llamada; la actividad más reciente (con
       // distancia) es la primera de la lista → sirve para el hero sin pedirla aparte.
@@ -493,37 +507,45 @@
       // PRs automáticos en background — reusa el historial ya descargado (sin re-fetch)
       cargarPRsStrava(accessToken, actividades);
 
-      // Info del atleta — guardar ID para sincronización de rucking
-      const atletaRes  = await stravaFetch('https://www.strava.com/api/v3/athlete', accessToken);
-      const atletaData = await atletaRes.json();
-      if (atletaData.id) {
-        localStorage.setItem('strava_athlete_id', String(atletaData.id));
-        // Si también tiene sesión Firebase, guardar vínculo uid→stravaId en el Worker
-        // para que el coach lo detecte sin depender de comparación de nombres
-        const uid = window._auth?.currentUser?.uid;
-        if (uid) {
-          const existingProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-          const nombreStrava = ((atletaData.firstname||'') + ' ' + (atletaData.lastname||'')).trim()
-                             || localStorage.getItem('atletaNombre') || '';
-          fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              stravaId: 'uid:' + uid,
-              nombre: nombreStrava,
-              profile: { ...existingProfile, linkedStravaId: String(atletaData.id) }
-            })
-          }).catch(() => {});
+      // Info del atleta — SOLO en el primer connect (cuando aún no tenemos el ID).
+      // Evita una llamada a /athlete en cada entrada posterior.
+      if (!localStorage.getItem('strava_athlete_id')) {
+        const atletaRes  = await stravaFetch('https://www.strava.com/api/v3/athlete', accessToken);
+        const atletaData = await atletaRes.json();
+        if (atletaData.id) {
+          localStorage.setItem('strava_athlete_id', String(atletaData.id));
+          // Vínculo uid→stravaId en el Worker para que el coach lo detecte
+          const uid = window._auth?.currentUser?.uid;
+          if (uid) {
+            const existingProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+            const nombreStrava = ((atletaData.firstname||'') + ' ' + (atletaData.lastname||'')).trim()
+                               || localStorage.getItem('atletaNombre') || '';
+            fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                stravaId: 'uid:' + uid,
+                nombre: nombreStrava,
+                profile: { ...existingProfile, linkedStravaId: String(atletaData.id) }
+              })
+            }).catch(() => {});
+          }
         }
-        // Sincronizar rucking guardado si hay sesiones previas
-        const prevSessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
-        if (prevSessions.length) pushRuckingToCloud(prevSessions);
       }
-      return atletaData;
+
+      // Sincronizar rucking guardado si hay sesiones previas (siempre)
+      const prevSessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
+      if (prevSessions.length) pushRuckingToCloud(prevSessions);
+
+      // Datos cargados correctamente → marcar frescura para no re-llamar en la sesión
+      localStorage.setItem('strava_last_sync', String(Date.now()));
+      _stravaYaCargado = true;
 
     } catch(e) {
       if (e && e.rateLimited) { mostrarEstadoRateLimit(); return; }
       console.error('Strava error:', e);
+    } finally {
+      _stravaSyncEnCurso = false;
     }
   }
 
@@ -1196,7 +1218,7 @@
       const data = await res.json();
       if (data.access_token) {
         guardarSesionStrava(data); // guarda token + refresh_token + expiry
-        cargarDatosStrava(data.access_token);
+        cargarDatosStrava(data.access_token, true); // connect nuevo → sincroniza sí o sí
         const nombre = localStorage.getItem('atletaNombre') || 'Atleta';
         abrirDashboard(nombre);
       }
