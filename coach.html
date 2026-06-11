@@ -390,6 +390,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
   </div>
   <div class="ptabs">
     <button class="ptab active" onclick="showTab('atletas',this)">Atletas</button>
+    <button class="ptab" onclick="showTab('entrenamiento',this)">Entrenamiento</button>
     <button class="ptab" onclick="showTab('resumen',this)">Resumen</button>
     <button class="ptab" onclick="showTab('rucking',this)">Rucking</button>
   </div>
@@ -685,6 +686,122 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
       </div>
 
     </div><!-- /tab-rucking -->
+
+    <!-- ══════════════════ TAB ENTRENAMIENTO ══════════════════ -->
+    <style>
+    /* Módulo Entrenamiento */
+    .tr-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+    .tr-add-btn{font-family:var(--fc);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;background:var(--cian);color:#fff;border:none;border-radius:6px;padding:11px 18px;cursor:pointer;transition:background .2s;white-space:nowrap;}
+    .tr-add-btn:hover{background:var(--cian2);}
+    .tr-cat-badge{font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff;display:inline-block;}
+    .tr-ex-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--cian2);border-radius:8px;padding:12px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+    .tr-ex-card .nombre{font-family:var(--fc);font-size:15px;font-weight:700;color:var(--text);flex:1;min-width:0;}
+    .tr-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;align-items:center;justify-content:center;padding:20px;}
+    .tr-modal-card{background:#fff;border-radius:12px;max-width:480px;width:100%;max-height:88vh;overflow:auto;padding:22px;}
+    .tr-label{font-family:var(--fc);font-size:11px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;font-weight:600;display:block;margin:12px 0 5px;}
+    .tr-input{width:100%;background:#f2f5f7;border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:15px;padding:10px 12px;border-radius:6px;outline:none;transition:border .2s;}
+    .tr-input:focus{border-color:var(--cian2);}
+    .tr-bloque{background:#f8f9fa;border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+    .tr-bloque-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+    .tr-bloque-letra{font-family:var(--fd);font-size:1.7rem;color:var(--cian);width:34px;height:34px;border-radius:8px;background:rgba(139,26,26,0.08);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+    .tr-ex-row{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:6px;}
+    .tr-ex-row .rx-grid{display:grid;grid-template-columns:64px 1fr 1fr 86px 80px;gap:6px;margin-top:8px;}
+    @media(max-width:640px){.tr-ex-row .rx-grid{grid-template-columns:repeat(3,1fr);}}
+    .tr-rx-input{width:100%;background:#f2f5f7;border:1px solid var(--border);border-radius:5px;padding:7px 8px;font-family:var(--fb);font-size:14px;color:var(--text);outline:none;text-align:center;}
+    .tr-rx-input:focus{border-color:var(--cian2);}
+    .tr-rx-l{font-family:var(--fc);font-size:9px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;display:block;text-align:center;margin-bottom:3px;}
+    .tr-atl-chip{font-family:var(--fc);font-size:13px;letter-spacing:0.5px;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:all .15s;font-weight:600;}
+    .tr-atl-chip.sel{background:var(--cian);border-color:var(--cian);color:#fff;}
+    .tr-atl-chip.grupo{border-style:dashed;}
+    .tr-sess-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:8px;padding:13px 16px;margin-bottom:8px;}
+    .tr-pick-item{padding:11px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;background:#fff;}
+    .tr-pick-item:hover{border-color:var(--cian2);background:rgba(0,168,179,0.05);}
+    .tr-empty{text-align:center;padding:22px;color:var(--text3);font-size:13px;font-style:italic;}
+    </style>
+
+    <div class="psec" id="tab-entrenamiento">
+
+      <div class="filtros" style="margin-bottom:18px;">
+        <button class="f-btn active" onclick="trShowSub('lib',this)">📚 Biblioteca</button>
+        <button class="f-btn" onclick="trShowSub('prog',this)">📋 Programar</button>
+      </div>
+
+      <!-- ── SUB: BIBLIOTECA ── -->
+      <div id="trSubLib">
+        <div class="sec">
+          <div class="sec-t">Biblioteca de Ejercicios <span id="trLibCount" style="color:var(--text3);font-weight:600;"></span></div>
+          <div class="tr-toolbar">
+            <input type="search" class="tr-input" style="flex:1;min-width:180px;" placeholder="Buscar ejercicio..." oninput="trBuscarLib(this.value)">
+            <button class="tr-add-btn" onclick="trAbrirExModal()">+ Ejercicio</button>
+          </div>
+          <div class="filtros" id="trLibCatChips" style="margin-bottom:14px;"></div>
+          <div id="trLibList"><div class="tr-empty">Cargando biblioteca…</div></div>
+        </div>
+      </div>
+
+      <!-- ── SUB: PROGRAMAR ── -->
+      <div id="trSubProg" style="display:none;">
+        <div class="sec">
+          <div class="sec-t" id="trBuilderTitle">Nueva Sesión</div>
+          <div style="display:grid;grid-template-columns:160px 1fr;gap:10px;margin-bottom:4px;">
+            <div><span class="tr-label" style="margin-top:0;">Fecha</span><input type="date" class="tr-input" id="trFecha" onchange="_trSesion.fecha=this.value"></div>
+            <div><span class="tr-label" style="margin-top:0;">Título de la sesión</span><input type="text" class="tr-input" id="trTitulo" placeholder="Ej: Día 1 — Tren Inferior" oninput="_trSesion.titulo=this.value"></div>
+          </div>
+          <span class="tr-label">Asignar a</span>
+          <div id="trAsignar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;"></div>
+          <span class="tr-label">Bloques</span>
+          <div id="trBloques"></div>
+          <button class="act-btn" style="width:100%;padding:12px;font-size:12px;border-style:dashed;" onclick="trNuevoBloque()">+ Agregar bloque</button>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;">
+            <button class="tr-add-btn" style="flex:1;min-width:200px;padding:14px;" onclick="trGuardarSesion()">💾 Guardar y asignar sesión</button>
+            <button class="act-btn" id="trCancelEditBtn" style="display:none;padding:12px 16px;" onclick="trResetBuilder()">✕ Cancelar edición</button>
+          </div>
+          <div id="trGuardarStatus" style="margin-top:10px;font-size:13px;"></div>
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">Sesiones Programadas</div>
+          <select class="tr-input" id="trVerAtleta" style="margin-bottom:12px;" onchange="trCargarSesiones()">
+            <option value="">— Elegir atleta —</option>
+          </select>
+          <div id="trSesionesList"><div class="tr-empty">Elige un atleta para ver sus sesiones.</div></div>
+        </div>
+      </div>
+
+      <!-- MODAL: crear/editar ejercicio -->
+      <div class="tr-modal" id="trExModal" onclick="trCerrarModales()">
+        <div class="tr-modal-card" onclick="event.stopPropagation()">
+          <div style="font-family:var(--fd);font-size:1.6rem;letter-spacing:2px;" id="trExModalTitle">Nuevo ejercicio</div>
+          <span class="tr-label">Nombre *</span>
+          <input type="text" class="tr-input" id="trExNombre" placeholder="Ej: Back Squat">
+          <span class="tr-label">Categoría</span>
+          <select class="tr-input" id="trExCat"></select>
+          <span class="tr-label">Video (URL YouTube / Drive — opcional)</span>
+          <input type="url" class="tr-input" id="trExVideo" placeholder="https://...">
+          <span class="tr-label">Unidad de carga</span>
+          <select class="tr-input" id="trExUnidad">
+            <option value="kg">kg</option><option value="lb">lb</option><option value="seg">segundos</option>
+            <option value="m">metros</option><option value="cal">calorías</option><option value="bw">peso corporal</option>
+          </select>
+          <span class="tr-label">Notas / instrucciones (opcional)</span>
+          <textarea class="tr-input" id="trExNotas" rows="3" placeholder="Indicaciones técnicas para el atleta…"></textarea>
+          <div style="display:flex;gap:8px;margin-top:18px;">
+            <button class="tr-add-btn" style="flex:1;" onclick="trGuardarEx()">Guardar</button>
+            <button class="act-btn" style="padding:11px 16px;" onclick="trCerrarModales()">Cancelar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL: elegir ejercicio de biblioteca para un bloque -->
+      <div class="tr-modal" id="trPickModal" onclick="trCerrarModales()">
+        <div class="tr-modal-card" onclick="event.stopPropagation()">
+          <div style="font-family:var(--fd);font-size:1.6rem;letter-spacing:2px;margin-bottom:10px;">Agregar ejercicio</div>
+          <input type="search" class="tr-input" id="trPickSearch" placeholder="Buscar en la biblioteca..." oninput="trRenderPicker(this.value)" style="margin-bottom:10px;">
+          <div id="trPickList" style="max-height:50vh;overflow:auto;"></div>
+        </div>
+      </div>
+
+    </div><!-- /tab-entrenamiento -->
 
   </div>
 </div>
@@ -2922,6 +3039,444 @@ function cerrarPerfil() {
   [chartPeso,chartStrava,chartFuerza,chartPR].forEach(c=>c?.destroy());
   chartPeso=chartStrava=chartFuerza=chartPR=null;
   window._atleta = null;
+}
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// MÓDULO ENTRENAMIENTO — Biblioteca de Ejercicios + Programador
+// Nube: /train/library y /train/plan en flow-payments worker.
+// Clave de atleta en la nube: "uid:<firebaseUid>" (igual que rucking).
+// ══════════════════════════════════════════════════════════════
+
+const TRAIN_CATS = {
+  calentamiento:{n:'Calentamiento',c:'#e67e22'},
+  fuerza:{n:'Fuerza',c:'#8B1A1A'},
+  potencia:{n:'Potencia',c:'#7b4dd4'},
+  hipertrofia:{n:'Hipertrofia',c:'#c2185b'},
+  resistencia:{n:'Resistencia',c:'#007a85'},
+  core:{n:'Core',c:'#1e8c3a'},
+  movilidad:{n:'Movilidad',c:'#0277bd'}
+};
+const TRAIN_LETRAS = 'ABCDEFGHIJ';
+const TRAIN_UNIDADES = ['kg','lb','%','RPE','BW','seg','m','cal'];
+
+let _trLib = [];
+let _trLibFiltroCat = null, _trLibBusqueda = '';
+let _trSesion = null;
+let _trSel = new Set();          // ids locales de atletas seleccionados
+let _trPickBloque = null;        // bloque destino del picker
+let _trEditando = false;
+let _trInit = false;
+let _trSessCache = [];           // sesiones del atleta visible en "Programadas"
+
+function trEsc(s){ return String(s??'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// Hook: inicializa el módulo la primera vez que se abre la pestaña
+const _trShowTabOrig = showTab;
+showTab = function(id, btn){ _trShowTabOrig(id, btn); if (id === 'entrenamiento') initEntrenamiento(); };
+
+async function initEntrenamiento(){
+  if (_trInit) return;
+  _trInit = true;
+  try { _trLib = JSON.parse(localStorage.getItem('trainLib')||'[]'); } catch(e){ _trLib = []; }
+  trRenderCatChips(); trRenderLib(); trResetBuilder(); trRenderVerAtletaSelect();
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/train/library?secret=${encodeURIComponent(PASS)}`);
+    const d = await r.json();
+    if (d.ok) { _trLib = d.exercises || []; localStorage.setItem('trainLib', JSON.stringify(_trLib)); trRenderLib(); }
+  } catch(e){ console.warn('[Train] No se pudo leer biblioteca de la nube:', e); }
+}
+
+function trShowSub(which, btn){
+  document.getElementById('trSubLib').style.display  = which==='lib'  ? 'block' : 'none';
+  document.getElementById('trSubProg').style.display = which==='prog' ? 'block' : 'none';
+  btn.parentElement.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── BIBLIOTECA ──────────────────────────────────────────────
+async function trSyncLib(){
+  localStorage.setItem('trainLib', JSON.stringify(_trLib));
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/train/library`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ secret: PASS, exercises: _trLib })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error del worker');
+    return true;
+  } catch(e){ alert('⚠ No se pudo guardar la biblioteca en la nube: ' + e.message); return false; }
+}
+
+function trRenderCatChips(){
+  const el = document.getElementById('trLibCatChips');
+  el.innerHTML = `<button class="f-btn active" style="font-size:12px;padding:7px 13px;" onclick="trFiltroCat(null,this)">Todas</button>` +
+    Object.entries(TRAIN_CATS).map(([k,v]) =>
+      `<button class="f-btn" style="font-size:12px;padding:7px 13px;" onclick="trFiltroCat('${k}',this)">${v.n}</button>`).join('');
+}
+function trFiltroCat(cat, btn){
+  _trLibFiltroCat = cat;
+  btn.parentElement.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  trRenderLib();
+}
+function trBuscarLib(q){ _trLibBusqueda = (q||'').toLowerCase(); trRenderLib(); }
+
+function trRenderLib(){
+  const el = document.getElementById('trLibList');
+  const cnt = document.getElementById('trLibCount');
+  cnt.textContent = _trLib.length ? `· ${_trLib.length}` : '';
+  let lista = _trLib;
+  if (_trLibFiltroCat) lista = lista.filter(e => e.cat === _trLibFiltroCat);
+  if (_trLibBusqueda)  lista = lista.filter(e => e.nombre.toLowerCase().includes(_trLibBusqueda));
+  if (!lista.length) {
+    el.innerHTML = `<div class="tr-empty">${_trLib.length ? 'Sin resultados para este filtro.' : 'Biblioteca vacía. Crea tu primer ejercicio con el botón <strong>+ Ejercicio</strong>.'}</div>`;
+    return;
+  }
+  el.innerHTML = lista.map(e => {
+    const cat = TRAIN_CATS[e.cat] || {n:e.cat, c:'#666'};
+    return `<div class="tr-ex-card" style="border-left-color:${cat.c};">
+      <div class="nombre">${trEsc(e.nombre)}</div>
+      ${e.video ? `<a href="${trEsc(e.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;font-size:15px;">🎬</a>` : ''}
+      <span class="tr-cat-badge" style="background:${cat.c};">${cat.n}</span>
+      <span style="font-family:var(--fc);font-size:11px;color:var(--text3);text-transform:uppercase;">${trEsc(e.unidad||'kg')}</span>
+      <button class="act-btn" onclick="trAbrirExModal('${e.id}')">✎</button>
+      <button class="act-btn peligro" onclick="trEliminarEx('${e.id}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+let _trExEditId = null;
+function trAbrirExModal(id){
+  _trExEditId = id || null;
+  const ex = id ? _trLib.find(e => e.id === id) : null;
+  document.getElementById('trExModalTitle').textContent = ex ? 'Editar ejercicio' : 'Nuevo ejercicio';
+  const sel = document.getElementById('trExCat');
+  sel.innerHTML = Object.entries(TRAIN_CATS).map(([k,v]) => `<option value="${k}">${v.n}</option>`).join('');
+  document.getElementById('trExNombre').value = ex ? ex.nombre : '';
+  sel.value = ex ? ex.cat : 'fuerza';
+  document.getElementById('trExVideo').value  = ex ? (ex.video||'') : '';
+  document.getElementById('trExUnidad').value = ex ? (ex.unidad||'kg') : 'kg';
+  document.getElementById('trExNotas').value  = ex ? (ex.notas||'') : '';
+  document.getElementById('trExModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('trExNombre').focus(), 50);
+}
+function trCerrarModales(){
+  document.getElementById('trExModal').style.display = 'none';
+  document.getElementById('trPickModal').style.display = 'none';
+}
+
+async function trGuardarEx(){
+  const nombre = document.getElementById('trExNombre').value.trim();
+  if (!nombre) { alert('El nombre es obligatorio.'); return; }
+  const datos = {
+    nombre,
+    cat:    document.getElementById('trExCat').value,
+    video:  document.getElementById('trExVideo').value.trim(),
+    unidad: document.getElementById('trExUnidad').value,
+    notas:  document.getElementById('trExNotas').value.trim()
+  };
+  if (_trExEditId) {
+    const i = _trLib.findIndex(e => e.id === _trExEditId);
+    if (i >= 0) _trLib[i] = { ..._trLib[i], ...datos };
+  } else {
+    _trLib.push({ id: 'ex' + Date.now().toString(36) + Math.random().toString(36).slice(2,5), ...datos });
+  }
+  trCerrarModales();
+  trRenderLib();
+  await trSyncLib();
+}
+
+async function trEliminarEx(id){
+  const ex = _trLib.find(e => e.id === id);
+  if (!ex) return;
+  if (!confirm(`¿Eliminar "${ex.nombre}" de la biblioteca?\n(Las sesiones ya programadas no se modifican.)`)) return;
+  _trLib = _trLib.filter(e => e.id !== id);
+  trRenderLib();
+  await trSyncLib();
+}
+
+// ── PROGRAMADOR: BUILDER ────────────────────────────────────
+function trResetBuilder(){
+  _trSesion = {
+    id: 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    fecha: new Date().toISOString().slice(0,10),
+    titulo: '',
+    bloques: []
+  };
+  _trEditando = false;
+  _trSel.clear();
+  document.getElementById('trBuilderTitle').textContent = 'Nueva Sesión';
+  document.getElementById('trCancelEditBtn').style.display = 'none';
+  document.getElementById('trFecha').value = _trSesion.fecha;
+  document.getElementById('trTitulo').value = '';
+  document.getElementById('trGuardarStatus').innerHTML = '';
+  trRenderAsignar();
+  trRenderBloques();
+}
+
+function trNuevoBloque(){
+  if (_trSesion.bloques.length >= TRAIN_LETRAS.length) return;
+  _trSesion.bloques.push({ cat:'fuerza', ejercicios:[] });
+  trRenderBloques();
+}
+function trEliminarBloque(i){
+  if (_trSesion.bloques[i].ejercicios.length && !confirm('¿Eliminar este bloque y sus ejercicios?')) return;
+  _trSesion.bloques.splice(i,1);
+  trRenderBloques();
+}
+function trSetBloqueCat(i,v){ _trSesion.bloques[i].cat = v; }
+function trUpd(i,j,campo,val){ _trSesion.bloques[i].ejercicios[j][campo] = val; }
+function trQuitarEx(i,j){ _trSesion.bloques[i].ejercicios.splice(j,1); trRenderBloques(); }
+
+function trRenderBloques(){
+  const el = document.getElementById('trBloques');
+  if (!_trSesion.bloques.length) {
+    el.innerHTML = '<div class="tr-empty">Sin bloques aún. Agrega el primero (A) con el botón de abajo.</div>';
+    return;
+  }
+  el.innerHTML = _trSesion.bloques.map((b,i) => {
+    const cat = TRAIN_CATS[b.cat] || {c:'#666'};
+    const exHtml = b.ejercicios.map((ej,j) => `
+      <div class="tr-ex-row">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="font-family:var(--fc);font-weight:700;font-size:14px;flex:1;min-width:0;">${trEsc(ej.nombre)}</div>
+          <button class="act-btn peligro" onclick="trQuitarEx(${i},${j})">✕</button>
+        </div>
+        <div class="rx-grid">
+          <div><span class="tr-rx-l">Series</span><input class="tr-rx-input" type="number" min="1" value="${trEsc(ej.sets)}" oninput="trUpd(${i},${j},'sets',this.value)"></div>
+          <div><span class="tr-rx-l">Reps</span><input class="tr-rx-input" value="${trEsc(ej.reps)}" placeholder="10 o 12-10-8" oninput="trUpd(${i},${j},'reps',this.value)"></div>
+          <div><span class="tr-rx-l">Carga</span><input class="tr-rx-input" value="${trEsc(ej.carga)}" placeholder="30" oninput="trUpd(${i},${j},'carga',this.value)"></div>
+          <div><span class="tr-rx-l">Unidad</span><select class="tr-rx-input" oninput="trUpd(${i},${j},'cargaTipo',this.value)">
+            ${TRAIN_UNIDADES.map(u => `<option value="${u}" ${ej.cargaTipo===u?'selected':''}>${u}</option>`).join('')}
+          </select></div>
+          <div><span class="tr-rx-l">Desc (s)</span><input class="tr-rx-input" type="number" min="0" step="15" value="${trEsc(ej.rest)}" oninput="trUpd(${i},${j},'rest',this.value)"></div>
+        </div>
+        <input class="tr-rx-input" style="text-align:left;margin-top:6px;" placeholder="Nota del ejercicio (opcional)" value="${trEsc(ej.notas||'')}" oninput="trUpd(${i},${j},'notas',this.value)">
+      </div>`).join('');
+    return `<div class="tr-bloque" style="border-left:4px solid ${cat.c};">
+      <div class="tr-bloque-hdr">
+        <div class="tr-bloque-letra">${TRAIN_LETRAS[i]}</div>
+        <select class="tr-input" style="flex:1;max-width:200px;padding:8px 10px;font-size:14px;" onchange="trSetBloqueCat(${i},this.value);trRenderBloques();">
+          ${Object.entries(TRAIN_CATS).map(([k,v]) => `<option value="${k}" ${b.cat===k?'selected':''}>${v.n}</option>`).join('')}
+        </select>
+        <button class="act-btn" onclick="trAbrirPicker(${i})">+ Ejercicio</button>
+        <button class="act-btn peligro" onclick="trEliminarBloque(${i})">🗑</button>
+      </div>
+      ${exHtml || '<div class="tr-empty" style="padding:10px;">Bloque vacío — agrega ejercicios.</div>'}
+    </div>`;
+  }).join('');
+}
+
+// Picker de biblioteca → bloque
+function trAbrirPicker(i){
+  if (!_trLib.length) { alert('La biblioteca está vacía. Crea ejercicios primero en la pestaña 📚 Biblioteca.'); return; }
+  _trPickBloque = i;
+  document.getElementById('trPickSearch').value = '';
+  trRenderPicker('');
+  document.getElementById('trPickModal').style.display = 'flex';
+  setTimeout(()=>document.getElementById('trPickSearch').focus(), 50);
+}
+function trRenderPicker(q){
+  const ql = (q||'').toLowerCase();
+  const lista = _trLib.filter(e => !ql || e.nombre.toLowerCase().includes(ql));
+  document.getElementById('trPickList').innerHTML = lista.length ? lista.map(e => {
+    const cat = TRAIN_CATS[e.cat] || {n:e.cat, c:'#666'};
+    return `<div class="tr-pick-item" onclick="trPickEx('${e.id}')">
+      <div style="font-family:var(--fc);font-weight:700;font-size:14px;flex:1;">${trEsc(e.nombre)}</div>
+      <span class="tr-cat-badge" style="background:${cat.c};">${cat.n}</span>
+    </div>`;
+  }).join('') : '<div class="tr-empty">Sin resultados.</div>';
+}
+function trPickEx(exId){
+  const ex = _trLib.find(e => e.id === exId);
+  if (!ex || _trPickBloque === null) return;
+  const u = ex.unidad || 'kg';
+  _trSesion.bloques[_trPickBloque].ejercicios.push({
+    exId: ex.id, nombre: ex.nombre, video: ex.video || '', notasEx: ex.notas || '',
+    sets: 3, reps: '10', carga: '', cargaTipo: TRAIN_UNIDADES.includes(u) ? u : 'kg', rest: 90, notas: ''
+  });
+  trCerrarModales();
+  trRenderBloques();
+}
+
+// ── ASIGNACIÓN A ATLETAS / GRUPOS ──────────────────────────
+function trAtletasAsignables(){ return atletas.filter(a => !a.archivado); }
+
+function trRenderAsignar(){
+  const el = document.getElementById('trAsignar');
+  const grupos = getGrupos();
+  const lista = trAtletasAsignables();
+  if (!lista.length) { el.innerHTML = '<div class="tr-empty" style="padding:8px;">No hay atletas activos.</div>'; return; }
+  const gruposHtml = grupos.map(g => {
+    const miembros = lista.filter(a => (a.grupos||[]).includes(g.id));
+    if (!miembros.length) return '';
+    const todos = miembros.every(a => _trSel.has(a.id));
+    return `<button class="tr-atl-chip grupo ${todos?'sel':''}" style="${todos?'':'color:'+g.color+';border-color:'+g.color+';'}" onclick="trToggleGrupo('${g.id}')">🏷 ${trEsc(g.nombre)} (${miembros.length})</button>`;
+  }).join('');
+  const atlHtml = lista.map(a =>
+    `<button class="tr-atl-chip ${_trSel.has(a.id)?'sel':''}" onclick="trToggleAtleta(${JSON.stringify(a.id)})">${trEsc(a.nombre)}</button>`).join('');
+  el.innerHTML = gruposHtml + atlHtml;
+}
+function trToggleAtleta(id){
+  if (_trSel.has(id)) _trSel.delete(id); else _trSel.add(id);
+  trRenderAsignar();
+}
+function trToggleGrupo(gid){
+  const miembros = trAtletasAsignables().filter(a => (a.grupos||[]).includes(gid));
+  const todos = miembros.every(a => _trSel.has(a.id));
+  miembros.forEach(a => { if (todos) _trSel.delete(a.id); else _trSel.add(a.id); });
+  trRenderAsignar();
+}
+
+// ── RESOLVER UID Y GUARDAR ─────────────────────────────────
+function _trUidCache(){ try { return JSON.parse(localStorage.getItem('trUidCache')||'{}'); } catch(e){ return {}; } }
+
+async function trResolverUid(a){
+  if (!a.email) return null;
+  const cache = _trUidCache();
+  if (cache[a.email]) return cache[a.email];
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/usuario-uid?email=${encodeURIComponent(a.email)}&secret=${encodeURIComponent(PASS)}`);
+    const d = await r.json();
+    if (d.ok && d.uid) {
+      cache[a.email] = 'uid:' + d.uid;
+      localStorage.setItem('trUidCache', JSON.stringify(cache));
+      return cache[a.email];
+    }
+  } catch(e){ console.warn('[Train] uid de', a.email, e); }
+  return null;
+}
+
+async function trGuardarSesion(){
+  const st = document.getElementById('trGuardarStatus');
+  // Validaciones
+  if (!_trSesion.fecha) { st.innerHTML = '<span style="color:var(--red);">⚠ Falta la fecha de la sesión.</span>'; return; }
+  if (!_trSesion.titulo.trim()) { st.innerHTML = '<span style="color:var(--red);">⚠ Ponle un título a la sesión.</span>'; return; }
+  const bloquesOk = _trSesion.bloques.filter(b => b.ejercicios.length);
+  if (!bloquesOk.length) { st.innerHTML = '<span style="color:var(--red);">⚠ Agrega al menos un bloque con ejercicios.</span>'; return; }
+  const seleccionados = trAtletasAsignables().filter(a => _trSel.has(a.id));
+  if (!seleccionados.length) { st.innerHTML = '<span style="color:var(--red);">⚠ Selecciona al menos un atleta o grupo.</span>'; return; }
+
+  st.innerHTML = '<span style="color:var(--text3);">Resolviendo cuentas de atletas…</span>';
+  const conCuenta = [], sinCuenta = [];
+  for (const a of seleccionados) {
+    const key = await trResolverUid(a);
+    if (key) conCuenta.push({ a, key }); else sinCuenta.push(a);
+  }
+  if (!conCuenta.length) {
+    st.innerHTML = '<span style="color:var(--red);">⚠ Ninguno de los atletas seleccionados ha iniciado sesión en la plataforma todavía, no se puede asignar.</span>';
+    return;
+  }
+
+  st.innerHTML = '<span style="color:var(--text3);">Guardando sesión…</span>';
+  const session = {
+    id: _trSesion.id, fecha: _trSesion.fecha, titulo: _trSesion.titulo.trim(),
+    bloques: bloquesOk.map((b,i) => ({ letra: TRAIN_LETRAS[i], cat: b.cat, ejercicios: b.ejercicios }))
+  };
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/train/plan`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ secret: PASS, atletas: conCuenta.map(x => x.key), session })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error del worker');
+    let msg = `<span style="color:var(--green);">✔ Sesión "${trEsc(session.titulo)}" asignada a ${conCuenta.length} atleta(s): ${conCuenta.map(x=>trEsc(x.a.nombre)).join(', ')}.</span>`;
+    if (sinCuenta.length) msg += `<br><span style="color:var(--orange);">⚠ Sin cuenta en la plataforma (no asignados): ${sinCuenta.map(a=>trEsc(a.nombre)).join(', ')}.</span>`;
+    st.innerHTML = msg;
+    const eraEdicion = _trEditando;
+    _trSesion.id = 's' + Date.now().toString(36) + Math.random().toString(36).slice(2,6); // evitar doble guardado con mismo id
+    if (eraEdicion) { trResetBuilder(); st.innerHTML = msg; }
+    trCargarSesiones();
+  } catch(e) {
+    st.innerHTML = `<span style="color:var(--red);">⚠ Error al guardar: ${trEsc(e.message)}</span>`;
+  }
+}
+
+// ── SESIONES PROGRAMADAS (ver / editar / duplicar / borrar) ──
+function trRenderVerAtletaSelect(){
+  const sel = document.getElementById('trVerAtleta');
+  const lista = trAtletasAsignables();
+  sel.innerHTML = '<option value="">— Elegir atleta —</option>' +
+    lista.map(a => `<option value="${trEsc(a.email||'')}">${trEsc(a.nombre)}</option>`).join('');
+}
+
+async function trCargarSesiones(){
+  const sel = document.getElementById('trVerAtleta');
+  const el  = document.getElementById('trSesionesList');
+  const email = sel.value;
+  if (!email) { el.innerHTML = '<div class="tr-empty">Elige un atleta para ver sus sesiones.</div>'; return; }
+  const a = trAtletasAsignables().find(x => x.email === email);
+  if (!a) { el.innerHTML = '<div class="tr-empty">Atleta no encontrado.</div>'; return; }
+  el.innerHTML = '<div class="tr-empty">Cargando…</div>';
+  const key = await trResolverUid(a);
+  if (!key) { el.innerHTML = '<div class="tr-empty">⚠ Este atleta aún no inicia sesión en la plataforma — no tiene plan en la nube.</div>'; return; }
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/train/plan?atleta=${encodeURIComponent(key)}&secret=${encodeURIComponent(PASS)}`);
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error');
+    _trSessCache = d.sessions || [];
+    window._trSessKey = key;
+    if (!_trSessCache.length) { el.innerHTML = '<div class="tr-empty">Sin sesiones programadas para este atleta.</div>'; return; }
+    el.innerHTML = _trSessCache.map(s => {
+      const nEj = s.bloques.reduce((acc,b) => acc + b.ejercicios.length, 0);
+      return `<div class="tr-sess-card">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:140px;">
+            <div style="font-family:var(--fc);font-size:15px;font-weight:700;">${trEsc(s.titulo)}</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:2px;">📅 ${trEsc(s.fecha)} · ${s.bloques.length} bloque(s) · ${nEj} ejercicio(s)</div>
+          </div>
+          <button class="act-btn" onclick="trEditarSesion('${s.id}')">✎ Editar</button>
+          <button class="act-btn" onclick="trDuplicarSesion('${s.id}')">⧉ Duplicar</button>
+          <button class="act-btn peligro" onclick="trEliminarSesion('${s.id}')">🗑</button>
+        </div>
+        <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;">
+          ${s.bloques.map(b => { const c = TRAIN_CATS[b.cat]||{n:b.cat,c:'#666'}; return `<span class="tr-cat-badge" style="background:${c.c};">${b.letra} · ${c.n}</span>`; }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) { el.innerHTML = `<div class="tr-empty">⚠ Error al cargar: ${trEsc(e.message)}</div>`; }
+}
+
+function _trCargarEnBuilder(s, comoNueva){
+  _trSesion = {
+    id: comoNueva ? ('s' + Date.now().toString(36) + Math.random().toString(36).slice(2,6)) : s.id,
+    fecha: comoNueva ? new Date().toISOString().slice(0,10) : s.fecha,
+    titulo: s.titulo,
+    bloques: JSON.parse(JSON.stringify(s.bloques.map(b => ({ cat: b.cat, ejercicios: b.ejercicios }))))
+  };
+  _trEditando = !comoNueva;
+  document.getElementById('trBuilderTitle').textContent = comoNueva ? 'Nueva Sesión (duplicada)' : 'Editando: ' + s.titulo;
+  document.getElementById('trCancelEditBtn').style.display = 'inline-block';
+  document.getElementById('trFecha').value = _trSesion.fecha;
+  document.getElementById('trTitulo').value = _trSesion.titulo;
+  // Preseleccionar al atleta cuyo plan estamos viendo
+  _trSel.clear();
+  const email = document.getElementById('trVerAtleta').value;
+  const a = trAtletasAsignables().find(x => x.email === email);
+  if (a) _trSel.add(a.id);
+  document.getElementById('trGuardarStatus').innerHTML = '';
+  trRenderAsignar();
+  trRenderBloques();
+  document.getElementById('trBuilderTitle').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function trEditarSesion(sid){ const s = _trSessCache.find(x => x.id === sid); if (s) _trCargarEnBuilder(s, false); }
+function trDuplicarSesion(sid){ const s = _trSessCache.find(x => x.id === sid); if (s) _trCargarEnBuilder(s, true); }
+
+async function trEliminarSesion(sid){
+  const s = _trSessCache.find(x => x.id === sid);
+  if (!s || !window._trSessKey) return;
+  if (!confirm(`¿Eliminar la sesión "${s.titulo}" (${s.fecha}) de este atleta?`)) return;
+  try {
+    const r = await fetch(`${FLOW_WORKER_URL}/train/plan-delete`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ secret: PASS, atleta: window._trSessKey, sessionId: sid })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error || 'Error');
+    trCargarSesiones();
+  } catch(e) { alert('⚠ No se pudo eliminar: ' + e.message); }
 }
 </script>
 </body>

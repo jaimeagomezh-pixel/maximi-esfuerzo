@@ -18,10 +18,10 @@ function terraHeaders(env) {
   };
 }
 
-// ── CORS para maximi-esfuerzo.pages.dev ─────────────
+// ── CORS abierto (maximoesfuerzo.cl + pages.dev) ─────
 function corsHeaders() {
   return {
-    'Access-Control-Allow-Origin':  'https://maximi-esfuerzo.pages.dev',
+    'Access-Control-Allow-Origin':  '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type',
   };

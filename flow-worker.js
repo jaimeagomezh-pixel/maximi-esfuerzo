@@ -471,6 +471,85 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ══════════════════════════════════════════════════════════════
+    // MÓDULO ENTRENAMIENTO (Biblioteca de Ejercicios + Planes)
+    // Claves KV:  train:lib            → biblioteca global del coach
+    //             train:plan:<atletaId> → sesiones programadas por atleta
+    //             (atletaId = "uid:<firebaseUid>", igual que rucking)
+    // ══════════════════════════════════════════════════════════════
+
+    // ── GET /train/library — biblioteca de ejercicios (coach) ──
+    if (url.pathname === '/train/library' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      try {
+        const raw = await env.RUCK_DATA.get('train:lib');
+        return Response.json({ ok:true, exercises: raw ? JSON.parse(raw).exercises : [] }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /train/library — guarda la biblioteca completa (coach es único editor) ──
+    if (url.pathname === '/train/library' && request.method === 'POST') {
+      try {
+        const { secret, exercises } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!Array.isArray(exercises)) return Response.json({ ok:false, error:'exercises debe ser un array' }, { status:400, headers:corsHeaders() });
+        await env.RUCK_DATA.put('train:lib', JSON.stringify({ exercises, updatedAt: new Date().toISOString() }));
+        return Response.json({ ok:true, total: exercises.length }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── GET /train/plan — sesiones programadas de un atleta (coach) ──
+    if (url.pathname === '/train/plan' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      const atleta = url.searchParams.get('atleta');
+      if (!atleta) return Response.json({ ok:false, error:'atleta requerido' }, { status:400, headers:corsHeaders() });
+      try {
+        const raw = await env.RUCK_DATA.get(`train:plan:${atleta}`);
+        return Response.json({ ok:true, sessions: raw ? JSON.parse(raw).sessions : [] }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /train/plan — asigna/actualiza una sesión a uno o más atletas (fan-out) ──
+    if (url.pathname === '/train/plan' && request.method === 'POST') {
+      try {
+        const { secret, atletas, session } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!Array.isArray(atletas) || !atletas.length || !session || !session.id || !session.fecha) {
+          return Response.json({ ok:false, error:'Faltan atletas o session {id, fecha}' }, { status:400, headers:corsHeaders() });
+        }
+        const guardados = [];
+        for (const atletaId of atletas) {
+          const key = `train:plan:${atletaId}`;
+          const raw = await env.RUCK_DATA.get(key);
+          const plan = raw ? JSON.parse(raw) : { sessions: [] };
+          // Upsert por id: si la sesión ya existe se reemplaza (edición)
+          plan.sessions = plan.sessions.filter(s => s.id !== session.id);
+          plan.sessions.push({ ...session, updatedAt: new Date().toISOString() });
+          plan.sessions.sort((a, b) => (a.fecha < b.fecha ? -1 : 1));
+          await env.RUCK_DATA.put(key, JSON.stringify(plan));
+          guardados.push(atletaId);
+        }
+        return Response.json({ ok:true, guardados }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /train/plan-delete — elimina una sesión del plan de un atleta ──
+    if (url.pathname === '/train/plan-delete' && request.method === 'POST') {
+      try {
+        const { secret, atleta, sessionId } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!atleta || !sessionId) return Response.json({ ok:false, error:'Faltan atleta o sessionId' }, { status:400, headers:corsHeaders() });
+        const key = `train:plan:${atleta}`;
+        const raw = await env.RUCK_DATA.get(key);
+        if (raw) {
+          const plan = JSON.parse(raw);
+          plan.sessions = plan.sessions.filter(s => s.id !== sessionId);
+          await env.RUCK_DATA.put(key, JSON.stringify(plan));
+        }
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
     // ── POST /registrar-usuario — guarda usuario que se registró con Google ──
     if (url.pathname === '/registrar-usuario' && request.method === 'POST') {
       try {
