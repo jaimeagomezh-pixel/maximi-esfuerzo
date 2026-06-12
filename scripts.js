@@ -529,7 +529,8 @@
               body: JSON.stringify({
                 stravaId: 'uid:' + uid,
                 nombre: nombreStrava,
-                profile: { ...existingProfile, linkedStravaId: String(atletaData.id) }
+                profile: { ...existingProfile, linkedStravaId: String(atletaData.id) },
+                k: 'ME-sync-26'
               })
             }).catch(() => {});
           }
@@ -798,7 +799,7 @@
       await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stravaId: cloudId, sessions, nombre })
+        body: JSON.stringify({ stravaId: cloudId, sessions, nombre, k: 'ME-sync-26' })
       });
     } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
@@ -1754,48 +1755,11 @@
   let chartPR = null;
   let currentDist = '5km';
 
-  // Datos simulados: array de {date, time_seconds} para cada distancia
-  // Simula 1 mes de entrenamiento con mejora progresiva + variabilidad
-  const prData = {
-    '1km':   genPRData(60*3+45,   60*3+5,   16),  // 3:45 → 3:05
-    '2km':   genPRData(60*8+10,   60*7+20,  14),
-    '2400m': genPRData(60*9+50,   60*8+55,  12),
-    '5km':   genPRData(60*22+48,  60*20+12, 18),  // 22:48 → 20:12
-    '8km':   genPRData(60*38+20,  60*35+10, 12),
-    '10km':  genPRData(60*48+30,  60*44+15, 15),
-    '12km':  genPRData(60*59+0,   60*54+20, 10),
-    '15km':  genPRData(60*75+0,   60*69+30, 8),
-    '21km':  genPRData(60*112+0,  60*104+0, 6),
-    '42km':  genPRData(60*245+0,  60*228+0, 4),
-  };
-
-  function genPRData(startSec, bestSec, count) {
-    const dates = [];
-    const now = new Date('2026-05-22');
-    const entries = [];
-    // Mejora progresiva con variabilidad natural
-    for (let i = 0; i < count; i++) {
-      const d = new Date(now);
-      d.setDate(d.getDate() - Math.round((count - 1 - i) * (30 / count)));
-      const progress = i / (count - 1);
-      // Curva de mejora con ruido aleatorio
-      const base = startSec - (startSec - bestSec) * Math.pow(progress, 0.7);
-      const noise = (Math.random() - 0.4) * (startSec - bestSec) * 0.15;
-      const t = Math.max(bestSec, Math.round(base + noise));
-      entries.push({ date: d, seconds: t });
-    }
-    // Asegurar que el mejor tiempo esté en los últimos datos
-    const minIdx = entries.reduce((min, e, i) => e.seconds < entries[min].seconds ? i : min, 0);
-    if (minIdx < entries.length - 3) {
-      const lastThird = entries.slice(Math.floor(entries.length * 0.65));
-      const minLast = lastThird.reduce((a,b) => a.seconds < b.seconds ? a : b);
-      const swapIdx = entries.indexOf(minLast);
-      const tmp = entries[minIdx].seconds;
-      entries[minIdx].seconds = entries[swapIdx].seconds;
-      entries[swapIdx].seconds = bestSec;
-    }
-    return entries;
-  }
+  // Mejores tiempos por distancia. Empieza VACÍO: solo se llena con datos
+  // reales (PRs detectados desde Strava + tiempos manuales del atleta).
+  // Las distancias sin registros muestran "Sin registros" en vez de datos
+  // simulados (antes había un generador demo que inventaba tiempos de 21K/42K).
+  const prData = {};
 
   function secToTime(s) {
     const h = Math.floor(s/3600);
@@ -1826,8 +1790,22 @@
   }
 
   function updatePRChart(dist) {
-    const data = prData[dist];
-    if (!data || !chartPR) return;
+    const data = prData[dist] || [];
+    if (!chartPR) return;
+
+    // Distancia sin registros reales → estado vacío honesto, nunca datos inventados
+    if (!data.length) {
+      const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
+      set('prBest', '—');  set('prBestDate', 'Sin registros');
+      set('prFirst', '—'); set('prFirstDate', '');
+      const dEl = document.getElementById('prDelta');
+      if (dEl) { dEl.textContent = '—'; dEl.style.color = ''; }
+      set('prDeltaSub', 'sin datos aún');
+      chartPR.data.labels = [];
+      chartPR.data.datasets[0].data = [];
+      chartPR.update();
+      return;
+    }
 
     const labels = data.map(e => formatDate(e.date));
     const values = data.map(e => e.seconds);
@@ -1901,10 +1879,10 @@
     if (!ctx) return;
     if (chartPR) { try { chartPR.destroy(); } catch(e){} chartPR = null; }
 
-    const data = prData['5km'];
+    const data = prData['5km'] || [];
     const labels = data.map(e => formatDate(e.date));
     const values = data.map(e => e.seconds);
-    const best = Math.min(...values);
+    const best = values.length ? Math.min(...values) : 0;
     const pointColors = values.map(v => v === best ? '#d4a843' : 'rgba(0,200,212,0.6)');
     const pointRadius = values.map(v => v === best ? 6 : 3);
 
@@ -2216,6 +2194,11 @@
         }
       } catch(e) { /* CSV malformado → caer a datos embebidos */ }
     }
+
+    // Los datos embebidos (thRealData) son el historial personal del coach.
+    // Cualquier otra cuenta ve el estado vacío + zona de carga de su propio CSV.
+    const _emailTH = (window._auth?.currentUser?.email || '').toLowerCase();
+    if (_emailTH !== 'jaimea.gomezh@gmail.com') return;
 
     const uploadZone = document.getElementById('csvUploadZone');
     if (uploadZone) uploadZone.style.display = 'none';
@@ -2857,68 +2840,8 @@
   // ── TRAINHEROIC STRENGTH CHARTS ──
   let chartStrength = null;
 
-  const strengthData = {
-    squat:    { name:'Sentadilla',   wm:142, est1rm:158, data:[120,122,125,128,125,130,132,135,133,138,140,138,142], dates:['01M','03M','05M','07M','09M','11M','14M','16M','18M','20M','22M','24M','26M'].map((d,i)=>{const dt=new Date('2026-05-22');dt.setDate(dt.getDate()-26+i*2);return dt.getDate()+'/'+( dt.getMonth()+1)}) },
-    bench:    { name:'Press Banca',  wm:105, est1rm:118, data:[82,85,87,90,88,92,95,97,95,100,102,103,105], dates:[] },
-    deadlift: { name:'Peso Muerto',  wm:175, est1rm:195, data:[140,145,150,148,155,158,160,162,165,168,170,172,175], dates:[] },
-    press:    { name:'Press Militar',wm:75,  est1rm:84,  data:[58,60,62,62,65,65,67,68,70,70,72,73,75], dates:[] },
-    row:      { name:'Remo',         wm:95,  est1rm:107, data:[72,75,77,80,80,82,85,85,87,90,90,92,95], dates:[] },
-    pullup:   { name:'Dominadas',    wm:20,  est1rm:22,  data:[5,6,7,8,9,10,11,12,14,15,17,18,20], dates:[] },
-  };
-
-  // Generar fechas para todos
-  Object.keys(strengthData).forEach(k => {
-    if (!strengthData[k].dates.length) {
-      strengthData[k].dates = strengthData[k].data.map((_,i) => {
-        const dt = new Date('2026-05-22');
-        dt.setDate(dt.getDate() - 26 + i*2);
-        return dt.getDate()+'/'+(dt.getMonth()+1);
-      });
-    }
-  });
-
-  function selectExercise(ex, btn) {
-    document.querySelectorAll('.th-exercise-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const d = strengthData[ex];
-    document.querySelector('#thWorkingMax .th-wm-label').textContent = 'Working Max · ' + d.name;
-    document.getElementById('thWMValue').textContent = ex === 'pullup' ? d.wm + ' reps' : d.wm;
-    document.getElementById('thEst1RM').textContent = ex === 'pullup' ? '—' : d.est1rm + ' kg';
-    if (chartStrength) {
-      chartStrength.data.labels = d.dates;
-      chartStrength.data.datasets[0].data = d.data;
-      const best = Math.max(...d.data);
-      chartStrength.data.datasets[0].pointBackgroundColor = 'transparent';
-      chartStrength.data.datasets[0].pointRadius = 0;
-      chartStrength.data.datasets[0].pointBorderColor = "transparent";
-      chartStrength.data.datasets[0].tension = 0.3;
-      chartStrength.update();
-    }
-    // Actualizar tabla
-    updateStrengthTable(ex);
-    // Flip de las proyecciones al cambiar de ejercicio
-    flipEl(document.getElementById('thWorkingMax'));
-  }
-
-  function updateStrengthTable(ex) {
-    const tables = {
-      squat:    [['20 May','4×5','142','158 kg'],['16 May','3×5','138','154 kg'],['12 May','4×6','135','153 kg'],['08 May','3×8','125','148 kg'],['04 May','4×5','120','134 kg']],
-      bench:    [['20 May','4×5','105','118 kg'],['15 May','3×6','100','113 kg'],['10 May','4×5','97','108 kg'],['05 May','3×8','90','107 kg'],['01 May','4×5','82','92 kg']],
-      deadlift: [['19 May','3×5','175','195 kg'],['14 May','4×5','170','190 kg'],['09 May','3×5','165','184 kg'],['04 May','4×6','158','179 kg'],['01 May','3×5','140','156 kg']],
-      press:    [['20 May','4×5','75','84 kg'],['15 May','3×6','72','81 kg'],['10 May','4×5','70','78 kg'],['05 May','3×8','65','77 kg'],['01 May','4×5','58','65 kg']],
-      row:      [['18 May','4×8','95','107 kg'],['13 May','3×8','90','101 kg'],['08 May','4×8','85','96 kg'],['03 May','3×8','80','90 kg'],['01 May','4×8','72','81 kg']],
-      pullup:   [['20 May','3×20 reps','20','—'],['15 May','3×18 reps','18','—'],['10 May','3×15 reps','15','—'],['05 May','3×12 reps','12','—'],['01 May','3×5 reps','5','—']],
-    };
-    const rows = tables[ex] || tables.squat;
-    const tbody = document.getElementById('thSetsTable');
-    if (!tbody) return;
-    tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
-    rows.forEach((r, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r[0]}</td><td>${r[1]}</td><td class="${i===0?'highlight':''}">${r[2]}</td><td>${r[3]}${i===rows.length-1?' <span class="th-set-badge">Inicio</span>':''}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
+  // (Datos demo de fuerza eliminados: el módulo Fuerza solo muestra datos
+  //  reales del CSV de TrainHeroic o del historial embebido del atleta.)
 
   // ── Helper: ejercicios con mancuernas bilaterales ──
   // TrainHeroic exporta el peso TOTAL (ambas mancuernas). La UI de TH muestra por mancuerna.
@@ -3581,7 +3504,7 @@
         await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ stravaId: key, nombre, profile: profileToSave })
+          body: JSON.stringify({ stravaId: key, nombre, profile: profileToSave, k: 'ME-sync-26' })
         });
       } catch(e) { console.warn('[Rucking] Profile sync error:', e); }
     }
@@ -4055,8 +3978,8 @@
     if (window.chartStrength && window.chartStrength !== chartStrength) {
       try { window.chartStrength.destroy(); } catch(e){} window.chartStrength = null;
     }
-    const d = strengthData.squat;
-    const best = Math.max(...d.data);
+    // Inicia vacío: los datos reales llegan via selectExerciseReal / selectExerciseFromCSV
+    const d = { dates: [], data: [] };
     chartStrength = new Chart(ctx, {
       type: 'line',
       data: {

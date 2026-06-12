@@ -56,6 +56,11 @@ function corsHeaders() {
 // Valor por defecto solo como fallback de desarrollo:
 const COACH_SECRET = null; // nunca hardcodeado en código
 
+// Llave compartida para endpoints de escritura del atleta (sync, save-profile).
+// No es un secreto fuerte (vive en el JS público) pero bloquea escrituras
+// casuales de terceros que descubran la URL del worker.
+const SYNC_KEY = 'ME-sync-26';
+
 // ══════════════════════════════════════════════
 //  HANDLER PRINCIPAL
 // ══════════════════════════════════════════════
@@ -387,7 +392,10 @@ export default {
     // stravaId puede ser un ID numérico de Strava o "uid:xxx" (Firebase UID)
     if (url.pathname === '/rucking/sync' && request.method === 'POST') {
       try {
-        const { stravaId, sessions, nombre } = await request.json();
+        const { stravaId, sessions, nombre, k } = await request.json();
+        if (k !== SYNC_KEY) {
+          return Response.json({ ok: false, error: 'No autorizado' }, { status: 401, headers: corsHeaders() });
+        }
         if (!stravaId || !Array.isArray(sessions)) {
           return Response.json({ ok: false, error: 'Datos inválidos' }, { status: 400, headers: corsHeaders() });
         }
@@ -434,13 +442,27 @@ export default {
       try {
         // Lista todas las claves atleta:*
         const list = await env.RUCK_DATA.list({ prefix: 'atleta:' });
-        const atletas = await Promise.all(
+        const atletas = (await Promise.all(
           list.keys.map(async k => {
             const val = await env.RUCK_DATA.get(k.name);
             return val ? JSON.parse(val) : null;
           })
-        );
-        return Response.json({ ok: true, atletas: atletas.filter(Boolean) }, { headers: corsHeaders() });
+        )).filter(Boolean);
+        // Dedupe: si una entrada uid:xxx tiene perfil con linkedStravaId que ya
+        // figura como atleta propio, es la MISMA persona → omitir la ficha uid.
+        const idsNumericos = new Set(atletas.map(a => String(a.stravaId)).filter(id => !id.startsWith('uid:')));
+        const unicos = [];
+        for (const a of atletas) {
+          if (String(a.stravaId).startsWith('uid:')) {
+            try {
+              const pRaw = await env.RUCK_DATA.get(`profile:${a.stravaId}`);
+              const linked = pRaw ? JSON.parse(pRaw).linkedStravaId : null;
+              if (linked && idsNumericos.has(String(linked))) continue; // duplicado
+            } catch(e) {}
+          }
+          unicos.push(a);
+        }
+        return Response.json({ ok: true, atletas: unicos }, { headers: corsHeaders() });
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { status: 500, headers: corsHeaders() });
       }
@@ -451,7 +473,8 @@ export default {
     // distintos (stravaStats, bw/talla/fechaNac, se...) y no deben pisarse entre sí.
     if (url.pathname === '/rucking/save-profile' && request.method === 'POST') {
       try {
-        const { stravaId, nombre, profile, replace } = await request.json();
+        const { stravaId, nombre, profile, replace, k } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
         if (!stravaId || !profile) return Response.json({ ok:false, error:'Datos inválidos' }, { status:400, headers:corsHeaders() });
         let base = {};
         if (!replace) {

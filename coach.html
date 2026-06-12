@@ -2860,7 +2860,7 @@ async function aplicarMultiplicadorFTP(aid) {
     // 3) Reescribir
     await fetch(`${RUCK_WORKER}/rucking/save-profile`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ stravaId: cloudId, nombre: a.nombre, profile: prof })
+      body: JSON.stringify({ stravaId: cloudId, nombre: a.nombre, profile: prof, k: 'ME-sync-26' })
     });
     if (statusEl) statusEl.innerHTML = `✓ FTP recalibrado ×${mult.toFixed(2)} → ${ftpPace} · sincronizado con el atleta`;
   } catch(e) {
