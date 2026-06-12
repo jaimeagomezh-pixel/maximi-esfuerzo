@@ -26,7 +26,7 @@
   --fb: 'Barlow', sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px;min-height:100vh;}
+body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;min-height:100vh;}
 
 /* BRUSH LOGO */
 .login-logo-img{margin-bottom:6px;text-align:left;}
@@ -88,16 +88,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 /* FILTROS */
 .filtros{display:flex;gap:8px;margin-bottom:18px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;}
 .filtros::-webkit-scrollbar{display:none;}
-.f-btn{font-family:var(--fc);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:20px;border:1px solid rgba(255,255,255,0.14);background:transparent;color:#aaa;cursor:pointer;transition:all .2s;font-weight:600;white-space:nowrap;flex-shrink:0;}
+.f-btn{font-family:var(--fc);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;padding:10px 18px;border-radius:20px;border:1px solid rgba(0,0,0,0.18);background:#fff;color:#555;cursor:pointer;transition:all .2s;font-weight:600;white-space:nowrap;flex-shrink:0;}
 .f-btn:hover{border-color:var(--gold);color:var(--gold);}
 .f-btn.active{background:var(--gold);color:#0a0a0a;border-color:var(--gold);}
 .f-btn.f-vencido.active{background:var(--orange);border-color:var(--orange);}
 .f-btn.f-archivado.active{background:var(--text3);border-color:var(--text3);}
 
 /* BUSCADOR */
-.psearch{width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);color:#f5f0eb;font-family:var(--fb);font-size:17px;padding:13px 17px;border-radius:10px;outline:none;margin-bottom:18px;transition:border .2s;}
+.psearch{width:100%;background:#fff;border:1px solid rgba(0,0,0,0.15);color:var(--text);font-family:var(--fb);font-size:17px;padding:13px 17px;border-radius:10px;outline:none;margin-bottom:18px;transition:border .2s;box-shadow:0 1px 4px rgba(0,0,0,0.05);}
 .psearch:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,168,67,0.15);}
-.psearch::placeholder{color:#777;}
+.psearch::placeholder{color:#999;}
 
 /* CARDS ATLETAS */
 .acard{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--cian2);border-radius:8px;padding:11px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;transition:all .2s;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
@@ -135,7 +135,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 .act-btn.activar:hover{background:rgba(39,174,96,0.1);}
 
 /* ── PERFIL ATLETA ── */
-#perfilAtleta{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;}
+#perfilAtleta{display:none;position:fixed;inset:0;background:#f4f6f8;z-index:200;overflow-y:auto;}
 .perfil-hdr{position:sticky;top:0;background:rgba(17,17,17,0.98);backdrop-filter:blur(8px);border-bottom:1px solid rgba(212,168,67,0.18);padding:15px 20px;display:flex;align-items:center;gap:14px;z-index:10;}
 .p-back{background:none;border:1px solid rgba(255,255,255,0.15);color:#aaa;padding:8px 14px;border-radius:5px;cursor:pointer;font-family:var(--fc);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;font-weight:600;}
 .p-back:hover{border-color:var(--gold);color:var(--gold);}
@@ -216,8 +216,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 
 /* ── RUCKING ──────────────────────────────────────────────── */
 .ruck-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:14px;}
-.ruck-title{font-family:var(--fd);font-size:2.2rem;letter-spacing:3px;color:#f5f0eb;}
-.ruck-sub{font-size:14px;color:#9a948c;margin-top:5px;line-height:1.6;}
+.ruck-title{font-family:var(--fd);font-size:2.2rem;letter-spacing:3px;color:var(--text);}
+.ruck-sub{font-size:14px;color:#777;margin-top:5px;line-height:1.6;}
 .ruck-inputs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px;}
 .ruck-load-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
 .ruck-load-btn{font-family:var(--fc);font-size:17px;letter-spacing:1px;padding:11px 20px;border-radius:12px;border:2px solid var(--border);background:#fff;color:var(--text);cursor:pointer;transition:all .2s;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
@@ -250,7 +250,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
 
 /* scrollbar */
 ::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-track{background:#e8eaed;}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px;}
 
 /* ── ANIMACIONES BOTONES ─────────────────────────────────── */
@@ -426,7 +426,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
           <button class="f-btn f-archivado" onclick="filtrar('archivado',this)">Archivados</button>
         </div>
         <button onclick="sincronizarAtletas()" title="Sincronizar desde Flow y Google"
-          style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:none;border:1px solid rgba(255,255,255,0.15);padding:6px 12px;border-radius:3px;cursor:pointer;color:#aaa;white-space:nowrap;flex-shrink:0;">↺ Sync</button>
+          style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;background:#fff;border:1px solid rgba(0,0,0,0.2);padding:6px 12px;border-radius:3px;cursor:pointer;color:#666;white-space:nowrap;flex-shrink:0;">↺ Sync</button>
       </div>
       <input type="search" class="psearch" placeholder="Buscar por nombre o correo..." oninput="buscar(this.value)">
       <div id="atletasList"></div>
@@ -717,6 +717,33 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
     .tr-pick-item{padding:11px 14px;border:1px solid var(--border);border-radius:8px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;background:#fff;}
     .tr-pick-item:hover{border-color:var(--cian2);background:rgba(0,168,179,0.05);}
     .tr-empty{text-align:center;padding:22px;color:var(--text3);font-size:13px;font-style:italic;}
+    /* Tabla de prescripción por serie (estilo TrainHeroic) */
+    .tr-set-table{width:100%;border-collapse:collapse;margin-top:8px;}
+    .tr-set-table th{font-family:var(--fc);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;padding:5px 6px;text-align:center;border-bottom:1.5px solid var(--border);font-weight:700;}
+    .tr-set-table td{padding:4px 6px;text-align:center;border-bottom:1px solid rgba(0,0,0,0.06);}
+    .tr-set-table td.setn{font-family:var(--fc);font-weight:700;color:var(--text3);font-size:13px;width:36px;}
+    .tr-sets-ctrl{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:8px;}
+    .tr-sets-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:#fff;color:var(--text2);font-size:16px;font-weight:700;cursor:pointer;line-height:1;transition:all .15s;}
+    .tr-sets-btn:hover{border-color:var(--cian2);color:var(--cian);}
+    .tr-sets-lbl{font-family:var(--fc);font-size:11px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;font-weight:600;}
+    /* Calendario de sesiones */
+    .tr-cal-nav{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+    .tr-cal-mes{font-family:var(--fd);font-size:1.5rem;letter-spacing:2px;flex:1;text-align:center;text-transform:uppercase;}
+    .tr-cal-scroll{overflow-x:auto;}
+    .tr-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;min-width:640px;}
+    .tr-cal-dow{font-family:var(--fc);font-size:10px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;text-align:center;padding:6px 0;font-weight:700;}
+    .tr-cal-day{background:#fff;border:1px solid var(--border);border-radius:8px;min-height:86px;padding:5px;display:flex;flex-direction:column;gap:4px;}
+    .tr-cal-day.fuera{background:#f1f2f4;opacity:0.55;}
+    .tr-cal-day.hoy{border-color:var(--gold);box-shadow:0 0 0 2px rgba(212,168,67,0.25);}
+    .tr-cal-num{font-family:var(--fc);font-size:12px;font-weight:700;color:var(--text3);}
+    .tr-mini-sess{background:#fdf9ef;border:1px solid rgba(212,168,67,0.45);border-left:3px solid var(--gold);border-radius:6px;padding:5px 6px;cursor:pointer;transition:all .15s;}
+    .tr-mini-sess:hover{box-shadow:0 2px 8px rgba(0,0,0,0.12);transform:translateY(-1px);}
+    .tr-mini-t{font-family:var(--fc);font-size:11.5px;font-weight:700;color:var(--text);line-height:1.25;}
+    .tr-mini-badges{display:flex;gap:2px;flex-wrap:wrap;margin-top:3px;}
+    .tr-mini-b{font-family:var(--fc);font-size:8.5px;font-weight:700;color:#fff;border-radius:3px;padding:1px 4px;letter-spacing:0.5px;}
+    .tr-mini-acts{display:flex;gap:6px;margin-top:4px;}
+    .tr-mini-acts button{background:none;border:none;cursor:pointer;font-size:11px;padding:0;color:var(--text3);}
+    .tr-mini-acts button:hover{color:var(--cian);}
     </style>
 
     <div class="psec" id="tab-entrenamiento">
@@ -760,11 +787,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:17px
         </div>
 
         <div class="sec">
-          <div class="sec-t">Sesiones Programadas</div>
+          <div class="sec-t">Calendario de Sesiones</div>
           <select class="tr-input" id="trVerAtleta" style="margin-bottom:12px;" onchange="trCargarSesiones()">
             <option value="">— Elegir atleta —</option>
           </select>
-          <div id="trSesionesList"><div class="tr-empty">Elige un atleta para ver sus sesiones.</div></div>
+          <div id="trCalWrap" style="display:none;">
+            <div class="tr-cal-nav">
+              <button class="act-btn" onclick="trCalNav(-1)">‹ Anterior</button>
+              <div class="tr-cal-mes" id="trCalMes">—</div>
+              <button class="act-btn" onclick="trCalNav(1)">Siguiente ›</button>
+            </div>
+            <div class="tr-cal-scroll"><div class="tr-cal-grid" id="trCalGrid"></div></div>
+          </div>
+          <div id="trSesionesList"><div class="tr-empty">Elige un atleta para ver su calendario.</div></div>
         </div>
       </div>
 
@@ -3241,19 +3276,38 @@ function trRenderBloques(){
     const exHtml = b.ejercicios.map((ej,j) => `
       <div class="tr-ex-row">
         <div style="display:flex;align-items:center;gap:8px;">
-          <div style="font-family:var(--fc);font-weight:700;font-size:14px;flex:1;min-width:0;">${trEsc(ej.nombre)}</div>
+          <div style="font-family:var(--fc);font-weight:700;font-size:14px;flex:1;min-width:0;">${trEsc(ej.nombre)}
+            <span style="font-weight:400;color:var(--text3);font-size:12px;margin-left:6px;">${trEsc(trRxResumen(ej))}</span>
+          </div>
+          ${ej.video ? `<a href="${trEsc(ej.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;font-size:14px;">🎬</a>` : ''}
           <button class="act-btn peligro" onclick="trQuitarEx(${i},${j})">✕</button>
         </div>
-        <div class="rx-grid">
-          <div><span class="tr-rx-l">Series</span><input class="tr-rx-input" type="number" min="1" value="${trEsc(ej.sets)}" oninput="trUpd(${i},${j},'sets',this.value)"></div>
-          <div><span class="tr-rx-l">Reps</span><input class="tr-rx-input" value="${trEsc(ej.reps)}" placeholder="10 o 12-10-8" oninput="trUpd(${i},${j},'reps',this.value)"></div>
-          <div><span class="tr-rx-l">Carga</span><input class="tr-rx-input" value="${trEsc(ej.carga)}" placeholder="30" oninput="trUpd(${i},${j},'carga',this.value)"></div>
-          <div><span class="tr-rx-l">Unidad</span><select class="tr-rx-input" oninput="trUpd(${i},${j},'cargaTipo',this.value)">
-            ${TRAIN_UNIDADES.map(u => `<option value="${u}" ${ej.cargaTipo===u?'selected':''}>${u}</option>`).join('')}
-          </select></div>
-          <div><span class="tr-rx-l">Desc (s)</span><input class="tr-rx-input" type="number" min="0" step="15" value="${trEsc(ej.rest)}" oninput="trUpd(${i},${j},'rest',this.value)"></div>
+        <table class="tr-set-table">
+          <tr>
+            <th style="width:36px;">Set</th>
+            <th>Reps</th>
+            <th>
+              <select class="tr-rx-input" style="font-size:11px;padding:3px 4px;max-width:80px;" onchange="trUpd(${i},${j},'cargaTipo',this.value)" title="Unidad de carga">
+                ${TRAIN_UNIDADES.map(u => `<option value="${u}" ${ej.cargaTipo===u?'selected':''}>Peso (${u})</option>`).join('')}
+              </select>
+            </th>
+          </tr>
+          ${ej.sets.map((s,k) => `
+          <tr>
+            <td class="setn">${k+1}</td>
+            <td><input class="tr-rx-input" value="${trEsc(s.reps)}" placeholder="10" oninput="trUpdSet(${i},${j},${k},'reps',this.value)"></td>
+            <td><input class="tr-rx-input" value="${trEsc(s.carga)}" placeholder="—" oninput="trUpdSet(${i},${j},${k},'carga',this.value)"></td>
+          </tr>`).join('')}
+        </table>
+        <div class="tr-sets-ctrl">
+          <button class="tr-sets-btn" onclick="trDelSet(${i},${j})">−</button>
+          <span class="tr-sets-lbl">Sets</span>
+          <button class="tr-sets-btn" onclick="trAddSet(${i},${j})">+</button>
         </div>
-        <input class="tr-rx-input" style="text-align:left;margin-top:6px;" placeholder="Nota del ejercicio (opcional)" value="${trEsc(ej.notas||'')}" oninput="trUpd(${i},${j},'notas',this.value)">
+        <div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-top:6px;">
+          <div><span class="tr-rx-l">Descanso (s)</span><input class="tr-rx-input" type="number" min="0" step="15" value="${trEsc(ej.rest)}" oninput="trUpd(${i},${j},'rest',this.value)"></div>
+          <div><span class="tr-rx-l">Instrucciones</span><input class="tr-rx-input" style="text-align:left;" placeholder="Ej: pausa 2' — técnica controlada" value="${trEsc(ej.notas||'')}" oninput="trUpd(${i},${j},'notas',this.value)"></div>
+        </div>
       </div>`).join('');
     return `<div class="tr-bloque" style="border-left:4px solid ${cat.c};">
       <div class="tr-bloque-hdr">
@@ -3295,10 +3349,43 @@ function trPickEx(exId){
   const u = ex.unidad || 'kg';
   _trSesion.bloques[_trPickBloque].ejercicios.push({
     exId: ex.id, nombre: ex.nombre, video: ex.video || '', notasEx: ex.notas || '',
-    sets: 3, reps: '10', carga: '', cargaTipo: TRAIN_UNIDADES.includes(u) ? u : 'kg', rest: 90, notas: ''
+    sets: [ {reps:'10', carga:''}, {reps:'10', carga:''}, {reps:'10', carga:''} ],
+    cargaTipo: TRAIN_UNIDADES.includes(u) ? u : 'kg', rest: 90, notas: ''
   });
   trCerrarModales();
   trRenderBloques();
+}
+
+// Normaliza ejercicios con formato antiguo (sets numérico + reps/carga planos)
+function trNormalizarEj(ej){
+  if (Array.isArray(ej.sets)) return ej;
+  const n = parseInt(ej.sets) || 3;
+  const sets = Array.from({length:n}, () => ({ reps: String(ej.reps||'10'), carga: String(ej.carga||'') }));
+  return { ...ej, sets, reps: undefined, carga: undefined };
+}
+
+// Resumen de prescripción: "3 x 10 @ 30kg" o "10/8/6 @ 20/25/30kg"
+function trRxResumen(ej){
+  const sets = ej.sets || [];
+  if (!sets.length) return '';
+  const reps = sets.map(s => s.reps || '?');
+  const cargas = sets.map(s => s.carga).filter(c => c !== '' && c != null);
+  const repsTxt = new Set(reps).size === 1 ? `${sets.length} x ${reps[0]}` : reps.join('/');
+  if (!cargas.length) return repsTxt;
+  const cargaTxt = new Set(cargas).size === 1 ? cargas[0] : cargas.join('/');
+  return `${repsTxt} @ ${cargaTxt}${ej.cargaTipo === '%' ? '%' : ' ' + (ej.cargaTipo||'kg')}`;
+}
+
+function trUpdSet(i,j,k,campo,val){ _trSesion.bloques[i].ejercicios[j].sets[k][campo] = val; }
+function trAddSet(i,j){
+  const sets = _trSesion.bloques[i].ejercicios[j].sets;
+  const last = sets[sets.length-1] || {reps:'10', carga:''};
+  sets.push({ reps: last.reps, carga: last.carga });
+  trRenderBloques();
+}
+function trDelSet(i,j){
+  const sets = _trSesion.bloques[i].ejercicios[j].sets;
+  if (sets.length > 1) { sets.pop(); trRenderBloques(); }
 }
 
 // ── ASIGNACIÓN A ATLETAS / GRUPOS ──────────────────────────
@@ -3402,11 +3489,16 @@ function trRenderVerAtletaSelect(){
     lista.map(a => `<option value="${trEsc(a.email||'')}">${trEsc(a.nombre)}</option>`).join('');
 }
 
+let _trCalBase = new Date(); // mes visible en el calendario
+const TRAIN_MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
 async function trCargarSesiones(){
   const sel = document.getElementById('trVerAtleta');
   const el  = document.getElementById('trSesionesList');
+  const cal = document.getElementById('trCalWrap');
   const email = sel.value;
-  if (!email) { el.innerHTML = '<div class="tr-empty">Elige un atleta para ver sus sesiones.</div>'; return; }
+  cal.style.display = 'none';
+  if (!email) { el.innerHTML = '<div class="tr-empty">Elige un atleta para ver su calendario.</div>'; return; }
   const a = trAtletasAsignables().find(x => x.email === email);
   if (!a) { el.innerHTML = '<div class="tr-empty">Atleta no encontrado.</div>'; return; }
   el.innerHTML = '<div class="tr-empty">Cargando…</div>';
@@ -3418,25 +3510,51 @@ async function trCargarSesiones(){
     if (!d.ok) throw new Error(d.error || 'Error');
     _trSessCache = d.sessions || [];
     window._trSessKey = key;
-    if (!_trSessCache.length) { el.innerHTML = '<div class="tr-empty">Sin sesiones programadas para este atleta.</div>'; return; }
-    el.innerHTML = _trSessCache.map(s => {
-      const nEj = s.bloques.reduce((acc,b) => acc + b.ejercicios.length, 0);
-      return `<div class="tr-sess-card">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:140px;">
-            <div style="font-family:var(--fc);font-size:15px;font-weight:700;">${trEsc(s.titulo)}</div>
-            <div style="font-size:12px;color:var(--text3);margin-top:2px;">📅 ${trEsc(s.fecha)} · ${s.bloques.length} bloque(s) · ${nEj} ejercicio(s)</div>
-          </div>
-          <button class="act-btn" onclick="trEditarSesion('${s.id}')">✎ Editar</button>
-          <button class="act-btn" onclick="trDuplicarSesion('${s.id}')">⧉ Duplicar</button>
-          <button class="act-btn peligro" onclick="trEliminarSesion('${s.id}')">🗑</button>
-        </div>
-        <div style="margin-top:8px;display:flex;gap:5px;flex-wrap:wrap;">
-          ${s.bloques.map(b => { const c = TRAIN_CATS[b.cat]||{n:b.cat,c:'#666'}; return `<span class="tr-cat-badge" style="background:${c.c};">${b.letra} · ${c.n}</span>`; }).join('')}
-        </div>
-      </div>`;
-    }).join('');
+    el.innerHTML = _trSessCache.length ? '' : '<div class="tr-empty">Sin sesiones programadas — al guardar una sesión aparecerá en el calendario.</div>';
+    cal.style.display = 'block';
+    trRenderCalendario();
   } catch(e) { el.innerHTML = `<div class="tr-empty">⚠ Error al cargar: ${trEsc(e.message)}</div>`; }
+}
+
+function trCalNav(delta){
+  _trCalBase = new Date(_trCalBase.getFullYear(), _trCalBase.getMonth() + delta, 1);
+  trRenderCalendario();
+}
+
+function trRenderCalendario(){
+  const y = _trCalBase.getFullYear(), m = _trCalBase.getMonth();
+  document.getElementById('trCalMes').textContent = `${TRAIN_MESES[m]} ${y}`;
+  const hoyStr = new Date().toISOString().slice(0,10);
+  // Lunes como primer día de la semana
+  const primero = new Date(y, m, 1);
+  const offset = (primero.getDay() + 6) % 7;
+  const inicio = new Date(y, m, 1 - offset);
+  // Sesiones agrupadas por fecha
+  const porFecha = {};
+  _trSessCache.forEach(s => { (porFecha[s.fecha] = porFecha[s.fecha] || []).push(s); });
+
+  let html = ['LUN','MAR','MIÉ','JUE','VIE','SÁB','DOM'].map(d => `<div class="tr-cal-dow">${d}</div>`).join('');
+  for (let i = 0; i < 42; i++) {
+    const dia = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + i);
+    const fStr = `${dia.getFullYear()}-${String(dia.getMonth()+1).padStart(2,'0')}-${String(dia.getDate()).padStart(2,'0')}`;
+    const fuera = dia.getMonth() !== m;
+    const sesiones = (porFecha[fStr] || []).map(s => `
+      <div class="tr-mini-sess" onclick="trEditarSesion('${s.id}')" title="Click para editar">
+        <div class="tr-mini-t">${trEsc(s.titulo)}</div>
+        <div class="tr-mini-badges">${s.bloques.map(b => { const c = TRAIN_CATS[b.cat]||{c:'#666'}; return `<span class="tr-mini-b" style="background:${c.c};">${b.letra}</span>`; }).join('')}</div>
+        <div class="tr-mini-acts">
+          <button onclick="event.stopPropagation();trDuplicarSesion('${s.id}')" title="Duplicar">⧉</button>
+          <button onclick="event.stopPropagation();trEliminarSesion('${s.id}')" title="Eliminar">🗑</button>
+        </div>
+      </div>`).join('');
+    html += `<div class="tr-cal-day ${fuera?'fuera':''} ${fStr===hoyStr?'hoy':''}"><div class="tr-cal-num">${dia.getDate()}</div>${sesiones}</div>`;
+    // Cortar en 5 semanas si la sexta ya no toca el mes
+    if (i === 34) {
+      const sig = new Date(inicio.getFullYear(), inicio.getMonth(), inicio.getDate() + 35);
+      if (sig.getMonth() !== m) break;
+    }
+  }
+  document.getElementById('trCalGrid').innerHTML = html;
 }
 
 function _trCargarEnBuilder(s, comoNueva){
@@ -3444,7 +3562,7 @@ function _trCargarEnBuilder(s, comoNueva){
     id: comoNueva ? ('s' + Date.now().toString(36) + Math.random().toString(36).slice(2,6)) : s.id,
     fecha: comoNueva ? new Date().toISOString().slice(0,10) : s.fecha,
     titulo: s.titulo,
-    bloques: JSON.parse(JSON.stringify(s.bloques.map(b => ({ cat: b.cat, ejercicios: b.ejercicios }))))
+    bloques: JSON.parse(JSON.stringify(s.bloques.map(b => ({ cat: b.cat, ejercicios: b.ejercicios.map(trNormalizarEj) }))))
   };
   _trEditando = !comoNueva;
   document.getElementById('trBuilderTitle').textContent = comoNueva ? 'Nueva Sesión (duplicada)' : 'Editando: ' + s.titulo;
