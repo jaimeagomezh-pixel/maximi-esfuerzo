@@ -447,11 +447,17 @@ export default {
     }
 
     // ── POST /rucking/save-profile — atleta guarda su perfil (SE, BM) ──
+    // MERGE con el perfil existente: distintos dispositivos/módulos suben campos
+    // distintos (stravaStats, bw/talla/fechaNac, se...) y no deben pisarse entre sí.
     if (url.pathname === '/rucking/save-profile' && request.method === 'POST') {
       try {
-        const { stravaId, nombre, profile } = await request.json();
+        const { stravaId, nombre, profile, replace } = await request.json();
         if (!stravaId || !profile) return Response.json({ ok:false, error:'Datos inválidos' }, { status:400, headers:corsHeaders() });
-        await env.RUCK_DATA.put(`profile:${stravaId}`, JSON.stringify({ ...profile, updatedAt: new Date().toISOString() }));
+        let base = {};
+        if (!replace) {
+          try { const prevRaw = await env.RUCK_DATA.get(`profile:${stravaId}`); if (prevRaw) base = JSON.parse(prevRaw); } catch(e) {}
+        }
+        await env.RUCK_DATA.put(`profile:${stravaId}`, JSON.stringify({ ...base, ...profile, updatedAt: new Date().toISOString() }));
         if (nombre) {
           const hasStrava = !String(stravaId).startsWith('uid:');
           await env.RUCK_DATA.put(`atleta:${stravaId}`, JSON.stringify({ stravaId, nombre, hasStrava, updatedAt: new Date().toISOString() }));
@@ -555,16 +561,20 @@ export default {
       try {
         const { email, nombre, uid, photoURL } = await request.json();
         if (!email) return Response.json({ ok: false, error: 'Email requerido' }, { headers: corsHeaders() });
-        // Solo guarda si no existe ya como atleta pagado
+        // Guardar SIEMPRE el registro usuario:<email> (antes se omitía para
+        // atletas pagados y el coach no podía resolver email→uid). Se marca
+        // el tipo según si tiene plan, preservando datos previos.
         const yaEsAtleta = await env.RUCK_DATA.get(`plan-atleta:${email}`);
-        if (!yaEsAtleta) {
-          const data = {
-            email, nombre: nombre || email.split('@')[0],
-            uid: uid || null, photoURL: photoURL || null,
-            tipo: 'registro', fechaRegistro: new Date().toISOString()
-          };
-          await env.RUCK_DATA.put(`usuario:${email}`, JSON.stringify(data));
-        }
+        let prev = {};
+        try { const prevRaw = await env.RUCK_DATA.get(`usuario:${email}`); if (prevRaw) prev = JSON.parse(prevRaw); } catch(e) {}
+        const data = {
+          ...prev,
+          email, nombre: nombre || prev.nombre || email.split('@')[0],
+          uid: uid || prev.uid || null, photoURL: photoURL || prev.photoURL || null,
+          tipo: yaEsAtleta ? 'atleta' : (prev.tipo || 'registro'),
+          fechaRegistro: prev.fechaRegistro || new Date().toISOString()
+        };
+        await env.RUCK_DATA.put(`usuario:${email}`, JSON.stringify(data));
         return Response.json({ ok: true }, { headers: corsHeaders() });
       } catch(e) {
         return Response.json({ ok: false, error: e.message }, { headers: corsHeaders() });

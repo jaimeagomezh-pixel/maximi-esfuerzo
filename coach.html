@@ -12,7 +12,7 @@
   --card: #ffffff;
   --border: rgba(0,0,0,0.13);
   --border2: rgba(0,122,133,0.3);
-  --gold: #d4a843;
+  --gold: #C9A84C; /* dorado de marca, igual al panel del atleta */
   --cian: #8B1A1A;
   --cian2: #00a8b3;
   --green: #1e9451;
@@ -691,8 +691,23 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <style>
     /* Módulo Entrenamiento */
     .tr-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
-    .tr-add-btn{font-family:var(--fc);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;background:var(--cian);color:#fff;border:none;border-radius:6px;padding:11px 18px;cursor:pointer;transition:background .2s;white-space:nowrap;}
-    .tr-add-btn:hover{background:var(--cian2);}
+    .tr-add-btn{font-family:var(--fc);font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;background:#8B1A1A;color:#fff;border:none;border-radius:5px;padding:11px 16px;cursor:pointer;transition:background .2s, transform .15s, box-shadow .2s;white-space:nowrap;}
+    .tr-add-btn:hover{background:#a32222;transform:translateY(-1px);box-shadow:0 4px 14px rgba(139,26,26,0.25);}
+    .tr-add-btn:active{transform:translateY(0);}
+    /* Acordeones estilo panel del atleta (me-accord) */
+    .trc-accord{margin:10px 0;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.07);}
+    .trc-accord-btn{width:100%;display:flex;align-items:center;gap:12px;background:#111;border:none;padding:0;cursor:pointer;text-align:left;transition:background .2s;}
+    .trc-accord-btn:hover{background:#1a1a1a;}
+    .trc-accord-icon{width:56px;height:56px;flex-shrink:0;background:#0d1117;border-right:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:center;transition:background .2s;}
+    .trc-accord-btn:hover .trc-accord-icon{background:#111820;}
+    .trc-accord-icon svg{width:30px;height:30px;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+    .trc-accord-label{flex:1;font-family:var(--fc);font-size:14px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#f0ede4;}
+    .trc-accord-arrow{width:18px;height:18px;fill:none;stroke:#888;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin-right:14px;flex-shrink:0;transition:transform .3s ease;}
+    .trc-accord-btn.is-open .trc-accord-arrow{transform:rotate(180deg);stroke:#C9A84C;}
+    .trc-accord-body{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.22,1,.36,1);background:#fff;}
+    .trc-accord-body.is-open{max-height:8000px;}
+    .trc-accord-inner{padding:18px;}
+    @media(max-width:600px){.trc-accord-icon{width:48px;height:48px;}.trc-accord-icon svg{width:26px;height:26px;}.trc-accord-label{font-size:13px;letter-spacing:2px;}}
     .tr-cat-badge{font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff;display:inline-block;}
     .tr-ex-card{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--cian2);border-radius:8px;padding:12px 16px;margin-bottom:6px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 4px rgba(0,0,0,0.06);}
     .tr-ex-card .nombre{font-family:var(--fc);font-size:15px;font-weight:700;color:var(--text);flex:1;min-width:0;}
@@ -748,28 +763,38 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 
     <div class="psec" id="tab-entrenamiento">
 
-      <div class="filtros" style="margin-bottom:18px;">
-        <button class="f-btn active" onclick="trShowSub('lib',this)">📚 Biblioteca</button>
-        <button class="f-btn" onclick="trShowSub('prog',this)">📋 Programar</button>
-      </div>
-
-      <!-- ── SUB: BIBLIOTECA ── -->
-      <div id="trSubLib">
-        <div class="sec">
-          <div class="sec-t">Biblioteca de Ejercicios <span id="trLibCount" style="color:var(--text3);font-weight:600;"></span></div>
+      <!-- ── ACORDEÓN: BIBLIOTECA ── -->
+      <div class="trc-accord">
+        <button class="trc-accord-btn is-open" onclick="trToggleAccord(this)">
+          <div class="trc-accord-icon">
+            <svg viewBox="0 0 24 24" stroke="#00c8d4"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>
+          </div>
+          <div class="trc-accord-label">Biblioteca de Ejercicios <span id="trLibCount" style="color:#C9A84C;"></span></div>
+          <svg class="trc-accord-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="trc-accord-body is-open">
+          <div class="trc-accord-inner">
           <div class="tr-toolbar">
             <input type="search" class="tr-input" style="flex:1;min-width:180px;" placeholder="Buscar ejercicio..." oninput="trBuscarLib(this.value)">
             <button class="tr-add-btn" onclick="trAbrirExModal()">+ Ejercicio</button>
           </div>
           <div class="filtros" id="trLibCatChips" style="margin-bottom:14px;"></div>
           <div id="trLibList"><div class="tr-empty">Cargando biblioteca…</div></div>
+          </div>
         </div>
       </div>
 
-      <!-- ── SUB: PROGRAMAR ── -->
-      <div id="trSubProg" style="display:none;">
-        <div class="sec">
-          <div class="sec-t" id="trBuilderTitle">Nueva Sesión</div>
+      <!-- ── ACORDEÓN: PROGRAMAR ── -->
+      <div class="trc-accord">
+        <button class="trc-accord-btn" onclick="trToggleAccord(this)">
+          <div class="trc-accord-icon">
+            <svg viewBox="0 0 24 24" stroke="#00c8d4"><rect x="7" y="4" width="10" height="17" rx="2"/><path d="M9.5 4V3h5v1M10 9.5h4M10 13h4M10 16.5h2.5"/></svg>
+          </div>
+          <div class="trc-accord-label" id="trBuilderTitle">Programar Sesión</div>
+          <svg class="trc-accord-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="trc-accord-body">
+          <div class="trc-accord-inner">
           <div style="display:grid;grid-template-columns:160px 1fr;gap:10px;margin-bottom:4px;">
             <div><span class="tr-label" style="margin-top:0;">Fecha</span><input type="date" class="tr-input" id="trFecha" onchange="_trSesion.fecha=this.value"></div>
             <div><span class="tr-label" style="margin-top:0;">Título de la sesión</span><input type="text" class="tr-input" id="trTitulo" placeholder="Ej: Día 1 — Tren Inferior" oninput="_trSesion.titulo=this.value"></div>
@@ -784,10 +809,21 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
             <button class="act-btn" id="trCancelEditBtn" style="display:none;padding:12px 16px;" onclick="trResetBuilder()">✕ Cancelar edición</button>
           </div>
           <div id="trGuardarStatus" style="margin-top:10px;font-size:13px;"></div>
+          </div>
         </div>
+      </div>
 
-        <div class="sec">
-          <div class="sec-t">Calendario de Sesiones</div>
+      <!-- ── ACORDEÓN: CALENDARIO ── -->
+      <div class="trc-accord">
+        <button class="trc-accord-btn" onclick="trToggleAccord(this)">
+          <div class="trc-accord-icon">
+            <svg viewBox="0 0 24 24" stroke="#00c8d4"><rect x="4" y="6" width="16" height="14" rx="2"/><path d="M4 10.5h16M8.5 4v4M15.5 4v4"/></svg>
+          </div>
+          <div class="trc-accord-label">Calendario de Sesiones</div>
+          <svg class="trc-accord-arrow" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="trc-accord-body">
+          <div class="trc-accord-inner">
           <select class="tr-input" id="trVerAtleta" style="margin-bottom:12px;" onchange="trCargarSesiones()">
             <option value="">— Elegir atleta —</option>
           </select>
@@ -800,6 +836,7 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
             <div class="tr-cal-scroll"><div class="tr-cal-grid" id="trCalGrid"></div></div>
           </div>
           <div id="trSesionesList"><div class="tr-empty">Elige un atleta para ver su calendario.</div></div>
+          </div>
         </div>
       </div>
 
@@ -3123,11 +3160,11 @@ async function initEntrenamiento(){
   } catch(e){ console.warn('[Train] No se pudo leer biblioteca de la nube:', e); }
 }
 
-function trShowSub(which, btn){
-  document.getElementById('trSubLib').style.display  = which==='lib'  ? 'block' : 'none';
-  document.getElementById('trSubProg').style.display = which==='prog' ? 'block' : 'none';
-  btn.parentElement.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+// Acordeones estilo panel del atleta
+function trToggleAccord(btn){
+  btn.classList.toggle('is-open');
+  const body = btn.nextElementSibling;
+  if (body) body.classList.toggle('is-open');
 }
 
 // ── BIBLIOTECA ──────────────────────────────────────────────
@@ -3242,7 +3279,7 @@ function trResetBuilder(){
   };
   _trEditando = false;
   _trSel.clear();
-  document.getElementById('trBuilderTitle').textContent = 'Nueva Sesión';
+  document.getElementById('trBuilderTitle').textContent = 'Programar Sesión';
   document.getElementById('trCancelEditBtn').style.display = 'none';
   document.getElementById('trFecha').value = _trSesion.fecha;
   document.getElementById('trTitulo').value = '';
@@ -3577,6 +3614,9 @@ function _trCargarEnBuilder(s, comoNueva){
   document.getElementById('trGuardarStatus').innerHTML = '';
   trRenderAsignar();
   trRenderBloques();
+  // Abrir el acordeón de Programar si está cerrado y llevar la vista ahí
+  const accBtn = document.getElementById('trBuilderTitle').closest('.trc-accord-btn');
+  if (accBtn && !accBtn.classList.contains('is-open')) trToggleAccord(accBtn);
   document.getElementById('trBuilderTitle').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 function trEditarSesion(sid){ const s = _trSessCache.find(x => x.id === sid); if (s) _trCargarEnBuilder(s, false); }
