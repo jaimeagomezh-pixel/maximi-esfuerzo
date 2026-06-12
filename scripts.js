@@ -270,6 +270,9 @@
           }, 400);
           // Cargar datos Strava con auto-refresh si el token venció
           checkStravaToken();
+          // Re-sincronizar peso/talla/fechaNac a la nube (auto-recuperación
+          // si la nube los perdió; el worker hace merge, no pisa otros campos)
+          setTimeout(() => { if (typeof syncPerfilBasicoCloud === 'function') syncPerfilBasicoCloud(); }, 3000);
         }, 200);
       }
       
@@ -1448,6 +1451,24 @@
       btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
       setTimeout(() => { btn.textContent = orig; btn.style.background = '#8B1A1A'; }, 1800);
     }
+  }
+
+  // Sube peso/talla/fechaNac del perfil local a la nube sin acción del atleta.
+  // Máx. una vez al día. El worker fusiona, así que no pisa SE/stravaStats/etc.
+  function syncPerfilBasicoCloud() {
+    try {
+      const p = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+      if (!p.peso && !p.talla && !p.fechaNac) return;
+      const hoy = new Date().toISOString().slice(0,10);
+      if (localStorage.getItem('perfilCloudPushDay') === hoy) return;
+      const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      if (p.peso)     ruckProfile.bw = p.peso;
+      if (p.talla)    ruckProfile.talla = p.talla;
+      if (p.fechaNac) ruckProfile.fechaNac = p.fechaNac;
+      localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
+      localStorage.setItem('perfilCloudPushDay', hoy);
+      pushRuckProfileToCloud(ruckProfile);
+    } catch(e) { console.warn('[Perfil] sync cloud:', e); }
   }
 
   async function registrarPesoEnHistorial(peso) {

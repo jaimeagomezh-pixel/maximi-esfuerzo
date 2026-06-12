@@ -241,7 +241,9 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 
 /* Empty */
 .empty{text-align:center;padding:36px 16px;}
-.empty-i{font-size:36px;margin-bottom:10px;}
+.empty-i{font-size:36px;margin-bottom:10px;display:flex;justify-content:center;}
+.empty-i svg{width:38px;height:38px;fill:none;stroke:#00c8d4;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;}
+.btn-ico{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-2px;}
 .empty-t{font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;font-weight:600;}
 
 /* Resumen pagos */
@@ -475,7 +477,7 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
           <div class="ruck-title">Perfil Individual</div>
           <div class="ruck-sub" id="ruckProfileSub">Selecciona un atleta para cargar su perfil</div>
         </div>
-        <button class="f-btn" onclick="toggleRuckProfile()">⚙ Perfil</button>
+        <button class="f-btn" onclick="toggleRuckProfile()"><svg class="btn-ico" viewBox="0 0 24 24"><path d="M21 7h-8M9 7H3M21 17h-4M13 17H3"/><circle cx="11" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg> Perfil</button>
       </div>
 
       <!-- Editor de perfil (colapsable) -->
@@ -805,7 +807,7 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
           <div id="trBloques"></div>
           <button class="act-btn" style="width:100%;padding:12px;font-size:12px;border-style:dashed;" onclick="trNuevoBloque()">+ Agregar bloque</button>
           <div style="display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap;">
-            <button class="tr-add-btn" style="flex:1;min-width:200px;padding:14px;" onclick="trGuardarSesion()">💾 Guardar y asignar sesión</button>
+            <button class="tr-add-btn" style="flex:1;min-width:200px;padding:14px;" onclick="trGuardarSesion()">Guardar y asignar sesión</button>
             <button class="act-btn" id="trCancelEditBtn" style="display:none;padding:12px 16px;" onclick="trResetBuilder()">✕ Cancelar edición</button>
           </div>
           <div id="trGuardarStatus" style="margin-top:10px;font-size:13px;"></div>
@@ -951,7 +953,7 @@ function renderGrupoChips(){
     const count = atletas.filter(a=>!a.archivado && (a.grupos||[]).includes(g.id)).length;
     html += chip(g.id, g.nombre, g.color, count);
   });
-  html += `<button onclick="abrirGestionGrupos()" style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:16px;border:1px dashed var(--border);background:none;color:var(--text3);cursor:pointer;white-space:nowrap;">⚙ Grupos</button>`;
+  html += `<button onclick="abrirGestionGrupos()" style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:16px;border:1px dashed var(--border);background:none;color:var(--text3);cursor:pointer;white-space:nowrap;"><svg class="btn-ico" style="width:11px;height:11px;" viewBox="0 0 24 24"><path d="M21 7h-8M9 7H3M21 17h-4M13 17H3"/><circle cx="11" cy="7" r="2"/><circle cx="15" cy="17" r="2"/></svg> Grupos</button>`;
   bar.innerHTML = html;
 }
 
@@ -969,7 +971,7 @@ function abrirGestionGrupos(){
   if(!body) return;
   body.innerHTML = `
     <div style="font-family:var(--fd);font-size:1.6rem;letter-spacing:2px;margin-bottom:4px;">Gestionar grupos</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Crea grupos y asígnalos a cada atleta desde el botón 🏷 de su tarjeta.</div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">Crea grupos y asígnalos a cada atleta desde el botón Grupos de su tarjeta.</div>
     <div style="display:flex;gap:8px;margin-bottom:8px;">
       <input id="nuevoGrupoNombre" class="l-input" placeholder="Nombre del grupo" style="flex:1;margin-bottom:0;" onkeydown="if(event.key==='Enter')crearGrupo()">
       <button class="l-btn" style="width:auto;white-space:nowrap;" onclick="crearGrupo()">Crear</button>
@@ -1280,7 +1282,7 @@ function renderPlanAtletas() {
     // Buscar perfil local (siempre existe porque se auto-crea al cargar)
     const atletaLocal = atletas.find(x => x.email && x.email.toLowerCase() === a.email.toLowerCase());
     const accionBtn = atletaLocal
-      ? `<button class="act-btn activar" onclick="abrirPerfil(${atletaLocal.id})">📋 Ver perfil completo</button>`
+      ? `<button class="act-btn activar" onclick="abrirPerfil(${atletaLocal.id})">Ver perfil completo</button>`
       : `<button class="act-btn activar" onclick="location.reload()">↺ Actualizar</button>`;
 
     return `<div style="background:white;border-radius:6px;padding:14px;margin-bottom:8px;border:1px solid var(--border);border-left:4px solid ${esPers ? 'var(--gold)' : 'var(--cian2)'};">
@@ -1290,7 +1292,7 @@ function renderPlanAtletas() {
           <div style="font-size:12px;color:var(--text3);">${a.email}</div>
         </div>
         <span style="font-family:var(--fc);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:3px 8px;border-radius:20px;background:${esPers ? 'rgba(212,168,67,0.12)' : 'rgba(0,168,179,0.12)'};color:${esPers ? 'var(--gold)' : 'var(--cian2)'};border:1px solid ${esPers ? 'rgba(212,168,67,0.3)' : 'rgba(0,168,179,0.3)'};">
-          ${esPers ? '👤 Personalizado' : '🏷 Suscrito'}
+          ${esPers ? 'Personalizado' : 'Suscrito'}
         </span>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:10px;">
@@ -1416,7 +1418,7 @@ function renderAtletas() {
   lista = lista.filter(atletaEnFiltro); // filtro por grupo activo
 
   if (!lista.length) {
-    document.getElementById('atletasList').innerHTML = '<div class="empty"><div class="empty-i">🤼</div><div class="empty-t">Sin atletas en esta categoría</div></div>';
+    document.getElementById('atletasList').innerHTML = '<div class="empty"><div class="empty-i"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.5 5.5-4.5s4.9 1.5 5.5 4.5"/><circle cx="16.5" cy="9" r="2.6"/><path d="M16 14.7c2.3.2 4 1.6 4.5 4.3"/></svg></div><div class="empty-t">Sin atletas en esta categoría</div></div>';
     return;
   }
 
@@ -1489,7 +1491,7 @@ function renderAtletas() {
     // Badges de grupos + botón de asignación
     const misGrupos = (a.grupos||[]).map(gid=>_gruposAll.find(g=>g.id===gid)).filter(Boolean);
     const gruposBadges = misGrupos.map(g=>`<span style="display:inline-block;background:${g.color}1a;border:1px solid ${g.color};color:${g.color};font-size:9px;letter-spacing:0.5px;padding:1px 7px;border-radius:9px;margin-right:3px;">${g.nombre}</span>`).join('');
-    const gruposHtml = `<div style="margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:3px;">${gruposBadges}<button class="act-btn" onclick="event.stopPropagation();abrirAsignarGrupos(${a.id})" style="font-size:10px;padding:2px 8px;">🏷 Grupos</button></div>`;
+    const gruposHtml = `<div style="margin-top:5px;display:flex;align-items:center;flex-wrap:wrap;gap:3px;">${gruposBadges}<button class="act-btn" onclick="event.stopPropagation();abrirAsignarGrupos(${a.id})" style="font-size:10px;padding:2px 8px;"><svg class="btn-ico" style="width:10px;height:10px;" viewBox="0 0 24 24"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg> Grupos</button></div>`;
 
     return `<div class="acard ${cardCls}" onclick="abrirPerfil(${a.id})">
       <div class="a-dot ${dotCls}"></div>
@@ -1497,7 +1499,7 @@ function renderAtletas() {
       <div class="a-info">
         <div class="a-name">${a.nombre}</div>
         <div class="a-meta">${a.email}</div>
-        ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">📋 ${a.plan}</div>` : ''}
+        ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">${a.plan}</div>` : ''}
         ${cumpleBadge}
         ${gruposHtml}
         <div class="a-actions">${acciones}</div>
@@ -2270,7 +2272,7 @@ function abrirPerfil(id) {
           </div>` : ''}
           <div class="chart-wrap"><canvas id="cStrava"></canvas></div>
           ` : `<div class="empty" style="padding:16px 0;">
-            <div class="empty-i">🏃</div>
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 12h4l2.5-6 4 12L16 12h5"/></svg></div>
             <div class="empty-t">Atleta aún no conecta Strava</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los datos aparecerán cuando el atleta abra su panel</div>
           </div>`}
@@ -2296,7 +2298,7 @@ function abrirPerfil(id) {
             Test crudo: ${a.endurance.raw20minMs?a.endurance.raw20minMs.toFixed(2)+' m/s':'—'} · Última eval: ${a.endurance.fecha||'—'}
           </div>
           ` : `<div class="empty" style="padding:16px 0;">
-            <div class="empty-i">📈</div>
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></div>
             <div class="empty-t">Sin test de campo aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">El atleta registra sus tests de 5 y 20 min desde su panel</div>
           </div>`}
@@ -2314,7 +2316,7 @@ function abrirPerfil(id) {
             Carga semanal (10 sem). ${(a.endurance&&a.endurance.ftpMultiplier&&a.endurance.ftpMultiplier!==1) ? `Reescalado ×${(1/Math.pow(a.endurance.ftpMultiplier,2)).toFixed(2)} por tu multiplicador (${a.endurance.ftpMultiplier}).` : 'Con FTP base del atleta.'}
           </div>
           ` : `<div class="empty" style="padding:16px 0;">
-            <div class="empty-i">📊</div>
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg></div>
             <div class="empty-t">Sin carga rTSS aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere FTP (test 20 min) + Strava sincronizado en el panel del atleta</div>
           </div>`}
@@ -2333,7 +2335,7 @@ function abrirPerfil(id) {
           </div>
           <div class="chart-wrap"><canvas id="cPR"></canvas></div>
           ` : `<div class="empty" style="padding:16px 0;">
-            <div class="empty-i">⏱</div>
+            <div class="empty-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7"/><path d="M12 10v3.5l2.5 1.5M10 3h4"/></svg></div>
             <div class="empty-t">Sin registros de tiempo aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Los PRs se registran desde el panel del atleta</div>
           </div>`}
@@ -2369,7 +2371,7 @@ function abrirPerfil(id) {
           <div class="chart-wrap"><canvas id="cFuerza"></canvas></div>
           <table class="sets-table" id="setsTable" style="margin-top:12px;"></table>
           ` : `<div class="empty" style="padding:16px 0;">
-            <div class="empty-i">🏋️</div>
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg></div>
             <div class="empty-t">Sin datos de fuerza aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Sube el CSV de TrainHeroic desde aquí abajo</div>
           </div>`}
@@ -2386,7 +2388,7 @@ function abrirPerfil(id) {
           <div id="inbodyCoachHistorial"></div>
           <div id="inbodyCoachLinks" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
             <div style="font-family:var(--fc);font-size:9px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px;">Archivos en Drive</div>
-            <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1" target="_blank" style="font-size:12px;color:#8B1A1A;text-decoration:none;">📁 Abrir carpeta en Google Drive →</a>
+            <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1" target="_blank" style="font-size:12px;color:#8B1A1A;text-decoration:none;"><svg class="btn-ico" style="width:12px;height:12px;" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg> Abrir carpeta en Google Drive →</a>
           </div>
         </div>
 
@@ -2411,13 +2413,13 @@ function abrirPerfil(id) {
           style="background:rgba(0,200,212,0.08);border:1px solid rgba(0,200,212,0.3);color:#C9A84C;
                  font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;
                  text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
-          📂 Subir CSV
+          <svg class="btn-ico" style="width:11px;height:11px;" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/><path d="M12 16v-5M9.5 13 12 10.5 14.5 13"/></svg> Subir CSV
         </button>
         <button onclick="clearCoachCSV()" id="coachCSVClearBtn" style="display:none;
           background:rgba(231,76,60,0.07);border:1px solid rgba(231,76,60,0.25);color:#e74c3c;
           font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;
           text-transform:uppercase;padding:7px 14px;border-radius:5px;cursor:pointer;">
-          🗑 Limpiar
+          <svg class="btn-ico" style="width:11px;height:11px;" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> Limpiar
         </button>
       </div>
       <div id="coachCSVStatus" style="margin-top:8px;font-size:11px;color:#C9A84C;"></div>
@@ -2493,7 +2495,7 @@ function abrirPerfil(id) {
       const emptyEl = document.getElementById('ruckCoachEmpty');
       const msgEl   = document.getElementById('ruckCoachEmptyMsg');
       if (emptyEl) emptyEl.style.display = 'block';
-      if (msgEl)   msgEl.textContent = '🎒 Atleta sin email registrado';
+      if (msgEl)   msgEl.textContent = 'Atleta sin email registrado';
     }
 
     // Cargar InBody del atleta (usa email como identificador hacia el atleta)
@@ -2654,7 +2656,7 @@ async function cargarRuckingCoach(stravaId) {
     const res  = await fetch(`${RUCK_WORKER}/rucking/athlete?stravaId=${stravaId}&secret=${encodeURIComponent(PASS)}`);
     const json = await res.json();
     if (!json.ok || !json.sessions.length) {
-      if (emptyDiv) { emptyDiv.style.display='block'; emptyDiv.textContent='🎒 Sin sesiones de rucking registradas aún.'; }
+      if (emptyDiv) { emptyDiv.style.display='block'; emptyDiv.textContent='Sin sesiones de rucking registradas aún.'; }
       if (dataDiv) dataDiv.style.display='none';
       return;
     }
@@ -3131,6 +3133,14 @@ const TRAIN_CATS = {
   movilidad:{n:'Movilidad',c:'#0277bd'}
 };
 const TRAIN_LETRAS = 'ABCDEFGHIJ';
+// Íconos SVG de marca (reemplazan emojis que Windows renderiza feo)
+const TR_ICON = {
+  edit:  '<svg class="btn-ico" viewBox="0 0 24 24"><path d="M4 20l1-4L16.5 4.5a2.12 2.12 0 0 1 3 3L8 19l-4 1z"/></svg>',
+  trash: '<svg class="btn-ico" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  copy:  '<svg class="btn-ico" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a1 1 0 0 1 1-1h9"/></svg>',
+  video: '<svg class="btn-ico" viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#8B1A1A;"><rect x="3" y="6" width="13" height="12" rx="2"/><path d="M16 10.5l5-2.5v8l-5-2.5z"/></svg>',
+  tag:   '<svg class="btn-ico" viewBox="0 0 24 24" style="width:11px;height:11px;"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg>'
+};
 const TRAIN_UNIDADES = ['kg','lb','%','RPE','BW','seg','m','cal'];
 
 let _trLib = [];
@@ -3210,11 +3220,11 @@ function trRenderLib(){
     const cat = TRAIN_CATS[e.cat] || {n:e.cat, c:'#666'};
     return `<div class="tr-ex-card" style="border-left-color:${cat.c};">
       <div class="nombre">${trEsc(e.nombre)}</div>
-      ${e.video ? `<a href="${trEsc(e.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;font-size:15px;">🎬</a>` : ''}
+      ${e.video ? `<a href="${trEsc(e.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;display:flex;align-items:center;">${TR_ICON.video}</a>` : ''}
       <span class="tr-cat-badge" style="background:${cat.c};">${cat.n}</span>
       <span style="font-family:var(--fc);font-size:11px;color:var(--text3);text-transform:uppercase;">${trEsc(e.unidad||'kg')}</span>
-      <button class="act-btn" onclick="trAbrirExModal('${e.id}')">✎</button>
-      <button class="act-btn peligro" onclick="trEliminarEx('${e.id}')">🗑</button>
+      <button class="act-btn" onclick="trAbrirExModal('${e.id}')" title="Editar">${TR_ICON.edit}</button>
+      <button class="act-btn peligro" onclick="trEliminarEx('${e.id}')" title="Eliminar">${TR_ICON.trash}</button>
     </div>`;
   }).join('');
 }
@@ -3316,7 +3326,7 @@ function trRenderBloques(){
           <div style="font-family:var(--fc);font-weight:700;font-size:14px;flex:1;min-width:0;">${trEsc(ej.nombre)}
             <span style="font-weight:400;color:var(--text3);font-size:12px;margin-left:6px;">${trEsc(trRxResumen(ej))}</span>
           </div>
-          ${ej.video ? `<a href="${trEsc(ej.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;font-size:14px;">🎬</a>` : ''}
+          ${ej.video ? `<a href="${trEsc(ej.video)}" target="_blank" rel="noopener" title="Ver video" style="text-decoration:none;display:flex;align-items:center;">${TR_ICON.video}</a>` : ''}
           <button class="act-btn peligro" onclick="trQuitarEx(${i},${j})">✕</button>
         </div>
         <table class="tr-set-table">
@@ -3353,7 +3363,7 @@ function trRenderBloques(){
           ${Object.entries(TRAIN_CATS).map(([k,v]) => `<option value="${k}" ${b.cat===k?'selected':''}>${v.n}</option>`).join('')}
         </select>
         <button class="act-btn" onclick="trAbrirPicker(${i})">+ Ejercicio</button>
-        <button class="act-btn peligro" onclick="trEliminarBloque(${i})">🗑</button>
+        <button class="act-btn peligro" onclick="trEliminarBloque(${i})" title="Eliminar bloque">${TR_ICON.trash}</button>
       </div>
       ${exHtml || '<div class="tr-empty" style="padding:10px;">Bloque vacío — agrega ejercicios.</div>'}
     </div>`;
@@ -3437,7 +3447,7 @@ function trRenderAsignar(){
     const miembros = lista.filter(a => (a.grupos||[]).includes(g.id));
     if (!miembros.length) return '';
     const todos = miembros.every(a => _trSel.has(a.id));
-    return `<button class="tr-atl-chip grupo ${todos?'sel':''}" style="${todos?'':'color:'+g.color+';border-color:'+g.color+';'}" onclick="trToggleGrupo('${g.id}')">🏷 ${trEsc(g.nombre)} (${miembros.length})</button>`;
+    return `<button class="tr-atl-chip grupo ${todos?'sel':''}" style="${todos?'':'color:'+g.color+';border-color:'+g.color+';'}" onclick="trToggleGrupo('${g.id}')">${TR_ICON.tag} ${trEsc(g.nombre)} (${miembros.length})</button>`;
   }).join('');
   const atlHtml = lista.map(a =>
     `<button class="tr-atl-chip ${_trSel.has(a.id)?'sel':''}" onclick="trToggleAtleta(${JSON.stringify(a.id)})">${trEsc(a.nombre)}</button>`).join('');
@@ -3580,8 +3590,8 @@ function trRenderCalendario(){
         <div class="tr-mini-t">${trEsc(s.titulo)}</div>
         <div class="tr-mini-badges">${s.bloques.map(b => { const c = TRAIN_CATS[b.cat]||{c:'#666'}; return `<span class="tr-mini-b" style="background:${c.c};">${b.letra}</span>`; }).join('')}</div>
         <div class="tr-mini-acts">
-          <button onclick="event.stopPropagation();trDuplicarSesion('${s.id}')" title="Duplicar">⧉</button>
-          <button onclick="event.stopPropagation();trEliminarSesion('${s.id}')" title="Eliminar">🗑</button>
+          <button onclick="event.stopPropagation();trDuplicarSesion('${s.id}')" title="Duplicar">${TR_ICON.copy}</button>
+          <button onclick="event.stopPropagation();trEliminarSesion('${s.id}')" title="Eliminar">${TR_ICON.trash}</button>
         </div>
       </div>`).join('');
     html += `<div class="tr-cal-day ${fuera?'fuera':''} ${fStr===hoyStr?'hoy':''}"><div class="tr-cal-num">${dia.getDate()}</div>${sesiones}</div>`;
