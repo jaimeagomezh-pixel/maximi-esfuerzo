@@ -260,6 +260,7 @@
           if (typeof window.renderCargaRTSS   === 'function') window.renderCargaRTSS();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
           if (typeof cargarMiPlan           === 'function') cargarMiPlan(); // fija body.plan-activo (gating Potencia)
+          if (typeof cargarDatosFatSecret   === 'function') cargarDatosFatSecret(); // nutrición: ¿conectado? → diario
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
@@ -1286,9 +1287,192 @@
     localStorage.setItem('comprasPagosExitosos', JSON.stringify(compras));
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // MÓDULO NUTRICIÓN — FatSecret (lectura del diario del atleta)
+  // El atleta registra comida en SU app FatSecret (dato chileno + gasto
+  // de Garmin). Aquí solo conectamos y leemos kcal/macros/gasto.
+  // ══════════════════════════════════════════════════════════════
+  const FS_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
+  const FS_KEY    = 'ME-sync-26';
+
+  function _fsUid() { return window._auth?.currentUser?.uid || null; }
+
+  // Paso 1: pedir URL de autorización y redirigir al atleta a FatSecret
+  async function conectarFatSecret() {
+    const uid = _fsUid();
+    if (!uid) { alert('Inicia sesión para conectar tu cuenta de FatSecret.'); return; }
+    const btn = document.getElementById('btnFatSecret');
+    if (btn) { btn.disabled = true; btn.textContent = 'Conectando…'; }
+    try {
+      const res = await fetch(`${FS_WORKER}/fatsecret/request`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, k: FS_KEY })
+      });
+      const data = await res.json();
+      if (data.ok && data.authUrl) {
+        window.location.href = data.authUrl;
+      } else {
+        alert('No se pudo iniciar la conexión con FatSecret. Intenta de nuevo.');
+        if (btn) { btn.disabled = false; btn.textContent = 'Conectar con FatSecret'; }
+      }
+    } catch(e) {
+      alert('Error de red al conectar con FatSecret.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Conectar con FatSecret'; }
+    }
+  }
+
+  // Manejar retorno del callback (?fatsecret=ok|error|expired)
+  function handleFatSecretCallback() {
+    const params = new URLSearchParams(window.location.search);
+    const fs = params.get('fatsecret');
+    if (!fs) return;
+    window.history.replaceState({}, document.title, window.location.pathname);
+    if (fs === 'ok') {
+      _fsToast('✓ FatSecret conectado. Cargando tu diario…', '#27ae60');
+    } else if (fs === 'expired') {
+      _fsToast('La autorización expiró. Intenta conectar de nuevo.', '#e67e22');
+    } else {
+      _fsToast('No se pudo conectar FatSecret. Intenta de nuevo.', '#8B1A1A');
+    }
+  }
+
+  // Cargar y renderizar el diario del atleta conectado
+  async function cargarDatosFatSecret() {
+    const uid = _fsUid();
+    if (!uid) return;
+    const desc = document.getElementById('nutriDesconectado');
+    const carg = document.getElementById('nutriCargando');
+    const conn = document.getElementById('nutriConectado');
+    if (!desc || !conn) return;
+    try {
+      const res = await fetch(`${FS_WORKER}/fatsecret/data`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, k: FS_KEY })
+      });
+      const data = await res.json();
+      if (!data.ok || !data.connected) {
+        desc.style.display = ''; if (carg) carg.style.display = 'none'; conn.style.display = 'none';
+        return;
+      }
+      desc.style.display = 'none'; if (carg) carg.style.display = 'none'; conn.style.display = '';
+      _fsRender(data);
+    } catch(e) {
+      desc.style.display = ''; if (carg) carg.style.display = 'none'; conn.style.display = 'none';
+    }
+  }
+
+  // Normaliza month.day a array (FatSecret devuelve objeto si hay un solo día)
+  function _fsDays(monthResp) {
+    const m = monthResp && monthResp.month;
+    if (!m || !m.day) return [];
+    return Array.isArray(m.day) ? m.day : [m.day];
+  }
+
+  function _fsRender(data) {
+    const foodDays = _fsDays(data.food);
+    const exerDays = _fsDays(data.exercise);
+    if (!foodDays.length) {
+      document.getElementById('nutriDiaLabel').textContent = 'Sin registros este mes';
+      ['nutriIngeridas','nutriGastadas','nutriBalance'].forEach(id => document.getElementById(id).textContent = '—');
+      return;
+    }
+    // Día más reciente con comida registrada
+    foodDays.sort((a,b) => Number(b.date_int) - Number(a.date_int));
+    const dia = foodDays[0];
+    const hoyInt = Math.floor(Date.now() / 86400000);
+    const diaInt = Number(dia.date_int);
+    document.getElementById('nutriDiaLabel').textContent =
+      diaInt === hoyInt ? 'Hoy' : _fsFechaLabel(diaInt);
+
+    const kcal = Math.round(Number(dia.calories) || 0);
+    const prot = Math.round(Number(dia.protein) || 0);
+    const carb = Math.round(Number(dia.carbohydrate) || 0);
+    const fat  = Math.round(Number(dia.fat) || 0);
+
+    document.getElementById('nutriIngeridas').textContent = kcal.toLocaleString('es-CL');
+
+    // Gasto del mismo día desde Garmin (vía FatSecret exercise diary)
+    const exer = exerDays.find(d => Number(d.date_int) === diaInt);
+    const gasto = exer ? Math.round(Number(exer.calories) || 0) : null;
+    const gEl = document.getElementById('nutriGastadas');
+    const gFuente = document.getElementById('nutriGastoFuente');
+    if (gasto) {
+      gEl.textContent = gasto.toLocaleString('es-CL');
+      gFuente.textContent = 'kcal · medido (Garmin)';
+      gFuente.style.color = '#27ae60';
+    } else {
+      gEl.textContent = '—';
+      gFuente.textContent = 'conecta Garmin a FatSecret';
+      gFuente.style.color = '#bbb';
+    }
+
+    // Balance
+    const balEl = document.getElementById('nutriBalance');
+    if (gasto) {
+      const bal = kcal - gasto;
+      balEl.textContent = (bal > 0 ? '+' : '') + bal.toLocaleString('es-CL');
+      balEl.style.color = bal > 0 ? '#C9A84C' : '#00b8c4';
+      document.getElementById('nutriBalanceLbl').textContent = bal > 0 ? 'superávit' : 'déficit';
+    } else {
+      balEl.textContent = '—';
+      balEl.style.color = '#ccc';
+      document.getElementById('nutriBalanceLbl').textContent = 'kcal';
+    }
+
+    // Anillos de macros: % sobre el total calórico de macros (4·P + 4·C + 9·G)
+    const kP = prot*4, kC = carb*4, kF = fat*9;
+    const tot = kP + kC + kF || 1;
+    _fsRing('ringProt', 'protG', prot, kP/tot);
+    _fsRing('ringCarb', 'carbG', carb, kC/tot);
+    _fsRing('ringFat',  'fatG',  fat,  kF/tot);
+  }
+
+  const _FS_CIRC = 2 * Math.PI * 32; // r=32 → ~201
+  function _fsRing(ringId, txtId, grams, frac) {
+    const ring = document.getElementById(ringId);
+    const txt  = document.getElementById(txtId);
+    if (txt) txt.textContent = grams;
+    if (ring) ring.style.strokeDashoffset = String(Math.max(0, _FS_CIRC * (1 - Math.min(1, frac))));
+  }
+
+  function _fsFechaLabel(dayInt) {
+    const d = new Date(dayInt * 86400000);
+    return d.toLocaleDateString('es-CL', { weekday:'short', day:'numeric', month:'short' });
+  }
+
+  async function desconectarFatSecret() {
+    const uid = _fsUid();
+    if (!uid) return;
+    if (!confirm('¿Desvincular tu cuenta de FatSecret? Podrás volver a conectarla cuando quieras.')) return;
+    try {
+      await fetch(`${FS_WORKER}/fatsecret/disconnect`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, k: FS_KEY })
+      });
+    } catch(e) {}
+    const desc = document.getElementById('nutriDesconectado');
+    const conn = document.getElementById('nutriConectado');
+    if (desc) desc.style.display = '';
+    if (conn) conn.style.display = 'none';
+  }
+
+  function _fsToast(msg, color) {
+    const t = document.createElement('div');
+    t.style.cssText = `position:fixed;top:24px;right:24px;background:${color};color:#fff;padding:14px 20px;border-radius:8px;font-family:'Barlow',sans-serif;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.25);z-index:10000;max-width:340px;`;
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3500);
+  }
+
+  // Exponer para onclick + init de carga
+  window.conectarFatSecret = conectarFatSecret;
+  window.desconectarFatSecret = desconectarFatSecret;
+  window.cargarDatosFatSecret = cargarDatosFatSecret;
+
   // Ejecutar al cargar
   handleFlowPaymentSuccess();
   handleStravaCallback();
+  handleFatSecretCallback();
   checkStravaToken();
 
 

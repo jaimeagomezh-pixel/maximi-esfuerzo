@@ -501,6 +501,109 @@ export default {
     }
 
     // ══════════════════════════════════════════════════════════════
+    // MÓDULO NUTRICIÓN — FatSecret 3-legged OAuth 1.0 (HMAC-SHA1)
+    // El atleta conecta SU cuenta FatSecret (donde registra comida con
+    // dato chileno y recibe el gasto diario de Garmin). Nosotros solo
+    // LEEMOS su diario — nunca escribimos ni mantenemos base de alimentos.
+    // Claves KV:  nutri:pending:<reqToken> → {uid, secret}  (TTL 10 min)
+    //             nutri:token:<uid>        → {token, secret} (access token)
+    // ══════════════════════════════════════════════════════════════
+    const FS_REQUEST   = 'https://authentication.fatsecret.com/oauth/request_token';
+    const FS_AUTHORIZE = 'https://authentication.fatsecret.com/oauth/authorize';
+    const FS_ACCESS    = 'https://authentication.fatsecret.com/oauth/access_token';
+
+    // ── POST /fatsecret/request — paso 1: request token → URL de autorización ──
+    if (url.pathname === '/fatsecret/request' && request.method === 'POST') {
+      try {
+        const { uid, k } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+        const callback = `${url.origin}/fatsecret/callback`;
+        const signed = await fsOauthParams('GET', FS_REQUEST, { oauth_callback: callback }, env.FATSECRET_KEY, env.FATSECRET_SECRET, null, null);
+        const res = await fetch(FS_REQUEST + '?' + fsQuery(signed));
+        const txt = await res.text();
+        const p = Object.fromEntries(new URLSearchParams(txt));
+        if (!p.oauth_token) return Response.json({ ok:false, error:'FatSecret no devolvió request token', detalle: txt.slice(0,200) }, { status:502, headers:corsHeaders() });
+        // Asociar el request token al atleta (para reconocerlo en el callback)
+        await env.RUCK_DATA.put(`nutri:pending:${p.oauth_token}`, JSON.stringify({ uid, secret: p.oauth_token_secret }), { expirationTtl: 600 });
+        return Response.json({ ok:true, authUrl: `${FS_AUTHORIZE}?oauth_token=${encodeURIComponent(p.oauth_token)}` }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── GET /fatsecret/callback — paso 3: el atleta aprobó → access token ──
+    if (url.pathname === '/fatsecret/callback' && request.method === 'GET') {
+      const reqToken = url.searchParams.get('oauth_token');
+      const verifier = url.searchParams.get('oauth_verifier');
+      const appBack = 'https://maximoesfuerzo.cl/?fatsecret=';
+      try {
+        if (!reqToken || !verifier) return Response.redirect(appBack + 'error', 302);
+        const pendRaw = await env.RUCK_DATA.get(`nutri:pending:${reqToken}`);
+        if (!pendRaw) return Response.redirect(appBack + 'expired', 302);
+        const pend = JSON.parse(pendRaw);
+        const signed = await fsOauthParams('GET', FS_ACCESS, { oauth_token: reqToken, oauth_verifier: verifier }, env.FATSECRET_KEY, env.FATSECRET_SECRET, reqToken, pend.secret);
+        const res = await fetch(FS_ACCESS + '?' + fsQuery(signed));
+        const txt = await res.text();
+        const p = Object.fromEntries(new URLSearchParams(txt));
+        if (!p.oauth_token || !p.oauth_token_secret) return Response.redirect(appBack + 'error', 302);
+        await env.RUCK_DATA.put(`nutri:token:${pend.uid}`, JSON.stringify({ token: p.oauth_token, secret: p.oauth_token_secret, connectedAt: new Date().toISOString() }));
+        await env.RUCK_DATA.delete(`nutri:pending:${reqToken}`);
+        return Response.redirect(appBack + 'ok', 302);
+      } catch(e) {
+        return Response.redirect(appBack + 'error', 302);
+      }
+    }
+
+    // ── POST /fatsecret/data — resumen mensual: kcal+macros ingeridos y gasto del día ──
+    // date = días desde epoch (opcional, default hoy). get_month trae todo el mes de esa fecha.
+    if (url.pathname === '/fatsecret/data' && request.method === 'POST') {
+      try {
+        const { uid, k, date } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+        const tokRaw = await env.RUCK_DATA.get(`nutri:token:${uid}`);
+        if (!tokRaw) return Response.json({ ok:true, connected:false }, { headers:corsHeaders() });
+        const tok = JSON.parse(tokRaw);
+        const dayInt = (typeof date === 'number') ? date : Math.floor(Date.now() / 86400000);
+        const food = await fsApiCall('food_entries.get_month', { date: String(dayInt) }, env, tok);
+        const exer = await fsApiCall('exercise_entries.get_month', { date: String(dayInt) }, env, tok);
+        return Response.json({ ok:true, connected:true, food, exercise: exer }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /fatsecret/day — detalle por comida de un día específico ──
+    if (url.pathname === '/fatsecret/day' && request.method === 'POST') {
+      try {
+        const { uid, k, date } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid || typeof date !== 'number') return Response.json({ ok:false, error:'uid y date requeridos' }, { status:400, headers:corsHeaders() });
+        const tokRaw = await env.RUCK_DATA.get(`nutri:token:${uid}`);
+        if (!tokRaw) return Response.json({ ok:true, connected:false }, { headers:corsHeaders() });
+        const tok = JSON.parse(tokRaw);
+        const entries = await fsApiCall('food_entries.get', { date: String(date) }, env, tok);
+        return Response.json({ ok:true, connected:true, entries }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── GET /fatsecret/status — ¿el atleta tiene FatSecret conectado? (atleta o coach) ──
+    if (url.pathname === '/fatsecret/status' && request.method === 'GET') {
+      const uid = url.searchParams.get('uid');
+      if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+      const tokRaw = await env.RUCK_DATA.get(`nutri:token:${uid}`);
+      return Response.json({ ok:true, connected: !!tokRaw }, { headers:corsHeaders() });
+    }
+
+    // ── POST /fatsecret/disconnect — el atleta desvincula su cuenta ──
+    if (url.pathname === '/fatsecret/disconnect' && request.method === 'POST') {
+      try {
+        const { uid, k } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+        await env.RUCK_DATA.delete(`nutri:token:${uid}`);
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ══════════════════════════════════════════════════════════════
     // MÓDULO ENTRENAMIENTO (Biblioteca de Ejercicios + Planes)
     // Claves KV:  train:lib            → biblioteca global del coach
     //             train:plan:<atletaId> → sesiones programadas por atleta
@@ -1145,4 +1248,63 @@ async function emitirBoleta(env, { rutEmisor, claveEmisor, rutReceptor, monto, d
   }
 
   return folio;
+}
+
+// ══════════════════════════════════════════════
+//  OAUTH 1.0 (FatSecret) — firma HMAC-SHA1
+//  El 3-legged OAuth de FatSecret solo admite HMAC-SHA1. Cada llamada
+//  se firma con: clave = pctEnc(consumerSecret) & pctEnc(tokenSecret).
+// ══════════════════════════════════════════════
+
+// Percent-encoding estricto RFC 3986 (encodeURIComponent deja ! * ' ( ) sin codificar)
+function fsPctEncode(str) {
+  return encodeURIComponent(String(str)).replace(/[!*'()]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+}
+
+// Serializa params a query string con codificación RFC 3986 IDÉNTICA a la de la
+// firma. URLSearchParams codifica distinto (espacio→+) y rompe la firma OAuth 1.0.
+function fsQuery(params) {
+  return Object.keys(params).map(key => `${fsPctEncode(key)}=${fsPctEncode(params[key])}`).join('&');
+}
+
+async function fsHmacSha1(baseString, signingKey) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(signingKey), { name:'HMAC', hash:'SHA-1' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(baseString));
+  let bin = '';
+  const bytes = new Uint8Array(sig);
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+
+// Construye el set de parámetros OAuth firmado (incluye oauth_signature).
+// token / tokenSecret son null en el paso 1 (request_token).
+async function fsOauthParams(httpMethod, baseUrl, extra, consumerKey, consumerSecret, token, tokenSecret) {
+  const nonce = (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : (Date.now() + '' + Math.random())).replace(/-/g, '');
+  const oauth = {
+    oauth_consumer_key:     consumerKey,
+    oauth_nonce:            nonce,
+    oauth_signature_method: 'HMAC-SHA1',
+    oauth_timestamp:        Math.floor(Date.now() / 1000).toString(),
+    oauth_version:          '1.0',
+  };
+  if (token) oauth.oauth_token = token;
+  const all = { ...oauth, ...extra };
+  // Base string: ordenar por clave, codificar cada par, unir con &
+  const paramString = Object.keys(all).sort()
+    .map(key => `${fsPctEncode(key)}=${fsPctEncode(all[key])}`).join('&');
+  const baseString = [httpMethod.toUpperCase(), fsPctEncode(baseUrl), fsPctEncode(paramString)].join('&');
+  const signingKey = `${fsPctEncode(consumerSecret)}&${fsPctEncode(tokenSecret || '')}`;
+  all.oauth_signature = await fsHmacSha1(baseString, signingKey);
+  return all;
+}
+
+// Llama un método de la REST API legacy de FatSecret firmando con el token del atleta.
+async function fsApiCall(method, params, env, tok) {
+  const FS_API = 'https://platform.fatsecret.com/rest/server.api';
+  const extra = { ...params, method, format: 'json' };
+  const signed = await fsOauthParams('GET', FS_API, extra, env.FATSECRET_KEY, env.FATSECRET_SECRET, tok.token, tok.secret);
+  const res = await fetch(FS_API + '?' + fsQuery(signed));
+  const txt = await res.text();
+  try { return JSON.parse(txt); } catch(e) { return { error: txt.slice(0, 300) }; }
 }
