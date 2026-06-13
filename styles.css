@@ -4650,3 +4650,13 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta input:focus,
   #dashboardAtleta select:focus,
   #dashboardAtleta textarea:focus { border-color: #00e5f0 !important; outline: none !important; }
+
+  /* ── FONDO DE LAS SECCIONES → NEGRO ──
+     El cuerpo de cada acordeon era gris claro (#f2f4f5): rodeaba las
+     tarjetas de blanco y ocultaba el contorno dorado (dorado sobre claro
+     no contrasta). En negro, el contorno dorado de cada tarjeta resalta. */
+  #dashboardAtleta .me-accord-body { background: #000 !important; }
+
+  /* Tarjeta candado "Desbloquea": texto mas claro para que no se confunda */
+  #dashboardAtleta .pl-sub { color: #cfc9c1 !important; }
+  #dashboardAtleta .pl-title { color: #ffffff !important; }
