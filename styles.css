@@ -4669,3 +4669,13 @@ body.plan-activo .plan-lock  { display: none; }
 
   /* Botones de mes (Volumen total mensual): letras blancas */
   #dashboardAtleta #resMesSelector button { color: #ffffff !important; }
+
+  /* ── Récords Personales / Ingreso manual: paneles claros (por CLASE) → oscuros ── */
+  #dashboardAtleta .manual-entry-panel { background: #0d0d0d !important; border-color: rgba(212,168,67,0.25) !important; }
+  #dashboardAtleta .manual-dist-item   { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
+  #dashboardAtleta .manual-entry-title { color: #00e5f0 !important; }
+  #dashboardAtleta .manual-dist-label  { color: #00e5f0 !important; }
+  #dashboardAtleta .manual-time-input,
+  #dashboardAtleta .manual-date-input  { background: #161616 !important; color: #f5f0eb !important; border-color: rgba(212,168,67,0.28) !important; }
+  #dashboardAtleta [style*="background:#f8f9fa"],
+  #dashboardAtleta [style*="background:#f7f9fa"] { background: #0d0d0d !important; }
