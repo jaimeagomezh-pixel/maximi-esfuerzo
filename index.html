@@ -2956,16 +2956,17 @@ async function cargarInbodyHistorial() {
       options: {
         responsive: true, maintainAspectRatio: false,
         scales: {
-          x: { ticks:{ font:{size:9,family:'Barlow Condensed'} } },
+          x: { ticks:{ color:'#f1ece4', font:{size:9,family:'Barlow Condensed'} }, grid:{ color:'rgba(255,255,255,0.12)', borderDash:[4,4] } },
           yComp: {
             type: 'linear', position: 'left',
             stacked: true,
-            title:{ display:true, text:'Composición (kg)', font:{size:9,family:'Barlow Condensed'} },
-            ticks:{ font:{size:9,family:'Barlow Condensed'} }
+            title:{ display:true, text:'Composición (kg)', color:'#cfc9c1', font:{size:9,family:'Barlow Condensed'} },
+            ticks:{ color:'#f1ece4', font:{size:9,family:'Barlow Condensed'} },
+            grid:{ color:'rgba(255,255,255,0.12)', borderDash:[4,4] }
           }
         },
         plugins: {
-          legend:{ display:true, labels:{ font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
+          legend:{ display:true, labels:{ color:'#f1ece4', font:{size:10,family:'Barlow Condensed'}, boxWidth:12, usePointStyle:true } },
           tooltip:{ callbacks:{ label: ctx => ctx.parsed.y == null ? null : ` ${ctx.dataset.label}: ${ctx.parsed.y} kg` } }
         }
       }
