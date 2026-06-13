@@ -1409,10 +1409,12 @@
       gEl.textContent = gasto.toLocaleString('es-CL');
       gFuente.textContent = 'kcal · medido (Garmin)';
       gFuente.style.color = '#27ae60';
+      gFuente.style.cursor = ''; gFuente.style.textDecoration = ''; gFuente.onclick = null;
     } else {
       gEl.textContent = '—';
-      gFuente.textContent = 'conecta Garmin a FatSecret';
-      gFuente.style.color = '#bbb';
+      gFuente.textContent = 'conecta tu reloj →';
+      gFuente.style.color = '#e0a82e';
+      gFuente.style.cursor = 'pointer'; gFuente.style.textDecoration = 'underline'; gFuente.onclick = abrirGuiaReloj;
     }
 
     // Objetivo del día (meta por defecto: mantener = igual al gasto).
@@ -1633,10 +1635,16 @@
     setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3500);
   }
 
+  // Guía para conectar el reloj a FatSecret (modal)
+  function abrirGuiaReloj() { const m = document.getElementById('guiaRelojModal'); if (m) m.style.display = 'flex'; }
+  function cerrarGuiaReloj(e) { if (e && e.target !== e.currentTarget) return; const m = document.getElementById('guiaRelojModal'); if (m) m.style.display = 'none'; }
+
   // Exponer para onclick + init de carga
   window.conectarFatSecret = conectarFatSecret;
   window.desconectarFatSecret = desconectarFatSecret;
   window.cargarDatosFatSecret = cargarDatosFatSecret;
+  window.abrirGuiaReloj = abrirGuiaReloj;
+  window.cerrarGuiaReloj = cerrarGuiaReloj;
 
   // Ejecutar al cargar
   handleFlowPaymentSuccess();
