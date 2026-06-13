@@ -1294,6 +1294,9 @@
   // ══════════════════════════════════════════════════════════════
   const FS_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
   const FS_KEY    = 'ME-sync-26';
+  // Config de macros que fija el coach (% de distribución + ajuste kcal de meta).
+  // Default 15% grasa / 25% proteína / 60% carbos; se sobreescribe desde el worker.
+  let _fsConfig = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
 
   function _fsUid() { return window._auth?.currentUser?.uid || null; }
 
@@ -1355,6 +1358,12 @@
         return;
       }
       desc.style.display = 'none'; if (carg) carg.style.display = 'none'; conn.style.display = '';
+      // Config de macros del coach (% y ajuste de meta)
+      try {
+        const cRes = await fetch(`${FS_WORKER}/nutri/config?k=${FS_KEY}`);
+        const cData = await cRes.json();
+        if (cData.ok && cData.config) _fsConfig = cData.config;
+      } catch(e) {}
       _fsRender(data);
     } catch(e) {
       desc.style.display = ''; if (carg) carg.style.display = 'none'; conn.style.display = 'none';
@@ -1471,10 +1480,14 @@
     }
     if (!kcal) return { kcal: null };
 
-    // Macros objetivo
-    const prot = lbm ? Math.round(2.0 * lbm) : (peso ? Math.round(1.8 * peso) : Math.round(kcal*0.30/4));
-    const fat  = Math.round(kcal * 0.25 / 9);
-    const carb = Math.max(0, Math.round((kcal - prot*4 - fat*9) / 4));
+    // Ajuste de meta (déficit/superávit) que define el coach
+    const cfg = _fsConfig || { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+    kcal = Math.max(0, kcal + (Number(cfg.ajusteKcal) || 0));
+
+    // Macros por PORCENTAJE de las calorías objetivo (proteína 4 kcal/g, carbos 4, grasa 9)
+    const prot = Math.round(kcal * (Number(cfg.pctProt)  || 25) / 100 / 4);
+    const carb = Math.round(kcal * (Number(cfg.pctCarb)  || 60) / 100 / 4);
+    const fat  = Math.round(kcal * (Number(cfg.pctGrasa) || 15) / 100 / 9);
     return { kcal, fuente, prot, carb, fat };
   }
 

@@ -395,6 +395,7 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <button class="ptab" onclick="showTab('entrenamiento',this)">Entrenamiento</button>
     <button class="ptab" onclick="showTab('resumen',this)">Resumen</button>
     <button class="ptab" onclick="showTab('rucking',this)">Rucking</button>
+    <button class="ptab" onclick="showTab('nutricion',this)">Nutrición</button>
   </div>
   <div class="pcont">
 
@@ -443,6 +444,47 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
       <div class="sec-sm">
         <div class="sec-sm-t">Próximos vencimientos</div>
         <div id="vencRes"></div>
+      </div>
+    </div>
+
+    <!-- TAB NUTRICIÓN -->
+    <div class="psec" id="tab-nutricion">
+      <div class="sec-sm">
+        <div class="sec-sm-t">Distribución de macronutrientes</div>
+        <div style="font-size:13px;color:#666;line-height:1.55;margin-bottom:18px;">
+          Define cómo se reparten los macros (% de las calorías objetivo). Las calorías totales de cada atleta salen de su <strong>gasto diario de Garmin/FatSecret</strong>; aquí defines la distribución. Los tres deben sumar <strong>100%</strong>.
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="flex:1;min-width:88px;">
+            <label style="display:block;font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#00838f;font-weight:700;margin-bottom:5px;">Proteína %</label>
+            <input type="number" id="cfgProt" value="25" min="0" max="100" oninput="nutriSuma()" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:16px;color:#222;">
+          </div>
+          <div style="flex:1;min-width:88px;">
+            <label style="display:block;font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#b8860b;font-weight:700;margin-bottom:5px;">Carbohidratos %</label>
+            <input type="number" id="cfgCarb" value="60" min="0" max="100" oninput="nutriSuma()" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:16px;color:#222;">
+          </div>
+          <div style="flex:1;min-width:88px;">
+            <label style="display:block;font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#c0392b;font-weight:700;margin-bottom:5px;">Grasa %</label>
+            <input type="number" id="cfgGrasa" value="15" min="0" max="100" oninput="nutriSuma()" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:16px;color:#222;">
+          </div>
+        </div>
+        <div id="nutriSumaMsg" style="font-size:13px;font-weight:600;color:#27ae60;margin-bottom:8px;">Suma: 100% ✓</div>
+
+        <div class="sec-sm-t" style="margin-top:24px;">Meta calórica</div>
+        <div style="font-size:13px;color:#666;line-height:1.55;margin-bottom:12px;">
+          Ajuste sobre el gasto del día. <strong>0 = mantener.</strong> Negativo = déficit (perder grasa), positivo = superávit (ganar masa). Ej: −500 para déficit moderado.
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <input type="number" id="cfgAjuste" value="0" step="50" style="width:120px;box-sizing:border-box;padding:10px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:16px;color:#222;">
+          <span style="font-size:14px;color:#666;">kcal/día</span>
+        </div>
+
+        <button onclick="guardarNutriConfig()" style="margin-top:20px;background:#8B1A1A;color:#fff;border:none;padding:12px 22px;border-radius:5px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Guardar configuración</button>
+        <div id="nutriGuardadoMsg" style="font-size:13px;margin-top:12px;"></div>
+
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.08);font-size:12px;color:#999;line-height:1.5;">
+          Esta distribución aplica a todos tus atletas con FatSecret conectado. Sus paneles se recalculan automáticamente la próxima vez que los abran.
+        </div>
       </div>
     </div>
 
@@ -2154,6 +2196,55 @@ function showTab(id, btn) {
   document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
+  if (id === 'nutricion' && typeof cargarNutriConfig === 'function') cargarNutriConfig();
+}
+
+// ── NUTRICIÓN: distribución de macros (% ) que define el coach ──────────────
+const NUTRI_DEFAULT = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+
+async function cargarNutriConfig() {
+  try {
+    const res = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26`);
+    const data = await res.json();
+    const c = (data.ok && data.config) ? data.config : NUTRI_DEFAULT;
+    document.getElementById('cfgProt').value  = c.pctProt;
+    document.getElementById('cfgCarb').value  = c.pctCarb;
+    document.getElementById('cfgGrasa').value = c.pctGrasa;
+    document.getElementById('cfgAjuste').value = c.ajusteKcal || 0;
+  } catch(e) {}
+  nutriSuma();
+}
+
+function nutriSuma() {
+  const p = +document.getElementById('cfgProt').value  || 0;
+  const c = +document.getElementById('cfgCarb').value  || 0;
+  const g = +document.getElementById('cfgGrasa').value || 0;
+  const s = p + c + g;
+  const el = document.getElementById('nutriSumaMsg');
+  el.textContent = `Suma: ${s}%` + (s === 100 ? ' ✓' : ' (debe ser 100%)');
+  el.style.color = s === 100 ? '#27ae60' : '#c0392b';
+  return s;
+}
+
+async function guardarNutriConfig() {
+  if (nutriSuma() !== 100) { alert('Los porcentajes de proteína, carbohidratos y grasa deben sumar 100%.'); return; }
+  const config = {
+    pctProt:   +document.getElementById('cfgProt').value,
+    pctCarb:   +document.getElementById('cfgCarb').value,
+    pctGrasa:  +document.getElementById('cfgGrasa').value,
+    ajusteKcal: +document.getElementById('cfgAjuste').value || 0,
+  };
+  const msg = document.getElementById('nutriGuardadoMsg');
+  msg.textContent = 'Guardando…'; msg.style.color = '#666';
+  try {
+    const res = await fetch(`${FLOW_WORKER_URL}/nutri/config`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ secret: PASS, config })
+    });
+    const data = await res.json();
+    if (data.ok) { msg.textContent = '✓ Guardado. Los paneles de tus atletas se recalcularán.'; msg.style.color = '#27ae60'; }
+    else { msg.textContent = 'Error al guardar: ' + (data.error || '—'); msg.style.color = '#c0392b'; }
+  } catch(e) { msg.textContent = 'Error de red al guardar.'; msg.style.color = '#c0392b'; }
 }
 
 function renderResumen() {

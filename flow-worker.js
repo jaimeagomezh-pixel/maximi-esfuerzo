@@ -603,6 +603,32 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ── GET /nutri/config — config de macros (% y ajuste kcal) que fija el coach ──
+    // Distribución por porcentaje sobre las calorías objetivo. Default 15/25/60.
+    if (url.pathname === '/nutri/config' && request.method === 'GET') {
+      if (url.searchParams.get('k') !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      try {
+        const raw = await env.RUCK_DATA.get('nutri:config');
+        const cfg = raw ? JSON.parse(raw) : { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+        return Response.json({ ok:true, config: cfg }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /nutri/config — el coach guarda la config de macros ──
+    if (url.pathname === '/nutri/config' && request.method === 'POST') {
+      try {
+        const { secret, config } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!config) return Response.json({ ok:false, error:'config requerida' }, { status:400, headers:corsHeaders() });
+        await env.RUCK_DATA.put('nutri:config', JSON.stringify({
+          pctGrasa: Number(config.pctGrasa), pctProt: Number(config.pctProt),
+          pctCarb: Number(config.pctCarb), ajusteKcal: Number(config.ajusteKcal) || 0,
+          updatedAt: new Date().toISOString()
+        }));
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
     // ══════════════════════════════════════════════════════════════
     // MÓDULO ENTRENAMIENTO (Biblioteca de Ejercicios + Planes)
     // Claves KV:  train:lib            → biblioteca global del coach
