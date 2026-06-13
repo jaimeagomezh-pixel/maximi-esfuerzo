@@ -1419,20 +1419,19 @@
       document.getElementById('nutriBalanceLbl').textContent = 'kcal';
     }
 
-    // Anillos de macros: % sobre el total calórico de macros (4·P + 4·C + 9·G)
+    // Macros (barras tipo batería): % sobre el total calórico de macros (4·P + 4·C + 9·G)
     const kP = prot*4, kC = carb*4, kF = fat*9;
     const tot = kP + kC + kF || 1;
-    _fsRing('ringProt', 'protG', prot, kP/tot);
-    _fsRing('ringCarb', 'carbG', carb, kC/tot);
-    _fsRing('ringFat',  'fatG',  fat,  kF/tot);
+    _fsBat('batProt', 'protG', prot, kP/tot);
+    _fsBat('batCarb', 'carbG', carb, kC/tot);
+    _fsBat('batFat',  'fatG',  fat,  kF/tot);
   }
 
-  const _FS_CIRC = 2 * Math.PI * 32; // r=32 → ~201
-  function _fsRing(ringId, txtId, grams, frac) {
-    const ring = document.getElementById(ringId);
-    const txt  = document.getElementById(txtId);
-    if (txt) txt.textContent = grams;
-    if (ring) ring.style.strokeDashoffset = String(Math.max(0, _FS_CIRC * (1 - Math.min(1, frac))));
+  function _fsBat(barId, txtId, grams, frac) {
+    const bar = document.getElementById(barId);
+    const txt = document.getElementById(txtId);
+    if (txt) txt.textContent = grams + ' g';
+    if (bar) bar.style.width = Math.round(Math.min(1, Math.max(0, frac)) * 100) + '%';
   }
 
   function _fsFechaLabel(dayInt) {

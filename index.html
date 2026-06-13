@@ -1930,8 +1930,11 @@
         <!-- ══ SEGUIMIENTO DE CALORÍAS Y MACROS (FatSecret) ══ -->
         <div class="dash-section-title" style="margin-top:4px;">Calorías y Macronutrientes</div>
 
+        <!-- TARJETA CONTENEDORA — borde dorado marca el módulo completo -->
+        <div style="margin:0 16px 18px;border:1.5px solid rgba(212,168,67,0.55);border-radius:14px;padding:12px;background:rgba(212,168,67,0.03);">
+
         <!-- ESTADO: DESCONECTADO -->
-        <div id="nutriDesconectado" style="margin:0 16px 18px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:24px 20px;text-align:center;">
+        <div id="nutriDesconectado" style="background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:24px 20px;text-align:center;">
           <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:34px;height:34px;margin:0 auto;">
             <path d="M4 11.319c0 3.102 .444 5.319 2.222 7.978c1.351 1.797 3.156 2.247 5.08 .988c.426 -.268 .97 -.268 1.397 0c1.923 1.26 3.728 .809 5.079 -.988c1.778 -2.66 2.222 -4.876 2.222 -7.977c0 -2.661 -1.99 -5.32 -4.444 -5.32c-1.267 0 -2.41 .693 -3.22 1.44a.5 .5 0 0 1 -.672 0c-.809 -.746 -1.953 -1.44 -3.22 -1.44c-2.454 0 -4.444 2.66 -4.444 5.319" />
             <path d="M12 7c0 -1.2 .867 -4 3 -4" />
@@ -1942,7 +1945,7 @@
         </div>
 
         <!-- ESTADO: CONECTANDO/CARGANDO -->
-        <div id="nutriCargando" style="display:none;margin:0 16px 18px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:28px 20px;text-align:center;">
+        <div id="nutriCargando" style="display:none;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:28px 20px;text-align:center;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#aaa;text-transform:uppercase;">Cargando tu diario…</div>
         </div>
 
@@ -1950,7 +1953,7 @@
         <div id="nutriConectado" style="display:none;">
 
           <!-- Día mostrado -->
-          <div style="margin:0 16px 10px;display:flex;align-items:center;justify-content:space-between;">
+          <div style="margin:2px 2px 10px;display:flex;align-items:center;justify-content:space-between;">
             <div id="nutriDiaLabel" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#999;text-transform:uppercase;">Hoy</div>
             <div style="font-size:10px;color:#27ae60;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;display:flex;align-items:center;gap:4px;">
               <span style="width:6px;height:6px;border-radius:50%;background:#27ae60;display:inline-block;"></span>FatSecret conectado
@@ -1958,7 +1961,7 @@
           </div>
 
           <!-- BALANCE ENERGÉTICO -->
-          <div style="margin:0 16px 12px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:18px 16px;">
+          <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;">
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Ingeridas</div>
@@ -1980,44 +1983,58 @@
             </div>
           </div>
 
-          <!-- ANILLOS DE MACROS -->
-          <div style="margin:0 16px 12px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:12px;padding:18px 12px;">
-            <div style="display:flex;justify-content:space-around;gap:6px;">
-              <div style="text-align:center;flex:1;">
-                <svg viewBox="0 0 80 80" style="width:74px;height:74px;">
-                  <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(0,184,196,0.15)" stroke-width="9"/>
-                  <circle id="ringProt" cx="40" cy="40" r="32" fill="none" stroke="#00b8c4" stroke-width="9" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1);"/>
-                  <text x="40" y="38" text-anchor="middle" style="font-family:'Bebas Neue',sans-serif;font-size:17px;fill:#333;" id="protG">—</text>
-                  <text x="40" y="52" text-anchor="middle" style="font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:1px;fill:#aaa;">GRAMOS</text>
-                </svg>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#00b8c4;text-transform:uppercase;font-weight:700;margin-top:4px;">Proteína</div>
+          <!-- MACROS — barras tipo batería -->
+          <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
+
+            <!-- Proteína -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <div style="width:60px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#00b8c4;">Proteína</div>
+              <div style="flex:1;display:flex;align-items:center;">
+                <div style="position:relative;flex:1;height:20px;border:1.5px solid rgba(212,168,67,0.7);border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.05);">
+                  <div id="batProt" style="height:100%;width:0%;background:#00b8c4;transition:width .7s cubic-bezier(.22,1,.36,1);"></div>
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(12.5% - 1.5px),rgba(13,13,13,0.85) calc(12.5% - 1.5px),rgba(13,13,13,0.85) 12.5%);"></div>
+                </div>
+                <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
-              <div style="text-align:center;flex:1;">
-                <svg viewBox="0 0 80 80" style="width:74px;height:74px;">
-                  <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(201,168,76,0.15)" stroke-width="9"/>
-                  <circle id="ringCarb" cx="40" cy="40" r="32" fill="none" stroke="#C9A84C" stroke-width="9" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1);"/>
-                  <text x="40" y="38" text-anchor="middle" style="font-family:'Bebas Neue',sans-serif;font-size:17px;fill:#333;" id="carbG">—</text>
-                  <text x="40" y="52" text-anchor="middle" style="font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:1px;fill:#aaa;">GRAMOS</text>
-                </svg>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#C9A84C;text-transform:uppercase;font-weight:700;margin-top:4px;">Carbos</div>
-              </div>
-              <div style="text-align:center;flex:1;">
-                <svg viewBox="0 0 80 80" style="width:74px;height:74px;">
-                  <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(139,26,26,0.15)" stroke-width="9"/>
-                  <circle id="ringFat" cx="40" cy="40" r="32" fill="none" stroke="#8B1A1A" stroke-width="9" stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201" transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .6s cubic-bezier(.22,1,.36,1);"/>
-                  <text x="40" y="38" text-anchor="middle" style="font-family:'Bebas Neue',sans-serif;font-size:17px;fill:#333;" id="fatG">—</text>
-                  <text x="40" y="52" text-anchor="middle" style="font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:1px;fill:#aaa;">GRAMOS</text>
-                </svg>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#8B1A1A;text-transform:uppercase;font-weight:700;margin-top:4px;">Grasas</div>
-              </div>
+              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="protG">—</div>
             </div>
+
+            <!-- Carbohidratos -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <div style="width:60px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#C9A84C;">Carbos</div>
+              <div style="flex:1;display:flex;align-items:center;">
+                <div style="position:relative;flex:1;height:20px;border:1.5px solid rgba(212,168,67,0.7);border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.05);">
+                  <div id="batCarb" style="height:100%;width:0%;background:#C9A84C;transition:width .7s cubic-bezier(.22,1,.36,1);"></div>
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(12.5% - 1.5px),rgba(13,13,13,0.85) calc(12.5% - 1.5px),rgba(13,13,13,0.85) 12.5%);"></div>
+                </div>
+                <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
+              </div>
+              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="carbG">—</div>
+            </div>
+
+            <!-- Grasas -->
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:60px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#e74c3c;">Grasas</div>
+              <div style="flex:1;display:flex;align-items:center;">
+                <div style="position:relative;flex:1;height:20px;border:1.5px solid rgba(212,168,67,0.7);border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.05);">
+                  <div id="batFat" style="height:100%;width:0%;background:#e74c3c;transition:width .7s cubic-bezier(.22,1,.36,1);"></div>
+                  <div style="position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(12.5% - 1.5px),rgba(13,13,13,0.85) calc(12.5% - 1.5px),rgba(13,13,13,0.85) 12.5%);"></div>
+                </div>
+                <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
+              </div>
+              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="fatG">—</div>
+            </div>
+
+            <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Gramos consumidos · distribución del día</div>
           </div>
 
           <!-- Pie: desvincular -->
-          <div style="margin:0 16px 16px;text-align:center;">
+          <div style="margin:4px 0 0;text-align:center;">
             <button onclick="desconectarFatSecret()" style="background:none;border:none;color:#bbb;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">Desvincular FatSecret</button>
           </div>
         </div>
+
+        </div><!-- /tarjeta contenedora nutrición -->
       </div>
     </div><!-- /accord nutricion -->
 
@@ -2141,7 +2158,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260613b"></script>
+<script src="scripts.js?v=20260613c"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
