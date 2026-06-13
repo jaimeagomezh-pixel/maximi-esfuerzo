@@ -4584,13 +4584,19 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta [style*="background:#f7f7f7"],
   #dashboardAtleta [style*="background:#f5f5f5"],
   #dashboardAtleta [style*="background:#f5f7f8"],
-  #dashboardAtleta [style*="background:#f5f9fa"] { background: #0d0d0d !important; }
+  #dashboardAtleta [style*="background:#f5f9fa"],
+  #dashboardAtleta [style*="background: rgb(255"],
+  #dashboardAtleta [style*="background:rgb(255"] { background: #0d0d0d !important; }
 
   /* Texto gris EN LÍNEA → blanco (oscuros) / claro (secundarios) */
   #dashboardAtleta [style*="color:#333"],
   #dashboardAtleta [style*="color: #333"],
   #dashboardAtleta [style*="color:#222"],
-  #dashboardAtleta [style*="color:#444"] { color: #f5f0eb !important; }
+  #dashboardAtleta [style*="color:#444"],
+  #dashboardAtleta [style*="color:#1a1a1a"],
+  #dashboardAtleta [style*="color: rgb(26"],
+  #dashboardAtleta [style*="color: rgb(51"],
+  #dashboardAtleta [style*="color: rgb(17"] { color: #f5f0eb !important; }
   #dashboardAtleta [style*="color:#999"],
   #dashboardAtleta [style*="color:#888"],
   #dashboardAtleta [style*="color:#aaa"],
@@ -4660,3 +4666,6 @@ body.plan-activo .plan-lock  { display: none; }
   /* Tarjeta candado "Desbloquea": texto mas claro para que no se confunda */
   #dashboardAtleta .pl-sub { color: #cfc9c1 !important; }
   #dashboardAtleta .pl-title { color: #ffffff !important; }
+
+  /* Botones de mes (Volumen total mensual): letras blancas */
+  #dashboardAtleta #resMesSelector button { color: #ffffff !important; }
