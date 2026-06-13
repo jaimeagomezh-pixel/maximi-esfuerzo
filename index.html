@@ -1962,6 +1962,12 @@
 
           <!-- BALANCE ENERGÉTICO -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
+            <!-- Objetivo del día -->
+            <div style="text-align:center;border-bottom:1px solid rgba(212,168,67,0.2);padding-bottom:12px;margin-bottom:12px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Objetivo del día</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:2.1rem;color:#C9A84C;line-height:1.1;" id="nutriObjetivo">—</div>
+              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriObjFuente">kcal</div>
+            </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;">
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Ingeridas</div>
@@ -1996,7 +2002,10 @@
                 </div>
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
-              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="protG">—</div>
+              <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="protG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="protMeta">meta —</div>
+              </div>
             </div>
 
             <!-- Carbohidratos -->
@@ -2009,7 +2018,10 @@
                 </div>
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
-              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="carbG">—</div>
+              <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="carbG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="carbMeta">meta —</div>
+              </div>
             </div>
 
             <!-- Grasas -->
@@ -2022,10 +2034,13 @@
                 </div>
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
-              <div style="width:48px;flex-shrink:0;text-align:right;font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:#f5f0eb;line-height:1;" id="fatG">—</div>
+              <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="fatG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="fatMeta">meta —</div>
+              </div>
             </div>
 
-            <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Gramos consumidos · distribución del día</div>
+            <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Consumido vs objetivo del día</div>
           </div>
 
           <!-- Pie: desvincular -->
@@ -2158,7 +2173,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260613c"></script>
+<script src="scripts.js?v=20260613d"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

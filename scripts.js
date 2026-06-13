@@ -1406,7 +1406,20 @@
       gFuente.style.color = '#bbb';
     }
 
-    // Balance
+    // Objetivo del día (meta por defecto: mantener = igual al gasto).
+    // El coach podrá ajustar déficit/superávit más adelante.
+    const obj = _fsObjetivo(gasto);
+    const objEl = document.getElementById('nutriObjetivo');
+    const objFuenteEl = document.getElementById('nutriObjFuente');
+    if (obj.kcal) {
+      objEl.textContent = obj.kcal.toLocaleString('es-CL');
+      objFuenteEl.textContent = 'kcal · ' + obj.fuente;
+    } else {
+      objEl.textContent = '—';
+      objFuenteEl.textContent = 'completa Mi Perfil para calcularlo';
+    }
+
+    // Balance real del día: ingerido − gastado (déficit/superávit energético)
     const balEl = document.getElementById('nutriBalance');
     if (gasto) {
       const bal = kcal - gasto;
@@ -1419,18 +1432,59 @@
       document.getElementById('nutriBalanceLbl').textContent = 'kcal';
     }
 
-    // Macros (barras tipo batería): % sobre el total calórico de macros (4·P + 4·C + 9·G)
-    const kP = prot*4, kC = carb*4, kF = fat*9;
-    const tot = kP + kC + kF || 1;
-    _fsBat('batProt', 'protG', prot, kP/tot);
-    _fsBat('batCarb', 'carbG', carb, kC/tot);
-    _fsBat('batFat',  'fatG',  fat,  kF/tot);
+    // Macros (barras tipo batería): consumido ÷ objetivo
+    _fsBat('batProt', 'protG', 'protMeta', prot, obj.prot);
+    _fsBat('batCarb', 'carbG', 'carbMeta', carb, obj.carb);
+    _fsBat('batFat',  'fatG',  'fatMeta',  fat,  obj.fat);
   }
 
-  function _fsBat(barId, txtId, grams, frac) {
+  // Calcula el objetivo de calorías y macros del atleta.
+  // Meta por defecto = mantener (objetivo calórico = gasto del día).
+  // Proteína por masa libre de grasa (InBody) si existe; si no, por peso corporal.
+  function _fsObjetivo(gastoDia) {
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const uid = _fsUid();
+    let lbm = null;
+    try {
+      const inb = JSON.parse(localStorage.getItem('inbodyHistorial_' + uid) || '[]')
+        .filter(m => m.lbm != null).sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)));
+      if (inb.length) lbm = Number(inb[inb.length-1].lbm);
+    } catch(e) {}
+    const peso  = parseFloat(perfil.peso)  || null;
+    const talla = parseFloat(perfil.talla) || null;
+    const edad  = perfil.edad || null;
+    const sexo  = (perfil.sexo || '').toLowerCase();
+
+    // Calorías objetivo (meta: mantener)
+    let kcal = null, fuente = '';
+    if (gastoDia) {
+      kcal = gastoDia; fuente = 'según tu gasto';
+    } else if (peso) {
+      let tmb;
+      if (lbm)                tmb = 370 + 21.6 * lbm;                        // Katch-McArdle (usa MLG)
+      else if (talla && edad) tmb = sexo.charAt(0) === 'f'
+                                    ? (10*peso + 6.25*talla - 5*edad - 161)  // Mifflin mujer
+                                    : (10*peso + 6.25*talla - 5*edad + 5);   // Mifflin hombre
+      else                    tmb = 22 * peso;                               // aproximación gruesa
+      kcal = Math.round(tmb * 1.55);                                         // factor actividad moderado
+      fuente = 'estimado';
+    }
+    if (!kcal) return { kcal: null };
+
+    // Macros objetivo
+    const prot = lbm ? Math.round(2.0 * lbm) : (peso ? Math.round(1.8 * peso) : Math.round(kcal*0.30/4));
+    const fat  = Math.round(kcal * 0.25 / 9);
+    const carb = Math.max(0, Math.round((kcal - prot*4 - fat*9) / 4));
+    return { kcal, fuente, prot, carb, fat };
+  }
+
+  function _fsBat(barId, gramsId, metaId, grams, objetivo) {
     const bar = document.getElementById(barId);
-    const txt = document.getElementById(txtId);
-    if (txt) txt.textContent = grams + ' g';
+    const gEl = document.getElementById(gramsId);
+    const mEl = document.getElementById(metaId);
+    if (gEl) gEl.textContent = grams + ' g';
+    if (mEl) mEl.textContent = objetivo ? ('meta ' + objetivo + ' g') : 'meta —';
+    const frac = objetivo ? grams / objetivo : 0;
     if (bar) bar.style.width = Math.round(Math.min(1, Math.max(0, frac)) * 100) + '%';
   }
 
