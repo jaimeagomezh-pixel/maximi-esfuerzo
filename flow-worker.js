@@ -629,6 +629,58 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ── GET /nutri/coach-resumen — resumen nutricional de atletas conectados (coach) ──
+    if (url.pathname === '/nutri/coach-resumen' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      try {
+        let cfg = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+        try { const r = await env.RUCK_DATA.get('nutri:config'); if (r) cfg = JSON.parse(r); } catch(e) {}
+        // Mapa uid → nombre (desde usuarios registrados)
+        const nombres = {};
+        try {
+          const lu = await env.RUCK_DATA.list({ prefix: 'usuario:' });
+          await Promise.all(lu.keys.map(async k => {
+            const v = await env.RUCK_DATA.get(k.name); if (!v) return;
+            const u = JSON.parse(v); if (u.uid) nombres[u.uid] = u.nombre || (u.email || '').split('@')[0];
+          }));
+        } catch(e) {}
+        const lt = await env.RUCK_DATA.list({ prefix: 'nutri:token:' });
+        const hoy = Math.floor(Date.now() / 86400000);
+        const atletas = [];
+        for (const k of lt.keys) {
+          const uid = k.name.replace('nutri:token:', '');
+          let tok; try { tok = JSON.parse(await env.RUCK_DATA.get(k.name)); } catch(e) { continue; }
+          const food = await fsApiCall('food_entries.get_month', { date: String(hoy) }, env, tok);
+          const exer = await fsApiCall('exercise_entries.get_month', { date: String(hoy) }, env, tok);
+          const fd = _nutriDays(food), ed = _nutriDays(exer);
+          let sumK = 0, sumP = 0, n = 0, bal = 0, sumObjK = 0, sumObjP = 0, nGasto = 0;
+          for (let d = hoy - 6; d <= hoy; d++) {
+            const f = fd.find(x => Number(x.date_int) === d);
+            const e = ed.find(x => Number(x.date_int) === d);
+            const ing = f ? Number(f.calories) || 0 : 0;
+            const gas = e ? Number(e.calories) || 0 : 0;
+            if (f) { sumK += ing; sumP += Number(f.protein) || 0; n++; }
+            if (f || e) bal += ing - gas;
+            if (gas) { const ok = gas + (Number(cfg.ajusteKcal) || 0); sumObjK += ok; sumObjP += ok * (Number(cfg.pctProt) || 25) / 100 / 4; nGasto++; }
+          }
+          const kcalProm = n ? Math.round(sumK / n) : 0;
+          const protProm = n ? Math.round(sumP / n) : 0;
+          const protPct  = sumObjP > 0 ? Math.round(sumP / sumObjP * 100) : null;
+          const objKProm = nGasto ? Math.round(sumObjK / nGasto) : null;
+          let estado = 'gris';
+          if (n > 0) {
+            const desvK = objKProm ? Math.abs(kcalProm - objKProm) / objKProm : 1;
+            if (protPct !== null && protPct >= 90 && desvK <= 0.12) estado = 'verde';
+            else if ((protPct === null || protPct >= 70) && desvK <= 0.25) estado = 'ambar';
+            else estado = 'rojo';
+          }
+          atletas.push({ uid, nombre: nombres[uid] || ('Atleta ' + uid.slice(0, 4)), kcalProm, protProm, protPct, balSemana: Math.round(bal), dias: n, estado });
+        }
+        atletas.sort((a, b) => a.nombre.localeCompare(b.nombre));
+        return Response.json({ ok:true, atletas }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
     // ══════════════════════════════════════════════════════════════
     // MÓDULO ENTRENAMIENTO (Biblioteca de Ejercicios + Planes)
     // Claves KV:  train:lib            → biblioteca global del coach
@@ -1323,6 +1375,13 @@ async function fsOauthParams(httpMethod, baseUrl, extra, consumerKey, consumerSe
   const signingKey = `${fsPctEncode(consumerSecret)}&${fsPctEncode(tokenSecret || '')}`;
   all.oauth_signature = await fsHmacSha1(baseString, signingKey);
   return all;
+}
+
+// Normaliza month.day a array (FatSecret devuelve objeto si hay un solo día).
+function _nutriDays(monthResp) {
+  const m = monthResp && monthResp.month;
+  if (!m || !m.day) return [];
+  return Array.isArray(m.day) ? m.day : [m.day];
 }
 
 // Llama un método de la REST API legacy de FatSecret firmando con el token del atleta.

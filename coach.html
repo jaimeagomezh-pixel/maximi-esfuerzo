@@ -486,6 +486,14 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
           Esta distribución aplica a todos tus atletas con FatSecret conectado. Sus paneles se recalculan automáticamente la próxima vez que los abran.
         </div>
       </div>
+
+      <div class="sec-sm">
+        <div class="sec-sm-t" style="display:flex;justify-content:space-between;align-items:center;">
+          <span>Seguimiento por atleta</span>
+          <span style="font-size:11px;color:#999;font-weight:400;text-transform:none;letter-spacing:0;">últimos 7 días</span>
+        </div>
+        <div id="nutriResumenLista" style="margin-top:10px;"><div style="font-size:13px;color:#888;padding:8px 0;">Cargando…</div></div>
+      </div>
     </div>
 
     <!-- TAB RUCKING -->
@@ -2196,7 +2204,42 @@ function showTab(id, btn) {
   document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
-  if (id === 'nutricion' && typeof cargarNutriConfig === 'function') cargarNutriConfig();
+  if (id === 'nutricion') {
+    if (typeof cargarNutriConfig === 'function') cargarNutriConfig();
+    if (typeof cargarResumenNutri === 'function') cargarResumenNutri();
+  }
+}
+
+// ── NUTRICIÓN: seguimiento por atleta (resumen de adherencia) ──────────────
+function cargarResumenNutri() {
+  const cont = document.getElementById('nutriResumenLista');
+  if (!cont) return;
+  cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Cargando…</div>';
+  fetch(`${FLOW_WORKER_URL}/nutri/coach-resumen?secret=${encodeURIComponent(PASS)}`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.ok) { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">No se pudo cargar el resumen.</div>'; return; }
+      if (!data.atletas.length) { cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Aún no hay atletas con FatSecret conectado.</div>'; return; }
+      const colores = { verde:['#27ae60','En meta'], ambar:['#e0a82e','Ajustar'], rojo:['#c0392b','Lejos'], gris:['#999','Sin datos'] };
+      cont.innerHTML = data.atletas.map(a => {
+        const [col, txt] = colores[a.estado] || colores.gris;
+        const bal  = (a.balSemana > 0 ? '+' : '') + a.balSemana.toLocaleString('es-CL');
+        const prot = a.protPct != null ? a.protPct + '%' : '—';
+        return `<div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="width:30px;height:30px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${(a.nombre||'?').charAt(0)}</span>
+            <span style="flex:1;font-size:14px;font-weight:600;color:#222;">${a.nombre}</span>
+            <span style="font-size:12px;color:${col};font-weight:600;">${txt}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">kcal/día</div><div style="font-size:15px;font-weight:700;color:#222;">${a.kcalProm.toLocaleString('es-CL')}</div></div>
+            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">proteína</div><div style="font-size:15px;font-weight:700;color:${col};">${prot}</div></div>
+            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">balance sem.</div><div style="font-size:15px;font-weight:700;color:#222;">${bal}</div></div>
+          </div>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">Error de red.</div>'; });
 }
 
 // ── NUTRICIÓN: distribución de macros (% ) que define el coach ──────────────
