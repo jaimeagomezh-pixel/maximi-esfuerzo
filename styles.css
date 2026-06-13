@@ -2133,7 +2133,7 @@
     font-size: clamp(1.05rem, 3vw, 1.3rem) !important;
     color: rgba(245,240,235,0.9) !important;
   }
-  .seneca-autor { color: var(--cian) !important; }
+  .seneca-autor { color: var(--dorado) !important; }
 
   /* Plan desc */
   .plan-desc { font-size: 0.9rem !important; line-height: 1.7 !important; }
@@ -4403,3 +4403,227 @@ body.plan-activo .plan-lock  { display: none; }
   .area-card.tilting,
   .plan-card.tilting { transform: none !important; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   FRASE MOTIVACIONAL · PROTAGONISTA (cristal + 3D + entrada)
+   Bloque oscuro dorado que resalta entre las tarjetas claras.
+   Al abrir el panel: salta grande hacia el centro y se aleja
+   lentamente hasta tomar su lugar, con un brillo que la cruza.
+   ══════════════════════════════════════════════════════════════ */
+  #dashboardAtleta { overflow-x: hidden; }
+
+  #dashboardAtleta.open .dash-frase-wrap {
+    background: linear-gradient(135deg, rgba(18,16,14,0.94) 0%, rgba(38,30,16,0.94) 100%) !important;
+    border: 1px solid rgba(212,168,67,0.38) !important;
+    border-left: 3px solid #d4a843 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.45),
+                inset 0 1px 0 rgba(255,255,255,0.06),
+                0 0 0 1px rgba(212,168,67,0.05) !important;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    animation: fraseEntra 2s cubic-bezier(.16,.84,.34,1) both;
+  }
+
+  #dashboardAtleta.open .dash-frase-wrap::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 32%, rgba(255,255,255,0.12) 48%, transparent 64%);
+    transform: translateX(-130%);
+    animation: fraseBrillo 2.1s ease 0.7s 1 both;
+    pointer-events: none;
+  }
+
+  #dashboardAtleta.open .dash-frase        { color: #f1ece4 !important; font-size: 17px !important; }
+  #dashboardAtleta.open .dash-frase-icon   { color: rgba(212,168,67,0.4) !important; }
+  #dashboardAtleta.open .dash-frase-autor  { color: #e6c878 !important; }
+
+  @keyframes fraseEntra {
+    0%   { opacity: 0; transform: perspective(900px) translateY(30vh) scale(1.42) rotateX(11deg); filter: blur(7px); }
+    28%  { opacity: 1; transform: perspective(900px) translateY(26vh) scale(1.38) rotateX(7deg);  filter: blur(0); }
+    100% { opacity: 1; transform: perspective(900px) translateY(0)    scale(1)    rotateX(0);     filter: blur(0); }
+  }
+  @keyframes fraseBrillo {
+    to { transform: translateX(130%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #dashboardAtleta.open .dash-frase-wrap,
+    #dashboardAtleta.open .dash-frase-wrap::after { animation: none !important; }
+  }
+
+/* ══════════════════════════════════════════════════════════════
+   PANEL ATLETA · SUPERFICIE NEGRA (override del tema claro)
+   Negro absoluto + cian más vivo/marcado; blanco, rojo y dorado
+   saltan sobre el negro. Capa al final = fácil de revertir.
+   Especificidad #dashboardAtleta gana a las reglas .clase!important.
+   ══════════════════════════════════════════════════════════════ */
+
+  /* Superficies base */
+  #dashboardAtleta            { background: #000 !important; }
+  #dashboardAtleta .dashboard-box { background: #000 !important; }
+
+  /* Perfil + saludo + nombre + avatar */
+  #dashboardAtleta .dash-profile      { background: transparent !important; border-bottom: 1px solid rgba(255,255,255,0.06) !important; }
+  #dashboardAtleta .dash-nombre       { color: #f5f0eb !important; }
+  #dashboardAtleta .dash-saludo       { color: #00e5f0 !important; }
+  #dashboardAtleta .dash-avatar-circle{ background: linear-gradient(135deg,#00e5f0,#007a85) !important; border: 2px solid rgba(0,229,240,0.4) !important; }
+
+  /* Títulos de sección: barra cian, texto rojo de marca */
+  #dashboardAtleta .dash-section-title          { color: #e74c3c !important; }
+  #dashboardAtleta .dash-section-title::before   { background: #00e5f0 !important; }
+
+  /* Tarjetas genéricas: near-black con borde sutil */
+  #dashboardAtleta .dash-connect-card,
+  #dashboardAtleta .dash-stats-row .dash-stat-cell,
+  #dashboardAtleta .dash-metric-card,
+  #dashboardAtleta .dash-chart-card,
+  #dashboardAtleta .dash-zones-card,
+  #dashboardAtleta .dash-nutri-banner,
+  #dashboardAtleta .dash-macro-card,
+  #dashboardAtleta .login-box,
+  #dashboardAtleta .th-pr-stat,
+  #dashboardAtleta .th-working-max,
+  #dashboardAtleta .th-csv-empty,
+  #dashboardAtleta .csv-upload-zone   { background: #0d0d0d !important; border-color: rgba(0,200,212,0.18) !important; }
+
+  #dashboardAtleta .dash-connect-card { border: 1px solid rgba(0,200,212,0.18) !important; }
+  #dashboardAtleta .dash-connect-card:hover { background: rgba(0,229,240,0.06) !important; border-color: rgba(0,229,240,0.45) !important; }
+  #dashboardAtleta .dash-metric-card:hover  { background: #131313 !important; border-top-color: #00e5f0 !important; }
+  #dashboardAtleta .dash-metric-card,
+  #dashboardAtleta .dash-stats-row .dash-stat-cell { border-top: 2px solid rgba(0,200,212,0.35) !important; }
+
+  /* Contenedores de gráficos */
+  #dashboardAtleta .th-chart-container { background: #0a0a0a !important; border: 1.5px solid rgba(0,200,212,0.2) !important; box-shadow: none !important; }
+  #dashboardAtleta .th-divider         { background: rgba(255,255,255,0.08) !important; }
+
+  /* Texto: oscuro -> claro */
+  #dashboardAtleta .dash-stat-value,
+  #dashboardAtleta .dash-activity-name,
+  #dashboardAtleta .dash-zone-time,
+  #dashboardAtleta .dash-macro-value,
+  #dashboardAtleta .dash-connect-name,
+  #dashboardAtleta .dash-nutri-text strong,
+  #dashboardAtleta .th-rm-kg,
+  #dashboardAtleta .th-ex-name,
+  #dashboardAtleta .login-title,
+  #dashboardAtleta .th-chart-title,
+  #dashboardAtleta .dash-chart-title   { color: #f5f0eb !important; }
+
+  #dashboardAtleta .dash-stat-unit,
+  #dashboardAtleta .dash-metric-unit,
+  #dashboardAtleta .dash-activity-date,
+  #dashboardAtleta .dash-zone-label,
+  #dashboardAtleta .dash-zone-pct,
+  #dashboardAtleta .dash-macro-name,
+  #dashboardAtleta .dash-nutri-text span,
+  #dashboardAtleta .th-sets-table td,
+  #dashboardAtleta .th-ex-meta,
+  #dashboardAtleta .th-rm-rep,
+  #dashboardAtleta .th-rm-unit,
+  #dashboardAtleta .th-pr-stat-label,
+  #dashboardAtleta .th-pr-stat-sub,
+  #dashboardAtleta .th-wm-label,
+  #dashboardAtleta .th-wm-unit,
+  #dashboardAtleta .th-chart-subtitle,
+  #dashboardAtleta .dash-chart-title span { color: #b8b0a6 !important; }
+
+  /* Acentos cian más vivos (eran teal apagados) */
+  #dashboardAtleta .dash-stat-label,
+  #dashboardAtleta .dash-metric-label,
+  #dashboardAtleta .dash-metric-note,
+  #dashboardAtleta .dash-macro-meta,
+  #dashboardAtleta .th-ex-max,
+  #dashboardAtleta .th-pr-stat-value,
+  #dashboardAtleta .th-wm-value,
+  #dashboardAtleta .dash-connect-status,
+  #dashboardAtleta .login-sub          { color: #00e5f0 !important; }
+
+  /* Acentos dorado (los que ya eran dorado se mantienen) */
+  #dashboardAtleta .dash-metric-value  { color: #d4a843 !important; }
+  #dashboardAtleta .th-pr-stat.best .th-pr-stat-value,
+  #dashboardAtleta .th-rm-cell.best .th-rm-kg { color: #f0c060 !important; }
+
+  /* Tablas / celdas sutiles sobre negro */
+  #dashboardAtleta .th-sets-table th   { color: rgba(255,255,255,0.45) !important; border-bottom-color: rgba(255,255,255,0.08) !important; }
+  #dashboardAtleta .th-sets-table td   { border-bottom-color: rgba(255,255,255,0.06) !important; }
+  #dashboardAtleta .th-rm-cell,
+  #dashboardAtleta .th-ex-card,
+  #dashboardAtleta .th-exercise-btn    { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.08) !important; }
+  #dashboardAtleta .th-ex-name         { color: #f5f0eb !important; }
+  #dashboardAtleta .th-exercise-btn    { color: #b8b0a6 !important; }
+  #dashboardAtleta .th-zone-bar-bg,
+  #dashboardAtleta .dash-zone-bar-bg   { background: rgba(255,255,255,0.08) !important; }
+
+  /* Botones de rango/distancia: cian vivo sobre negro */
+  #dashboardAtleta .th-range-btn,
+  #dashboardAtleta .th-dist-btn        { background: rgba(0,200,212,0.10) !important; border: 1.5px solid rgba(0,200,212,0.4) !important; color: #00e5f0 !important; }
+  #dashboardAtleta .th-range-btn.active,
+  #dashboardAtleta .th-dist-btn.active { background: rgba(0,229,240,0.22) !important; color: #aef6fb !important; border-color: #00e5f0 !important; box-shadow: 0 2px 12px rgba(0,229,240,0.25) !important; }
+
+  /* Inputs sobre negro */
+  #dashboardAtleta .csv-map-select,
+  #dashboardAtleta .login-input        { background: #161616 !important; border: 1px solid rgba(255,255,255,0.14) !important; color: #f5f0eb !important; }
+  #dashboardAtleta .login-input:focus,
+  #dashboardAtleta .csv-map-select:focus { border-color: #00e5f0 !important; }
+
+  /* Ejes de gráficos (canvas): texto claro sobre negro */
+  #dashboardAtleta canvas,
+  #dashboardAtleta .chartjs-render-monitor { color: #cfc9c1 !important; }
+
+  /* ── Tarjetas con blanco EN LÍNEA (HTML) → negras ──
+     Captura los <div style="background:#fff…"> de las secciones
+     (Endurance, etc.) que no tienen clase. !important gana al inline. */
+  #dashboardAtleta [style*="background:#fff"],
+  #dashboardAtleta [style*="background:#ffffff"],
+  #dashboardAtleta [style*="background: #fff"],
+  #dashboardAtleta [style*="background:#f7f7f7"],
+  #dashboardAtleta [style*="background:#f5f5f5"],
+  #dashboardAtleta [style*="background:#f5f7f8"],
+  #dashboardAtleta [style*="background:#f5f9fa"] { background: #0d0d0d !important; }
+
+  /* Texto gris EN LÍNEA → blanco (oscuros) / claro (secundarios) */
+  #dashboardAtleta [style*="color:#333"],
+  #dashboardAtleta [style*="color: #333"],
+  #dashboardAtleta [style*="color:#222"],
+  #dashboardAtleta [style*="color:#444"] { color: #f5f0eb !important; }
+  #dashboardAtleta [style*="color:#999"],
+  #dashboardAtleta [style*="color:#888"],
+  #dashboardAtleta [style*="color:#aaa"],
+  #dashboardAtleta [style*="color:#bbb"],
+  #dashboardAtleta [style*="color:#666"] { color: #cfc9c1 !important; }
+
+  /* ── HALO DORADO sutil y MUY lento alrededor de las tarjetas ── */
+  @keyframes meAuraDorada {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(212,168,67,0.10), 0 0 7px rgba(212,168,67,0.04); }
+    50%      { box-shadow: 0 0 0 1px rgba(212,168,67,0.30), 0 0 16px rgba(212,168,67,0.14); }
+  }
+  #dashboardAtleta .dash-chart-card,
+  #dashboardAtleta .dash-zones-card,
+  #dashboardAtleta .dash-metric-card,
+  #dashboardAtleta .th-chart-container,
+  #dashboardAtleta .dash-connect-card,
+  #dashboardAtleta .dash-nutri-banner,
+  #dashboardAtleta .dash-macro-card,
+  #dashboardAtleta [style*="border-radius:8px"],
+  #dashboardAtleta [style*="border-radius:10px"],
+  #dashboardAtleta [style*="border-radius:12px"] {
+    animation: meAuraDorada 7s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #dashboardAtleta .dash-chart-card,
+    #dashboardAtleta .dash-zones-card,
+    #dashboardAtleta .dash-metric-card,
+    #dashboardAtleta .th-chart-container,
+    #dashboardAtleta .dash-connect-card,
+    #dashboardAtleta .dash-nutri-banner,
+    #dashboardAtleta .dash-macro-card,
+    #dashboardAtleta [style*="border-radius:8px"],
+    #dashboardAtleta [style*="border-radius:10px"],
+    #dashboardAtleta [style*="border-radius:12px"] { animation: none !important; }
+  }

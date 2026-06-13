@@ -738,15 +738,6 @@
     <!-- Mini-cards de métricas del perfil -->
     <div id="dashPerfilCards" style="display:none;padding:12px 16px 0;"></div>
 
-    <!-- BANNER SIN PLAN (visible cuando no hay plan activo) -->
-    <div id="dashSinPlanBanner" style="display:none;margin:16px 16px 0;background:linear-gradient(135deg,#1a1400 0%,#2a1f00 100%);border:1px solid rgba(212,168,67,0.35);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:4px;">Sin plan activo</div>
-        <div style="font-size:13px;color:#aaa;line-height:1.4;">Elige un programa para comenzar tu entrenamiento estructurado.</div>
-      </div>
-      <button onclick="abrirPlanes()" style="flex-shrink:0;background:#d4a843;color:#000;border:none;padding:10px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ver Planes</button>
-    </div>
-
     <!-- MI PERFIL (colapsable) -->
     <div id="miPerfilPanel" style="display:none;background:#fff;border-top:1px solid rgba(0,0,0,0.08);border-bottom:1px solid rgba(0,0,0,0.08);padding:14px 16px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -1959,6 +1950,14 @@
       </div>
     </div><!-- /accord nutricion -->
 
+    <!-- BANNER SIN PLAN (movido al final · tras Nutrición, para no vender antes de entregar valor) -->
+    <div id="dashSinPlanBanner" style="display:none;margin:16px 16px 0;background:linear-gradient(135deg,#1a1400 0%,#2a1f00 100%);border:1px solid rgba(212,168,67,0.35);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:4px;">Sin plan activo</div>
+        <div style="font-size:13px;color:#aaa;line-height:1.4;">Elige un programa para comenzar tu entrenamiento estructurado.</div>
+      </div>
+      <button onclick="abrirPlanes()" style="flex-shrink:0;background:#d4a843;color:#000;border:none;padding:10px 18px;border-radius:20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;white-space:nowrap;">Ver Planes</button>
+    </div>
 
     <div class="dash-footer">
       <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>

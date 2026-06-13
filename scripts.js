@@ -1617,14 +1617,14 @@
       }},
       scales: {
         x: {
-          ticks: { color: '#444', font: { size: 9 }, maxTicksLimit: 6 },
-          grid: { color: 'rgba(0,0,0,0.06)' },
-          border: { color: 'rgba(0,0,0,0.08)' }
+          ticks: { color: '#f1ece4', font: { size: 9 }, maxTicksLimit: 6 },
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          border: { color: 'rgba(255,255,255,0.15)' }
         },
         y: {
-          ticks: { color: '#555', font: { size: 9 } },
-          grid: { color: 'rgba(0,0,0,0.06)' },
-          border: { color: 'rgba(0,0,0,0.08)' }
+          ticks: { color: '#f1ece4', font: { size: 9 } },
+          grid: { color: 'rgba(255,255,255,0.1)' },
+          border: { color: 'rgba(255,255,255,0.15)' }
         }
       },
       elements: { point: { radius: 0 }, line: { tension: 0.4, borderWidth: 2 } }
@@ -1679,13 +1679,13 @@
       },
       scales: {
         x: {
-          ticks: { color: '#666666', font: { size: 9 }, maxTicksLimit: 6 },
-          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: { color: '#f1ece4', font: { size: 9 }, maxTicksLimit: 6 },
+          grid: { color: 'rgba(255,255,255,0.1)' },
           border: { color: 'transparent' }
         },
         y: {
-          ticks: { color: '#555555', font: { size: 9 } },
-          grid: { color: 'rgba(0,0,0,0.06)', drawBorder: false },
+          ticks: { color: '#f1ece4', font: { size: 9 } },
+          grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false },
           border: { color: 'transparent' }
         }
       },
@@ -1925,8 +1925,8 @@
         },
         scales: {
           x: {
-            ticks: { color: '#666666', font: { size: 9 }, maxTicksLimit: 8 },
-            grid: { color: 'rgba(0,0,0,0.06)' },
+            ticks: { color: '#f1ece4', font: { size: 9 }, maxTicksLimit: 8 },
+            grid: { color: 'rgba(255,255,255,0.1)' },
             border: { color: 'transparent' }
           },
           y: {
@@ -1934,11 +1934,11 @@
             min: Math.min(...values) * 0.97,
             max: Math.max(...values) * 1.02,
             ticks: {
-              color: '#555555',
+              color: '#f1ece4',
               font: { size: 9 },
               callback: v => secToTime(Math.round(v))
             },
-            grid: { color: 'rgba(0,0,0,0.06)' },
+            grid: { color: 'rgba(255,255,255,0.1)' },
             border: { color: 'transparent' }
           }
         },
@@ -2267,10 +2267,10 @@
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
       chartStrength.data.datasets[0].data              = weights;
-      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
+      chartStrength.data.datasets[0].borderColor        = '#00c8d4';
       chartStrength.data.datasets[0].tension            = 0.3;
       chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
-      chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
+      chartStrength.data.datasets[0].pointBackgroundColor = '#00c8d4';
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
@@ -2749,11 +2749,11 @@
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
       chartStrength.data.datasets[0].data              = weights;
-      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
+      chartStrength.data.datasets[0].borderColor        = '#00c8d4';
       chartStrength.data.datasets[0].tension            = 0.3;
       chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
-      chartStrength.data.datasets[0].pointBackgroundColor = '#4a90d9';
-      chartStrength.data.datasets[0].pointBorderColor   = '#4a90d9';
+      chartStrength.data.datasets[0].pointBackgroundColor = '#00c8d4';
+      chartStrength.data.datasets[0].pointBorderColor   = '#00c8d4';
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
       chartStrength.update();
@@ -3247,14 +3247,14 @@
               y:{
                 reverse: isReversed,
                 ticks:{
-                  color:'#999', font:{size:10},
+                  color:'#f1ece4', font:{size:10},
                   callback: usePotencia
                     ? v => v+' W'
                     : v => { const s=Math.round(v*60); const h=Math.floor(s/3600); const m=Math.floor((s%3600)/60); const ss=s%60; return h>0?h+':'+String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'):String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0'); }
                 },
-                grid:{ color:'rgba(0,0,0,0.05)' }
+                grid:{ color:'rgba(255,255,255,0.1)' }
               },
-              x:{ ticks:{ color:'#999', font:{size:10}, maxTicksLimit:6 }, grid:{display:false} }
+              x:{ ticks:{ color:'#f1ece4', font:{size:10}, maxTicksLimit:6 }, grid:{display:false} }
             }
           }
         });
@@ -3756,8 +3756,8 @@
           responsive: true, maintainAspectRatio: false,
           plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
           scales: {
-            y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#999' }, grid: { color: 'rgba(0,0,0,0.05)' } },
-            x: { ticks: { font: { size: 9 }, color: '#999' }, grid: { display: false } }
+            y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+            x: { ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { display: false } }
           }
         }
       });
@@ -3940,10 +3940,10 @@
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
       chartStrength.data.datasets[0].data              = weights;
-      chartStrength.data.datasets[0].borderColor        = '#4a90d9';
-      chartStrength.data.datasets[0].pointBackgroundColor = sessions.length <= 25 ? '#4a90d9' : 'transparent';
+      chartStrength.data.datasets[0].borderColor        = '#00c8d4';
+      chartStrength.data.datasets[0].pointBackgroundColor = sessions.length <= 25 ? '#00c8d4' : 'transparent';
       chartStrength.data.datasets[0].pointRadius         = sessions.length <= 25 ? 3 : 0;
-      chartStrength.data.datasets[0].pointBorderColor    = sessions.length <= 25 ? '#4a90d9' : 'transparent';
+      chartStrength.data.datasets[0].pointBorderColor    = sessions.length <= 25 ? '#00c8d4' : 'transparent';
       chartStrength.data.datasets[0].tension             = 0.3;
       chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
       chartStrength.options.scales.y.max = best + margin;
@@ -3986,7 +3986,7 @@
         labels: d.dates,
         datasets: [{
           data: d.data,
-          borderColor: '#4a90d9',
+          borderColor: '#00c8d4',
           backgroundColor: (ctx2) => {
             const g = ctx2.chart.ctx.createLinearGradient(0,0,0,150);
             g.addColorStop(0,'rgba(74,144,217,0.18)');
@@ -4008,7 +4008,7 @@
         plugins: {
           legend: { display: false },
           tooltip: {
-            backgroundColor:'#1a1e24', titleColor:'#4a90d9',
+            backgroundColor:'#1a1e24', titleColor:'#00c8d4',
             bodyColor:'#fff', borderColor:'rgba(74,144,217,0.3)',
             borderWidth:1, padding:10, cornerRadius:6,
             callbacks: { label: c => c.raw + ' kg' }
@@ -4027,11 +4027,11 @@
                 return idx % Math.ceil(ticks.length/6) === 0 ? label : '';
               }
             },
-            grid:{color:'rgba(0,0,0,0.06)'}, border:{color:'transparent'}
+            grid:{color:'rgba(255,255,255,0.1)'}, border:{color:'transparent'}
           },
           y: {
-            ticks:{color:'#555555',font:{size:9},callback:v=>v+' kg'},
-            grid:{color:'rgba(0,0,0,0.06)',drawDashedLine:true},
+            ticks:{color:'#f1ece4',font:{size:9},callback:v=>v+' kg'},
+            grid:{color:'rgba(255,255,255,0.1)',drawDashedLine:true},
             border:{color:'transparent'}
           }
         },
