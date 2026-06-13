@@ -2043,6 +2043,25 @@
             <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Consumido vs objetivo del día</div>
           </div>
 
+          <!-- BALANCE SEMANAL (+/−) -->
+          <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Balance de la semana</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;line-height:1;" id="nutriSemTotal">—</div>
+            </div>
+            <div id="nutriSemBarras" style="display:flex;align-items:flex-end;gap:4px;height:44px;"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:7px;">
+              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriSemProm">—</div>
+              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">dorado = superávit · cian = déficit</div>
+            </div>
+          </div>
+
+          <!-- DETALLE DEL DÍA POR COMIDA -->
+          <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:16px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:10px;">Detalle del día</div>
+            <div id="nutriDetalle"><div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargando…</div></div>
+          </div>
+
           <!-- Pie: desvincular -->
           <div style="margin:4px 0 0;text-align:center;">
             <button onclick="desconectarFatSecret()" style="background:none;border:none;color:#bbb;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">Desvincular FatSecret</button>
@@ -2173,7 +2192,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260613e"></script>
+<script src="scripts.js?v=20260613f"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

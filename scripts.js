@@ -1445,6 +1445,95 @@
     _fsBat('batProt', 'protG', 'protMeta', prot, obj.prot);
     _fsBat('batCarb', 'carbG', 'carbMeta', carb, obj.carb);
     _fsBat('batFat',  'fatG',  'fatMeta',  fat,  obj.fat);
+
+    // Balance semanal (usa los datos del mes ya cargados, sin llamadas extra)
+    _fsSemana(foodDays, exerDays, hoyInt);
+    // Detalle del día por comida
+    cargarDetalleDia(diaInt);
+  }
+
+  // Resumen de los últimos 7 días: balance (ingerido − gastado) por día + total.
+  function _fsSemana(foodDays, exerDays, hoyInt) {
+    const dias = [];
+    let total = 0, n = 0, maxAbs = 1;
+    for (let d = hoyInt - 6; d <= hoyInt; d++) {
+      const f = foodDays.find(x => Number(x.date_int) === d);
+      const e = exerDays.find(x => Number(x.date_int) === d);
+      const tiene = !!(f || e);
+      const ing = f ? Number(f.calories) || 0 : 0;
+      const gas = e ? Number(e.calories) || 0 : 0;
+      const bal = tiene ? Math.round(ing - gas) : null;
+      if (tiene) { total += bal; n++; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
+      dias.push({ d, bal });
+    }
+    const totalEl = document.getElementById('nutriSemTotal');
+    if (totalEl) {
+      totalEl.textContent = (total > 0 ? '+' : '') + total.toLocaleString('es-CL') + ' kcal';
+      totalEl.style.color = total > 0 ? '#C9A84C' : '#00b8c4';
+    }
+    const promEl = document.getElementById('nutriSemProm');
+    if (promEl) promEl.textContent = n ? ('promedio ' + (total/n > 0 ? '+' : '') + Math.round(total/n).toLocaleString('es-CL') + ' kcal/día') : 'sin datos esta semana';
+    const cont = document.getElementById('nutriSemBarras');
+    if (!cont) return;
+    const dow = ['D','L','M','M','J','V','S'];
+    cont.innerHTML = dias.map(x => {
+      const ini = dow[new Date(x.d * 86400000).getDay()];
+      if (x.bal === null) {
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);margin-bottom:6px;"></div><div style="font-size:8px;color:#777;font-family:'Barlow Condensed',sans-serif;">${ini}</div></div>`;
+      }
+      const h = Math.max(4, Math.round(Math.abs(x.bal) / maxAbs * 30));
+      const color = x.bal > 0 ? '#C9A84C' : '#00b8c4';
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="width:62%;height:${h}px;background:${color};border-radius:2px;"></div><div style="font-size:8px;color:#999;font-family:'Barlow Condensed',sans-serif;margin-top:4px;">${ini}</div></div>`;
+    }).join('');
+  }
+
+  // Detalle por comida del día (desayuno/almuerzo/cena/otros) vía /fatsecret/day
+  async function cargarDetalleDia(dayInt) {
+    const cont = document.getElementById('nutriDetalle');
+    if (!cont) return;
+    const uid = _fsUid();
+    if (!uid) return;
+    try {
+      const res = await fetch(`${FS_WORKER}/fatsecret/day`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid, k: FS_KEY, date: dayInt })
+      });
+      const data = await res.json();
+      _fsRenderDetalle(data, cont);
+    } catch(e) {
+      cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">No se pudo cargar el detalle.</div>';
+    }
+  }
+
+  function _fsRenderDetalle(data, cont) {
+    let entries = [];
+    const fe = data && data.entries && data.entries.food_entries;
+    if (fe && fe.food_entry) entries = Array.isArray(fe.food_entry) ? fe.food_entry : [fe.food_entry];
+    if (!entries.length) {
+      cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Sin comidas registradas este día.</div>';
+      return;
+    }
+    const orden   = ['Breakfast','Lunch','Dinner','Other'];
+    const nombres = { Breakfast:'Desayuno', Lunch:'Almuerzo', Dinner:'Cena', Other:'Otros' };
+    const grupos = {};
+    entries.forEach(e => { const m = e.meal || 'Other'; (grupos[m] = grupos[m] || []).push(e); });
+    let html = '';
+    orden.forEach(m => {
+      if (!grupos[m]) return;
+      const items = grupos[m];
+      const kcalComida = items.reduce((s,e) => s + (Number(e.calories) || 0), 0);
+      html += `<div style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;border-bottom:1px solid rgba(212,168,67,0.18);padding-bottom:4px;">
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#C9A84C;font-weight:700;">${nombres[m] || m}</span>
+          <span style="font-family:'Bebas Neue',sans-serif;font-size:1rem;color:#f5f0eb;">${Math.round(kcalComida)} kcal</span>
+        </div>
+        ${items.map(e => `<div style="display:flex;justify-content:space-between;font-size:12px;color:#cfc9c1;padding:2px 0;">
+          <span style="flex:1;margin-right:8px;">${(e.food_entry_name || 'Alimento')}</span>
+          <span style="color:#999;white-space:nowrap;">${Math.round(Number(e.calories) || 0)} kcal</span>
+        </div>`).join('')}
+      </div>`;
+    });
+    cont.innerHTML = html;
   }
 
   // Calcula el objetivo de calorías y macros del atleta.
