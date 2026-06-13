@@ -1476,15 +1476,29 @@
     const cont = document.getElementById('nutriSemBarras');
     if (!cont) return;
     const dow = ['D','L','M','M','J','V','S'];
-    cont.innerHTML = dias.map(x => {
+    const BARS_H = 50;            // alto del área de barras (cada mitad = 25px)
+    const MAX_BAR = BARS_H/2 - 2; // tope de cada barra
+    const cols = dias.map(x => {
       const ini = dow[new Date(x.d * 86400000).getDay()];
       if (x.bal === null) {
-        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);margin-bottom:6px;"></div><div style="font-size:8px;color:#777;font-family:'Barlow Condensed',sans-serif;">${ini}</div></div>`;
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+          <div style="height:${BARS_H}px;display:flex;align-items:center;justify-content:center;width:100%;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.14);"></div></div>
+          <div style="font-size:8px;color:#777;font-family:'Barlow Condensed',sans-serif;margin-top:3px;">${ini}</div></div>`;
       }
-      const h = Math.max(4, Math.round(Math.abs(x.bal) / maxAbs * 30));
-      const color = x.bal > 0 ? '#C9A84C' : '#00b8c4';
-      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="width:62%;height:${h}px;background:${color};border-radius:2px;"></div><div style="font-size:8px;color:#999;font-family:'Barlow Condensed',sans-serif;margin-top:4px;">${ini}</div></div>`;
+      const sup = x.bal > 0;
+      const h = Math.max(3, Math.round(Math.abs(x.bal) / maxAbs * MAX_BAR));
+      const color  = sup ? '#C9A84C' : '#00b8c4';
+      const arriba = sup ? `<div style="width:60%;height:${h}px;background:${color};border-radius:2px 2px 0 0;"></div>` : '';
+      const abajo  = sup ? '' : `<div style="width:60%;height:${h}px;background:${color};border-radius:0 0 2px 2px;"></div>`;
+      return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
+        <div style="height:${BARS_H}px;width:100%;display:flex;flex-direction:column;align-items:center;">
+          <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;">${arriba}</div>
+          <div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;">${abajo}</div>
+        </div>
+        <div style="font-size:8px;color:#999;font-family:'Barlow Condensed',sans-serif;margin-top:3px;">${ini}</div></div>`;
     }).join('');
+    // Línea de eje central (el 0): superávit por encima, déficit por debajo
+    cont.innerHTML = `<div style="position:absolute;left:0;right:0;top:${BARS_H/2}px;height:1px;background:rgba(212,168,67,0.45);z-index:0;"></div>${cols}`;
   }
 
   // Detalle por comida del día (desayuno/almuerzo/cena/otros) vía /fatsecret/day
