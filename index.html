@@ -1944,6 +1944,13 @@
           <button id="btnFatSecret" onclick="conectarFatSecret()" style="background:#27ae60;color:#fff;border:none;padding:13px 26px;border-radius:24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;">Conectar con FatSecret</button>
         </div>
 
+        <!-- ESTADO: CONECTADO, PENDIENTE DE SINCRONIZAR -->
+        <div id="nutriSync" style="display:none;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:24px 20px;text-align:center;">
+          <div style="font-size:10px;color:#27ae60;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;"><span style="width:6px;height:6px;border-radius:50%;background:#27ae60;display:inline-block;margin-right:5px;"></span>FatSecret conectado</div>
+          <div style="font-size:13px;color:#888;line-height:1.55;margin-bottom:18px;">Pulsa para ver tu día y tu balance de la semana actualizados.</div>
+          <button onclick="cargarDatosFatSecret()" style="background:#00b8c4;color:#fff;border:none;padding:13px 26px;border-radius:24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Sincronizar mi diario</button>
+        </div>
+
         <!-- ESTADO: CONECTANDO/CARGANDO -->
         <div id="nutriCargando" style="display:none;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:28px 20px;text-align:center;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#aaa;text-transform:uppercase;">Cargando tu diario…</div>
@@ -2240,7 +2247,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260614b"></script>
+<script src="scripts.js?v=20260614c"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

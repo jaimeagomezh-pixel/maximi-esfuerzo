@@ -260,7 +260,7 @@
           if (typeof window.renderCargaRTSS   === 'function') window.renderCargaRTSS();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
           if (typeof cargarMiPlan           === 'function') cargarMiPlan(); // fija body.plan-activo (gating Potencia)
-          if (typeof cargarDatosFatSecret   === 'function') cargarDatosFatSecret(); // nutrición: ¿conectado? → diario
+          if (typeof _fsInit               === 'function') _fsInit(); // nutrición: solo verifica conexión (sincroniza con botón)
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
@@ -1331,7 +1331,7 @@
     if (!fs) return;
     window.history.replaceState({}, document.title, window.location.pathname);
     if (fs === 'ok') {
-      _fsToast('✓ FatSecret conectado. Cargando tu diario…', '#27ae60');
+      _fsToast('✓ FatSecret conectado. Pulsa “Sincronizar” para ver tu diario.', '#27ae60');
     } else if (fs === 'expired') {
       _fsToast('La autorización expiró. Intenta conectar de nuevo.', '#e67e22');
     } else {
@@ -1339,14 +1339,33 @@
     }
   }
 
-  // Cargar y renderizar el diario del atleta conectado
+  // Estado inicial al abrir el panel: SOLO verifica conexión (no llama a FatSecret).
+  // La ingesta se carga cuando el atleta pulsa "Sincronizar".
+  async function _fsInit() {
+    const uid = _fsUid(); if (!uid) return;
+    const desc = document.getElementById('nutriDesconectado');
+    const sync = document.getElementById('nutriSync');
+    const carg = document.getElementById('nutriCargando');
+    const conn = document.getElementById('nutriConectado');
+    [desc, sync, carg, conn].forEach(e => { if (e) e.style.display = 'none'; });
+    try {
+      const res = await fetch(`${FS_WORKER}/fatsecret/status?uid=${encodeURIComponent(uid)}`);
+      const d = await res.json();
+      if (d.ok && d.connected) { if (sync) sync.style.display = ''; }
+      else { if (desc) desc.style.display = ''; }
+    } catch(e) { if (desc) desc.style.display = ''; }
+  }
+
+  // Lee y renderiza el diario del atleta (solo bajo demanda: botón "Sincronizar").
   async function cargarDatosFatSecret() {
     const uid = _fsUid();
     if (!uid) return;
     const desc = document.getElementById('nutriDesconectado');
+    const sync = document.getElementById('nutriSync');
     const carg = document.getElementById('nutriCargando');
     const conn = document.getElementById('nutriConectado');
     if (!desc || !conn) return;
+    desc.style.display = 'none'; if (sync) sync.style.display = 'none'; if (carg) carg.style.display = ''; conn.style.display = 'none';
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/data`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1357,7 +1376,7 @@
         desc.style.display = ''; if (carg) carg.style.display = 'none'; conn.style.display = 'none';
         return;
       }
-      desc.style.display = 'none'; if (carg) carg.style.display = 'none'; conn.style.display = '';
+      if (carg) carg.style.display = 'none'; conn.style.display = '';
       // Config de macros del coach (% y ajuste de meta), con la meta individual del atleta si existe
       try {
         const cRes = await fetch(`${FS_WORKER}/nutri/config?k=${FS_KEY}&uid=${encodeURIComponent(uid)}`);
@@ -1366,7 +1385,8 @@
       } catch(e) {}
       _fsRender(data);
     } catch(e) {
-      desc.style.display = ''; if (carg) carg.style.display = 'none'; conn.style.display = 'none';
+      if (carg) carg.style.display = 'none';
+      if (sync) sync.style.display = ''; else desc.style.display = '';
     }
   }
 
@@ -1649,6 +1669,7 @@
   window.conectarFatSecret = conectarFatSecret;
   window.desconectarFatSecret = desconectarFatSecret;
   window.cargarDatosFatSecret = cargarDatosFatSecret;
+  window._fsInit = _fsInit;
   window.abrirGuiaReloj = abrirGuiaReloj;
   window.cerrarGuiaReloj = cerrarGuiaReloj;
 

@@ -516,9 +516,9 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
       <div class="sec-sm">
         <div class="sec-sm-t" style="display:flex;justify-content:space-between;align-items:center;">
           <span>Seguimiento por atleta</span>
-          <span style="font-size:11px;color:#999;font-weight:400;text-transform:none;letter-spacing:0;">últimos 7 días</span>
+          <button onclick="cargarResumenNutri()" style="font-family:var(--fc);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:#fff;border:1px solid rgba(0,0,0,0.2);padding:6px 12px;border-radius:4px;cursor:pointer;color:#666;white-space:nowrap;">↻ Actualizar semana</button>
         </div>
-        <div id="nutriResumenLista" style="margin-top:10px;"><div style="font-size:13px;color:#888;padding:8px 0;">Cargando…</div></div>
+        <div id="nutriResumenLista" style="margin-top:10px;"><div style="font-size:13px;color:#888;padding:8px 0;">Pulsa “Actualizar semana” para generar el resumen de los atletas (consulta FatSecret en ese momento).</div></div>
       </div>
     </div>
 
@@ -2250,7 +2250,6 @@ function showTab(id, btn) {
   if (id === 'nutricion') {
     if (typeof renderNutriTargetChips === 'function') renderNutriTargetChips();
     if (typeof cargarNutriConfig === 'function') cargarNutriConfig();
-    if (typeof cargarResumenNutri === 'function') cargarResumenNutri();
   }
 }
 
@@ -2389,20 +2388,10 @@ async function cargarNutriFicha(a) {
   }
   if (!uid) { cont.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Este atleta no tiene cuenta en la plataforma.</div>'; return; }
   window._nutriFichaUid = uid;
-  let data = null, cfg = NUTRI_DEFAULT, override = false;
+  let cfg = NUTRI_DEFAULT, override = false;
   try { const rc = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26&uid=${encodeURIComponent(uid)}`).then(r => r.json()); if (rc.ok && rc.config) { cfg = rc.config; override = !!rc.override; } } catch(e) {}
-  try { data = await fetch(`${FLOW_WORKER_URL}/fatsecret/data`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, k:'ME-sync-26' }) }).then(r => r.json()); } catch(e) {}
-  const conectado = !!(data && data.ok && data.connected);
-  const semHTML = conectado ? (() => {
-    const sem = _nutriSemanaHTML(data.food, data.exercise);
-    return `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Balance de la semana</span>
-      <span style="font-size:20px;font-weight:700;color:${sem.totalColor};">${sem.totalText}</span>
-    </div>
-    ${sem.barras}
-    <div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit</div>`;
-  })() : `<div style="padding:12px;background:#f4f6f8;border-radius:8px;font-size:12px;color:#666;line-height:1.5;">Sin FatSecret conectado: el seguimiento de comidas aparecerá cuando el atleta vincule su cuenta. Igual puedes definir su meta y macros aquí abajo.</div>`;
+  // Seguimiento bajo demanda: no consultamos FatSecret al abrir la ficha.
+  const semHTML = `<div id="nutriFichaSem"><div style="text-align:center;padding:4px 0 14px;"><button onclick="verSemanaFicha()" style="font-family:var(--fc);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(0,184,196,0.08);border:1px solid rgba(0,184,196,0.35);color:#0e7c86;padding:8px 16px;border-radius:5px;cursor:pointer;">Ver semana en curso</button><div style="font-size:11px;color:#999;margin-top:6px;">Consulta el diario de FatSecret de este atleta</div></div></div>`;
   cont.innerHTML = semHTML + `
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px;">
@@ -2452,6 +2441,24 @@ function guardarMetaFicha() {
     if (data.ok) { msg.textContent = '✓ Guardado. Su panel se recalculará.'; msg.style.color = '#27ae60'; if (window._atleta) cargarNutriFicha(window._atleta); }
     else { msg.textContent = 'Error al guardar.'; msg.style.color = '#c0392b'; }
   }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
+}
+
+async function verSemanaFicha() {
+  const uid = window._nutriFichaUid; if (!uid) return;
+  const semCont = document.getElementById('nutriFichaSem'); if (!semCont) return;
+  semCont.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:12px;">Cargando…</div>';
+  let data;
+  try { data = await fetch(`${FLOW_WORKER_URL}/fatsecret/data`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, k:'ME-sync-26' }) }).then(r => r.json()); }
+  catch(e) { semCont.innerHTML = '<div style="text-align:center;padding:12px;color:#c0392b;font-size:12px;">Error al cargar.</div>'; return; }
+  if (!data.ok || !data.connected) { semCont.innerHTML = '<div style="padding:12px;background:#f4f6f8;border-radius:8px;font-size:12px;color:#666;">Este atleta no ha conectado FatSecret.</div>'; return; }
+  const sem = _nutriSemanaHTML(data.food, data.exercise);
+  semCont.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Balance de la semana</span>
+      <span style="font-size:20px;font-weight:700;color:${sem.totalColor};">${sem.totalText}</span>
+    </div>
+    ${sem.barras}
+    <div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit</div>`;
 }
 
 function resetMetaFicha() {
