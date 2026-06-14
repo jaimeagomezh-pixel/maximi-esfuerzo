@@ -2355,11 +2355,14 @@ function guardarMetaAtleta() {
 function _nutriSemanaHTML(food, exercise) {
   const days = m => { const x = m && m.month; if (!x || !x.day) return []; return Array.isArray(x.day) ? x.day : [x.day]; };
   const fd = days(food), ed = days(exercise);
-  const hoy = Math.floor(Date.now() / 86400000);
+  const _n = new Date();
+  const hoy = Math.floor((_n.getTime() - _n.getTimezoneOffset() * 60000) / 86400000);
+  const dowHoy = new Date(hoy * 86400000).getUTCDay();
+  const lunes = hoy - (dowHoy === 0 ? 6 : dowHoy - 1);
   const dias = []; let total = 0, maxAbs = 1;
-  for (let d = hoy - 6; d <= hoy; d++) {
+  for (let d = lunes; d <= lunes + 6; d++) {
     const f = fd.find(x => Number(x.date_int) === d), e = ed.find(x => Number(x.date_int) === d);
-    const tiene = !!(f || e);
+    const tiene = !!(f || e) && d <= hoy;
     const ing = f ? Number(f.calories) || 0 : 0, gas = e ? Number(e.calories) || 0 : 0;
     const bal = tiene ? Math.round(ing - gas) : null;
     if (tiene) { total += bal; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
@@ -2367,7 +2370,7 @@ function _nutriSemanaHTML(food, exercise) {
   }
   const dow = ['D','L','M','M','J','V','S'], BARS_H = 52, MAX_BAR = BARS_H/2 - 2;
   const cols = dias.map(x => {
-    const ini = dow[new Date(x.d * 86400000).getDay()];
+    const ini = dow[new Date(x.d * 86400000).getUTCDay()];
     if (x.bal === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;"><div style="height:${BARS_H}px;display:flex;align-items:center;justify-content:center;width:100%;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,0.15);"></div></div><div style="font-size:9px;color:#aaa;margin-top:3px;">${ini}</div></div>`;
     const sup = x.bal > 0, h = Math.max(3, Math.round(Math.abs(x.bal) / maxAbs * MAX_BAR)), color = sup ? '#d4a843' : '#00b8c4';
     const arriba = sup ? `<div style="width:62%;height:${h}px;background:${color};border-radius:2px 2px 0 0;"></div>` : '';

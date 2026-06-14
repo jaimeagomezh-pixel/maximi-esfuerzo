@@ -1388,7 +1388,7 @@
     // Día más reciente con comida registrada
     foodDays.sort((a,b) => Number(b.date_int) - Number(a.date_int));
     const dia = foodDays[0];
-    const hoyInt = Math.floor(Date.now() / 86400000);
+    const hoyInt = _fsHoyInt();
     const diaInt = Number(dia.date_int);
     document.getElementById('nutriDiaLabel').textContent =
       diaInt === hoyInt ? 'Hoy' : _fsFechaLabel(diaInt);
@@ -1400,14 +1400,14 @@
 
     document.getElementById('nutriIngeridas').textContent = kcal.toLocaleString('es-CL');
 
-    // Gasto del mismo día desde Garmin (vía FatSecret exercise diary)
+    // Gasto del día desde Garmin (informativo, línea inferior)
     const exer = exerDays.find(d => Number(d.date_int) === diaInt);
     const gasto = exer ? Math.round(Number(exer.calories) || 0) : null;
     const gEl = document.getElementById('nutriGastadas');
     const gFuente = document.getElementById('nutriGastoFuente');
     if (gasto) {
-      gEl.textContent = gasto.toLocaleString('es-CL');
-      gFuente.textContent = 'kcal · medido (Garmin)';
+      gEl.textContent = gasto.toLocaleString('es-CL') + ' kcal';
+      gFuente.textContent = 'Garmin';
       gFuente.style.color = '#27ae60';
       gFuente.style.cursor = ''; gFuente.style.textDecoration = ''; gFuente.onclick = null;
     } else {
@@ -1417,8 +1417,7 @@
       gFuente.style.cursor = 'pointer'; gFuente.style.textDecoration = 'underline'; gFuente.onclick = abrirGuiaReloj;
     }
 
-    // Objetivo del día (meta por defecto: mantener = igual al gasto).
-    // El coach podrá ajustar déficit/superávit más adelante.
+    // Objetivo del día (gasto + ajuste del coach, o estimado si no hay Garmin)
     const obj = _fsObjetivo(gasto);
     const objEl = document.getElementById('nutriObjetivo');
     const objFuenteEl = document.getElementById('nutriObjFuente');
@@ -1427,20 +1426,20 @@
       objFuenteEl.textContent = 'kcal · ' + obj.fuente;
     } else {
       objEl.textContent = '—';
-      objFuenteEl.textContent = 'completa Mi Perfil para calcularlo';
+      objFuenteEl.textContent = 'completa Mi Perfil';
     }
 
-    // Balance real del día: ingerido − gastado (déficit/superávit energético)
+    // Balance del día vs OBJETIVO: ingerido − objetivo (déficit/superávit respecto a la meta)
     const balEl = document.getElementById('nutriBalance');
-    if (gasto) {
-      const bal = kcal - gasto;
+    if (obj.kcal) {
+      const bal = kcal - obj.kcal;
       balEl.textContent = (bal > 0 ? '+' : '') + bal.toLocaleString('es-CL');
       balEl.style.color = bal > 0 ? '#C9A84C' : '#00b8c4';
       document.getElementById('nutriBalanceLbl').textContent = bal > 0 ? 'superávit' : 'déficit';
     } else {
       balEl.textContent = '—';
       balEl.style.color = '#ccc';
-      document.getElementById('nutriBalanceLbl').textContent = 'kcal';
+      document.getElementById('nutriBalanceLbl').textContent = 'vs meta';
     }
 
     // Macros (barras tipo batería): consumido ÷ objetivo
@@ -1454,14 +1453,17 @@
     cargarDetalleDia(diaInt);
   }
 
-  // Resumen de los últimos 7 días: balance (ingerido − gastado) por día + total.
+  // Resumen de la semana en curso (lunes→domingo): balance (ingerido − gastado) por día.
   function _fsSemana(foodDays, exerDays, hoyInt) {
+    // Lunes de la semana actual: getUTCDay sobre el día entero (1=lun … 0=dom)
+    const dowHoy = new Date(hoyInt * 86400000).getUTCDay();
+    const lunes = hoyInt - (dowHoy === 0 ? 6 : dowHoy - 1);
     const dias = [];
     let total = 0, n = 0, maxAbs = 1;
-    for (let d = hoyInt - 6; d <= hoyInt; d++) {
+    for (let d = lunes; d <= lunes + 6; d++) {
       const f = foodDays.find(x => Number(x.date_int) === d);
       const e = exerDays.find(x => Number(x.date_int) === d);
-      const tiene = !!(f || e);
+      const tiene = !!(f || e) && d <= hoyInt; // no contar días futuros de la semana
       const ing = f ? Number(f.calories) || 0 : 0;
       const gas = e ? Number(e.calories) || 0 : 0;
       const bal = tiene ? Math.round(ing - gas) : null;
@@ -1481,7 +1483,7 @@
     const BARS_H = 50;            // alto del área de barras (cada mitad = 25px)
     const MAX_BAR = BARS_H/2 - 2; // tope de cada barra
     const cols = dias.map(x => {
-      const ini = dow[new Date(x.d * 86400000).getDay()];
+      const ini = dow[new Date(x.d * 86400000).getUTCDay()];
       if (x.bal === null) {
         return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;">
           <div style="height:${BARS_H}px;display:flex;align-items:center;justify-content:center;width:100%;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.14);"></div></div>
@@ -1606,9 +1608,16 @@
     if (bar) bar.style.width = Math.round(Math.min(1, Math.max(0, frac)) * 100) + '%';
   }
 
+  // "Hoy" como día entero en la zona local del atleta (alinea con el date_int de FatSecret).
+  function _fsHoyInt() {
+    const n = new Date();
+    return Math.floor((n.getTime() - n.getTimezoneOffset() * 60000) / 86400000);
+  }
+
+  // date_int → etiqueta. timeZone UTC evita el corrimiento de un día al formatear.
   function _fsFechaLabel(dayInt) {
     const d = new Date(dayInt * 86400000);
-    return d.toLocaleDateString('es-CL', { weekday:'short', day:'numeric', month:'short' });
+    return d.toLocaleDateString('es-CL', { weekday:'short', day:'numeric', month:'short', timeZone:'UTC' });
   }
 
   async function desconectarFatSecret() {

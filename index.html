@@ -1960,33 +1960,29 @@
             </div>
           </div>
 
-          <!-- BALANCE ENERGÉTICO -->
+          <!-- BALANCE vs OBJETIVO -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
-            <!-- Objetivo del día -->
-            <div style="text-align:center;border-bottom:1px solid rgba(212,168,67,0.2);padding-bottom:12px;margin-bottom:12px;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Objetivo del día</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:2.1rem;color:#C9A84C;line-height:1.1;" id="nutriObjetivo">—</div>
-              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriObjFuente">kcal</div>
-            </div>
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;">
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Ingeridas</div>
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#00b8c4;line-height:1;" id="nutriIngeridas">—</div>
-                <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">kcal · FatSecret</div>
+                <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">kcal</div>
               </div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ccc;padding-bottom:8px;">−</div>
               <div style="text-align:center;flex:1;">
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Gastadas</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#8B1A1A;line-height:1;" id="nutriGastadas">—</div>
-                <div style="font-size:9px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriGastoFuente">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Objetivo</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#C9A84C;line-height:1;" id="nutriObjetivo">—</div>
+                <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriObjFuente">kcal</div>
               </div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ccc;padding-bottom:8px;">=</div>
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Balance</div>
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;" id="nutriBalance">—</div>
-                <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriBalanceLbl">kcal</div>
+                <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriBalanceLbl">vs meta</div>
               </div>
             </div>
+            <!-- Gasto del día (Garmin), informativo -->
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,168,67,0.15);text-align:center;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#999;">Gasto del día: <span id="nutriGastadas" style="color:#cfc9c1;">—</span> · <span id="nutriGastoFuente">—</span></div>
           </div>
 
           <!-- MACROS — barras tipo batería -->
@@ -2244,7 +2240,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260613i"></script>
+<script src="scripts.js?v=20260614a"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
