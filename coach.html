@@ -475,9 +475,11 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <div class="psec" id="tab-nutricion">
       <div class="sec-sm">
         <div class="sec-sm-t">Distribución de macronutrientes</div>
-        <div style="font-size:13px;color:#666;line-height:1.55;margin-bottom:18px;">
-          Define cómo se reparten los macros (% de las calorías objetivo). Las calorías totales de cada atleta salen de su <strong>gasto diario de Garmin/FatSecret</strong>; aquí defines la distribución. Los tres deben sumar <strong>100%</strong>.
+        <div style="font-size:13px;color:#666;line-height:1.55;margin-bottom:12px;">
+          Define la dieta <strong>por defecto</strong> o la de un <strong>grupo</strong>. Para un atleta puntual, ajústalo en su ficha (más abajo). Resolución: individual → grupo → por defecto. Los % deben sumar <strong>100%</strong>.
         </div>
+        <div style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:6px;">Editando</div>
+        <div id="nutriTargetChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
           <div style="flex:1;min-width:88px;">
             <label style="display:block;font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#00838f;font-weight:700;margin-bottom:5px;">Proteína %</label>
@@ -506,8 +508,8 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
         <button onclick="guardarNutriConfig()" style="margin-top:20px;background:#8B1A1A;color:#fff;border:none;padding:12px 22px;border-radius:5px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Guardar configuración</button>
         <div id="nutriGuardadoMsg" style="font-size:13px;margin-top:12px;"></div>
 
-        <div style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.08);font-size:12px;color:#999;line-height:1.5;">
-          Esta distribución aplica a todos tus atletas con FatSecret conectado. Sus paneles se recalculan automáticamente la próxima vez que los abran.
+        <div id="nutriTargetNota" style="margin-top:22px;padding-top:16px;border-top:1px solid rgba(0,0,0,0.08);font-size:12px;color:#999;line-height:1.5;">
+          Valor por defecto: aplica a los atletas que no estén en un grupo con dieta propia.
         </div>
       </div>
 
@@ -1139,6 +1141,23 @@ function toggleAtletaGrupo(aid, gid, checked){
   guardarAtletas();
   renderGrupoChips();
   renderAtletas();
+  syncMembresiaNutri(a); // que la dieta por grupo llegue al panel del atleta
+}
+
+// Sincroniza al worker a qué grupos pertenece un atleta (para resolver su dieta).
+async function syncMembresiaNutri(a){
+  try {
+    let uid = a.uid;
+    if (!uid && a.email) {
+      const r = await fetch(`${FLOW_WORKER_URL}/usuario-uid?email=${encodeURIComponent(a.email)}&secret=${encodeURIComponent(PASS)}`);
+      const d = await r.json(); if (d.ok) uid = d.uid;
+    }
+    if (!uid) return;
+    await fetch(`${FLOW_WORKER_URL}/nutri/membresia`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ secret: PASS, uid, grupos: a.grupos || [] })
+    });
+  } catch(e) {}
 }
 
 // Persistir la purga de demos para que no reaparezcan
@@ -2229,6 +2248,7 @@ function showTab(id, btn) {
   document.getElementById('tab-'+id).classList.add('active');
   btn.classList.add('active');
   if (id === 'nutricion') {
+    if (typeof renderNutriTargetChips === 'function') renderNutriTargetChips();
     if (typeof cargarNutriConfig === 'function') cargarNutriConfig();
     if (typeof cargarResumenNutri === 'function') cargarResumenNutri();
   }
@@ -2331,14 +2351,40 @@ function guardarMetaAtleta() {
   }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
 }
 
-// ── NUTRICIÓN: distribución de macros (% ) que define el coach ──────────────
+// ── NUTRICIÓN: distribución de macros (% ) — por defecto o por grupo ─────────
 const NUTRI_DEFAULT = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+let _nutriTarget = null; // null = por defecto (global) · '<gid>' = grupo
+
+function renderNutriTargetChips() {
+  const cont = document.getElementById('nutriTargetChips'); if (!cont) return;
+  const grupos = (typeof getGrupos === 'function') ? getGrupos() : [];
+  const chip = (id, label, color) => {
+    const act = _nutriTarget === id;
+    const arg = id === null ? 'null' : `'${id}'`;
+    return `<button onclick="nutriSelectTarget(${arg})" style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:6px 12px;border-radius:14px;border:1.5px solid ${color||'#bbb'};background:${act?(color||'#333'):'#fff'};color:${act?'#fff':'#555'};cursor:pointer;">${label}</button>`;
+  };
+  cont.innerHTML = chip(null, 'Por defecto', '#333') + grupos.map(g => chip(g.id, g.nombre, g.color)).join('');
+}
+
+function nutriSelectTarget(gid) { _nutriTarget = gid; renderNutriTargetChips(); cargarNutriConfig(); }
 
 async function cargarNutriConfig() {
+  const nota = document.getElementById('nutriTargetNota');
   try {
-    const res = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26`);
-    const data = await res.json();
-    const c = (data.ok && data.config) ? data.config : NUTRI_DEFAULT;
+    let c;
+    if (_nutriTarget) {
+      const res = await fetch(`${FLOW_WORKER_URL}/nutri/config-grupo?gid=${encodeURIComponent(_nutriTarget)}&secret=${encodeURIComponent(PASS)}`);
+      const d = await res.json();
+      if (d.ok && d.config) c = d.config;
+      else { const rg = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26`); const dg = await rg.json(); c = (dg.ok && dg.config) ? dg.config : NUTRI_DEFAULT; }
+      const g = ((typeof getGrupos === 'function') ? getGrupos() : []).find(x => x.id === _nutriTarget);
+      if (nota) nota.textContent = `Aplica a los atletas del grupo "${g ? g.nombre : ''}". Un atleta puede sobreescribirla desde su ficha.`;
+    } else {
+      const res = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26`);
+      const d = await res.json();
+      c = (d.ok && d.config) ? d.config : NUTRI_DEFAULT;
+      if (nota) nota.textContent = 'Valor por defecto: aplica a los atletas que no estén en un grupo con dieta propia.';
+    }
     document.getElementById('cfgProt').value  = c.pctProt;
     document.getElementById('cfgCarb').value  = c.pctCarb;
     document.getElementById('cfgGrasa').value = c.pctGrasa;
@@ -2369,12 +2415,11 @@ async function guardarNutriConfig() {
   const msg = document.getElementById('nutriGuardadoMsg');
   msg.textContent = 'Guardando…'; msg.style.color = '#666';
   try {
-    const res = await fetch(`${FLOW_WORKER_URL}/nutri/config`, {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ secret: PASS, config })
-    });
+    let res;
+    if (_nutriTarget) res = await fetch(`${FLOW_WORKER_URL}/nutri/config-grupo`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: PASS, gid: _nutriTarget, config }) });
+    else res = await fetch(`${FLOW_WORKER_URL}/nutri/config`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ secret: PASS, config }) });
     const data = await res.json();
-    if (data.ok) { msg.textContent = '✓ Guardado. Los paneles de tus atletas se recalcularán.'; msg.style.color = '#27ae60'; }
+    if (data.ok) { msg.textContent = '✓ Guardado. Los paneles de tus atletas se recalcularán.'; msg.style.color = '#27ae60'; if (typeof cargarResumenNutri === 'function') cargarResumenNutri(); }
     else { msg.textContent = 'Error al guardar: ' + (data.error || '—'); msg.style.color = '#c0392b'; }
   } catch(e) { msg.textContent = 'Error de red al guardar.'; msg.style.color = '#c0392b'; }
 }

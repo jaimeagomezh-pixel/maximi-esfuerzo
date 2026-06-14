@@ -608,15 +608,57 @@ export default {
     if (url.pathname === '/nutri/config' && request.method === 'GET') {
       if (url.searchParams.get('k') !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
       try {
-        const raw = await env.RUCK_DATA.get('nutri:config');
-        let cfg = raw ? JSON.parse(raw) : { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
-        // Override por atleta (meta individual) si se pide con uid
         const uid = url.searchParams.get('uid');
-        let tieneOverride = false;
         if (uid) {
-          try { const o = await env.RUCK_DATA.get(`nutri:config:${uid}`); if (o) { cfg = { ...cfg, ...JSON.parse(o) }; tieneOverride = true; } } catch(e) {}
+          // Resolución: por defecto → grupo del atleta → override individual
+          const cfg = await _nutriCfgEfectiva(env, uid);
+          let override = false;
+          try { override = !!(await env.RUCK_DATA.get(`nutri:config:${uid}`)); } catch(e) {}
+          return Response.json({ ok:true, config: cfg, override }, { headers:corsHeaders() });
         }
-        return Response.json({ ok:true, config: cfg, override: tieneOverride }, { headers:corsHeaders() });
+        const raw = await env.RUCK_DATA.get('nutri:config');
+        const cfg = raw ? JSON.parse(raw) : { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+        return Response.json({ ok:true, config: cfg, override:false }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── GET /nutri/config-grupo — config de un grupo (coach, para prellenar) ──
+    if (url.pathname === '/nutri/config-grupo' && request.method === 'GET') {
+      if (url.searchParams.get('secret') !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      const gid = url.searchParams.get('gid');
+      if (!gid) return Response.json({ ok:false, error:'gid requerido' }, { status:400, headers:corsHeaders() });
+      try {
+        const raw = await env.RUCK_DATA.get(`nutri:config:grupo:${gid}`);
+        return Response.json({ ok:true, config: raw ? JSON.parse(raw) : null }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /nutri/config-grupo — dieta de un grupo (coach) ──
+    if (url.pathname === '/nutri/config-grupo' && request.method === 'POST') {
+      try {
+        const { secret, gid, config } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!gid) return Response.json({ ok:false, error:'gid requerido' }, { status:400, headers:corsHeaders() });
+        const c = {};
+        if (config && config.ajusteKcal !== undefined && config.ajusteKcal !== null && config.ajusteKcal !== '') c.ajusteKcal = Number(config.ajusteKcal);
+        if (config && config.pctProt)  c.pctProt  = Number(config.pctProt);
+        if (config && config.pctCarb)  c.pctCarb  = Number(config.pctCarb);
+        if (config && config.pctGrasa) c.pctGrasa = Number(config.pctGrasa);
+        if (!Object.keys(c).length) await env.RUCK_DATA.delete(`nutri:config:grupo:${gid}`);
+        else await env.RUCK_DATA.put(`nutri:config:grupo:${gid}`, JSON.stringify({ ...c, updatedAt: new Date().toISOString() }));
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /nutri/membresia — el coach sincroniza a qué grupos pertenece un atleta ──
+    if (url.pathname === '/nutri/membresia' && request.method === 'POST') {
+      try {
+        const { secret, uid, grupos } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+        if (Array.isArray(grupos) && grupos.length) await env.RUCK_DATA.put(`nutri:member:${uid}`, JSON.stringify(grupos));
+        else await env.RUCK_DATA.delete(`nutri:member:${uid}`);
+        return Response.json({ ok:true }, { headers:corsHeaders() });
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
@@ -674,9 +716,8 @@ export default {
         for (const k of lt.keys) {
           const uid = k.name.replace('nutri:token:', '');
           let tok; try { tok = JSON.parse(await env.RUCK_DATA.get(k.name)); } catch(e) { continue; }
-          // Config efectiva: global + override de meta individual del atleta
-          let cfgA = cfg;
-          try { const o = await env.RUCK_DATA.get(`nutri:config:${uid}`); if (o) cfgA = { ...cfg, ...JSON.parse(o) }; } catch(e) {}
+          // Config efectiva: por defecto → grupo → override individual
+          const cfgA = await _nutriCfgEfectiva(env, uid);
           const food = await fsApiCall('food_entries.get_month', { date: String(hoy) }, env, tok);
           const exer = await fsApiCall('exercise_entries.get_month', { date: String(hoy) }, env, tok);
           const fd = _nutriDays(food), ed = _nutriDays(exer);
@@ -1402,6 +1443,26 @@ async function fsOauthParams(httpMethod, baseUrl, extra, consumerKey, consumerSe
   const signingKey = `${fsPctEncode(consumerSecret)}&${fsPctEncode(tokenSecret || '')}`;
   all.oauth_signature = await fsHmacSha1(baseString, signingKey);
   return all;
+}
+
+// Config de nutrición efectiva para un atleta: por defecto → grupo → individual.
+async function _nutriCfgEfectiva(env, uid) {
+  let cfg = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+  try { const g = await env.RUCK_DATA.get('nutri:config'); if (g) cfg = { ...cfg, ...JSON.parse(g) }; } catch(e) {}
+  if (!uid) return cfg;
+  // Config del primer grupo del atleta que tenga dieta definida
+  try {
+    const mRaw = await env.RUCK_DATA.get(`nutri:member:${uid}`);
+    if (mRaw) {
+      for (const gid of JSON.parse(mRaw)) {
+        const gc = await env.RUCK_DATA.get(`nutri:config:grupo:${gid}`);
+        if (gc) { cfg = { ...cfg, ...JSON.parse(gc) }; break; }
+      }
+    }
+  } catch(e) {}
+  // Override individual (manda sobre todo)
+  try { const o = await env.RUCK_DATA.get(`nutri:config:${uid}`); if (o) cfg = { ...cfg, ...JSON.parse(o) }; } catch(e) {}
+  return cfg;
 }
 
 // Normaliza month.day a array (FatSecret devuelve objeto si hay un solo día).
