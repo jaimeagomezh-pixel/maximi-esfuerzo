@@ -2392,7 +2392,7 @@ async function cargarNutriFicha(a) {
       fetch(`${FLOW_WORKER_URL}/fatsecret/data`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, k:'ME-sync-26' }) }).then(r => r.json()),
       fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26&uid=${encodeURIComponent(uid)}`).then(r => r.json())
     ]);
-    data = rd; cfg = (rc.ok && rc.config) ? rc.config : NUTRI_DEFAULT;
+    data = rd; cfg = (rc.ok && rc.config) ? rc.config : NUTRI_DEFAULT; var override = !!(rc && rc.override);
   } catch(e) { cont.innerHTML = '<div style="text-align:center;padding:16px;color:#c0392b;font-size:12px;">Error al cargar la nutrición.</div>'; return; }
   if (!data.ok || !data.connected) {
     cont.innerHTML = '<div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Este atleta aún no ha conectado FatSecret.</div>';
@@ -2407,26 +2407,64 @@ async function cargarNutriFicha(a) {
     ${sem.barras}
     <div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit</div>
 
-    <div style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;margin:18px 0 6px;">Meta individual</div>
-    <div style="font-size:12px;color:#666;line-height:1.5;margin-bottom:10px;">Ajuste calórico solo para este atleta (sobreescribe su grupo / el valor por defecto). Vacío = hereda. Macros actuales: P ${cfg.pctProt}% · C ${cfg.pctCarb}% · G ${cfg.pctGrasa}%.</div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <input type="number" id="nutriFichaAjuste" value="${cfg.ajusteKcal || 0}" step="50" style="width:110px;box-sizing:border-box;padding:9px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:15px;color:#222;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px;">
+      <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Meta y macros individuales</span>
+      <span style="font-size:10px;font-family:var(--fc);letter-spacing:1px;text-transform:uppercase;color:${override?'#8B1A1A':'#999'};">${override?'Personalizado':'Heredado'}</span>
+    </div>
+    <div style="font-size:12px;color:#666;line-height:1.5;margin-bottom:12px;">Sobreescribe la dieta de su grupo o la de por defecto. Los % deben sumar 100.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <div style="flex:1;min-width:74px;"><label style="display:block;font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#00838f;font-weight:700;margin-bottom:4px;">Proteína %</label><input type="number" id="nfProt" value="${cfg.pctProt}" min="0" max="100" oninput="nfSuma()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:15px;color:#222;"></div>
+      <div style="flex:1;min-width:74px;"><label style="display:block;font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#b8860b;font-weight:700;margin-bottom:4px;">Carbos %</label><input type="number" id="nfCarb" value="${cfg.pctCarb}" min="0" max="100" oninput="nfSuma()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:15px;color:#222;"></div>
+      <div style="flex:1;min-width:74px;"><label style="display:block;font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#c0392b;font-weight:700;margin-bottom:4px;">Grasa %</label><input type="number" id="nfGrasa" value="${cfg.pctGrasa}" min="0" max="100" oninput="nfSuma()" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:15px;color:#222;"></div>
+    </div>
+    <div id="nfSumaMsg" style="font-size:12px;font-weight:600;color:#27ae60;margin-bottom:12px;">Suma: 100% ✓</div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <input type="number" id="nutriFichaAjuste" value="${cfg.ajusteKcal || 0}" step="50" style="width:100px;box-sizing:border-box;padding:9px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:15px;color:#222;">
       <span style="font-size:13px;color:#666;">kcal/día</span>
       <button onclick="guardarMetaFicha()" style="background:#8B1A1A;color:#fff;border:none;padding:9px 18px;border-radius:5px;font-family:var(--fc);font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;">Guardar</button>
+      ${override?`<button onclick="resetMetaFicha()" style="background:none;border:none;color:#999;font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">Heredar del grupo</button>`:''}
     </div>
     <div id="nutriFichaMsg" style="font-size:12px;margin-top:8px;"></div>`;
 }
 
+function nfSuma() {
+  const p = +document.getElementById('nfProt').value || 0;
+  const c = +document.getElementById('nfCarb').value || 0;
+  const g = +document.getElementById('nfGrasa').value || 0;
+  const s = p + c + g, el = document.getElementById('nfSumaMsg');
+  if (el) { el.textContent = `Suma: ${s}%` + (s === 100 ? ' ✓' : ' (debe ser 100%)'); el.style.color = s === 100 ? '#27ae60' : '#c0392b'; }
+  return s;
+}
+
 function guardarMetaFicha() {
   const uid = window._nutriFichaUid; if (!uid) return;
-  const ajuste = document.getElementById('nutriFichaAjuste').value;
-  const msg = document.getElementById('nutriFichaMsg'); msg.textContent = 'Guardando…'; msg.style.color = '#666';
+  const msg = document.getElementById('nutriFichaMsg');
+  if (nfSuma() !== 100) { msg.textContent = 'Los porcentajes deben sumar 100%.'; msg.style.color = '#c0392b'; return; }
+  const config = {
+    ajusteKcal: document.getElementById('nutriFichaAjuste').value,
+    pctProt:  +document.getElementById('nfProt').value,
+    pctCarb:  +document.getElementById('nfCarb').value,
+    pctGrasa: +document.getElementById('nfGrasa').value,
+  };
+  msg.textContent = 'Guardando…'; msg.style.color = '#666';
   fetch(`${FLOW_WORKER_URL}/nutri/config-atleta`, {
     method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ secret: PASS, uid, config: { ajusteKcal: ajuste } })
+    body: JSON.stringify({ secret: PASS, uid, config })
   }).then(r => r.json()).then(data => {
-    if (data.ok) { msg.textContent = '✓ Meta guardada. Su panel se recalculará.'; msg.style.color = '#27ae60'; }
+    if (data.ok) { msg.textContent = '✓ Guardado. Su panel se recalculará.'; msg.style.color = '#27ae60'; if (window._atleta) cargarNutriFicha(window._atleta); }
     else { msg.textContent = 'Error al guardar.'; msg.style.color = '#c0392b'; }
+  }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
+}
+
+function resetMetaFicha() {
+  const uid = window._nutriFichaUid; if (!uid) return;
+  const msg = document.getElementById('nutriFichaMsg'); msg.textContent = 'Restaurando…'; msg.style.color = '#666';
+  fetch(`${FLOW_WORKER_URL}/nutri/config-atleta`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ secret: PASS, uid, config: {} })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) { if (window._atleta) cargarNutriFicha(window._atleta); }
+    else { msg.textContent = 'Error.'; msg.style.color = '#c0392b'; }
   }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
 }
 
