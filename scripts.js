@@ -1380,23 +1380,16 @@
   function _fsRender(data) {
     const foodDays = _fsDays(data.food);
     const exerDays = _fsDays(data.exercise);
-    if (!foodDays.length) {
-      document.getElementById('nutriDiaLabel').textContent = 'Sin registros este mes';
-      ['nutriIngeridas','nutriGastadas','nutriBalance'].forEach(id => document.getElementById(id).textContent = '—');
-      return;
-    }
-    // Día más reciente con comida registrada
-    foodDays.sort((a,b) => Number(b.date_int) - Number(a.date_int));
-    const dia = foodDays[0];
     const hoyInt = _fsHoyInt();
-    const diaInt = Number(dia.date_int);
-    document.getElementById('nutriDiaLabel').textContent =
-      diaInt === hoyInt ? 'Hoy' : _fsFechaLabel(diaInt);
+    const diaInt = hoyInt; // siempre mostramos HOY
+    const dia = foodDays.find(x => Number(x.date_int) === hoyInt) || null;
+    const sinRegistro = !dia;
+    document.getElementById('nutriDiaLabel').textContent = sinRegistro ? 'Hoy · sin registros aún' : 'Hoy';
 
-    const kcal = Math.round(Number(dia.calories) || 0);
-    const prot = Math.round(Number(dia.protein) || 0);
-    const carb = Math.round(Number(dia.carbohydrate) || 0);
-    const fat  = Math.round(Number(dia.fat) || 0);
+    const kcal = dia ? Math.round(Number(dia.calories) || 0) : 0;
+    const prot = dia ? Math.round(Number(dia.protein) || 0) : 0;
+    const carb = dia ? Math.round(Number(dia.carbohydrate) || 0) : 0;
+    const fat  = dia ? Math.round(Number(dia.fat) || 0) : 0;
 
     document.getElementById('nutriIngeridas').textContent = kcal.toLocaleString('es-CL');
 
@@ -1431,7 +1424,7 @@
 
     // Balance del día vs OBJETIVO: ingerido − objetivo (déficit/superávit respecto a la meta)
     const balEl = document.getElementById('nutriBalance');
-    if (obj.kcal) {
+    if (obj.kcal && !sinRegistro) {
       const bal = kcal - obj.kcal;
       balEl.textContent = (bal > 0 ? '+' : '') + bal.toLocaleString('es-CL');
       balEl.style.color = bal > 0 ? '#C9A84C' : '#00b8c4';
@@ -1439,7 +1432,7 @@
     } else {
       balEl.textContent = '—';
       balEl.style.color = '#ccc';
-      document.getElementById('nutriBalanceLbl').textContent = 'vs meta';
+      document.getElementById('nutriBalanceLbl').textContent = sinRegistro ? 'sin registro hoy' : 'vs meta';
     }
 
     // Macros (barras tipo batería): consumido ÷ objetivo
@@ -1463,11 +1456,15 @@
     for (let d = lunes; d <= lunes + 6; d++) {
       const f = foodDays.find(x => Number(x.date_int) === d);
       const e = exerDays.find(x => Number(x.date_int) === d);
-      const tiene = !!(f || e) && d <= hoyInt; // no contar días futuros de la semana
-      const ing = f ? Number(f.calories) || 0 : 0;
-      const gas = e ? Number(e.calories) || 0 : 0;
-      const bal = tiene ? Math.round(ing - gas) : null;
-      if (tiene) { total += bal; n++; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
+      // Solo cuentan los días con comida registrada: sin registro ≠ déficit.
+      const tiene = !!f && d <= hoyInt;
+      let bal = null;
+      if (tiene) {
+        const ing = Number(f.calories) || 0;
+        const gas = e ? Number(e.calories) || 0 : null;
+        const obj = _fsObjetivo(gas).kcal;          // objetivo del día (gasto+ajuste, o estimado)
+        if (obj) { bal = Math.round(ing - obj); total += bal; n++; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
+      }
       dias.push({ d, bal });
     }
     const totalEl = document.getElementById('nutriSemTotal');
