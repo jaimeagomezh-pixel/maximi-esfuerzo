@@ -609,8 +609,32 @@ export default {
       if (url.searchParams.get('k') !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
       try {
         const raw = await env.RUCK_DATA.get('nutri:config');
-        const cfg = raw ? JSON.parse(raw) : { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
-        return Response.json({ ok:true, config: cfg }, { headers:corsHeaders() });
+        let cfg = raw ? JSON.parse(raw) : { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
+        // Override por atleta (meta individual) si se pide con uid
+        const uid = url.searchParams.get('uid');
+        let tieneOverride = false;
+        if (uid) {
+          try { const o = await env.RUCK_DATA.get(`nutri:config:${uid}`); if (o) { cfg = { ...cfg, ...JSON.parse(o) }; tieneOverride = true; } } catch(e) {}
+        }
+        return Response.json({ ok:true, config: cfg, override: tieneOverride }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /nutri/config-atleta — meta individual de un atleta (coach) ──
+    // Guarda override sobre la config global. Vacío = vuelve a heredar la global.
+    if (url.pathname === '/nutri/config-atleta' && request.method === 'POST') {
+      try {
+        const { secret, uid, config } = await request.json();
+        if (secret !== COACH_SECRET) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+        const ov = {};
+        if (config && config.ajusteKcal !== undefined && config.ajusteKcal !== null && config.ajusteKcal !== '') ov.ajusteKcal = Number(config.ajusteKcal);
+        if (config && config.pctProt)  ov.pctProt  = Number(config.pctProt);
+        if (config && config.pctCarb)  ov.pctCarb  = Number(config.pctCarb);
+        if (config && config.pctGrasa) ov.pctGrasa = Number(config.pctGrasa);
+        if (!Object.keys(ov).length) await env.RUCK_DATA.delete(`nutri:config:${uid}`);
+        else await env.RUCK_DATA.put(`nutri:config:${uid}`, JSON.stringify({ ...ov, updatedAt: new Date().toISOString() }));
+        return Response.json({ ok:true }, { headers:corsHeaders() });
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
@@ -650,6 +674,9 @@ export default {
         for (const k of lt.keys) {
           const uid = k.name.replace('nutri:token:', '');
           let tok; try { tok = JSON.parse(await env.RUCK_DATA.get(k.name)); } catch(e) { continue; }
+          // Config efectiva: global + override de meta individual del atleta
+          let cfgA = cfg;
+          try { const o = await env.RUCK_DATA.get(`nutri:config:${uid}`); if (o) cfgA = { ...cfg, ...JSON.parse(o) }; } catch(e) {}
           const food = await fsApiCall('food_entries.get_month', { date: String(hoy) }, env, tok);
           const exer = await fsApiCall('exercise_entries.get_month', { date: String(hoy) }, env, tok);
           const fd = _nutriDays(food), ed = _nutriDays(exer);
@@ -661,7 +688,7 @@ export default {
             const gas = e ? Number(e.calories) || 0 : 0;
             if (f) { sumK += ing; sumP += Number(f.protein) || 0; n++; }
             if (f || e) bal += ing - gas;
-            if (gas) { const ok = gas + (Number(cfg.ajusteKcal) || 0); sumObjK += ok; sumObjP += ok * (Number(cfg.pctProt) || 25) / 100 / 4; nGasto++; }
+            if (gas) { const ok = gas + (Number(cfgA.ajusteKcal) || 0); sumObjK += ok; sumObjP += ok * (Number(cfgA.pctProt) || 25) / 100 / 4; nGasto++; }
           }
           const kcalProm = n ? Math.round(sumK / n) : 0;
           const protProm = n ? Math.round(sumP / n) : 0;
@@ -674,7 +701,7 @@ export default {
             else if ((protPct === null || protPct >= 70) && desvK <= 0.25) estado = 'ambar';
             else estado = 'rojo';
           }
-          atletas.push({ uid, nombre: nombres[uid] || ('Atleta ' + uid.slice(0, 4)), kcalProm, protProm, protPct, balSemana: Math.round(bal), dias: n, estado });
+          atletas.push({ uid, nombre: nombres[uid] || ('Atleta ' + uid.slice(0, 4)), kcalProm, protProm, protPct, balSemana: Math.round(bal), dias: n, estado, ajusteKcal: Number(cfgA.ajusteKcal) || 0 });
         }
         atletas.sort((a, b) => a.nombre.localeCompare(b.nombre));
         return Response.json({ ok:true, atletas }, { headers:corsHeaders() });

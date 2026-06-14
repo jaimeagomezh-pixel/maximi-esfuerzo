@@ -1358,9 +1358,9 @@
         return;
       }
       desc.style.display = 'none'; if (carg) carg.style.display = 'none'; conn.style.display = '';
-      // Config de macros del coach (% y ajuste de meta)
+      // Config de macros del coach (% y ajuste de meta), con la meta individual del atleta si existe
       try {
-        const cRes = await fetch(`${FS_WORKER}/nutri/config?k=${FS_KEY}`);
+        const cRes = await fetch(`${FS_WORKER}/nutri/config?k=${FS_KEY}&uid=${encodeURIComponent(uid)}`);
         const cData = await cRes.json();
         if (cData.ok && cData.config) _fsConfig = cData.config;
       } catch(e) {}

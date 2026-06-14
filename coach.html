@@ -409,6 +409,30 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
       </div>
     </div>
 
+    <!-- MODAL DETALLE NUTRICIÓN POR ATLETA -->
+    <div id="nutriDetalleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:20px;" onclick="cerrarDetalleNutri(event)">
+      <div style="background:#fff;border-radius:12px;max-width:440px;width:100%;max-height:85vh;overflow:auto;padding:22px;" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+          <span id="nutriDetNombre" style="font-size:17px;font-weight:600;color:#222;">Atleta</span>
+          <button onclick="cerrarDetalleNutri()" style="background:none;border:none;color:#999;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+        </div>
+
+        <div style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;margin:14px 0 6px;">Balance de la semana</div>
+        <div id="nutriDetSemTotal" style="font-size:22px;font-weight:700;color:#222;margin-bottom:8px;">—</div>
+        <div id="nutriDetSem" style="position:relative;display:flex;align-items:stretch;gap:5px;height:70px;"></div>
+        <div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit</div>
+
+        <div style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;margin:22px 0 6px;">Meta individual</div>
+        <div style="font-size:13px;color:#666;line-height:1.5;margin-bottom:10px;">Ajuste calórico solo para este atleta (sobreescribe la meta global). 0 = mantener · negativo = déficit · positivo = superávit.</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="number" id="nutriDetAjuste" value="0" step="50" style="width:120px;box-sizing:border-box;padding:10px 12px;border:1px solid rgba(0,0,0,0.18);border-radius:6px;font-size:16px;color:#222;">
+          <span style="font-size:14px;color:#666;">kcal/día</span>
+        </div>
+        <button onclick="guardarMetaAtleta()" style="margin-top:18px;background:#8B1A1A;color:#fff;border:none;padding:11px 20px;border-radius:5px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Guardar meta</button>
+        <div id="nutriDetMsg" style="font-size:13px;margin-top:10px;"></div>
+      </div>
+    </div>
+
     <!-- TAB ATLETAS -->
     <div class="psec active" id="tab-atletas">
       <div class="stats-row">
@@ -2221,15 +2245,16 @@ function cargarResumenNutri() {
       if (!data.ok) { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">No se pudo cargar el resumen.</div>'; return; }
       if (!data.atletas.length) { cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Aún no hay atletas con FatSecret conectado.</div>'; return; }
       const colores = { verde:['#27ae60','En meta'], ambar:['#e0a82e','Ajustar'], rojo:['#c0392b','Lejos'], gris:['#999','Sin datos'] };
+      window._nutriAtletas = data.atletas;
       cont.innerHTML = data.atletas.map(a => {
         const [col, txt] = colores[a.estado] || colores.gris;
         const bal  = (a.balSemana > 0 ? '+' : '') + a.balSemana.toLocaleString('es-CL');
         const prot = a.protPct != null ? a.protPct + '%' : '—';
-        return `<div style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
+        return `<div onclick="abrirDetalleNutri('${a.uid}')" style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
             <span style="width:30px;height:30px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${(a.nombre||'?').charAt(0)}</span>
             <span style="flex:1;font-size:14px;font-weight:600;color:#222;">${a.nombre}</span>
-            <span style="font-size:12px;color:${col};font-weight:600;">${txt}</span>
+            <span style="font-size:12px;color:${col};font-weight:600;">${txt} &rsaquo;</span>
           </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
             <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">kcal/día</div><div style="font-size:15px;font-weight:700;color:#222;">${a.kcalProm.toLocaleString('es-CL')}</div></div>
@@ -2240,6 +2265,70 @@ function cargarResumenNutri() {
       }).join('');
     })
     .catch(() => { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">Error de red.</div>'; });
+}
+
+// ── Detalle por atleta: semana en barras + meta individual ──────────────────
+function abrirDetalleNutri(uid) {
+  const a = (window._nutriAtletas || []).find(x => x.uid === uid);
+  if (!a) return;
+  window._nutriDetUid = uid;
+  document.getElementById('nutriDetNombre').textContent = a.nombre;
+  document.getElementById('nutriDetAjuste').value = a.ajusteKcal || 0;
+  document.getElementById('nutriDetMsg').textContent = '';
+  document.getElementById('nutriDetSemTotal').textContent = 'Cargando…';
+  document.getElementById('nutriDetSem').innerHTML = '';
+  document.getElementById('nutriDetalleModal').style.display = 'flex';
+  fetch(`${FLOW_WORKER_URL}/fatsecret/data`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ uid, k:'ME-sync-26' })
+  }).then(r => r.json()).then(data => {
+    if (!data.ok || !data.connected) { document.getElementById('nutriDetSemTotal').textContent = 'Sin datos'; return; }
+    _nutriRenderSemana(data.food, data.exercise);
+  }).catch(() => { document.getElementById('nutriDetSemTotal').textContent = 'Error al cargar'; });
+}
+
+function cerrarDetalleNutri(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('nutriDetalleModal').style.display = 'none'; }
+
+function _nutriDiasArr(monthResp) { const m = monthResp && monthResp.month; if (!m || !m.day) return []; return Array.isArray(m.day) ? m.day : [m.day]; }
+
+function _nutriRenderSemana(food, exercise) {
+  const fd = _nutriDiasArr(food), ed = _nutriDiasArr(exercise);
+  const hoy = Math.floor(Date.now() / 86400000);
+  const dias = []; let total = 0, maxAbs = 1;
+  for (let d = hoy - 6; d <= hoy; d++) {
+    const f = fd.find(x => Number(x.date_int) === d), e = ed.find(x => Number(x.date_int) === d);
+    const tiene = !!(f || e);
+    const ing = f ? Number(f.calories) || 0 : 0, gas = e ? Number(e.calories) || 0 : 0;
+    const bal = tiene ? Math.round(ing - gas) : null;
+    if (tiene) { total += bal; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
+    dias.push({ d, bal });
+  }
+  const totalEl = document.getElementById('nutriDetSemTotal');
+  totalEl.textContent = (total > 0 ? '+' : '') + total.toLocaleString('es-CL') + ' kcal';
+  totalEl.style.color = total > 0 ? '#b8860b' : '#0e7c86';
+  const dow = ['D','L','M','M','J','V','S'], BARS_H = 52, MAX_BAR = BARS_H/2 - 2;
+  const cols = dias.map(x => {
+    const ini = dow[new Date(x.d * 86400000).getDay()];
+    if (x.bal === null) return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;"><div style="height:${BARS_H}px;display:flex;align-items:center;justify-content:center;width:100%;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(0,0,0,0.15);"></div></div><div style="font-size:9px;color:#aaa;margin-top:3px;">${ini}</div></div>`;
+    const sup = x.bal > 0, h = Math.max(3, Math.round(Math.abs(x.bal) / maxAbs * MAX_BAR)), color = sup ? '#d4a843' : '#00b8c4';
+    const arriba = sup ? `<div style="width:62%;height:${h}px;background:${color};border-radius:2px 2px 0 0;"></div>` : '';
+    const abajo  = sup ? '' : `<div style="width:62%;height:${h}px;background:${color};border-radius:0 0 2px 2px;"></div>`;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;"><div style="height:${BARS_H}px;width:100%;display:flex;flex-direction:column;align-items:center;"><div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;">${arriba}</div><div style="flex:1;width:100%;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;">${abajo}</div></div><div style="font-size:9px;color:#999;margin-top:3px;">${ini}</div></div>`;
+  }).join('');
+  document.getElementById('nutriDetSem').innerHTML = `<div style="position:absolute;left:0;right:0;top:${BARS_H/2}px;height:1px;background:rgba(0,0,0,0.15);z-index:0;"></div>${cols}`;
+}
+
+function guardarMetaAtleta() {
+  const uid = window._nutriDetUid; if (!uid) return;
+  const ajuste = document.getElementById('nutriDetAjuste').value;
+  const msg = document.getElementById('nutriDetMsg'); msg.textContent = 'Guardando…'; msg.style.color = '#666';
+  fetch(`${FLOW_WORKER_URL}/nutri/config-atleta`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ secret: PASS, uid, config: { ajusteKcal: ajuste } })
+  }).then(r => r.json()).then(data => {
+    if (data.ok) { msg.textContent = '✓ Meta guardada. Su panel se recalculará.'; msg.style.color = '#27ae60'; setTimeout(() => { cerrarDetalleNutri(); cargarResumenNutri(); }, 900); }
+    else { msg.textContent = 'Error al guardar.'; msg.style.color = '#c0392b'; }
+  }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
 }
 
 // ── NUTRICIÓN: distribución de macros (% ) que define el coach ──────────────
