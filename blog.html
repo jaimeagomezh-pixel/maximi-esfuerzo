@@ -342,6 +342,105 @@ body { background: #f5f2ee; }
 @media (max-width: 480px) {
   .blog-page-grid { grid-template-columns: 1fr; }
   .blog-filter-btn { padding: 14px 12px; font-size: 0.68rem; }
+  .blog-fab-top { bottom: 20px; right: 16px; padding: 10px 16px 10px 13px; }
+}
+
+/* Botón flotante de subir */
+.blog-fab-top {
+  position: fixed;
+  bottom: 28px;
+  right: 24px;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  gap: 9px;
+  background: #ffffff;
+  border: 1px solid #d4d0ca;
+  border-radius: 28px;
+  padding: 11px 20px 11px 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #444;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transition: border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.blog-fab-top.visible { display: inline-flex; }
+.blog-fab-top:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.blog-fab-top i { transition: transform 0.2s; }
+.blog-fab-top:hover i { transform: translateY(-3px); }
+
+/* Paginación */
+.blog-pagination-wrap {
+  margin-top: 60px;
+  padding: 40px 5vw;
+  border-top: 1px solid #d4d0ca;
+}
+.blog-pagination {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.blog-pagination-info {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #888;
+  margin-right: 20px;
+}
+.blog-pagination button,
+.blog-pagination a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  border: 1px solid #d4d0ca;
+  background: #ffffff;
+  color: #444;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.blog-pagination button:hover,
+.blog-pagination a:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+  background: rgba(192,57,43,0.05);
+}
+.blog-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: #d4d0ca;
+}
+.blog-pagination button:disabled:hover {
+  background: #ffffff;
+  color: #444;
+}
+.blog-pagination .active {
+  background: #c0392b;
+  color: #ffffff;
+  border-color: #c0392b;
+}
+.blog-pagination .active:hover {
+  background: #a03220;
+  border-color: #a03220;
 }
 </style>
 </head>
@@ -425,6 +524,19 @@ body { background: #f5f2ee; }
   </div>
 </div>
 
+<!-- PAGINACIÓN -->
+<div class="blog-pagination-wrap" id="paginationWrap" style="display:none;">
+  <div class="blog-pagination" id="pagination">
+    <!-- Poblado por JS -->
+  </div>
+</div>
+
+<!-- BOTÓN FLOTANTE DE SUBIR -->
+<button class="blog-fab-top" id="fabTop" aria-label="Subir al inicio">
+  <i class="fa-solid fa-chevron-up"></i>
+  <span>Subir</span>
+</button>
+
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">
@@ -455,17 +567,50 @@ body { background: #f5f2ee; }
     }
   });
 
-  /* ── Normalizar texto (quita acentos para buscar) ── */
+  /* ── Normalizar texto ── */
   function normalize(s) {
     return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   }
 
-  /* ── Renderizar tarjetas ── */
-  function renderCards(data) {
+  /* ── Renderizar tarjetas con paginación ── */
+  const ITEMS_PER_PAGE = 20;
+  let currentPage = 1;
+  let visibleArticles = [];
+
+  function renderCards() {
     const grid = document.getElementById('blogGrid');
-    grid.innerHTML = data.map(a => `
+
+    // Filtrar artículos
+    const filtered = BLOG_DATA.filter(a => {
+      const matchCat = activeCat === 'all' || a.category === activeCat;
+      const matchSearch = !searchTerm || normalize(a.title + ' ' + a.categoryLabel).includes(searchTerm);
+      return matchCat && matchSearch;
+    });
+
+    visibleArticles = filtered;
+    currentPage = 1;
+    renderPage();
+  }
+
+  function renderPage() {
+    const grid = document.getElementById('blogGrid');
+
+    if (visibleArticles.length === 0) {
+      grid.innerHTML = '<div class="blog-empty" style="grid-column: 1/-1; display:block;">' +
+        (searchTerm ? 'No se encontraron artículos para tu búsqueda.' : 'No hay artículos en esta categoría.') +
+        '</div>';
+      document.getElementById('paginationWrap').style.display = 'none';
+      document.getElementById('articleCount').textContent = '0 artículos';
+      return;
+    }
+
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const pageArticles = visibleArticles.slice(start, end);
+
+    grid.innerHTML = pageArticles.map(a => `
       <a class="blog-page-card" href="articulo.html?slug=${a.slug}"
-         data-cat="${a.category}" data-search="${normalize(a.title + ' ' + a.categoryLabel)}">
+         data-cat="${a.category}">
         <div class="bpc-img" data-cat="${a.category}">
           <div class="bpc-img-label">${a.imgLabel}</div>
         </div>
@@ -479,41 +624,75 @@ body { background: #f5f2ee; }
           </div>
         </div>
       </a>
-    `).join('') + '<div class="blog-empty" id="blogEmpty" style="display:none;"></div>';
+    `).join('');
+
+    // Mostrar paginación si hay más de una página
+    const totalPages = Math.ceil(visibleArticles.length / ITEMS_PER_PAGE);
+    if (totalPages > 1) {
+      renderPagination(totalPages);
+      document.getElementById('paginationWrap').style.display = '';
+    } else {
+      document.getElementById('paginationWrap').style.display = 'none';
+    }
+
+    // Actualizar contador
+    document.getElementById('articleCount').textContent =
+      `${visibleArticles.length} artículo${visibleArticles.length !== 1 ? 's' : ''}`;
+
+    // Scroll al grid
+    window.scrollTo({ top: document.getElementById('blogGrid').offsetTop - 100, behavior: 'smooth' });
   }
+
+  function renderPagination(totalPages) {
+    const pagEl = document.getElementById('pagination');
+    const items = [];
+
+    items.push(`<div class="blog-pagination-info">${ITEMS_PER_PAGE * (currentPage - 1) + 1}–${Math.min(ITEMS_PER_PAGE * currentPage, visibleArticles.length)} de ${visibleArticles.length}</div>`);
+
+    if (currentPage > 1) {
+      items.push(`<button onclick="goToPage(1)">⟨ Primera</button>`);
+      items.push(`<button onclick="goToPage(${currentPage - 1})">‹ Anterior</button>`);
+    } else {
+      items.push(`<button disabled>⟨ Primera</button>`);
+      items.push(`<button disabled>‹ Anterior</button>`);
+    }
+
+    // Números de página
+    const maxVisible = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
+
+    if (startPage > 1) items.push('<span style="padding: 0 4px;">…</span>');
+    for (let p = startPage; p <= endPage; p++) {
+      items.push(`<button onclick="goToPage(${p})" class="${p === currentPage ? 'active' : ''}">${p}</button>`);
+    }
+    if (endPage < totalPages) items.push('<span style="padding: 0 4px;">…</span>');
+
+    if (currentPage < totalPages) {
+      items.push(`<button onclick="goToPage(${currentPage + 1})">Siguiente ›</button>`);
+      items.push(`<button onclick="goToPage(${totalPages})">Última ⟩</button>`);
+    } else {
+      items.push(`<button disabled>Siguiente ›</button>`);
+      items.push(`<button disabled>Última ⟩</button>`);
+    }
+
+    pagEl.innerHTML = items.join('');
+  }
+
+  window.goToPage = function(page) {
+    currentPage = page;
+    renderPage();
+  };
 
   /* ── Estado de filtros ── */
   let activeCat = 'all';
   let searchTerm = '';
 
   function applyFilters() {
-    const cards = document.querySelectorAll('.blog-page-card');
-    let visible = 0;
-    cards.forEach(card => {
-      const matchCat = activeCat === 'all' || card.dataset.cat === activeCat;
-      const matchSearch = !searchTerm || card.dataset.search.includes(searchTerm);
-      if (matchCat && matchSearch) {
-        card.classList.remove('hidden');
-        visible++;
-      } else {
-        card.classList.add('hidden');
-      }
-    });
-
-    // Contador
-    document.getElementById('articleCount').textContent =
-      `${visible} artículo${visible !== 1 ? 's' : ''}`;
-
-    // Estado vacío
-    const empty = document.getElementById('blogEmpty');
-    if (visible === 0) {
-      empty.textContent = searchTerm
-        ? 'No se encontraron artículos para tu búsqueda.'
-        : 'No hay artículos en esta categoría todavía.';
-      empty.style.display = '';
-    } else {
-      empty.style.display = 'none';
-    }
+    renderCards();
   }
 
   /* ── Tabs de categoría ── */
@@ -559,11 +738,20 @@ body { background: #f5f2ee; }
     filtersEl.scrollBy({ left: 180, behavior: 'smooth' });
   });
 
+  /* ── Botón flotante de subir ── */
+  const fabTop = document.getElementById('fabTop');
+  window.addEventListener('scroll', function() {
+    fabTop.classList.toggle('visible', window.scrollY > 300);
+  });
+  fabTop.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
   /* ── Inicializar ── */
   const hashCat = window.location.hash.replace('#', '');
   const validCats = ['fuerza', 'endurance', 'nutricion', 'mentalidad', 'rucking'];
 
-  renderCards(BLOG_DATA);
+  renderCards();
 
   if (hashCat && validCats.includes(hashCat)) {
     const targetBtn = document.querySelector(`.blog-filter-btn[data-cat="${hashCat}"]`);
