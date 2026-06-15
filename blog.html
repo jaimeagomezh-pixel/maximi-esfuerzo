@@ -684,41 +684,12 @@ body { background: #f5f2ee; }
 
   function renderPagination(totalPages) {
     const pagEl = document.getElementById('pagination');
-    const items = [];
-
-    items.push(`<div class="blog-pagination-info">${ITEMS_PER_PAGE * (currentPage - 1) + 1}–${Math.min(ITEMS_PER_PAGE * currentPage, visibleArticles.length)} de ${visibleArticles.length}</div>`);
-
-    if (currentPage > 1) {
-      items.push(`<button onclick="goToPage(1)">⟨ Primera</button>`);
-      items.push(`<button onclick="goToPage(${currentPage - 1})">‹ Anterior</button>`);
-    } else {
-      items.push(`<button disabled>⟨ Primera</button>`);
-      items.push(`<button disabled>‹ Anterior</button>`);
-    }
-
-    // Números de página
-    const maxVisible = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-    if (endPage - startPage < maxVisible - 1) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
-    }
-
-    if (startPage > 1) items.push('<span style="padding: 0 4px;">…</span>');
-    for (let p = startPage; p <= endPage; p++) {
-      items.push(`<button onclick="goToPage(${p})" class="${p === currentPage ? 'active' : ''}">${p}</button>`);
-    }
-    if (endPage < totalPages) items.push('<span style="padding: 0 4px;">…</span>');
-
-    if (currentPage < totalPages) {
-      items.push(`<button onclick="goToPage(${currentPage + 1})">Siguiente ›</button>`);
-      items.push(`<button onclick="goToPage(${totalPages})">Última ⟩</button>`);
-    } else {
-      items.push(`<button disabled>Siguiente ›</button>`);
-      items.push(`<button disabled>Última ⟩</button>`);
-    }
-
-    pagEl.innerHTML = items.join('');
+    const html = `
+      <span class="blog-pagination-info">Página ${currentPage} de ${totalPages}</span>
+      ${currentPage > 1 ? `<button onclick="goToPage(${currentPage - 1})">← Anterior</button>` : '<button disabled>← Anterior</button>'}
+      ${currentPage < totalPages ? `<button onclick="goToPage(${currentPage + 1})">Siguiente →</button>` : '<button disabled>Siguiente →</button>'}
+    `;
+    pagEl.innerHTML = html;
   }
 
   window.goToPage = function(page) {
