@@ -358,7 +358,7 @@
 
     ov.addEventListener('click', cerrar);
     ov.addEventListener('touchend', function(e) { e.preventDefault(); cerrar(); }, { passive: false });
-    setTimeout(cerrar, 3400); // auto-cierra a los 3.4s
+    setTimeout(cerrar, 5000); // auto-cierra a los 5s (o al tocar cualquier parte)
   }
 
   function cerrarDashClick(e) {
