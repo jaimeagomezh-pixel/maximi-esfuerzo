@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260615d">
+<link rel="stylesheet" href="styles.css?v=20260615e">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -2283,7 +2283,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260615d"></script>
+<script src="scripts.js?v=20260615e"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -3732,6 +3732,34 @@ async function refreshResumenMensual() {
     ctaSec.addEventListener('touchmove', function(e) {
       var t = e.touches[0], r = ctaSec.getBoundingClientRect();
       moverLuz((t.clientX - r.left) / r.width * 100, (t.clientY - r.top) / r.height * 100);
+    }, { passive: true });
+  }
+
+  // Linterna autónoma en móvil (Lissajous suave: sin interacción, la luz patrulla sola)
+  if (ctaSec && window.matchMedia('(pointer:coarse)').matches) {
+    var _lt = 0, _lraf = null;
+    function _lTick() {
+      _lt += 0.0035;
+      // Figura de Lissajous: frecuencias distintas dan un recorrido no repetitivo
+      moverLuz(
+        50 + 30 * Math.sin(1.3 * _lt),
+        50 + 22 * Math.sin(0.9 * _lt + 1.2)
+      );
+      _lraf = requestAnimationFrame(_lTick);
+    }
+    // Solo anima cuando la sección es visible (ahorra batería)
+    new IntersectionObserver(function(ents) {
+      if (ents[0].isIntersecting) { if (!_lraf) _lTick(); }
+      else { cancelAnimationFrame(_lraf); _lraf = null; }
+    }, { threshold: 0.25 }).observe(ctaSec);
+    // Touch del usuario toma el control; retoma la patrulla 2s después de soltar
+    var _lResume;
+    ctaSec.addEventListener('touchstart', function() {
+      cancelAnimationFrame(_lraf); _lraf = null;
+      clearTimeout(_lResume);
+    }, { passive: true });
+    ctaSec.addEventListener('touchend', function() {
+      _lResume = setTimeout(function() { _lTick(); }, 2000);
     }, { passive: true });
   }
 

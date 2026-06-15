@@ -252,6 +252,8 @@
       if (elFrase) elFrase.textContent = frase.frase;
       const elAutor = document.getElementById('dashAutor');
       if (elAutor) elAutor.textContent = frase.autor;
+      // Guardar para el overlay cinema (se muestra al abrir el panel)
+      window._fraseActual = { texto: frase.frase, autor: frase.autor };
       
       // Resetear menú hamburguesa móvil (puede haber quedado abierto)
       if (_dashMenuAbierto) {
@@ -270,6 +272,7 @@
       if (dash) {
         dash.classList.add('open');
         document.body.style.overflow = 'hidden';
+        mostrarFraseCinema();
         // Init charts and real data after DOM is ready
         setTimeout(() => {
           if (typeof initCharts === 'function') initCharts();
@@ -319,6 +322,43 @@
     document.getElementById('dashboardAtleta').classList.remove('open');
     document.body.style.overflow = '';
     localStorage.setItem('dashboardOpen', 'false');
+    // Limpiar overlay cinema si quedó abierto
+    var ov = document.getElementById('fraseOverlay');
+    if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+  }
+
+  function mostrarFraseCinema() {
+    var d = window._fraseActual;
+    if (!d || !d.texto || d.texto === 'Cargando...') return;
+    // Evitar duplicados
+    if (document.getElementById('fraseOverlay')) return;
+
+    var ov = document.createElement('div');
+    ov.id = 'fraseOverlay';
+
+    var placa = document.createElement('div');
+    placa.className = 'fop-placa';
+    placa.innerHTML =
+      '<div class="fop-icon">❝</div>' +
+      '<div class="fop-texto">' + d.texto + '</div>' +
+      '<div class="fop-autor">' + d.autor + '</div>';
+    var hint = document.createElement('div');
+    hint.className = 'fop-hint';
+    hint.textContent = 'toca para continuar';
+
+    ov.appendChild(placa);
+    ov.appendChild(hint);
+    document.body.appendChild(ov);
+
+    var cerrar = function() {
+      if (!ov.parentNode) return;
+      ov.classList.add('saliendo');
+      setTimeout(function() { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 560);
+    };
+
+    ov.addEventListener('click', cerrar);
+    ov.addEventListener('touchend', function(e) { e.preventDefault(); cerrar(); }, { passive: false });
+    setTimeout(cerrar, 3400); // auto-cierra a los 3.4s
   }
 
   function cerrarDashClick(e) {
