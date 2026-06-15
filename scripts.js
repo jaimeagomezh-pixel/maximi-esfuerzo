@@ -4154,7 +4154,7 @@
 
     const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
     const runs = cache
-      .filter(a => RTSS_RUN_TYPES.has(a.type) && a.sec > 0 && a.km > 0)
+      .filter(a => RTSS_RUN_TYPES.has(a.type) && a.sec > 0 && a.km > 0 && parseLastreKg(a.name) === null)
       .sort((a, b) => a.date.localeCompare(b.date));
 
     if (!runs.length) {
