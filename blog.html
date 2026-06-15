@@ -342,8 +342,41 @@ body { background: #f5f2ee; }
 @media (max-width: 480px) {
   .blog-page-grid { grid-template-columns: 1fr; }
   .blog-filter-btn { padding: 14px 12px; font-size: 0.68rem; }
+  .blog-fab-back { bottom: 20px; left: 16px; padding: 10px 16px 10px 13px; }
   .blog-fab-top { bottom: 20px; right: 16px; padding: 10px 16px 10px 13px; }
 }
+
+/* Botón flotante de volver */
+.blog-fab-back {
+  position: fixed;
+  bottom: 28px;
+  left: 24px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #ffffff;
+  border: 1px solid #d4d0ca;
+  border-radius: 28px;
+  padding: 11px 20px 11px 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #444;
+  text-decoration: none;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  transition: border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.blog-fab-back:hover {
+  border-color: #c0392b;
+  color: #c0392b;
+  transform: translateX(-3px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.blog-fab-back i { transition: transform 0.2s; }
+.blog-fab-back:hover i { transform: translateX(-3px); }
 
 /* Botón flotante de subir */
 .blog-fab-top {
@@ -531,6 +564,12 @@ body { background: #f5f2ee; }
   </div>
 </div>
 
+<!-- BOTÓN FLOTANTE DE VOLVER -->
+<a class="blog-fab-back" href="index.html#hero" aria-label="Volver al inicio">
+  <i class="fa-solid fa-chevron-left"></i>
+  <span>Volver</span>
+</a>
+
 <!-- BOTÓN FLOTANTE DE SUBIR -->
 <button class="blog-fab-top" id="fabTop" aria-label="Subir al inicio">
   <i class="fa-solid fa-chevron-up"></i>
@@ -573,7 +612,7 @@ body { background: #f5f2ee; }
   }
 
   /* ── Renderizar tarjetas con paginación ── */
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 10;
   let currentPage = 1;
   let visibleArticles = [];
 
