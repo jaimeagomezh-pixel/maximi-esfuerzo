@@ -1403,6 +1403,7 @@
         const cData = await cRes.json();
         if (cData.ok && cData.config) _fsConfig = cData.config;
       } catch(e) {}
+      try { localStorage.removeItem(_fsDetCacheKey()); } catch(e) {}  // detalle fresco tras sincronizar
       _fsRender(data);
       try { localStorage.setItem(_fsCacheKey(), JSON.stringify({ data, config: _fsConfig, ts: Date.now() })); } catch(e) {}
       _fsUltActLabel(Date.now());
@@ -1484,8 +1485,79 @@
 
     // Balance semanal (usa los datos del mes ya cargados, sin llamadas extra)
     _fsSemana(foodDays, exerDays, hoyInt);
+    // Contexto para el selector de día del detalle
+    _fsCtx = { foodDays, exerDays, hoyInt };
+    _fsSelDia = diaInt;
+    document.getElementById('nutriDetDiaTxt').textContent = 'Hoy';
+    const _selEl = document.getElementById('nutriDetSelector');
+    if (_selEl && _selEl.style.display !== 'none') _renderDetSelector();
     // Detalle del día por comida
     cargarDetalleDia(diaInt);
+  }
+
+  // ── Selector de día (semana en curso) para el detalle ──
+  let _fsCtx = null;     // {foodDays, exerDays, hoyInt} de la última carga
+  let _fsSelDia = null;  // día entero seleccionado en el detalle
+
+  function _fsDetCacheKey() { const uid = _fsUid(); return uid ? 'nutriDetCache_' + uid : null; }
+  function _fsDetCacheGet() {
+    let c = {}; try { c = JSON.parse(localStorage.getItem(_fsDetCacheKey()) || '{}'); } catch(e) {}
+    if (_fsCtx) { // conservar solo la semana en curso
+      const { hoyInt } = _fsCtx;
+      const dowHoy = new Date(hoyInt * 86400000).getUTCDay();
+      const lunes = hoyInt - (dowHoy === 0 ? 6 : dowHoy - 1);
+      const out = {};
+      Object.keys(c).forEach(k => { const d = Number(k); if (d >= lunes && d <= lunes + 6) out[d] = c[k]; });
+      c = out;
+    }
+    return c;
+  }
+  function _fsDetCacheSet(c) { try { localStorage.setItem(_fsDetCacheKey(), JSON.stringify(c)); } catch(e) {} }
+
+  function toggleDetSelector() {
+    const sel = document.getElementById('nutriDetSelector');
+    const caret = document.getElementById('nutriDetCaret');
+    if (!sel) return;
+    if (sel.style.display === 'flex') { sel.style.display = 'none'; if (caret) caret.textContent = '▾'; return; }
+    _renderDetSelector();
+    sel.style.display = 'flex';
+    if (caret) caret.textContent = '▴';
+  }
+
+  function _renderDetSelector() {
+    const sel = document.getElementById('nutriDetSelector');
+    if (!sel || !_fsCtx) return;
+    const { foodDays, hoyInt } = _fsCtx;
+    const dowHoy = new Date(hoyInt * 86400000).getUTCDay();
+    const lunes = hoyInt - (dowHoy === 0 ? 6 : dowHoy - 1);
+    const dow = ['D','L','M','M','J','V','S'];
+    let html = '';
+    for (let d = lunes; d <= lunes + 6; d++) {
+      const ini = dow[new Date(d * 86400000).getUTCDay()];
+      const num = new Date(d * 86400000).getUTCDate();
+      const futuro = d > hoyInt;
+      const tiene = foodDays.some(x => Number(x.date_int) === d);
+      const activo = d === _fsSelDia;
+      const base = "flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:6px;font-family:'Barlow Condensed',sans-serif;";
+      if (futuro) {
+        html += `<div style="${base}opacity:.3;"><span style="font-size:9px;color:#888;">${ini}</span><span style="font-size:13px;color:#888;">${num}</span><span style="width:4px;height:4px;"></span></div>`;
+      } else {
+        const bg = activo ? 'background:#C9A84C;' : 'background:rgba(0,0,0,0.04);cursor:pointer;';
+        const colNum = activo ? '#1a1a1a' : (tiene ? '#222' : '#999');
+        const colIni = activo ? '#1a1a1a' : '#999';
+        const dot = (tiene && !activo) ? '<span style="width:4px;height:4px;border-radius:50%;background:#00b8c4;"></span>' : '<span style="width:4px;height:4px;"></span>';
+        html += `<div onclick="seleccionarDiaDetalle(${d})" style="${base}${bg}"><span style="font-size:9px;color:${colIni};">${ini}</span><span style="font-size:13px;font-weight:700;color:${colNum};">${num}</span>${dot}</div>`;
+      }
+    }
+    sel.innerHTML = html;
+  }
+
+  function seleccionarDiaDetalle(d) {
+    _fsSelDia = d;
+    _renderDetSelector();
+    const txt = document.getElementById('nutriDetDiaTxt');
+    if (txt) txt.textContent = (_fsCtx && d === _fsCtx.hoyInt) ? 'Hoy' : _fsFechaLabel(d);
+    cargarDetalleDia(d);
   }
 
   // Resumen de la semana en curso (lunes→domingo): balance (ingerido − gastado) por día.
@@ -1550,12 +1622,17 @@
     if (!cont) return;
     const uid = _fsUid();
     if (!uid) return;
+    // Caché por día (solo semana en curso): evita re-consultar a FatSecret al re-abrir un día.
+    const cache = _fsDetCacheGet();
+    if (cache[dayInt]) { _fsRenderDetalle(cache[dayInt], cont); return; }
+    cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargando…</div>';
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/day`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid, k: FS_KEY, date: dayInt })
       });
       const data = await res.json();
+      cache[dayInt] = data; _fsDetCacheSet(cache);
       _fsRenderDetalle(data, cont);
     } catch(e) {
       cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">No se pudo cargar el detalle.</div>';
@@ -1694,6 +1771,8 @@
   window._fsInit = _fsInit;
   window.abrirGuiaReloj = abrirGuiaReloj;
   window.cerrarGuiaReloj = cerrarGuiaReloj;
+  window.toggleDetSelector = toggleDetSelector;
+  window.seleccionarDiaDetalle = seleccionarDiaDetalle;
 
   // Ejecutar al cargar
   handleFlowPaymentSuccess();

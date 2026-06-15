@@ -2468,6 +2468,7 @@ function guardarMetaFicha() {
 // HTML del seguimiento semanal de la ficha (desde caché, o botón si no hay).
 function _nutriFichaSemHTML(cache) {
   if (cache && cache.data) {
+    _nfSetCtx(cache);
     const sem = _nutriSemanaHTML(cache.data.food, cache.data.exercise);
     const d = new Date(cache.ts);
     return `
@@ -2477,9 +2478,106 @@ function _nutriFichaSemHTML(cache) {
       </div>
       <div style="text-align:right;font-size:20px;font-weight:700;color:${sem.totalColor};margin-bottom:4px;">${sem.totalText}</div>
       ${sem.barras}
-      <div style="text-align:right;font-size:10px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit · act. ${d.toLocaleDateString('es-CL',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div>`;
+      <div style="text-align:right;font-size:10px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit · act. ${d.toLocaleDateString('es-CL',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div>
+      <div style="margin-top:14px;border-top:1px solid rgba(0,0,0,0.08);padding-top:12px;">
+        <button onclick="nfToggleDet()" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:0;cursor:pointer;">
+          <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Detalle del día</span>
+          <span style="display:flex;align-items:center;gap:6px;font-family:var(--fc);font-size:11px;color:#0e7c86;text-transform:capitalize;"><span id="nfDetDiaTxt">Hoy</span><span id="nfDetCaret" style="font-size:9px;">▾</span></span>
+        </button>
+        <div id="nfDetSelector" style="display:none;gap:4px;margin-top:10px;"></div>
+        <div id="nfDetalle"></div>
+      </div>`;
   }
   return `<div style="text-align:center;padding:4px 0 14px;"><button onclick="verSemanaFicha()" style="font-family:var(--fc);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(0,184,196,0.08);border:1px solid rgba(0,184,196,0.35);color:#0e7c86;padding:8px 16px;border-radius:5px;cursor:pointer;">Ver semana en curso</button><div style="font-size:11px;color:#999;margin-top:6px;">Consulta el diario de FatSecret de este atleta</div></div>`;
+}
+
+// ── Detalle por día (selector de la semana en curso) en la ficha del atleta ──
+function _nfSetCtx(cache) {
+  if (!cache || !cache.data) { window._nfCtx = null; return; }
+  const days = m => { const x = m && m.month; if (!x || !x.day) return []; return Array.isArray(x.day) ? x.day : [x.day]; };
+  const _n = new Date();
+  const hoy = Math.floor((_n.getTime() - _n.getTimezoneOffset() * 60000) / 86400000);
+  window._nfCtx = { food: days(cache.data.food), hoy };
+  window._nfSelDia = hoy;
+}
+function _nfFechaLabel(d) { return new Date(d * 86400000).toLocaleDateString('es-CL', { weekday:'short', day:'numeric', month:'short', timeZone:'UTC' }); }
+function _nfDetCacheKey() { return window._nutriFichaUid ? 'nutriFichaDetCache_' + window._nutriFichaUid : null; }
+function _nfDetCacheGet() {
+  let c = {}; try { c = JSON.parse(localStorage.getItem(_nfDetCacheKey()) || '{}'); } catch(e) {}
+  if (window._nfCtx) {
+    const { hoy } = window._nfCtx;
+    const dh = new Date(hoy * 86400000).getUTCDay();
+    const lunes = hoy - (dh === 0 ? 6 : dh - 1);
+    const out = {}; Object.keys(c).forEach(k => { const d = Number(k); if (d >= lunes && d <= lunes + 6) out[d] = c[k]; }); c = out;
+  }
+  return c;
+}
+function _nfDetCacheSet(c) { try { localStorage.setItem(_nfDetCacheKey(), JSON.stringify(c)); } catch(e) {} }
+function nfToggleDet() {
+  const sel = document.getElementById('nfDetSelector'), caret = document.getElementById('nfDetCaret');
+  if (!sel) return;
+  if (sel.style.display === 'flex') { sel.style.display = 'none'; if (caret) caret.textContent = '▾'; return; }
+  nfRenderSelector(); sel.style.display = 'flex'; if (caret) caret.textContent = '▴';
+  const cont = document.getElementById('nfDetalle');
+  if (window._nfSelDia != null && cont && !cont.innerHTML) nfCargarDetalle(window._nfSelDia);
+}
+function nfRenderSelector() {
+  const sel = document.getElementById('nfDetSelector'); if (!sel || !window._nfCtx) return;
+  const { food, hoy } = window._nfCtx;
+  const dh = new Date(hoy * 86400000).getUTCDay();
+  const lunes = hoy - (dh === 0 ? 6 : dh - 1);
+  const dow = ['D','L','M','M','J','V','S']; let html = '';
+  for (let d = lunes; d <= lunes + 6; d++) {
+    const ini = dow[new Date(d * 86400000).getUTCDay()], num = new Date(d * 86400000).getUTCDate();
+    const futuro = d > hoy, tiene = food.some(x => Number(x.date_int) === d), activo = d === window._nfSelDia;
+    const base = "flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:6px;font-family:var(--fc);";
+    if (futuro) {
+      html += `<div style="${base}opacity:.3;"><span style="font-size:9px;color:#999;">${ini}</span><span style="font-size:13px;color:#999;">${num}</span><span style="width:4px;height:4px;"></span></div>`;
+    } else {
+      const bg = activo ? 'background:#0e7c86;' : 'background:rgba(0,0,0,0.04);cursor:pointer;';
+      const colNum = activo ? '#fff' : (tiene ? '#222' : '#999'), colIni = activo ? '#fff' : '#999';
+      const dot = (tiene && !activo) ? '<span style="width:4px;height:4px;border-radius:50%;background:#00b8c4;"></span>' : '<span style="width:4px;height:4px;"></span>';
+      html += `<div onclick="nfSelDia(${d})" style="${base}${bg}"><span style="font-size:9px;color:${colIni};">${ini}</span><span style="font-size:13px;font-weight:700;color:${colNum};">${num}</span>${dot}</div>`;
+    }
+  }
+  sel.innerHTML = html;
+}
+function nfSelDia(d) {
+  window._nfSelDia = d; nfRenderSelector();
+  const txt = document.getElementById('nfDetDiaTxt');
+  if (txt) txt.textContent = (window._nfCtx && d === window._nfCtx.hoy) ? 'Hoy' : _nfFechaLabel(d);
+  nfCargarDetalle(d);
+}
+async function nfCargarDetalle(d) {
+  const cont = document.getElementById('nfDetalle'); if (!cont) return;
+  const uid = window._nutriFichaUid; if (!uid) return;
+  const cache = _nfDetCacheGet();
+  if (cache[d]) { nfRenderDetalle(cache[d], cont); return; }
+  cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:10px 0;">Cargando…</div>';
+  try {
+    const data = await fetch(`${FLOW_WORKER_URL}/fatsecret/day`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, k:'ME-sync-26', date: d }) }).then(r => r.json());
+    cache[d] = data; _nfDetCacheSet(cache);
+    nfRenderDetalle(data, cont);
+  } catch(e) { cont.innerHTML = '<div style="font-size:12px;color:#c0392b;text-align:center;padding:10px 0;">No se pudo cargar el detalle.</div>'; }
+}
+function nfRenderDetalle(data, cont) {
+  let entries = []; const fe = data && data.entries && data.entries.food_entries;
+  if (fe && fe.food_entry) entries = Array.isArray(fe.food_entry) ? fe.food_entry : [fe.food_entry];
+  if (!entries.length) { cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:10px 0;">Sin comidas registradas este día.</div>'; return; }
+  const orden = ['Breakfast','Lunch','Dinner','Other'], nombres = { Breakfast:'Desayuno', Lunch:'Almuerzo', Dinner:'Cena', Other:'Otros' };
+  const grupos = {}; entries.forEach(e => { const m = e.meal || 'Other'; (grupos[m] = grupos[m] || []).push(e); });
+  let html = ''; orden.forEach(m => {
+    if (!grupos[m]) return; const items = grupos[m];
+    const kcal = items.reduce((s,e) => s + (Number(e.calories) || 0), 0);
+    html += `<div style="margin-top:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;border-bottom:1px solid rgba(0,0,0,0.1);padding-bottom:4px;">
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#0e7c86;font-weight:700;">${nombres[m] || m}</span>
+        <span style="font-weight:700;font-size:14px;color:#222;">${Math.round(kcal)} kcal</span>
+      </div>
+      ${items.map(e => `<div style="display:flex;justify-content:space-between;font-size:12px;color:#444;padding:2px 0;"><span style="flex:1;margin-right:8px;">${e.food_entry_name || 'Alimento'}</span><span style="color:#888;white-space:nowrap;">${Math.round(Number(e.calories) || 0)} kcal</span></div>`).join('')}
+    </div>`;
+  });
+  cont.innerHTML = html;
 }
 
 async function verSemanaFicha() {
@@ -2492,6 +2590,7 @@ async function verSemanaFicha() {
   if (!data.ok || !data.connected) { semCont.innerHTML = '<div style="padding:12px;background:#f4f6f8;border-radius:8px;font-size:12px;color:#666;">Este atleta no ha conectado FatSecret.</div>'; return; }
   let cache = { data: { food: data.food, exercise: data.exercise }, ts: Date.now() };
   try { localStorage.setItem('nutriFichaCache_' + uid, JSON.stringify(cache)); } catch(e) {}
+  try { localStorage.removeItem('nutriFichaDetCache_' + uid); } catch(e) {}  // detalle fresco tras refrescar
   semCont.innerHTML = _nutriFichaSemHTML(cache);
 }
 
