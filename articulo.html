@@ -18,20 +18,20 @@
   max-width: 780px;
   margin: 0 auto;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gris-suave);
+  color: #888;
 }
 .art-breadcrumb a {
-  color: var(--gris-suave);
+  color: #888;
   text-decoration: none;
   transition: color 0.2s;
 }
 .art-breadcrumb a:hover { color: var(--dorado); }
-.art-breadcrumb .sep { margin: 0 8px; opacity: 0.4; }
-.art-breadcrumb .current { color: var(--gris); }
+.art-breadcrumb .sep { margin: 0 8px; opacity: 0.5; }
+.art-breadcrumb .current { color: #b0ada8; }
 
 /* Cabecera del artículo */
 .art-header {
@@ -64,11 +64,11 @@
   gap: 20px;
   flex-wrap: wrap;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gris-suave);
+  color: #9a9693;
 }
 .art-meta-row .dot {
   width: 3px; height: 3px;
@@ -204,7 +204,7 @@
   line-height: 1.6;
 }
 
-/* Back to blog */
+/* Back to blog — link inline al final del artículo */
 .art-back {
   max-width: 680px;
   margin: 0 auto 80px;
@@ -216,7 +216,7 @@
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gris-suave);
+  color: #888;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -225,6 +225,46 @@
 }
 .art-back a:hover { color: var(--dorado); gap: 12px; }
 .art-back a::before { content: '←'; }
+
+/* Botón flotante de retroceso — visible en todo momento */
+.art-fab-back {
+  position: fixed;
+  bottom: 28px;
+  left: 24px;
+  z-index: 200;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #141414;
+  border: 1px solid #2e2e2e;
+  border-radius: 28px;
+  padding: 11px 20px 11px 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c8c4be;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+}
+.art-fab-back:hover {
+  background: #1e1e1e;
+  border-color: var(--dorado);
+  color: var(--dorado);
+  transform: translateX(-3px);
+}
+.art-fab-back .fab-arrow {
+  font-size: 1rem;
+  line-height: 1;
+  transition: transform 0.2s;
+}
+.art-fab-back:hover .fab-arrow { transform: translateX(-3px); }
+
+@media (max-width: 480px) {
+  .art-fab-back { bottom: 20px; left: 16px; padding: 10px 16px 10px 13px; }
+}
 
 /* Error 404 artículo no encontrado */
 .art-not-found {
@@ -286,6 +326,12 @@
   <a href="index.html#resenas" onclick="toggleMenu()">Resultados</a>
   <a href="index.html" class="nav-cta" onclick="toggleMenu()">Empezar Ahora</a>
 </div>
+
+<!-- BOTÓN FLOTANTE DE RETROCESO -->
+<a class="art-fab-back" href="blog.html">
+  <span class="fab-arrow">←</span>
+  <span>Blog</span>
+</a>
 
 <!-- CONTENIDO DINÁMICO (poblado por JS) -->
 <div id="articuloContent"></div>
