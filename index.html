@@ -1959,12 +1959,10 @@
         <!-- ESTADO: CONECTADO -->
         <div id="nutriConectado" style="display:none;">
 
-          <!-- Día mostrado -->
-          <div style="margin:2px 2px 10px;display:flex;align-items:center;justify-content:space-between;">
-            <div id="nutriDiaLabel" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#999;text-transform:uppercase;">Hoy</div>
-            <div style="font-size:10px;color:#27ae60;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;display:flex;align-items:center;gap:4px;">
-              <span style="width:6px;height:6px;border-radius:50%;background:#27ae60;display:inline-block;"></span>FatSecret conectado
-            </div>
+          <!-- Día mostrado + actualizar -->
+          <div style="margin:2px 2px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div><div id="nutriDiaLabel" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#999;text-transform:uppercase;">Hoy</div><div id="nutriUltAct" style="font-size:9px;color:#777;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div></div>
+            <button onclick="cargarDatosFatSecret()" style="flex-shrink:0;background:rgba(0,184,196,0.1);border:1px solid rgba(0,184,196,0.4);color:#00b8c4;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;padding:6px 13px;border-radius:14px;cursor:pointer;">↻ Actualizar hoy</button>
           </div>
 
           <!-- BALANCE vs OBJETIVO -->
@@ -2247,7 +2245,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260614c"></script>
+<script src="scripts.js?v=20260614d"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

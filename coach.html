@@ -2250,38 +2250,58 @@ function showTab(id, btn) {
   if (id === 'nutricion') {
     if (typeof renderNutriTargetChips === 'function') renderNutriTargetChips();
     if (typeof cargarNutriConfig === 'function') cargarNutriConfig();
+    if (typeof mostrarResumenNutriCache === 'function') mostrarResumenNutriCache();
   }
 }
 
 // ── NUTRICIÓN: seguimiento por atleta (resumen de adherencia) ──────────────
+function _renderResumenAtletas(atletas) {
+  const colores = { verde:['#27ae60','En meta'], ambar:['#e0a82e','Ajustar'], rojo:['#c0392b','Lejos'], gris:['#999','Sin datos'] };
+  return atletas.map(a => {
+    const [col, txt] = colores[a.estado] || colores.gris;
+    const bal  = (a.balSemana > 0 ? '+' : '') + a.balSemana.toLocaleString('es-CL');
+    const prot = a.protPct != null ? a.protPct + '%' : '—';
+    return `<div onclick="abrirDetalleNutri('${a.uid}')" style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="width:30px;height:30px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${(a.nombre||'?').charAt(0)}</span>
+        <span style="flex:1;font-size:14px;font-weight:600;color:#222;">${a.nombre}</span>
+        <span style="font-size:12px;color:${col};font-weight:600;">${txt} &rsaquo;</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">kcal/día</div><div style="font-size:15px;font-weight:700;color:#222;">${a.kcalProm.toLocaleString('es-CL')}</div></div>
+        <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">proteína</div><div style="font-size:15px;font-weight:700;color:${col};">${prot}</div></div>
+        <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">balance sem.</div><div style="font-size:15px;font-weight:700;color:#222;">${bal}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Muestra el último resumen guardado (sin consultar FatSecret).
+function mostrarResumenNutriCache() {
+  const cont = document.getElementById('nutriResumenLista'); if (!cont) return;
+  let c = null; try { c = JSON.parse(localStorage.getItem('nutriResumenCache') || 'null'); } catch(e) {}
+  if (c && c.atletas && c.atletas.length) {
+    window._nutriAtletas = c.atletas;
+    const d = new Date(c.ts);
+    cont.innerHTML = `<div style="font-size:10px;color:#999;margin-bottom:8px;font-family:var(--fc);letter-spacing:0.5px;">Actualizado ${d.toLocaleDateString('es-CL',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div>` + _renderResumenAtletas(c.atletas);
+  } else {
+    cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Pulsa "Actualizar semana" para generar el resumen.</div>';
+  }
+}
+
+// Refresca el resumen consultando FatSecret (solo al pulsar "Actualizar semana").
 function cargarResumenNutri() {
   const cont = document.getElementById('nutriResumenLista');
   if (!cont) return;
-  cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Cargando…</div>';
+  cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Actualizando…</div>';
   fetch(`${FLOW_WORKER_URL}/nutri/coach-resumen?secret=${encodeURIComponent(PASS)}`)
     .then(r => r.json())
     .then(data => {
       if (!data.ok) { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">No se pudo cargar el resumen.</div>'; return; }
       if (!data.atletas.length) { cont.innerHTML = '<div style="font-size:13px;color:#888;padding:8px 0;">Aún no hay atletas con FatSecret conectado.</div>'; return; }
-      const colores = { verde:['#27ae60','En meta'], ambar:['#e0a82e','Ajustar'], rojo:['#c0392b','Lejos'], gris:['#999','Sin datos'] };
       window._nutriAtletas = data.atletas;
-      cont.innerHTML = data.atletas.map(a => {
-        const [col, txt] = colores[a.estado] || colores.gris;
-        const bal  = (a.balSemana > 0 ? '+' : '') + a.balSemana.toLocaleString('es-CL');
-        const prot = a.protPct != null ? a.protPct + '%' : '—';
-        return `<div onclick="abrirDetalleNutri('${a.uid}')" style="background:#fff;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <span style="width:30px;height:30px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;">${(a.nombre||'?').charAt(0)}</span>
-            <span style="flex:1;font-size:14px;font-weight:600;color:#222;">${a.nombre}</span>
-            <span style="font-size:12px;color:${col};font-weight:600;">${txt} &rsaquo;</span>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">kcal/día</div><div style="font-size:15px;font-weight:700;color:#222;">${a.kcalProm.toLocaleString('es-CL')}</div></div>
-            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">proteína</div><div style="font-size:15px;font-weight:700;color:${col};">${prot}</div></div>
-            <div style="background:#f4f6f8;border-radius:6px;padding:8px;"><div style="font-size:11px;color:#999;">balance sem.</div><div style="font-size:15px;font-weight:700;color:#222;">${bal}</div></div>
-          </div>
-        </div>`;
-      }).join('');
+      try { localStorage.setItem('nutriResumenCache', JSON.stringify({ atletas: data.atletas, ts: Date.now() })); } catch(e) {}
+      mostrarResumenNutriCache();
     })
     .catch(() => { cont.innerHTML = '<div style="font-size:13px;color:#c0392b;">Error de red.</div>'; });
 }
@@ -2390,8 +2410,10 @@ async function cargarNutriFicha(a) {
   window._nutriFichaUid = uid;
   let cfg = NUTRI_DEFAULT, override = false;
   try { const rc = await fetch(`${FLOW_WORKER_URL}/nutri/config?k=ME-sync-26&uid=${encodeURIComponent(uid)}`).then(r => r.json()); if (rc.ok && rc.config) { cfg = rc.config; override = !!rc.override; } } catch(e) {}
-  // Seguimiento bajo demanda: no consultamos FatSecret al abrir la ficha.
-  const semHTML = `<div id="nutriFichaSem"><div style="text-align:center;padding:4px 0 14px;"><button onclick="verSemanaFicha()" style="font-family:var(--fc);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(0,184,196,0.08);border:1px solid rgba(0,184,196,0.35);color:#0e7c86;padding:8px 16px;border-radius:5px;cursor:pointer;">Ver semana en curso</button><div style="font-size:11px;color:#999;margin-top:6px;">Consulta el diario de FatSecret de este atleta</div></div></div>`;
+  // Seguimiento: muestra lo último guardado; el botón refresca (no consulta al abrir).
+  let cacheSem = null;
+  try { cacheSem = JSON.parse(localStorage.getItem('nutriFichaCache_' + uid) || 'null'); } catch(e) {}
+  const semHTML = `<div id="nutriFichaSem">${_nutriFichaSemHTML(cacheSem)}</div>`;
   cont.innerHTML = semHTML + `
 
     <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 6px;">
@@ -2443,22 +2465,34 @@ function guardarMetaFicha() {
   }).catch(() => { msg.textContent = 'Error de red.'; msg.style.color = '#c0392b'; });
 }
 
+// HTML del seguimiento semanal de la ficha (desde caché, o botón si no hay).
+function _nutriFichaSemHTML(cache) {
+  if (cache && cache.data) {
+    const sem = _nutriSemanaHTML(cache.data.food, cache.data.exercise);
+    const d = new Date(cache.ts);
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Balance de la semana</span>
+        <button onclick="verSemanaFicha()" style="font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;background:#fff;border:1px solid rgba(0,0,0,0.2);padding:5px 10px;border-radius:4px;cursor:pointer;color:#666;">↻ Actualizar</button>
+      </div>
+      <div style="text-align:right;font-size:20px;font-weight:700;color:${sem.totalColor};margin-bottom:4px;">${sem.totalText}</div>
+      ${sem.barras}
+      <div style="text-align:right;font-size:10px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit · act. ${d.toLocaleDateString('es-CL',{day:'numeric',month:'short'})} ${d.toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'})}</div>`;
+  }
+  return `<div style="text-align:center;padding:4px 0 14px;"><button onclick="verSemanaFicha()" style="font-family:var(--fc);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(0,184,196,0.08);border:1px solid rgba(0,184,196,0.35);color:#0e7c86;padding:8px 16px;border-radius:5px;cursor:pointer;">Ver semana en curso</button><div style="font-size:11px;color:#999;margin-top:6px;">Consulta el diario de FatSecret de este atleta</div></div>`;
+}
+
 async function verSemanaFicha() {
   const uid = window._nutriFichaUid; if (!uid) return;
   const semCont = document.getElementById('nutriFichaSem'); if (!semCont) return;
-  semCont.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:12px;">Cargando…</div>';
+  semCont.innerHTML = '<div style="text-align:center;padding:12px;color:#888;font-size:12px;">Actualizando…</div>';
   let data;
   try { data = await fetch(`${FLOW_WORKER_URL}/fatsecret/data`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid, k:'ME-sync-26' }) }).then(r => r.json()); }
   catch(e) { semCont.innerHTML = '<div style="text-align:center;padding:12px;color:#c0392b;font-size:12px;">Error al cargar.</div>'; return; }
   if (!data.ok || !data.connected) { semCont.innerHTML = '<div style="padding:12px;background:#f4f6f8;border-radius:8px;font-size:12px;color:#666;">Este atleta no ha conectado FatSecret.</div>'; return; }
-  const sem = _nutriSemanaHTML(data.food, data.exercise);
-  semCont.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#999;">Balance de la semana</span>
-      <span style="font-size:20px;font-weight:700;color:${sem.totalColor};">${sem.totalText}</span>
-    </div>
-    ${sem.barras}
-    <div style="text-align:right;font-size:11px;color:#aaa;margin-top:4px;">↑ superávit · ↓ déficit</div>`;
+  let cache = { data: { food: data.food, exercise: data.exercise }, ts: Date.now() };
+  try { localStorage.setItem('nutriFichaCache_' + uid, JSON.stringify(cache)); } catch(e) {}
+  semCont.innerHTML = _nutriFichaSemHTML(cache);
 }
 
 function resetMetaFicha() {

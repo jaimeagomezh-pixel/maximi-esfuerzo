@@ -1339,8 +1339,17 @@
     }
   }
 
-  // Estado inicial al abrir el panel: SOLO verifica conexión (no llama a FatSecret).
-  // La ingesta se carga cuando el atleta pulsa "Sincronizar".
+  function _fsCacheKey() { const uid = _fsUid(); return uid ? 'nutriCache_' + uid : null; }
+
+  function _fsUltActLabel(ts) {
+    const el = document.getElementById('nutriUltAct'); if (!el) return;
+    if (!ts) { el.textContent = ''; return; }
+    const d = new Date(ts);
+    el.textContent = 'Actualizado ' + d.toLocaleDateString('es-CL', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  // Estado inicial al abrir: muestra lo ÚLTIMO sincronizado (cache) sin llamar a
+  // FatSecret. El contenido queda visible; el botón "Actualizar hoy" lo refresca.
   async function _fsInit() {
     const uid = _fsUid(); if (!uid) return;
     const desc = document.getElementById('nutriDesconectado');
@@ -1348,6 +1357,17 @@
     const carg = document.getElementById('nutriCargando');
     const conn = document.getElementById('nutriConectado');
     [desc, sync, carg, conn].forEach(e => { if (e) e.style.display = 'none'; });
+    // 1) Si hay datos guardados, mostrarlos SIEMPRE (sin consultar FatSecret)
+    let cache = null;
+    try { cache = JSON.parse(localStorage.getItem(_fsCacheKey()) || 'null'); } catch(e) {}
+    if (cache && cache.data) {
+      if (cache.config) _fsConfig = cache.config;
+      if (conn) conn.style.display = '';
+      _fsRender(cache.data);
+      _fsUltActLabel(cache.ts);
+      return;
+    }
+    // 2) Sin datos previos: verificar conexión (barato) y ofrecer la 1ª sincronización
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/status?uid=${encodeURIComponent(uid)}`);
       const d = await res.json();
@@ -1384,6 +1404,8 @@
         if (cData.ok && cData.config) _fsConfig = cData.config;
       } catch(e) {}
       _fsRender(data);
+      try { localStorage.setItem(_fsCacheKey(), JSON.stringify({ data, config: _fsConfig, ts: Date.now() })); } catch(e) {}
+      _fsUltActLabel(Date.now());
     } catch(e) {
       if (carg) carg.style.display = 'none';
       if (sync) sync.style.display = ''; else desc.style.display = '';
