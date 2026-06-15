@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260615c">
+<link rel="stylesheet" href="styles.css?v=20260615d">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -628,6 +628,7 @@
 <!-- CTA FINAL -->
 <section id="cta-final">
   <div class="section-aurora" id="ctaAurora"></div>
+  <div id="ctaLinterna"></div>
   <div class="section-label" style="justify-content:center">¿Estás listo?</div>
   <h2 class="cta-title">EL PROTOCOLO<br><span>EMPIEZA</span><br>HOY</h2>
   <p style="color:var(--gris); margin: 20px auto; max-width: 400px; font-size: 0.9rem; line-height: 1.7;">
@@ -2282,7 +2283,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260615c"></script>
+<script src="scripts.js?v=20260615d"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -3714,15 +3715,24 @@ async function refreshResumenMensual() {
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
 
-  // Aurora dorada que sigue al cursor en el CTA final (fondo negro plano)
-  var ctaSec = document.getElementById('cta-final');
-  var aura = document.getElementById('ctaAurora');
-  if (ctaSec && aura) {
-    ctaSec.addEventListener('mousemove', function(e){
+  // Linterna + Aurora: siguen cursor (desktop) y touch (móvil) en el CTA final
+  var ctaSec  = document.getElementById('cta-final');
+  var aura    = document.getElementById('ctaAurora');
+  var lint    = document.getElementById('ctaLinterna');
+  function moverLuz(xPct, yPct) {
+    var x = xPct.toFixed(1) + '%', y = yPct.toFixed(1) + '%';
+    if (aura) { aura.style.setProperty('--mx', x); aura.style.setProperty('--my', y); }
+    if (lint) { lint.style.setProperty('--lx', x); lint.style.setProperty('--ly', y); }
+  }
+  if (ctaSec) {
+    ctaSec.addEventListener('mousemove', function(e) {
       var r = ctaSec.getBoundingClientRect();
-      aura.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100) + '%');
-      aura.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100) + '%');
+      moverLuz((e.clientX - r.left) / r.width * 100, (e.clientY - r.top) / r.height * 100);
     });
+    ctaSec.addEventListener('touchmove', function(e) {
+      var t = e.touches[0], r = ctaSec.getBoundingClientRect();
+      moverLuz((t.clientX - r.left) / r.width * 100, (t.clientY - r.top) / r.height * 100);
+    }, { passive: true });
   }
 
   // Tilt 3D delegado (funciona también en tarjetas creadas por JS)

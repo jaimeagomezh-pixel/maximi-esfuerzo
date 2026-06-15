@@ -4444,6 +4444,8 @@ section:hover .section-title::after,
 /* Registramos las variables para que puedan animarse suavemente (móvil). */
 @property --mx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
 @property --my { syntax: "<percentage>"; inherits: false; initial-value: 38%; }
+@property --lx { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --ly { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
 
 /* Aurora dorada sobre un fondo negro plano.
    Vive detrás del contenido (z0); el contenido se eleva a z1. */
@@ -4458,7 +4460,24 @@ section:hover .section-title::after,
     radial-gradient(360px 360px at 88% 118%, rgba(192,57,43,0.10), transparent 60%);
   transition: background 0.12s ease;
 }
-#cta-final > *:not(.section-aurora) { position: relative; z-index: 1; }
+/* Contenido por encima del overlay linterna (z:1) */
+#cta-final > *:not(.section-aurora):not(#ctaLinterna) { position: relative; z-index: 2; }
+
+/* Overlay linterna: casi negro con foco transparente siguiendo cursor/touch */
+#ctaLinterna {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 300px 240px at var(--lx, 50%) var(--ly, 50%),
+    rgba(0,0,0,0.00)  0%,
+    rgba(0,0,0,0.00) 12%,
+    rgba(0,0,0,0.60) 42%,
+    rgba(0,0,0,0.93) 66%,
+    rgba(0,0,0,0.98) 100%
+  );
+}
 
 /* ── TARJETA-CANDADO PREMIUM (gating de plan: Fuerza / Potencia) ── */
 .plan-lock {
@@ -4519,6 +4538,8 @@ body.plan-activo .plan-lock  { display: none; }
    no está disponible en muchos navegadores móviles). */
 @media (hover: none), (pointer: coarse) {
   .section-aurora { animation: auroraDrift 12s ease-in-out infinite alternate; }
+  /* En el CTA final el aurora no deriva — la linterna lo gobierna via JS touchmove */
+  #ctaAurora { animation: none; }
 }
 @keyframes auroraDrift {
   0%   { transform: translate(-14%, -10%) scale(1.05); }
