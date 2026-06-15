@@ -4628,59 +4628,74 @@ body.plan-activo .plan-lock  { display: none; }
    ══════════════════════════════════════════════════════════════ */
   #dashboardAtleta { overflow-x: hidden; }
 
-  /* ── Placa inline (posición normal en el panel) ── */
+  /* ── Placa inline: mismo dog-tag dorado que el overlay cinema ── */
   #dashboardAtleta.open .dash-frase-wrap {
     position: relative;
-    background:
-      linear-gradient(160deg,
-        #1c1508 0%, #271b09 28%, #160f04 55%, #231608 78%, #1c1508 100%
-      ) !important;
+    background: linear-gradient(135deg,
+      #5e4716 0%, #8a6a22 12%, #c9a23c 26%, #f2dd96 38%,
+      #d8b34e 47%, #fff6d2 52%, #d8b34e 57%, #b88c2c 68%,
+      #7d5f1e 82%, #4d3a12 100%
+    ) !important;
     border: none !important;
     border-left: none !important;
-    border-radius: 3px !important;
-    outline: 1px solid #7a5a10;
-    outline-offset: -1px;
+    border-radius: 44px !important;
     box-shadow:
-      inset 0 2px 0 rgba(220,175,60,0.32),
-      inset 0 -2px 0 rgba(0,0,0,0.70),
-      inset  2px 0 0 rgba(200,155,40,0.16),
-      inset -2px 0 0 rgba(0,0,0,0.50),
-      0 2px 0 rgba(220,175,60,0.18),
-      0 12px 36px rgba(0,0,0,0.70),
-      0  4px 10px rgba(0,0,0,0.50) !important;
+      inset 0 3px 4px rgba(255,255,255,0.50),
+      inset 0 -4px 6px rgba(0,0,0,0.42),
+      inset  4px 0 5px rgba(255,255,255,0.16),
+      inset -4px 0 6px rgba(0,0,0,0.30),
+      0 14px 40px rgba(0,0,0,0.70),
+      0  4px 12px rgba(0,0,0,0.50) !important;
+    padding: 38px 24px 28px !important;
+    text-align: center;
     overflow: hidden;
     animation: placaEntra 0.55s cubic-bezier(.22,.84,.34,1) 0.15s both !important;
   }
 
-  /* Grano de metal: rayones finos horizontales + diagonales sutiles */
+  /* Agujero de cadena — inline */
+  #dashboardAtleta.open .dash-frase-hole {
+    display: block;
+    position: absolute;
+    top: 14px; left: 50%;
+    transform: translateX(-50%);
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #0a0a0a 0%, #2a2a2a 70%, #3a3a3a 100%);
+    box-shadow: inset 0 2px 3px rgba(0,0,0,0.9), inset 0 -1px 2px rgba(255,255,255,0.22),
+                0 1px 0 rgba(255,246,210,0.40);
+    z-index: 2;
+  }
+
+  /* Grano del metal cepillado */
   #dashboardAtleta.open .dash-frase-wrap::before {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     background-image:
       repeating-linear-gradient(
         88deg, transparent, transparent 3px,
-        rgba(255,255,255,0.013) 3px, rgba(255,255,255,0.013) 4px
+        rgba(255,255,255,0.05) 3px, rgba(255,255,255,0.05) 4px
       ),
       repeating-linear-gradient(
-        5deg, transparent, transparent 10px,
-        rgba(0,0,0,0.032) 10px, rgba(0,0,0,0.032) 11px
+        88deg, transparent, transparent 6px,
+        rgba(0,0,0,0.028) 6px, rgba(0,0,0,0.028) 7px
       );
     pointer-events: none;
-    border-radius: inherit;
     z-index: 0;
   }
 
-  /* Brillo de patrulla cruzando la placa */
+  /* Brillo de patrulla */
   #dashboardAtleta.open .dash-frase-wrap::after {
     content: '';
     position: absolute;
     inset: 0;
+    border-radius: inherit;
     background: linear-gradient(
       112deg,
-      transparent 28%,
-      rgba(255,210,60,0.07) 46%, rgba(255,210,60,0.04) 54%,
-      transparent 68%
+      transparent 25%,
+      rgba(255,250,220,0.28) 47%, rgba(255,250,220,0.10) 55%,
+      transparent 70%
     );
     transform: translateX(-140%);
     animation: fraseBrillo 1.9s ease 0.5s 1 both;
@@ -4688,26 +4703,48 @@ body.plan-activo .plan-lock  { display: none; }
     z-index: 3;
   }
 
-  /* Texto gravado en el metal */
-  #dashboardAtleta.open .dash-frase-icon {
-    color: rgba(175,128,18,0.38) !important;
-    text-shadow: 0 2px 0 rgba(0,0,0,0.85), 0 -1px 0 rgba(220,170,50,0.22) !important;
-    position: relative; z-index: 1;
-  }
+  /* Texto troquelado — grabado profundo igual al overlay */
   #dashboardAtleta.open .dash-frase {
-    color: #dfc070 !important;
-    font-size: 15px !important;
+    font-family: 'Courier New', monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    font-weight: 700 !important;
+    font-style: normal !important;
+    font-size: 13px !important;
+    line-height: 1.55 !important;
+    color: #3d2a06 !important;
     text-shadow:
-      0  1px 0 rgba(255,210,80,0.42),
-      0 -1px 0 rgba(0,0,0,0.92),
-      0  0 28px rgba(212,168,67,0.07) !important;
+      0  1px 0   rgba(255,246,210,0.55),
+      0 -1px 1px rgba(0,0,0,0.75),
+      0  2px 4px rgba(0,0,0,0.40),
+      0  3px 6px rgba(0,0,0,0.20) !important;
+    padding-left: 0 !important;
     position: relative; z-index: 1;
   }
+
+  /* Separador grabado — inline */
+  #dashboardAtleta.open .dash-frase-div {
+    height: 1px;
+    width: 55%;
+    margin: 12px auto 10px;
+    background: linear-gradient(90deg, transparent, rgba(70,54,18,0.55), transparent);
+    box-shadow: 0 1px 0 rgba(255,246,210,0.40);
+    position: relative; z-index: 1;
+  }
+
   #dashboardAtleta.open .dash-frase-autor {
-    color: #b8902a !important;
-    letter-spacing: 4px !important;
+    font-family: 'Courier New', monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 3px !important;
+    font-weight: 700 !important;
     font-size: 10px !important;
-    text-shadow: 0 1px 0 rgba(255,200,60,0.28), 0 -1px 0 rgba(0,0,0,0.85) !important;
+    text-align: center !important;
+    color: #4a3210 !important;
+    text-shadow:
+      0  1px 0   rgba(255,246,210,0.50),
+      0 -1px 1px rgba(0,0,0,0.75),
+      0  2px 4px rgba(0,0,0,0.35) !important;
+    margin-top: 0 !important;
     position: relative; z-index: 1;
   }
 
