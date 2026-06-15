@@ -658,7 +658,108 @@
     font-weight: 600;
   }
 
-  /* ── VISTA 2: bloques por género ── */
+  /* ── VISTA 2: DECK deslizable de niveles (estilo app-switcher) ── */
+  .plan-deck { margin-top: 22px; user-select: none; }
+  .deck-genero {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+  .deck-gen-btn {
+    flex: 0 0 auto;
+    background: rgba(245,240,235,0.04);
+    border: 1px solid rgba(245,240,235,0.14);
+    color: var(--gris);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 20px;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .deck-gen-btn.on {
+    background: var(--dorado);
+    border-color: var(--dorado);
+    color: #1a1a1a;
+    font-weight: 700;
+  }
+  .deck-stage {
+    position: relative;
+    height: 392px;
+    margin: 0 auto;
+    max-width: 360px;
+    touch-action: pan-y;
+  }
+  .deck-card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 300px;
+    max-width: 84vw;
+    background: var(--negro-suave);
+    border: 1px solid rgba(245,240,235,0.10);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    transform-origin: center center;
+    transition: transform 0.32s cubic-bezier(.22,.61,.36,1), opacity 0.32s ease;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5);
+    will-change: transform, opacity;
+  }
+  .deck-card .area-card-img { height: 220px; }
+  .deck-card .area-card-body { padding: 16px 20px 22px; }
+  .deck-card .area-card-nombre { font-size: 1.9rem; }
+  .deck-card .area-card-desc { font-size: 0.88rem; margin: 10px 0 14px; }
+  .deck-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 18px;
+  }
+  .deck-arrow {
+    width: 42px; height: 42px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: rgba(245,240,235,0.05);
+    border: 1px solid rgba(212,168,67,0.4);
+    color: var(--dorado);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .deck-arrow:hover { background: rgba(212,168,67,0.15); }
+  .deck-dots { display: flex; gap: 8px; align-items: center; }
+  .deck-dot {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: rgba(245,240,235,0.18);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .deck-dot.on { background: var(--dorado); transform: scale(1.25); }
+  .deck-hint {
+    text-align: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--gris-suave);
+    margin-top: 12px;
+  }
+  @media (max-width: 480px) {
+    .deck-stage { height: 360px; }
+    .deck-card { width: 260px; }
+    .deck-card .area-card-img { height: 190px; }
+    .deck-card .area-card-nombre { font-size: 1.7rem; }
+  }
+
+  /* ── VISTA 2 (legacy): bloques por género ── */
   .genero-bloque { margin-top: 28px; }
   .genero-hdr {
     font-family: 'Barlow Condensed', sans-serif;
@@ -1281,7 +1382,9 @@
     background: rgba(0,0,0,0.85);
     z-index: 1500; /* por encima del overlay de planes (600) */
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;       /* anclar arriba: con contenido alto en móvil se puede hacer scroll */
+    overflow-y: auto;              /* el overlay scrollea cuando el modal supera la altura de pantalla */
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
   }
 
@@ -1294,6 +1397,7 @@
     width: 100%;
     padding: 36px;
     position: relative;
+    margin: auto;                  /* centra verticalmente si sobra espacio; si no, scrollea desde arriba */
   }
 
   .modal-close {
@@ -1409,6 +1513,12 @@
     .plan-card { grid-template-columns: 1fr; }
     .plan-precio-col { text-align: left; }
     .btn-plan { width: auto; display: inline-block; }
+
+    /* Modal de pago: menos padding y scroll cómodo en móvil (antes se cortaba y el botón quedaba fuera) */
+    .modal-overlay { padding: 12px; align-items: flex-start; }
+    .modal { padding: 26px 20px; }
+    .modal-plan-precio { font-size: 1.9rem; margin-bottom: 16px; }
+    .modal-opciones-pago { margin: 18px 0 !important; }
 
     footer { flex-direction: column; text-align: center; }
     .footer-links { flex-wrap: wrap; justify-content: center; }

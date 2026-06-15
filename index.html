@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260614a">
+<link rel="stylesheet" href="styles.css?v=20260615b">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -2212,52 +2212,55 @@
       </label>
     </div>
 
-    <!-- CAMPO EMAIL (visible si no está logueado) -->
-    <div id="modalEmailSection" style="margin:20px 0 12px;display:none;">
-      <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:8px;">Tu correo electrónico</label>
-      <input type="email" id="modalEmail" placeholder="tu@correo.com" style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;" required>
-      <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Se usará para enviar tu código de acceso a TrainHeroic</div>
+    <!-- INVITADO: iniciar sesión con Google (detecta el correo automáticamente, sin re-escribirlo) -->
+    <div id="modalEmailSection" style="margin:20px 0 4px;display:none;">
+      <div style="font-size:0.9rem;color:#cfc9c1;line-height:1.5;margin-bottom:14px;">Inicia sesión para continuar. Usaremos el correo de tu cuenta para enviarte el acceso — no necesitas escribirlo.</div>
+      <button onclick="loginGoogleDesdePago()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a1a1a;border:none;border-radius:8px;padding:13px;font-family:'Barlow',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;">
+        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continuar con Google
+      </button>
     </div>
 
-    <!-- CAMPO RUT (siempre visible — requerido para boleta) -->
-    <div id="modalRutSection" style="margin:0 0 20px;">
-      <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:8px;">Tu RUT</label>
-      <input type="text" id="modalRut" placeholder="12.345.678-9" maxlength="12"
-        style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;letter-spacing:1px;"
-        oninput="formatearRutInput(this)" required>
-      <div id="modalRutError" style="font-size:0.8rem;color:#ff6b6b;margin-top:6px;display:none;">RUT inválido. Verifica el dígito verificador.</div>
-      <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Para emitir tu boleta de honorarios electrónica automáticamente</div>
+    <!-- LOGUEADO: identidad detectada -->
+    <div id="modalCompradorInfo" style="display:none;margin:18px 0 12px;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:1px;color:#9aa0a6;">
+      Comprando como <span id="modalCompradorEmail" style="color:#d4a843;font-weight:600;"></span>
     </div>
 
-    <div class="modal-steps">
-      <div class="modal-step">
-        <div class="step-num">1</div>
-        <div class="step-text">
-          <strong>Pago seguro con Flow</strong>
-          Tarjeta de débito, crédito o transferencia bancaria en Chile.
-        </div>
+    <!-- ÁREA DE PAGO: solo cuando hay sesión (correo ya detectado) -->
+    <div id="modalPagoArea">
+      <!-- CAMPO RUT (requerido para boleta) -->
+      <div id="modalRutSection" style="margin:0 0 20px;">
+        <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:8px;">Tu RUT</label>
+        <input type="text" id="modalRut" placeholder="12.345.678-9" maxlength="12"
+          style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;letter-spacing:1px;box-sizing:border-box;"
+          oninput="formatearRutInput(this)" required>
+        <div id="modalRutError" style="font-size:0.8rem;color:#ff6b6b;margin-top:6px;display:none;">RUT inválido. Verifica el dígito verificador.</div>
+        <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Para emitir tu boleta de honorarios electrónica automáticamente</div>
       </div>
-      <div class="modal-step">
-        <div class="step-num">2</div>
-        <div class="step-text">
-          <strong>Confirmación instantánea</strong>
-          Recibirás un email con tu código de acceso a TrainHeroic en menos de 5 minutos.
-        </div>
-      </div>
-      <div class="modal-step">
-        <div class="step-num">3</div>
-        <div class="step-text">
-          <strong>Activa tu plan</strong>
-          Ingresa el código en TrainHeroic y comienza hoy mismo.
-        </div>
-      </div>
-    </div>
 
-    <div class="modal-divider"></div>
-    <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="procesarPago()">
-      💳 Pagar con Flow
-    </button>
-    <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>
+      <div class="modal-steps">
+        <div class="modal-step">
+          <div class="step-num">1</div>
+          <div class="step-text">
+            <strong>Pago seguro con Flow</strong>
+            Tarjeta de débito, crédito o transferencia bancaria en Chile.
+          </div>
+        </div>
+        <div class="modal-step">
+          <div class="step-num">2</div>
+          <div class="step-text">
+            <strong>Activa tu plan</strong>
+            Recibirás tu código de acceso a TrainHeroic por correo; ingrésalo en la app y comienza.
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-divider"></div>
+      <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="procesarPago()">
+        💳 Pagar con Flow
+      </button>
+      <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>
+    </div>
   </div>
 </div>
 
@@ -2279,7 +2282,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260615a"></script>
+<script src="scripts.js?v=20260615b"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -2394,6 +2397,7 @@
       titulo.textContent = a.nombre.toUpperCase();
       back.innerHTML = '← Volver';
       c.innerHTML = renderOrientacionHTML(a);
+      initPlanDeck();
     } else if (v.tipo === 'detalle') {
       crumb.textContent = 'Detalle del plan';
       titulo.textContent = 'TU PLAN';
@@ -2425,38 +2429,133 @@
     `;
   }
 
-  // ── Vista 2: orientación → niveles (SIN precio, estilo tarjeta-imagen) ──
+  // ── Vista 2: orientación → niveles como DECK deslizable (estilo app-switcher) ──
+  let _deck = null; // { areaId, genero, cur }
+
   function renderOrientacionHTML(a) {
+    const genero0 = a.generos ? a.generos[0].id : null;
+    _deck = { areaId: a.id, genero: genero0, cur: 0 };
     const intro = `<p class="planes-intro">${a.desc}</p>`;
-    let cards = '';
+    let toggle = '';
     if (a.generos) {
-      a.generos.forEach(g => {
-        PLANES_NIVELES.forEach(n => {
-          cards += nivelAreaCardHTML(a.id, g.id, n, g.img, g.icono + ' ' + g.nombre);
-        });
-      });
-    } else {
-      PLANES_NIVELES.forEach(n => {
-        cards += nivelAreaCardHTML(a.id, null, n, a.img, n.etiqueta);
-      });
+      toggle = `<div class="deck-genero" id="deckGenero">${a.generos.map(g =>
+        `<button class="deck-gen-btn${g.id === genero0 ? ' on' : ''}" onclick="deckSetGenero('${g.id}')">${g.icono} ${g.nombre}</button>`
+      ).join('')}</div>`;
     }
-    return intro + `<div class="areas-grid" style="margin-top:24px;">${cards}</div>`;
+    return intro + `
+      <div class="plan-deck">
+        ${toggle}
+        <div class="deck-stage" id="deckStage"></div>
+        <div class="deck-nav">
+          <button class="deck-arrow" onclick="deckMove(-1)" aria-label="Anterior">‹</button>
+          <div class="deck-dots" id="deckDots"></div>
+          <button class="deck-arrow" onclick="deckMove(1)" aria-label="Siguiente">›</button>
+        </div>
+        <div class="deck-hint">Desliza ↔ o usa las flechas · toca la tarjeta para ver el plan</div>
+      </div>`;
   }
 
-  // Tarjeta de nivel con el MISMO estilo de la pantalla principal (imagen + texto, sin precio)
-  function nivelAreaCardHTML(areaId, genero, n, img, badge) {
-    const g = genero ? `,'${genero}'` : ',null';
-    return `
-      <div class="area-card" onclick="verNivel('${areaId}'${g},'${n.id}')">
+  // Construye las tarjetas del deck según el género activo
+  function renderDeckCards() {
+    const a = PLANES_AREAS.find(x => x.id === _deck.areaId);
+    const stage = document.getElementById('deckStage');
+    const dots = document.getElementById('deckDots');
+    if (!a || !stage) return;
+    const gen = _deck.genero ? a.generos.find(x => x.id === _deck.genero) : null;
+    const img = gen ? gen.img : a.img;
+    stage.innerHTML = PLANES_NIVELES.map((n, i) => `
+      <div class="deck-card" data-i="${i}">
         <div class="area-card-img" style="background-image:url('${img}')">
-          <span class="area-card-modalidad">${badge}</span>
+          <span class="area-card-modalidad">${n.etiqueta}</span>
         </div>
         <div class="area-card-body">
           <div class="area-card-nombre">${n.nombre}</div>
           <div class="area-card-desc">${n.desc}</div>
           <span class="area-card-cta">Ver plan →</span>
         </div>
-      </div>`;
+      </div>`).join('');
+    if (dots) dots.innerHTML = PLANES_NIVELES.map((n, i) =>
+      `<button class="deck-dot${i === _deck.cur ? ' on' : ''}" onclick="deckGoto(${i})" aria-label="${n.nombre}"></button>`).join('');
+    // Click en tarjeta: activa la de atrás o abre la del frente
+    stage.querySelectorAll('.deck-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const i = +card.dataset.i;
+        if (i === _deck.cur) deckAbrir();
+        else deckGoto(i);
+      });
+    });
+    applyDeckTransforms();
+  }
+
+  function applyDeckTransforms(dragDx = 0) {
+    const stage = document.getElementById('deckStage');
+    if (!stage) return;
+    stage.querySelectorAll('.deck-card').forEach(card => {
+      const off = (+card.dataset.i) - _deck.cur;
+      const abs = Math.abs(off);
+      const tx = off * 26 + dragDx * 0.55;
+      const sc = 1 - Math.min(abs, 3) * 0.085;
+      card.style.transform = `translateX(calc(-50% + ${tx}px)) scale(${sc})`;
+      card.style.opacity = abs > 2 ? '0' : String(1 - abs * 0.32);
+      card.style.zIndex = String(30 - abs);
+      card.style.pointerEvents = abs > 2 ? 'none' : 'auto';
+    });
+    const dots = document.getElementById('deckDots');
+    if (dots) dots.querySelectorAll('.deck-dot').forEach((d, i) => d.classList.toggle('on', i === _deck.cur));
+  }
+
+  function deckMove(d) { deckGoto(_deck.cur + d); }
+  function deckGoto(i) {
+    if (!_deck) return;
+    _deck.cur = Math.max(0, Math.min(PLANES_NIVELES.length - 1, i));
+    applyDeckTransforms();
+  }
+  function deckSetGenero(gid) {
+    if (!_deck) return;
+    _deck.genero = gid;
+    document.querySelectorAll('#deckGenero .deck-gen-btn').forEach(b =>
+      b.classList.toggle('on', b.getAttribute('onclick').includes(`'${gid}'`)));
+    renderDeckCards();
+  }
+  function deckAbrir() {
+    const n = PLANES_NIVELES[_deck.cur];
+    verNivel(_deck.areaId, _deck.genero, n.id);
+  }
+
+  // Inicializa el deck: construye tarjetas y engancha el gesto de arrastre
+  function initPlanDeck() {
+    renderDeckCards();
+    const stage = document.getElementById('deckStage');
+    if (!stage) return;
+    let startX = null, dx = 0, dragging = false, moved = false;
+    const onDown = e => {
+      startX = (e.touches ? e.touches[0].clientX : e.clientX);
+      dx = 0; dragging = true; moved = false;
+      stage.querySelectorAll('.deck-card').forEach(c => c.style.transition = 'none');
+    };
+    const onMove = e => {
+      if (!dragging || startX === null) return;
+      dx = (e.touches ? e.touches[0].clientX : e.clientX) - startX;
+      if (Math.abs(dx) > 6) moved = true;
+      applyDeckTransforms(dx);
+    };
+    const onUp = () => {
+      if (!dragging) return;
+      dragging = false;
+      stage.querySelectorAll('.deck-card').forEach(c => c.style.transition = '');
+      if (dx < -50) deckMove(1);
+      else if (dx > 50) deckMove(-1);
+      else applyDeckTransforms();
+      // Evita que el click de cierre se dispare tras arrastrar
+      if (moved) { stage.querySelectorAll('.deck-card').forEach(c => { const h = ev => { ev.stopPropagation(); c.removeEventListener('click', h, true); }; c.addEventListener('click', h, true); }); }
+      startX = null; dx = 0;
+    };
+    stage.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    stage.addEventListener('touchstart', onDown, { passive: true });
+    stage.addEventListener('touchmove', onMove, { passive: true });
+    stage.addEventListener('touchend', onUp);
   }
 
   // ── Vista 3: detalle del plan (tipo TrainHeroic) ──

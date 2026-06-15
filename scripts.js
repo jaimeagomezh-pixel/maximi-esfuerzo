@@ -23,11 +23,18 @@
     if (precioMensual) precioMensual.textContent = `3 × $${montoNum.toLocaleString('es-CL')} CLP (total $${total3m.toLocaleString('es-CL')})`;
     if (precioUnico) precioUnico.textContent = `1 pago de $${descuento15.toLocaleString('es-CL')} CLP`;
 
-    // Mostrar/ocultar campo de email según si está logueado
-    const emailSection = document.getElementById('modalEmailSection');
-    const isLoggedIn = window._auth?.currentUser;
-    if (emailSection) {
-      emailSection.style.display = isLoggedIn ? 'none' : 'block';
+    // Identidad: si hay sesión, el correo se detecta solo; si no, se pide login con Google.
+    const user = window._auth?.currentUser;
+    const isLoggedIn = !!user;
+    const emailSection = document.getElementById('modalEmailSection');   // CTA Google (invitado)
+    const compradorInfo = document.getElementById('modalCompradorInfo'); // "Comprando como ..."
+    const pagoArea = document.getElementById('modalPagoArea');           // RUT + pasos + pagar
+    if (emailSection)  emailSection.style.display  = isLoggedIn ? 'none' : 'block';
+    if (compradorInfo) compradorInfo.style.display = isLoggedIn ? 'block' : 'none';
+    if (pagoArea)      pagoArea.style.display      = isLoggedIn ? 'block' : 'none';
+    if (isLoggedIn) {
+      const emailEl = document.getElementById('modalCompradorEmail');
+      if (emailEl) emailEl.textContent = user.email;
     }
 
     // Guardar datos para el pago
@@ -35,17 +42,33 @@
 
     // Mover al final del body para garantizar que quede encima de todo
     document.body.appendChild(ov);
-    // Forzar estilos por JS además de la clase
+    // Forzar estilos por JS además de la clase (anclado arriba + scroll para no cortarse en móvil)
     ov.style.display = 'flex';
     ov.style.position = 'fixed';
     ov.style.inset = '0';
     ov.style.zIndex = '9000';
     ov.style.background = 'rgba(0,0,0,0.88)';
-    ov.style.alignItems = 'center';
+    ov.style.alignItems = 'flex-start';
     ov.style.justifyContent = 'center';
+    ov.style.overflowY = 'auto';
     ov.style.padding = '20px';
     ov.classList.add('open');
     document.body.style.overflow = 'hidden';
+  }
+
+  // Login con Google desde el modal de pago: detecta el correo y reabre el modal ya logueado.
+  async function loginGoogleDesdePago() {
+    try {
+      await window._signInWithPopup(window._auth, window._googleProvider);
+      const pd = window._planData;
+      if (pd) {
+        const precioTxt = document.getElementById('modalPrecio')?.textContent || '';
+        abrirModal(pd.nombre, precioTxt, '');
+      }
+    } catch (e) {
+      alert('No se pudo iniciar sesión con Google. Intenta de nuevo.');
+      console.error(e);
+    }
   }
 
   function cerrarModal(e) {
@@ -5185,20 +5208,13 @@
 
     const user = window._auth?.currentUser;
 
-    // Si NO está logueado, obtener email del campo
-    let email, nombre;
+    // El correo se detecta de la sesión (Google). Sin sesión, pedir login.
     if (!user) {
-      const emailInput = document.getElementById('modalEmail');
-      if (!emailInput?.value || !emailInput.value.includes('@')) {
-        alert('Por favor ingresa un correo electrónico válido.');
-        return;
-      }
-      email = emailInput.value;
-      nombre = email.split('@')[0];
-    } else {
-      email = user.email;
-      nombre = user.displayName || user.email.split('@')[0];
+      alert('Inicia sesión con Google para continuar con tu compra.');
+      return;
     }
+    const email = user.email;
+    const nombre = user.displayName || user.email.split('@')[0];
 
     // Validar RUT (siempre requerido para la boleta)
     const rutInput = document.getElementById('modalRut');
