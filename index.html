@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260615b">
+<link rel="stylesheet" href="styles.css?v=20260615c">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -2282,7 +2282,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260615b"></script>
+<script src="scripts.js?v=20260615c"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -2490,15 +2490,20 @@
   function applyDeckTransforms(dragDx = 0) {
     const stage = document.getElementById('deckStage');
     if (!stage) return;
+    const n = PLANES_NIVELES.length;
     stage.querySelectorAll('.deck-card').forEach(card => {
-      const off = (+card.dataset.i) - _deck.cur;
+      // Offset cíclico: siempre en rango [-floor(n/2), +floor(n/2)]
+      let off = ((+card.dataset.i - _deck.cur) % n + n) % n;
+      if (off > Math.floor(n / 2)) off -= n;
       const abs = Math.abs(off);
       const tx = off * 26 + dragDx * 0.55;
-      const sc = 1 - Math.min(abs, 3) * 0.085;
+      const sc = 1 - abs * 0.085;
       card.style.transform = `translateX(calc(-50% + ${tx}px)) scale(${sc})`;
-      card.style.opacity = abs > 2 ? '0' : String(1 - abs * 0.32);
+      card.style.opacity = String(1 - abs * 0.32);
       card.style.zIndex = String(30 - abs);
-      card.style.pointerEvents = abs > 2 ? 'none' : 'auto';
+      card.style.pointerEvents = 'auto';
+      // Sin transición durante el arrastre para seguimiento inmediato del dedo
+      card.style.transition = dragDx ? 'none' : '';
     });
     const dots = document.getElementById('deckDots');
     if (dots) dots.querySelectorAll('.deck-dot').forEach((d, i) => d.classList.toggle('on', i === _deck.cur));
@@ -2507,7 +2512,8 @@
   function deckMove(d) { deckGoto(_deck.cur + d); }
   function deckGoto(i) {
     if (!_deck) return;
-    _deck.cur = Math.max(0, Math.min(PLANES_NIVELES.length - 1, i));
+    const n = PLANES_NIVELES.length;
+    _deck.cur = ((i % n) + n) % n; // módulo para rotación infinita
     applyDeckTransforms();
   }
   function deckSetGenero(gid) {
