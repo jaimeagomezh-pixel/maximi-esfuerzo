@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Artículo — MÁXIMO ESFUERZO</title>
+<meta name="description" id="pageDesc" content="Artículo de MáximoEsfuerzo.cl">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=20260614a">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+/* ── ARTÍCULO PAGE ─────────────────────────────────────── */
+
+/* Breadcrumb */
+.art-breadcrumb {
+  padding: 80px 5vw 0;
+  max-width: 780px;
+  margin: 0 auto;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+}
+.art-breadcrumb a {
+  color: var(--gris-suave);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.art-breadcrumb a:hover { color: var(--dorado); }
+.art-breadcrumb .sep { margin: 0 8px; opacity: 0.4; }
+.art-breadcrumb .current { color: var(--gris); }
+
+/* Cabecera del artículo */
+.art-header {
+  padding: 28px 5vw 36px;
+  max-width: 780px;
+  margin: 0 auto;
+}
+.art-cat-badge {
+  display: inline-block;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 2px;
+  margin-bottom: 18px;
+}
+.art-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: 1px;
+  color: var(--blanco);
+  margin-bottom: 22px;
+}
+.art-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+}
+.art-meta-row .dot {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--gris-suave);
+  opacity: 0.4;
+}
+
+/* Imagen hero del artículo */
+.art-hero-img {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto 40px;
+  padding: 0 5vw;
+  display: block;
+}
+.art-hero-img-inner {
+  height: 220px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 8vw, 6rem);
+  letter-spacing: 6px;
+  position: relative;
+  overflow: hidden;
+}
+.art-hero-img-inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 60% 40%, rgba(255,255,255,0.06) 0%, transparent 65%);
+}
+.art-hero-label {
+  position: relative;
+  z-index: 1;
+  opacity: 0.15;
+}
+
+/* Divisor */
+.art-divider {
+  width: 100%;
+  max-width: 780px;
+  margin: 0 auto 40px;
+  padding: 0 5vw;
+}
+.art-divider hr {
+  border: none;
+  border-top: 1px solid #1e1e1e;
+}
+
+/* Cuerpo del artículo */
+.art-body {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 0 5vw 60px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #c8c4be;
+}
+.art-body p {
+  margin-bottom: 1.4em;
+}
+.art-body h3 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--dorado);
+  margin: 2.2em 0 0.9em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #1e1e1e;
+}
+.art-body strong {
+  color: var(--blanco);
+  font-weight: 500;
+}
+.art-body ul, .art-body ol {
+  padding-left: 1.5em;
+  margin-bottom: 1.4em;
+}
+.art-body li {
+  margin-bottom: 0.5em;
+  color: #c8c4be;
+}
+.art-body blockquote {
+  border-left: 3px solid var(--dorado);
+  padding: 12px 20px;
+  margin: 24px 0;
+  background: rgba(212,168,67,0.04);
+  font-style: italic;
+  color: var(--gris);
+}
+
+/* CTA block al final del artículo */
+.art-cta-block {
+  background: linear-gradient(135deg, #0e0800, #1a0800);
+  border: 1px solid #2a1800;
+  border-radius: 6px;
+  padding: 36px 32px;
+  max-width: 680px;
+  margin: 0 auto 60px;
+  padding-right: 5vw;
+  padding-left: 5vw;
+  margin-left: max(5vw, calc((100% - 680px)/2));
+  margin-right: max(5vw, calc((100% - 680px)/2));
+  text-align: center;
+}
+.art-cta-block .cta-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--dorado);
+  margin-bottom: 10px;
+}
+.art-cta-block h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--blanco);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.art-cta-block p {
+  font-size: 0.85rem;
+  color: var(--gris);
+  margin-bottom: 22px;
+  line-height: 1.6;
+}
+
+/* Back to blog */
+.art-back {
+  max-width: 680px;
+  margin: 0 auto 80px;
+  padding: 0 5vw;
+}
+.art-back a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--gris-suave);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s, gap 0.2s;
+}
+.art-back a:hover { color: var(--dorado); gap: 12px; }
+.art-back a::before { content: '←'; }
+
+/* Error 404 artículo no encontrado */
+.art-not-found {
+  padding: 120px 5vw 80px;
+  text-align: center;
+}
+.art-not-found h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem;
+  color: var(--blanco);
+  margin-bottom: 12px;
+}
+.art-not-found p {
+  color: var(--gris);
+  margin-bottom: 28px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .art-hero-img-inner { height: 160px; }
+  .art-body { font-size: 0.95rem; }
+  .art-cta-block {
+    margin-left: 5vw;
+    margin-right: 5vw;
+    padding: 28px 20px;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <a href="index.html" style="display:inline-block;">
+      <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));">
+    </a>
+  </div>
+  <ul class="nav-links">
+    <li><a href="index.html">Planes</a></li>
+    <li><a href="blog.html" style="color:var(--dorado)">Blog</a></li>
+    <li><a href="index.html#resenas">Resultados</a></li>
+    <li><a href="index.html" class="nav-cta">INGRESAR</a></li>
+  </ul>
+  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+    <a href="index.html" style="display:flex;align-items:center;gap:6px;text-decoration:none;" class="btn-ingresar">
+      <img src="Imagenes/img02.png" style="height:20px;width:auto;filter:drop-shadow(0 0 3px rgba(212,168,67,0.5));">
+      <span>Atleta</span>
+    </a>
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="index.html" onclick="toggleMenu()">Planes</a>
+  <a href="blog.html" onclick="toggleMenu()" style="color:var(--dorado)">Blog</a>
+  <a href="index.html#resenas" onclick="toggleMenu()">Resultados</a>
+  <a href="index.html" class="nav-cta" onclick="toggleMenu()">Empezar Ahora</a>
+</div>
+
+<!-- CONTENIDO DINÁMICO (poblado por JS) -->
+<div id="articuloContent"></div>
+
+<script src="blog-data.js"></script>
+<script>
+  /* ── Nav hamburger ── */
+  function toggleMenu() {
+    document.getElementById('mobileMenu').classList.toggle('open');
+  }
+  document.addEventListener('click', function(e) {
+    const m = document.getElementById('mobileMenu');
+    const h = document.querySelector('.hamburger');
+    if (m.classList.contains('open') && !m.contains(e.target) && !h.contains(e.target)) {
+      m.classList.remove('open');
+    }
+  });
+
+  /* ── Colores por categoría ── */
+  const CAT_COLORS = {
+    fuerza:     { color: '#00a8b3', bg: 'rgba(0,168,179,0.1)',   border: 'rgba(0,168,179,0.25)',  imgBg: 'linear-gradient(135deg,#001a1e,#001520)' },
+    endurance:  { color: '#e74c3c', bg: 'rgba(231,76,60,0.1)',   border: 'rgba(231,76,60,0.25)',  imgBg: 'linear-gradient(135deg,#1a0505,#200808)' },
+    nutricion:  { color: '#3dba7c', bg: 'rgba(61,186,124,0.1)',  border: 'rgba(61,186,124,0.25)', imgBg: 'linear-gradient(135deg,#001a0a,#001508)' },
+    mentalidad: { color: '#9b8ea0', bg: 'rgba(155,142,160,0.1)', border: 'rgba(155,142,160,0.25)',imgBg: 'linear-gradient(135deg,#12101a,#0e0c18)' },
+    rucking:    { color: '#a07840', bg: 'rgba(160,120,64,0.1)',  border: 'rgba(160,120,64,0.25)', imgBg: 'linear-gradient(135deg,#161008,#120e06)' },
+  };
+
+  /* ── Cargar artículo desde slug en URL ── */
+  function loadArticle() {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug');
+    const container = document.getElementById('articuloContent');
+
+    if (!slug) {
+      window.location.href = 'blog.html';
+      return;
+    }
+
+    const art = BLOG_DATA.find(a => a.slug === slug);
+
+    if (!art) {
+      container.innerHTML = `
+        <div class="art-not-found">
+          <h2>ARTÍCULO NO ENCONTRADO</h2>
+          <p>El artículo que buscas no existe o fue movido.</p>
+          <a href="blog.html" class="btn-primary">← Volver al Blog</a>
+        </div>
+        <footer>
+          <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:48px;width:auto;opacity:0.9;"></div>
+          <ul class="footer-links">
+            <li><a href="index.html">Planes</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="index.html#resenas">Resultados</a></li>
+            <li><a href="/privacidad.html">Privacidad</a></li>
+          </ul>
+          <div class="footer-copy">© 2025 Élite Training</div>
+        </footer>
+      `;
+      return;
+    }
+
+    /* Actualizar metadatos de la página */
+    document.title = `${art.title} — MÁXIMO ESFUERZO`;
+    document.getElementById('pageDesc').setAttribute('content', art.excerpt);
+
+    const c = CAT_COLORS[art.category] || CAT_COLORS.fuerza;
+
+    container.innerHTML = `
+      <!-- BREADCRUMB -->
+      <div class="art-breadcrumb">
+        <a href="blog.html">Blog</a>
+        <span class="sep">/</span>
+        <a href="blog.html#${art.category}">${art.categoryLabel}</a>
+        <span class="sep">/</span>
+        <span class="current">${art.title.substring(0, 40)}${art.title.length > 40 ? '…' : ''}</span>
+      </div>
+
+      <!-- CABECERA -->
+      <div class="art-header">
+        <div class="art-cat-badge" style="color:${c.color};background:${c.bg};border:1px solid ${c.border};">${art.categoryLabel}</div>
+        <h1 class="art-title">${art.title}</h1>
+        <div class="art-meta-row">
+          <span>${art.date}</span>
+          <span class="dot"></span>
+          <span>${art.readTime} min de lectura</span>
+          <span class="dot"></span>
+          <span>Coach Máximo</span>
+        </div>
+      </div>
+
+      <!-- IMAGEN HERO -->
+      <div class="art-hero-img">
+        <div class="art-hero-img-inner" style="background:${c.imgBg}">
+          <div class="art-hero-label" style="color:${c.color}">${art.imgLabel}</div>
+        </div>
+      </div>
+
+      <!-- CUERPO DEL ARTÍCULO -->
+      <div class="art-body">
+        ${art.content}
+      </div>
+
+      <!-- CTA -->
+      <div class="art-cta-block">
+        <div class="cta-label">Siguiente paso</div>
+        <h4>LLEVA ESTO A TU<br>ENTRENAMIENTO</h4>
+        <p>Un plan estructurado es la diferencia entre saber y aplicar. Elige el protocolo que corresponde a tu objetivo.</p>
+        <a href="index.html" class="btn-primary" onclick="window.location.href='index.html'; setTimeout(()=>{if(window.abrirPlanes) abrirPlanes();}, 400); return false;">Ver Planes →</a>
+      </div>
+
+      <!-- VOLVER AL BLOG -->
+      <div class="art-back">
+        <a href="blog.html">Volver al Blog</a>
+      </div>
+
+      <!-- FOOTER -->
+      <footer>
+        <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:48px;width:auto;opacity:0.9;"></div>
+        <ul class="footer-links">
+          <li><a href="index.html">Planes</a></li>
+          <li><a href="blog.html">Blog</a></li>
+          <li><a href="index.html#resenas">Resultados</a></li>
+          <li><a href="/privacidad.html">Privacidad</a></li>
+        </ul>
+        <div class="footer-copy">© 2025 Élite Training</div>
+      </footer>
+    `;
+  }
+
+  loadArticle();
+</script>
+</body>
+</html>
