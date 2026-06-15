@@ -50,6 +50,57 @@ body { background: #f5f2ee; }
   margin-top: 20px;
 }
 
+/* Buscador */
+.blog-search {
+  position: relative;
+  max-width: 440px;
+  margin-top: 26px;
+}
+.blog-search-icon {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+  font-size: 0.92rem;
+  pointer-events: none;
+}
+.blog-search-input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #d4d0ca;
+  border-radius: 30px;
+  padding: 13px 44px 13px 46px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 0.95rem;
+  color: #222;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.blog-search-input::placeholder { color: #aaa; }
+.blog-search-input:focus {
+  border-color: #c0392b;
+  box-shadow: 0 0 0 3px rgba(192,57,43,0.10);
+}
+.blog-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px; height: 30px;
+  border: none;
+  background: none;
+  color: #aaa;
+  cursor: pointer;
+  border-radius: 50%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+}
+.blog-search-clear:hover { color: #c0392b; background: rgba(0,0,0,0.04); }
+.blog-search.has-text .blog-search-clear { display: flex; }
+
 /* Filtros sticky */
 .blog-filters-wrap {
   background: #f5f2ee;
@@ -59,12 +110,16 @@ body { background: #f5f2ee; }
   border-bottom: 1px solid #d4d0ca;
   padding: 0 5vw;
 }
-.blog-filters {
+.blog-filters-inner {
   max-width: 900px;
   margin: 0 auto;
+  position: relative;
+}
+.blog-filters {
   display: flex;
   gap: 0;
   overflow-x: auto;
+  scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -89,6 +144,40 @@ body { background: #f5f2ee; }
 .blog-filter-btn.active {
   color: #111;
   border-bottom-color: #111;
+}
+
+/* Indicador de scroll en los filtros (invita a deslizar a la derecha) */
+.blog-filters-hint {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(to right, rgba(245,242,238,0) 0%, #f5f2ee 60%);
+  color: #c0392b;
+  font-size: 1rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.blog-filters-hint.visible { opacity: 1; pointer-events: auto; }
+.blog-filters-hint i { animation: hintNudge 1.3s ease-in-out infinite; }
+@keyframes hintNudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+/* Logo footer como botón */
+.footer-logo-img { transition: opacity 0.2s, filter 0.2s; }
+.footer-logo a:hover .footer-logo-img {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(212,168,67,0.5));
 }
 
 /* Grid principal */
@@ -177,11 +266,11 @@ body { background: #f5f2ee; }
 .bpc-body { padding: 18px 18px 20px; }
 .bpc-cat {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.92rem;
   font-weight: 700;
-  letter-spacing: 2.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  margin-bottom: 7px;
+  margin-bottom: 8px;
 }
 .bpc-cat[data-cat="fuerza"]    { color: #0090a0; }
 .bpc-cat[data-cat="endurance"] { color: #c0392b; }
@@ -295,19 +384,35 @@ body { background: #f5f2ee; }
     <div class="section-label">Conocimiento</div>
     <h1>TÁCTICA<br><span>Y CIENCIA</span></h1>
     <p>Estrategia aplicada para el atleta serio. Sin relleno, sin mitos.</p>
+
+    <!-- BUSCADOR -->
+    <div class="blog-search">
+      <i class="fa-solid fa-magnifying-glass blog-search-icon"></i>
+      <input type="text" id="blogSearch" class="blog-search-input"
+             placeholder="Buscar artículo…" autocomplete="off">
+      <button type="button" class="blog-search-clear" id="blogSearchClear" aria-label="Limpiar búsqueda">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
     <div class="blog-hero-count" id="articleCount">— artículos</div>
   </div>
 </div>
 
 <!-- FILTROS STICKY -->
 <div class="blog-filters-wrap">
-  <div class="blog-filters">
-    <button class="blog-filter-btn active" data-cat="all">Todos</button>
-    <button class="blog-filter-btn" data-cat="fuerza">Fuerza</button>
-    <button class="blog-filter-btn" data-cat="endurance">Endurance</button>
-    <button class="blog-filter-btn" data-cat="nutricion">Nutrición</button>
-    <button class="blog-filter-btn" data-cat="mentalidad">Mentalidad</button>
-    <button class="blog-filter-btn" data-cat="rucking">Rucking</button>
+  <div class="blog-filters-inner">
+    <div class="blog-filters" id="blogFilters">
+      <button class="blog-filter-btn active" data-cat="all">Todos</button>
+      <button class="blog-filter-btn" data-cat="fuerza">Fuerza</button>
+      <button class="blog-filter-btn" data-cat="endurance">Endurance</button>
+      <button class="blog-filter-btn" data-cat="nutricion">Nutrición</button>
+      <button class="blog-filter-btn" data-cat="mentalidad">Mentalidad</button>
+      <button class="blog-filter-btn" data-cat="rucking">Rucking</button>
+    </div>
+    <button class="blog-filters-hint" id="filterScrollHint" aria-label="Ver más categorías">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
   </div>
 </div>
 
@@ -323,7 +428,9 @@ body { background: #f5f2ee; }
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">
-    <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:48px;width:auto;opacity:0.9;">
+    <a href="index.html#hero" aria-label="Volver al inicio" style="display:inline-block;">
+      <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="footer-logo-img" style="height:48px;width:auto;opacity:0.9;">
+    </a>
   </div>
   <ul class="footer-links">
     <li><a href="index.html">Planes</a></li>
@@ -348,15 +455,17 @@ body { background: #f5f2ee; }
     }
   });
 
+  /* ── Normalizar texto (quita acentos para buscar) ── */
+  function normalize(s) {
+    return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  }
+
   /* ── Renderizar tarjetas ── */
   function renderCards(data) {
     const grid = document.getElementById('blogGrid');
-    if (!data.length) {
-      grid.innerHTML = '<div class="blog-empty">No hay artículos en esta categoría todavía.</div>';
-      return;
-    }
     grid.innerHTML = data.map(a => `
-      <a class="blog-page-card" href="articulo.html?slug=${a.slug}" data-cat="${a.category}">
+      <a class="blog-page-card" href="articulo.html?slug=${a.slug}"
+         data-cat="${a.category}" data-search="${normalize(a.title + ' ' + a.categoryLabel)}">
         <div class="bpc-img" data-cat="${a.category}">
           <div class="bpc-img-label">${a.imgLabel}</div>
         </div>
@@ -370,53 +479,99 @@ body { background: #f5f2ee; }
           </div>
         </div>
       </a>
-    `).join('');
+    `).join('') + '<div class="blog-empty" id="blogEmpty" style="display:none;"></div>';
   }
 
-  /* ── Filtrar por categoría ── */
+  /* ── Estado de filtros ── */
   let activeCat = 'all';
+  let searchTerm = '';
 
-  function filterCards(cat) {
-    activeCat = cat;
+  function applyFilters() {
     const cards = document.querySelectorAll('.blog-page-card');
+    let visible = 0;
     cards.forEach(card => {
-      if (cat === 'all' || card.dataset.cat === cat) {
+      const matchCat = activeCat === 'all' || card.dataset.cat === activeCat;
+      const matchSearch = !searchTerm || card.dataset.search.includes(searchTerm);
+      if (matchCat && matchSearch) {
         card.classList.remove('hidden');
+        visible++;
       } else {
         card.classList.add('hidden');
       }
     });
 
-    // Actualizar contador
-    const visible = cat === 'all' ? BLOG_DATA.length
-      : BLOG_DATA.filter(a => a.category === cat).length;
+    // Contador
     document.getElementById('articleCount').textContent =
       `${visible} artículo${visible !== 1 ? 's' : ''}`;
+
+    // Estado vacío
+    const empty = document.getElementById('blogEmpty');
+    if (visible === 0) {
+      empty.textContent = searchTerm
+        ? 'No se encontraron artículos para tu búsqueda.'
+        : 'No hay artículos en esta categoría todavía.';
+      empty.style.display = '';
+    } else {
+      empty.style.display = 'none';
+    }
   }
 
-  /* ── Event listeners de tabs ── */
+  /* ── Tabs de categoría ── */
   document.querySelectorAll('.blog-filter-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       document.querySelectorAll('.blog-filter-btn').forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      filterCards(this.dataset.cat);
+      activeCat = this.dataset.cat;
+      applyFilters();
     });
   });
 
-  /* ── Leer categoría inicial desde URL hash ── */
+  /* ── Buscador ── */
+  const searchInput = document.getElementById('blogSearch');
+  const searchWrap = document.querySelector('.blog-search');
+  const searchClear = document.getElementById('blogSearchClear');
+
+  searchInput.addEventListener('input', function() {
+    searchTerm = normalize(this.value.trim());
+    searchWrap.classList.toggle('has-text', this.value.length > 0);
+    applyFilters();
+  });
+  searchClear.addEventListener('click', function() {
+    searchInput.value = '';
+    searchTerm = '';
+    searchWrap.classList.remove('has-text');
+    applyFilters();
+    searchInput.focus();
+  });
+
+  /* ── Indicador de scroll en filtros ── */
+  const filtersEl = document.getElementById('blogFilters');
+  const scrollHint = document.getElementById('filterScrollHint');
+
+  function updateScrollHint() {
+    const maxScroll = filtersEl.scrollWidth - filtersEl.clientWidth;
+    const atEnd = filtersEl.scrollLeft >= maxScroll - 4;
+    scrollHint.classList.toggle('visible', maxScroll > 8 && !atEnd);
+  }
+  filtersEl.addEventListener('scroll', updateScrollHint);
+  window.addEventListener('resize', updateScrollHint);
+  scrollHint.addEventListener('click', function() {
+    filtersEl.scrollBy({ left: 180, behavior: 'smooth' });
+  });
+
+  /* ── Inicializar ── */
   const hashCat = window.location.hash.replace('#', '');
   const validCats = ['fuerza', 'endurance', 'nutricion', 'mentalidad', 'rucking'];
 
-  /* ── Inicializar ── */
   renderCards(BLOG_DATA);
 
   if (hashCat && validCats.includes(hashCat)) {
     const targetBtn = document.querySelector(`.blog-filter-btn[data-cat="${hashCat}"]`);
     if (targetBtn) targetBtn.click();
   } else {
-    document.getElementById('articleCount').textContent =
-      `${BLOG_DATA.length} artículos`;
+    applyFilters();
   }
+  updateScrollHint();
 </script>
 </body>
 </html>

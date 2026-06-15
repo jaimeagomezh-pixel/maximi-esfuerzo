@@ -222,6 +222,13 @@ body { background: #f5f2ee; }
 .art-fab-back .fab-arrow { font-size: 1rem; line-height: 1; transition: transform 0.2s; }
 .art-fab-back:hover .fab-arrow { transform: translateX(-3px); }
 
+/* Logo footer como botón */
+.footer-logo-img { transition: opacity 0.2s, filter 0.2s; }
+.footer-logo a:hover .footer-logo-img {
+  opacity: 1 !important;
+  filter: drop-shadow(0 0 6px rgba(212,168,67,0.5));
+}
+
 /* 404 */
 .art-not-found { padding: 120px 5vw 80px; text-align: center; }
 .art-not-found h2 {
@@ -329,7 +336,7 @@ body { background: #f5f2ee; }
           <a href="blog.html" class="btn-primary">← Volver al Blog</a>
         </div>
         <footer>
-          <div class="footer-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:48px;width:auto;opacity:0.9;"></div>
+          <div class="footer-logo"><a href="index.html#hero" aria-label="Volver al inicio" style="display:inline-block;"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="footer-logo-img" style="height:48px;width:auto;opacity:0.9;"></a></div>
           <ul class="footer-links">
             <li><a href="index.html">Planes</a></li>
             <li><a href="blog.html">Blog</a></li>
