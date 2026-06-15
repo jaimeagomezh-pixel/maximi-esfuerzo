@@ -1242,6 +1242,13 @@
 
   .footer-logo span { color: var(--dorado); }
 
+  /* Logo footer como botón */
+  .footer-logo-img { transition: opacity 0.2s, filter 0.2s; }
+  .footer-logo a:hover .footer-logo-img {
+    opacity: 1 !important;
+    filter: drop-shadow(0 0 6px rgba(212,168,67,0.5));
+  }
+
   .footer-links {
     display: flex;
     gap: 20px;
@@ -1619,6 +1626,85 @@
   #dashboardAtleta.open { display:flex; }
   .dashboard-box { background:#0a0a0a; width:100%; max-width:680px; min-height:100vh; padding-bottom:60px; }
 
+  /* ── ESCALA TIPOGRÁFICA COHERENTE ── */
+  /* 5 estilos predefinidos: unifican familia, tamaño, peso, espaciado, altura */
+  .t-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: #f5f0eb;
+  }
+  .t-headline {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: #f5f0eb;
+  }
+  .t-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #888;
+  }
+  .t-label-accent {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: #c0392b;
+  }
+  .t-body {
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    line-height: 1.6;
+    color: #f5f0eb;
+  }
+  .t-body-italic {
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    font-style: italic;
+    letter-spacing: 0px;
+    line-height: 1.7;
+    color: rgba(245,240,235,0.82);
+  }
+  .t-meta {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.3;
+    color: #555;
+  }
+  .t-meta-accent {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 3px;
+    line-height: 1.3;
+    text-transform: uppercase;
+    color: #d4a843;
+  }
+  .t-caption {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    color: #555;
+  }
+
   .dash-header { background:linear-gradient(to bottom, #000000 0%, #1a1a1a 60%, #2c2c2c 100%); border-bottom:1px solid rgba(212,168,67,0.15); padding:14px 20px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
   .dash-header-logo { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:3px; color:#d4a843; display:flex; align-items:center; }
   .dash-header-logo img { height:36px; width:auto; display:block; }
@@ -1664,16 +1750,16 @@
   #dashAvatarLetter { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:white; }
   .dash-avatar-edit { position:absolute; bottom:0; right:0; width:22px; height:22px; background:#d4a843; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; color:#0a0a0a; cursor:pointer; font-weight:bold; }
   .dash-profile-info { flex:1; }
-  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:4px; text-transform:uppercase; color:#555; margin-bottom:3px; }
-  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#f5f0eb; letter-spacing:2px; line-height:1; }
+  .dash-saludo { font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:2px; text-transform:uppercase; color:#555; margin-bottom:3px; }
+  .dash-nombre { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; color:#f5f0eb; letter-spacing:2px; line-height:1; /* t-display */ }
 
   /* Frase */
   .dash-frase-wrap { margin:16px 20px; padding:16px 18px; background:rgba(212,168,67,0.04); border-left:3px solid #d4a843; position:relative; }
   .dash-frase-icon { font-family:Georgia,serif; font-size:2.5rem; color:rgba(212,168,67,0.15); position:absolute; top:6px; left:10px; line-height:1; }
-  .dash-frase { font-family:'Barlow',sans-serif; font-size:15px; font-weight:300; font-style:italic; color:rgba(245,240,235,0.82); line-height:1.7; padding-left:10px; }
-  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#d4a843; text-align:right; margin-top:8px; }
+  .dash-frase { font-family:'Barlow',sans-serif; font-size:14px; font-weight:300; font-style:italic; color:rgba(245,240,235,0.82); line-height:1.7; padding-left:10px; /* t-body-italic */ }
+  .dash-frase-autor { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:#d4a843; text-align:right; margin-top:8px; /* t-meta-accent */ }
 
-  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:4px; text-transform:uppercase; color:#c0392b; padding:12px 12px 6px; display:flex; align-items:center; gap:8px; }
+  .dash-section-title { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:3px; text-transform:uppercase; color:#c0392b; padding:12px 12px 6px; display:flex; align-items:center; gap:8px; /* t-label-accent */ }
   .dash-section-title::before { content:''; width:14px; height:1px; background:#c0392b; }
 
   /* Métricas */
@@ -1681,12 +1767,12 @@
   .dash-metric-card { background:#1a1a1a; padding:16px; border-top:2px solid transparent; transition:border-color 0.3s; }
   .dash-metric-card:hover { border-top-color:#c0392b; }
   .dash-metric-icon { font-size:1.1rem; margin-bottom:6px; }
-  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#d4a843; line-height:1; }
-  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:13px; color:#888; letter-spacing:1px; margin-top:2px; }
-  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#666; margin-top:4px; }
+  .dash-metric-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#d4a843; line-height:1; /* t-headline + color */ }
+  .dash-metric-unit { font-family:'Barlow Condensed',sans-serif; font-size:12px; color:#888; letter-spacing:1px; margin-top:2px; /* t-label */ }
+  .dash-metric-label { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:#666; margin-top:4px; /* t-meta */ }
   .dash-bar-bg { width:100%; height:3px; background:rgba(255,255,255,0.06); margin-top:9px; border-radius:2px; }
   .dash-bar-fill { height:100%; background:linear-gradient(90deg,#c0392b,#d4a843); border-radius:2px; }
-  .dash-metric-note { font-size:12px; color:rgba(212,168,67,0.75); margin-top:6px; font-style:italic; }
+  .dash-metric-note { font-size:11px; color:rgba(212,168,67,0.75); margin-top:6px; font-style:italic; /* t-meta */ }
 
   /* Macros */
   .dash-macros-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; padding:0 20px; }
@@ -1694,10 +1780,10 @@
   .dash-macro-proteina { border-top-color:#e74c3c !important; }
   .dash-macro-carbo { border-top-color:#d4a843 !important; }
   .dash-macro-grasa { border-top-color:#3498db !important; }
-  .dash-macro-name { font-family:'Barlow Condensed',sans-serif; font-size:13px; letter-spacing:1px; text-transform:uppercase; color:#aaa; margin-bottom:6px; }
-  .dash-macro-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#f5f0eb; line-height:1; }
-  .dash-macro-unit-small { font-size:1rem; color:#888; }
-  .dash-macro-meta { font-size:12px; color:#777; margin-top:4px; }
+  .dash-macro-name { font-family:'Barlow Condensed',sans-serif; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#aaa; margin-bottom:6px; /* t-label */ }
+  .dash-macro-value { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:#f5f0eb; line-height:1; /* t-headline + sized */ }
+  .dash-macro-unit-small { font-size:11px; color:#888; /* t-meta */ }
+  .dash-macro-meta { font-size:11px; color:#777; margin-top:4px; /* t-meta */ }
   .dash-macro-bar-bg { width:100%; height:2px; background:rgba(255,255,255,0.06); margin-top:8px; border-radius:2px; }
   .dash-macro-prot-fill { height:100%; background:#e74c3c; border-radius:2px; }
   .dash-macro-carb-fill { height:100%; background:#d4a843; border-radius:2px; }
@@ -1705,9 +1791,9 @@
 
   /* Nutricionista */
   .dash-nutri-banner { margin:4px 20px 0; background:rgba(212,168,67,0.05); border:1px solid rgba(212,168,67,0.15); padding:16px 18px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  .dash-nutri-text strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:#f5f0eb; margin-bottom:2px; }
-  .dash-nutri-text span { font-size:12px; color:#888; }
-  .btn-agendar { background:#d4a843; color:#0a0a0a; border:none; padding:9px 18px; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; cursor:pointer; white-space:nowrap; }
+  .dash-nutri-text strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#f5f0eb; margin-bottom:2px; /* t-label */ }
+  .dash-nutri-text span { font-size:11px; color:#888; /* t-meta */ }
+  .btn-agendar { background:#d4a843; color:#0a0a0a; border:none; padding:9px 18px; font-family:'Barlow Condensed',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; cursor:pointer; white-space:nowrap; /* t-label */ }
 
   /* Apps */
   .dash-connect-grid { display:grid; grid-template-columns:1fr 1fr; gap:2px; padding:0 20px; }
@@ -1715,8 +1801,8 @@
   .dash-connect-card:hover { border-color:rgba(212,168,67,0.25); }
   .dash-connect-card.conectado { border-color:rgba(46,204,113,0.3) !important; }
   .dash-app-logo { display:flex; align-items:center; justify-content:center; width:36px; height:36px; flex-shrink:0; }
-  .dash-connect-name { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#f5f0eb; }
-  .dash-connect-status { font-size:11px; color:#555; margin-top:2px; }
+  .dash-connect-name { font-family:'Barlow Condensed',sans-serif; font-size:12px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:#f5f0eb; /* t-label */ }
+  .dash-connect-status { font-size:10px; color:#555; margin-top:2px; /* t-caption */ }
   .dash-connect-status.ok { color:#2ecc71; }
 
   .dash-footer { padding:28px 20px 0; text-align:center; }
@@ -1751,12 +1837,12 @@
   }
   .dash-activity-name {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.5rem; color: #f5f0eb; letter-spacing: 1px;
+    font-size: 1.6rem; color: #f5f0eb; letter-spacing: 1px; /* t-headline */
   }
   .dash-activity-date {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; letter-spacing: 3px;
-    text-transform: uppercase; color: #555;
+    font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; color: #555; /* t-meta */
   }
 
   /* Stats fila superior */
@@ -1770,16 +1856,16 @@
   }
   .dash-stat-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; letter-spacing: 2px;
-    text-transform: uppercase; color: #555; margin-bottom: 4px;
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: #555; margin-bottom: 4px; /* t-caption */
   }
   .dash-stat-value {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem; color: #f5f0eb; line-height: 1;
+    font-size: 1.6rem; color: #f5f0eb; line-height: 1; /* t-headline */
   }
   .dash-stat-unit {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; color: #777; margin-top: 1px;
+    font-size: 10px; color: #777; margin-top: 1px; /* t-caption */
   }
 
   /* Gráfico container */
@@ -1789,12 +1875,12 @@
   }
   .dash-chart-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; letter-spacing: 4px;
+    font-size: 10px; letter-spacing: 2px;
     text-transform: uppercase; color: #555;
     margin-bottom: 12px; display: flex;
-    align-items: center; justify-content: space-between;
+    align-items: center; justify-content: space-between; /* t-caption */
   }
-  .dash-chart-title span { color: #d4a843; font-size: 11px; }
+  .dash-chart-title span { color: #d4a843; font-size: 10px; /* t-caption */ }
   .dash-chart-wrap { position: relative; height: 120px; }
 
   /* Zonas FC */
@@ -1810,7 +1896,7 @@
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 11px; letter-spacing: 1px;
     text-transform: uppercase; color: #888;
-    width: 60px; flex-shrink: 0;
+    width: 60px; flex-shrink: 0; /* t-meta */
   }
   .dash-zone-bar-bg {
     flex: 1; height: 8px;
@@ -1822,13 +1908,13 @@
   }
   .dash-zone-time {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.95rem; color: #f5f0eb;
-    width: 45px; text-align: right; flex-shrink: 0;
+    font-size: 1.2rem; color: #f5f0eb;
+    width: 45px; text-align: right; flex-shrink: 0; /* ~ t-headline pequeño */
   }
   .dash-zone-pct {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; color: #555;
-    width: 32px; text-align: right; flex-shrink: 0;
+    font-size: 10px; color: #555;
+    width: 32px; text-align: right; flex-shrink: 0; /* t-caption */
   }
   .dash-zone-z5 { background: #e74c3c; }
   .dash-zone-z4 { background: #e67e22; }
@@ -1846,16 +1932,16 @@
   }
   .dash-te-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px; letter-spacing: 3px;
-    text-transform: uppercase; color: #555; margin-bottom: 6px;
+    font-size: 10px; letter-spacing: 1px;
+    text-transform: uppercase; color: #555; margin-bottom: 6px; /* t-caption */
   }
   .dash-te-value {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.2rem; line-height: 1;
+    font-size: 2.2rem; line-height: 1; /* t-display */
   }
   .dash-te-desc {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 11px; color: #888; margin-top: 2px;
+    font-size: 10px; color: #888; margin-top: 2px; /* t-caption */
   }
   .dash-te-bar-bg {
     height: 4px; background: rgba(255,255,255,0.06);
