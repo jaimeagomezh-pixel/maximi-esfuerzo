@@ -339,7 +339,7 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<img src="Imagenes/placa.svg" class="fop-img" alt="" aria-hidden="true">' +
+      '<img src="Imagenes/placa.svg?v=20260615s" class="fop-img" alt="" aria-hidden="true">' +
       '<div class="fop-content">' +
         '<div class="fop-texto">' + d.texto + '</div>' +
         '<div class="fop-divider" aria-hidden="true"></div>' +
