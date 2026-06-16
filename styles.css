@@ -4745,8 +4745,8 @@ body.plan-activo .plan-lock  { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    /* padding calibrado al oval del SVG: L=20.5% R=21.2% T=21% B=21% + margen interior + agujero izq */
-    padding: 13% 23% 13% 30%;
+    /* padding calibrado al nuevo SVG: L=6% R=4.2% T=3.8% B=6.5% + margen interior + agujero izq */
+    padding: 9% 11% 9% 18%;
     text-align: center;
     overflow: hidden;
   }
