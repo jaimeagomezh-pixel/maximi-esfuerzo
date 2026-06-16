@@ -4628,76 +4628,9 @@ body.plan-activo .plan-lock  { display: none; }
    ══════════════════════════════════════════════════════════════ */
   #dashboardAtleta { overflow-x: hidden; }
 
-  /* ── Placa inline: SVG fotográfico ── */
+  /* ── Placa inline: card con animación ── */
   #dashboardAtleta.open .dash-frase-wrap {
-    position: relative;
-    background: none !important;
-    border: none !important;
-    border-left: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    overflow: visible !important;
     animation: placaEntra 0.55s cubic-bezier(.22,.84,.34,1) 0.15s both !important;
-  }
-  #dashboardAtleta.open .dash-frase-hole { display: none !important; }
-  #dashboardAtleta.open .dash-frase-wrap::before,
-  #dashboardAtleta.open .dash-frase-wrap::after { display: none !important; }
-
-  .dash-frase-img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .dash-frase-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 13% 23% 13% 30%;
-    text-align: center;
-    overflow: hidden;
-  }
-
-  #dashboardAtleta.open .dash-frase {
-    font-family: 'Courier New', monospace !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    font-weight: 700 !important;
-    font-style: normal !important;
-    font-size: 13px !important;
-    line-height: 1.5 !important;
-    color: rgba(255, 245, 195, 0.97) !important;
-    text-shadow:
-      0  1px  2px rgba(0, 0, 0, 0.95),
-      0  2px  5px rgba(0, 0, 0, 0.70),
-      0  5px 12px rgba(0, 0, 0, 0.35),
-      0 -0.5px 0  rgba(0, 0, 0, 0.45) !important;
-    padding-left: 0 !important;
-    margin-bottom: 7px !important;
-  }
-  #dashboardAtleta.open .dash-frase-div {
-    height: 1px;
-    width: 52%;
-    margin: 0 auto 7px;
-    background: linear-gradient(90deg, transparent, rgba(10,5,0,0.38), transparent);
-    box-shadow: 0 1px 0 rgba(255,252,215,0.42);
-  }
-  #dashboardAtleta.open .dash-frase-autor {
-    font-family: 'Courier New', monospace !important;
-    text-transform: uppercase !important;
-    letter-spacing: 3px !important;
-    font-weight: 700 !important;
-    font-size: 9px !important;
-    text-align: center !important;
-    color: rgba(255, 245, 195, 0.90) !important;
-    text-shadow:
-      0  1px  2px rgba(0, 0, 0, 0.92),
-      0  2px  5px rgba(0, 0, 0, 0.65),
-      0 -0.5px 0  rgba(0, 0, 0, 0.40) !important;
-    margin-top: 0 !important;
   }
 
   @keyframes placaEntra {
@@ -4725,65 +4658,38 @@ body.plan-activo .plan-lock  { display: none; }
   @keyframes fovEntra { to { background: rgba(0,0,0,0.95); } }
   @keyframes fovSale  { from { opacity: 1; } to { opacity: 0; } }
 
-  /* ── Placa DOG-TAG: SVG fotográfico con transparencia real ── */
+  /* ── Overlay cinema: card de texto sin imagen ── */
   .fop-placa {
-    /* Ocupa el máximo posible: limitado por ancho O por alto de pantalla */
-    width: min(100%, calc((100vh - 100px) * 1408 / 768));
-    position: relative;
-    background: none;
+    max-width: 600px;
+    width: 92%;
+    padding: 48px 52px 44px;
+    text-align: center;
+    border-top: 2px solid rgba(212,168,67,0.60);
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
   }
-  .fop-img {
-    width: 100%;
-    height: auto;
-    display: block;
-  }
-  .fop-content {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    /* padding calibrado al nuevo SVG: L=6% R=4.2% T=3.8% B=6.5% + margen interior + agujero izq */
-    padding: 9% 11% 9% 18%;
-    text-align: center;
-    overflow: hidden;
-  }
   .fop-texto {
-    font-family: 'Courier New', monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-weight: 700;
-    font-style: normal;
-    font-size: 14px;
-    line-height: 1.5;
-    color: rgba(255, 245, 195, 0.97);
-    text-shadow:
-      0  1px  2px rgba(0, 0, 0, 0.95),
-      0  2px  5px rgba(0, 0, 0, 0.70),
-      0  5px 12px rgba(0, 0, 0, 0.35),
-      0 -0.5px 0  rgba(0, 0, 0, 0.45);
-    margin-bottom: 8px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 22px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.65;
+    color: rgba(245, 240, 235, 0.92);
+    margin-bottom: 24px;
+    letter-spacing: 0.2px;
   }
   .fop-divider {
     height: 1px;
-    width: 55%;
-    margin: 0 auto 8px;
-    background: linear-gradient(90deg, transparent, rgba(10,5,0,0.40), transparent);
-    box-shadow: 0 1px 0 rgba(255,252,215,0.45);
+    width: 45%;
+    margin: 0 auto 18px;
+    background: linear-gradient(90deg, transparent, rgba(212,168,67,0.55), transparent);
   }
   .fop-autor {
-    font-family: 'Courier New', monospace;
-    font-size: 9px;
-    letter-spacing: 3px;
-    font-weight: 700;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3.5px;
+    font-weight: 600;
     text-transform: uppercase;
-    color: rgba(255, 245, 195, 0.90);
-    text-shadow:
-      0  1px  2px rgba(0, 0, 0, 0.92),
-      0  2px  5px rgba(0, 0, 0, 0.65),
-      0 -0.5px 0  rgba(0, 0, 0, 0.40);
+    color: rgba(212, 168, 67, 0.82);
   }
   .fop-hint {
     margin-top: 28px;

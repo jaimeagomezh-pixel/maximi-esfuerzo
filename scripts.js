@@ -331,12 +331,9 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<img src="Imagenes/placa.svg?v=20260615v" class="fop-img" alt="" aria-hidden="true">' +
-      '<div class="fop-content">' +
-        '<div class="fop-texto">' + d.texto + '</div>' +
-        '<div class="fop-divider" aria-hidden="true"></div>' +
-        '<div class="fop-autor">' + d.autor + '</div>' +
-      '</div>';
+      '<div class="fop-texto">' + d.texto + '</div>' +
+      '<div class="fop-divider" aria-hidden="true"></div>' +
+      '<div class="fop-autor">' + d.autor + '</div>';
     var hint = document.createElement('div');
     hint.className = 'fop-hint';
     hint.textContent = 'toca para continuar';
