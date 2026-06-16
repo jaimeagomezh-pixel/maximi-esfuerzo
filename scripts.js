@@ -1,4 +1,4 @@
-﻿  function toggleMenu() {
+  function toggleMenu() {
     const m = document.getElementById('mobileMenu');
     m.classList.toggle('open');
   }
@@ -9,7 +9,7 @@
     const pr = document.getElementById('modalPrecio');
     if (!ov || !nm || !pr) return;
 
-    // Extraer monto numÃ©rico de "precio" (ej: "$14.990 CLP/mes" â†’ 14990)
+    // Extraer monto numérico de "precio" (ej: "$14.990 CLP/mes" → 14990)
     const montoNum = parseInt(precio.replace(/[^\d]/g, ''));
     const total3m = montoNum * 3;
     const descuento15 = Math.round(total3m * 0.85);
@@ -20,10 +20,10 @@
     // Actualizar opciones de pago
     const precioMensual = document.getElementById('precioMensual');
     const precioUnico = document.getElementById('precioUnico');
-    if (precioMensual) precioMensual.textContent = `3 Ã— $${montoNum.toLocaleString('es-CL')} CLP (total $${total3m.toLocaleString('es-CL')})`;
+    if (precioMensual) precioMensual.textContent = `3 × $${montoNum.toLocaleString('es-CL')} CLP (total $${total3m.toLocaleString('es-CL')})`;
     if (precioUnico) precioUnico.textContent = `1 pago de $${descuento15.toLocaleString('es-CL')} CLP`;
 
-    // Identidad: si hay sesiÃ³n, el correo se detecta solo; si no, se pide login con Google.
+    // Identidad: si hay sesión, el correo se detecta solo; si no, se pide login con Google.
     const user = window._auth?.currentUser;
     const isLoggedIn = !!user;
     const emailSection = document.getElementById('modalEmailSection');   // CTA Google (invitado)
@@ -42,7 +42,7 @@
 
     // Mover al final del body para garantizar que quede encima de todo
     document.body.appendChild(ov);
-    // Forzar estilos por JS ademÃ¡s de la clase (anclado arriba + scroll para no cortarse en mÃ³vil)
+    // Forzar estilos por JS además de la clase (anclado arriba + scroll para no cortarse en móvil)
     ov.style.display = 'flex';
     ov.style.position = 'fixed';
     ov.style.inset = '0';
@@ -66,7 +66,7 @@
         abrirModal(pd.nombre, precioTxt, '');
       }
     } catch (e) {
-      alert('No se pudo iniciar sesiÃ³n con Google. Intenta de nuevo.');
+      alert('No se pudo iniciar sesión con Google. Intenta de nuevo.');
       console.error(e);
     }
   }
@@ -84,126 +84,126 @@
 
 
 
-  // â”€â”€ FRASES MOTIVACIONALES â”€â”€
+  // ── FRASES MOTIVACIONALES ──
   const frases = [
     // MENTE Y CONTROL MENTAL
-    { frase: "La calidad de tu vida depende de la calidad de tus pensamientos.", autor: "â€” Marco Aurelio" },
-    { frase: "TÃº tienes el poder sobre tu mente, no los eventos externos; entiende esto, y encontrarÃ¡s tu fuerza.", autor: "â€” Marco Aurelio" },
-    { frase: "Todo lo que escuchamos es una opiniÃ³n, no un hecho; todo lo que vemos es una perspectiva, no la verdad.", autor: "â€” Marco Aurelio" },
-    { frase: "Solo hay un camino a la felicidad: desapÃ©gate de las cosas que no dependen de ti.", autor: "â€” Epicteto" },
-    { frase: "Te conviertes en eso a lo que le prestas atenciÃ³n.", autor: "â€” Epicteto" },
-    { frase: "No esperes que los eventos sucedan como deseas, sino desea que ocurran como son.", autor: "â€” Epicteto" },
-    { frase: "El sabio nunca carecerÃ¡ de alegrÃ­a, pues ella nacerÃ¡ de sus propias virtudes.", autor: "â€” SÃ©neca" },
-    { frase: "El mayor lastre de la vida es la espera del maÃ±ana y la pÃ©rdida del hoy.", autor: "â€” SÃ©neca" },
-    { frase: "Todo en la vida es un juego mental.", autor: "â€” David Goggins" },
-    { frase: "Tu mente dirige tu vida: o controlas tu mente o tu mente te controla a ti.", autor: "â€” AnÃ³nimo" },
-    { frase: "El Ã©xito es, en primer lugar, una disposiciÃ³n de la mente.", autor: "â€” AnÃ³nimo" },
-    { frase: "No existen los lÃ­mites, solo las limitaciones mentales.", autor: "â€” AnÃ³nimo" },
-    { frase: "Ganar es una decisiÃ³n consciente; perder es una decisiÃ³n inconsciente.", autor: "â€” AnÃ³nimo" },
-    { frase: "Vives a la altura de tus creencias; aquello en lo que crees, en eso te conviertes.", autor: "â€” AnÃ³nimo" },
-    { frase: "La incredulidad nos frena y es aliada de la mediocridad.", autor: "â€” AnÃ³nimo" },
-    { frase: "VacÃ­a tu copa para que pueda ser llenada; quÃ©date sin nada para ganar la totalidad.", autor: "â€” Bruce Lee" },
-    { frase: "La vida es tu maestra y tÃº estÃ¡s en un estado de aprendizaje constante.", autor: "â€” Bruce Lee" },
-    // MIEDO Y VALENTÃA
-    { frase: "Siente miedo, pero hazlo de todas maneras.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si tienes miedo, estÃ¡s de enhorabuena: es una ocasiÃ³n de crecer.", autor: "â€” AnÃ³nimo" },
-    { frase: "No tengas miedo al miedo; ten miedo a la cobardÃ­a, a no atreverte.", autor: "â€” AnÃ³nimo" },
-    { frase: "Miedo no afrontado, miedo que engorda; miedo afrontado, miedo que mengua.", autor: "â€” AnÃ³nimo" },
-    { frase: "Elimina la palabra imposible de tu vocabulario.", autor: "â€” AnÃ³nimo" },
-    { frase: "No reces por una vida sencilla; reza por la fortaleza de resistir una vida difÃ­cil.", autor: "â€” Bruce Lee" },
-    { frase: "Pocas palabras hay tan importantes como la confianza, porque cuanto mayor es la confianza, menor es el miedo.", autor: "â€” Jorge Valdano" },
-    // DISCIPLINA Y HÃBITOS
-    { frase: "Si quieres dominar la mente y eliminar tu regulador, tendrÃ¡s que volverte adicto al trabajo duro.", autor: "â€” David Goggins" },
-    { frase: "La motivaciÃ³n no cambia a nadie; la mala mano que era mi vida era algo que yo, y solo yo, podÃ­a enmendar.", autor: "â€” David Goggins" },
-    { frase: "No caigas en la tentaciÃ³n de decir Â«por un dÃ­a no pasa nadaÂ»; sÃ­, sÃ­ que pasa.", autor: "â€” AnÃ³nimo" },
-    { frase: "No te acostumbres al eslogan Â«ya lo harÃ©Â»: algÃºn dÃ­a suele ser ningÃºn dÃ­a.", autor: "â€” AnÃ³nimo" },
-    { frase: "Decir Â«es que yo soy asÃ­Â» es una excusa barata para no cambiar.", autor: "â€” AnÃ³nimo" },
-    { frase: "Lo difÃ­cil no es el trabajo, lo difÃ­cil es la disciplina del trabajo.", autor: "â€” AnÃ³nimo" },
-    { frase: "La autocomplacencia es el principio del fin; si te relajas, estÃ¡s perdido.", autor: "â€” AnÃ³nimo" },
-    { frase: "Quienes vencen las tentaciones, avanzan; quienes se dejan vencer por ellas, se estancan.", autor: "â€” AnÃ³nimo" },
-    { frase: "Tu mayor enemigo es tu pereza.", autor: "â€” AnÃ³nimo" },
-    { frase: "Ã‰xito = hÃ¡bitos = repeticiÃ³n = disciplina.", autor: "â€” AnÃ³nimo" },
-    { frase: "Evita la dispersiÃ³n a toda costa y protege tu foco.", autor: "â€” AnÃ³nimo" },
-    { frase: "La genialidad no es otra cosa que la prÃ¡ctica diaria. Repite, repite, repite.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si a un niÃ±o le enseÃ±as el drive, tambiÃ©n le puedes enseÃ±ar la voluntad. La voluntad se educa igual que un drive. Todo se puede entrenar.", autor: "â€” Toni Nadal" },
-    { frase: "PrepÃ¡rate cuando no hace falta, para cuando haga falta estar preparado.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si quieres cambiar el mundo, empieza por hacerte la cama.", autor: "â€” William H. McRaven" },
-    { frase: "Si no puedes hacer las cosas pequeÃ±as correctamente, jamÃ¡s harÃ¡s las cosas grandes correctamente.", autor: "â€” William H. McRaven" },
-    { frase: "Puede que haya gente con mÃ¡s talento que tÃº, pero no hay excusas para que nadie trabaje mÃ¡s duro que tÃº.", autor: "â€” Derek Jeter" },
-    // ACCIÃ“N Y COMIENZO
-    { frase: "La visiÃ³n sin acciÃ³n es inÃºtil; una vez estÃ© clara la direcciÃ³n, hay que pasar a la acciÃ³n.", autor: "â€” AnÃ³nimo" },
-    { frase: "Nadie va a venir a salvar tu culo. Â¡Depende de ti!", autor: "â€” David Goggins" },
-    { frase: "No te des el lujo de inventar excusas.", autor: "â€” AnÃ³nimo" },
-    { frase: "El secreto de avanzar es comenzar.", autor: "â€” AnÃ³nimo" },
-    { frase: "Nada tarda tanto como lo que no se empieza.", autor: "â€” AnÃ³nimo" },
-    { frase: "El momento perfecto no existe.", autor: "â€” AnÃ³nimo" },
-    { frase: "El exceso de planificaciÃ³n paraliza.", autor: "â€” AnÃ³nimo" },
-    { frase: "No hacer nada es lo peor que se puede hacer.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si quieres algo, ponte en marcha; las soluciones aparecen por el camino.", autor: "â€” AnÃ³nimo" },
-    { frase: "Esperar a sentirse bien para actuar es garantizar la inacciÃ³n.", autor: "â€” AnÃ³nimo" },
-    { frase: "Da igual lo que piensas, dices o planeas; lo importante es lo que haces.", autor: "â€” AnÃ³nimo" },
-    { frase: "La acciÃ³n es la verdadera medida de la inteligencia.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si decides algo y no actÃºas, no has decidido nada.", autor: "â€” AnÃ³nimo" },
-    { frase: "No decidir tambiÃ©n es decidir algo.", autor: "â€” AnÃ³nimo" },
-    { frase: "Ser realista no es inspirador.", autor: "â€” AnÃ³nimo" },
+    { frase: "La calidad de tu vida depende de la calidad de tus pensamientos.", autor: "— Marco Aurelio" },
+    { frase: "Tú tienes el poder sobre tu mente, no los eventos externos; entiende esto, y encontrarás tu fuerza.", autor: "— Marco Aurelio" },
+    { frase: "Todo lo que escuchamos es una opinión, no un hecho; todo lo que vemos es una perspectiva, no la verdad.", autor: "— Marco Aurelio" },
+    { frase: "Solo hay un camino a la felicidad: desapégate de las cosas que no dependen de ti.", autor: "— Epicteto" },
+    { frase: "Te conviertes en eso a lo que le prestas atención.", autor: "— Epicteto" },
+    { frase: "No esperes que los eventos sucedan como deseas, sino desea que ocurran como son.", autor: "— Epicteto" },
+    { frase: "El sabio nunca carecerá de alegría, pues ella nacerá de sus propias virtudes.", autor: "— Séneca" },
+    { frase: "El mayor lastre de la vida es la espera del mañana y la pérdida del hoy.", autor: "— Séneca" },
+    { frase: "Todo en la vida es un juego mental.", autor: "— David Goggins" },
+    { frase: "Tu mente dirige tu vida: o controlas tu mente o tu mente te controla a ti.", autor: "— Anónimo" },
+    { frase: "El éxito es, en primer lugar, una disposición de la mente.", autor: "— Anónimo" },
+    { frase: "No existen los límites, solo las limitaciones mentales.", autor: "— Anónimo" },
+    { frase: "Ganar es una decisión consciente; perder es una decisión inconsciente.", autor: "— Anónimo" },
+    { frase: "Vives a la altura de tus creencias; aquello en lo que crees, en eso te conviertes.", autor: "— Anónimo" },
+    { frase: "La incredulidad nos frena y es aliada de la mediocridad.", autor: "— Anónimo" },
+    { frase: "Vacía tu copa para que pueda ser llenada; quédate sin nada para ganar la totalidad.", autor: "— Bruce Lee" },
+    { frase: "La vida es tu maestra y tú estás en un estado de aprendizaje constante.", autor: "— Bruce Lee" },
+    // MIEDO Y VALENTÍA
+    { frase: "Siente miedo, pero hazlo de todas maneras.", autor: "— Anónimo" },
+    { frase: "Si tienes miedo, estás de enhorabuena: es una ocasión de crecer.", autor: "— Anónimo" },
+    { frase: "No tengas miedo al miedo; ten miedo a la cobardía, a no atreverte.", autor: "— Anónimo" },
+    { frase: "Miedo no afrontado, miedo que engorda; miedo afrontado, miedo que mengua.", autor: "— Anónimo" },
+    { frase: "Elimina la palabra imposible de tu vocabulario.", autor: "— Anónimo" },
+    { frase: "No reces por una vida sencilla; reza por la fortaleza de resistir una vida difícil.", autor: "— Bruce Lee" },
+    { frase: "Pocas palabras hay tan importantes como la confianza, porque cuanto mayor es la confianza, menor es el miedo.", autor: "— Jorge Valdano" },
+    // DISCIPLINA Y HÁBITOS
+    { frase: "Si quieres dominar la mente y eliminar tu regulador, tendrás que volverte adicto al trabajo duro.", autor: "— David Goggins" },
+    { frase: "La motivación no cambia a nadie; la mala mano que era mi vida era algo que yo, y solo yo, podía enmendar.", autor: "— David Goggins" },
+    { frase: "No caigas en la tentación de decir «por un día no pasa nada»; sí, sí que pasa.", autor: "— Anónimo" },
+    { frase: "No te acostumbres al eslogan «ya lo haré»: algún día suele ser ningún día.", autor: "— Anónimo" },
+    { frase: "Decir «es que yo soy así» es una excusa barata para no cambiar.", autor: "— Anónimo" },
+    { frase: "Lo difícil no es el trabajo, lo difícil es la disciplina del trabajo.", autor: "— Anónimo" },
+    { frase: "La autocomplacencia es el principio del fin; si te relajas, estás perdido.", autor: "— Anónimo" },
+    { frase: "Quienes vencen las tentaciones, avanzan; quienes se dejan vencer por ellas, se estancan.", autor: "— Anónimo" },
+    { frase: "Tu mayor enemigo es tu pereza.", autor: "— Anónimo" },
+    { frase: "Éxito = hábitos = repetición = disciplina.", autor: "— Anónimo" },
+    { frase: "Evita la dispersión a toda costa y protege tu foco.", autor: "— Anónimo" },
+    { frase: "La genialidad no es otra cosa que la práctica diaria. Repite, repite, repite.", autor: "— Anónimo" },
+    { frase: "Si a un niño le enseñas el drive, también le puedes enseñar la voluntad. La voluntad se educa igual que un drive. Todo se puede entrenar.", autor: "— Toni Nadal" },
+    { frase: "Prepárate cuando no hace falta, para cuando haga falta estar preparado.", autor: "— Anónimo" },
+    { frase: "Si quieres cambiar el mundo, empieza por hacerte la cama.", autor: "— William H. McRaven" },
+    { frase: "Si no puedes hacer las cosas pequeñas correctamente, jamás harás las cosas grandes correctamente.", autor: "— William H. McRaven" },
+    { frase: "Puede que haya gente con más talento que tú, pero no hay excusas para que nadie trabaje más duro que tú.", autor: "— Derek Jeter" },
+    // ACCIÓN Y COMIENZO
+    { frase: "La visión sin acción es inútil; una vez esté clara la dirección, hay que pasar a la acción.", autor: "— Anónimo" },
+    { frase: "Nadie va a venir a salvar tu culo. ¡Depende de ti!", autor: "— David Goggins" },
+    { frase: "No te des el lujo de inventar excusas.", autor: "— Anónimo" },
+    { frase: "El secreto de avanzar es comenzar.", autor: "— Anónimo" },
+    { frase: "Nada tarda tanto como lo que no se empieza.", autor: "— Anónimo" },
+    { frase: "El momento perfecto no existe.", autor: "— Anónimo" },
+    { frase: "El exceso de planificación paraliza.", autor: "— Anónimo" },
+    { frase: "No hacer nada es lo peor que se puede hacer.", autor: "— Anónimo" },
+    { frase: "Si quieres algo, ponte en marcha; las soluciones aparecen por el camino.", autor: "— Anónimo" },
+    { frase: "Esperar a sentirse bien para actuar es garantizar la inacción.", autor: "— Anónimo" },
+    { frase: "Da igual lo que piensas, dices o planeas; lo importante es lo que haces.", autor: "— Anónimo" },
+    { frase: "La acción es la verdadera medida de la inteligencia.", autor: "— Anónimo" },
+    { frase: "Si decides algo y no actúas, no has decidido nada.", autor: "— Anónimo" },
+    { frase: "No decidir también es decidir algo.", autor: "— Anónimo" },
+    { frase: "Ser realista no es inspirador.", autor: "— Anónimo" },
     // RESILIENCIA Y FRACASO
-    { frase: "PermÃ­tete todo â€”dudas, bajones, miedosâ€”, menos una cosa: desistir.", autor: "â€” AnÃ³nimo" },
-    { frase: "El trabajo mÃ¡s duro es no rendirse.", autor: "â€” AnÃ³nimo" },
-    { frase: "Lo que realmente tiene mÃ©rito es continuar cuando no puedes mÃ¡s.", autor: "â€” AnÃ³nimo" },
-    { frase: "Da igual las veces que te caes si te levantas una mÃ¡s.", autor: "â€” AnÃ³nimo" },
-    { frase: "SÃ³lo cuando me impulso mÃ¡s allÃ¡ del dolor y el sufrimiento, mÃ¡s allÃ¡ de mis limitaciones percibidas, soy capaz de lograr mÃ¡s.", autor: "â€” David Goggins" },
-    { frase: "Toma su negatividad y Ãºsala para dominar la tarea a cumplir con todo lo que tienes.", autor: "â€” David Goggins" },
-    { frase: "Deja de culpar a la suerte de tu vida.", autor: "â€” AnÃ³nimo" },
-    { frase: "Hay un momento en la vida que cambia para mal: cuando te resignas.", autor: "â€” AnÃ³nimo" },
-    { frase: "Evitar los problemas o huir de ellos equivale a no crecer.", autor: "â€” AnÃ³nimo" },
-    { frase: "Vivir es gestionar problemas, uno tras otro.", autor: "â€” AnÃ³nimo" },
-    { frase: "Ganar es no tener miedo a perder.", autor: "â€” AnÃ³nimo" },
-    { frase: "Unas veces se gana y otras se aprende.", autor: "â€” AnÃ³nimo" },
-    { frase: "No hay mayor riesgo que no arriesgar.", autor: "â€” AnÃ³nimo" },
-    { frase: "Fracasa pronto para tener Ã©xito rÃ¡pido.", autor: "â€” AnÃ³nimo" },
-    { frase: "Hay gente que nunca se ha equivocado, pero toda su vida es un error.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si no estÃ¡s cometiendo errores es que no estÃ¡s avanzando.", autor: "â€” AnÃ³nimo" },
-    { frase: "La vida no es justa, y cuanto antes lo descubras, mejor te irÃ¡.", autor: "â€” William H. McRaven" },
-    { frase: "Si quieres cambiar el mundo, deslÃ­zate de cabeza por el obstÃ¡culo.", autor: "â€” William H. McRaven" },
-    { frase: "Si quieres cambiar el mundo, nunca, pero nunca, toques esa campana.", autor: "â€” William H. McRaven" },
-    { frase: "La lucha de Rafael ha estado siempre en la idea de superarse a sÃ­ mismo.", autor: "â€” Toni Nadal" },
-    { frase: "Si crees que no puedes mejorar, no sabes nada de la vida.", autor: "â€” Rafa Nadal" },
-    { frase: "No te establezcas en una forma; adÃ¡ptala, constrÃºyela y dÃ©jala crecer. SÃ© como el agua.", autor: "â€” Bruce Lee" },
-    { frase: "Adapta lo que es Ãºtil, rechaza lo que no sirve, y aÃ±ade lo que es especÃ­ficamente tuyo.", autor: "â€” Bruce Lee" },
+    { frase: "Permítete todo —dudas, bajones, miedos—, menos una cosa: desistir.", autor: "— Anónimo" },
+    { frase: "El trabajo más duro es no rendirse.", autor: "— Anónimo" },
+    { frase: "Lo que realmente tiene mérito es continuar cuando no puedes más.", autor: "— Anónimo" },
+    { frase: "Da igual las veces que te caes si te levantas una más.", autor: "— Anónimo" },
+    { frase: "Sólo cuando me impulso más allá del dolor y el sufrimiento, más allá de mis limitaciones percibidas, soy capaz de lograr más.", autor: "— David Goggins" },
+    { frase: "Toma su negatividad y úsala para dominar la tarea a cumplir con todo lo que tienes.", autor: "— David Goggins" },
+    { frase: "Deja de culpar a la suerte de tu vida.", autor: "— Anónimo" },
+    { frase: "Hay un momento en la vida que cambia para mal: cuando te resignas.", autor: "— Anónimo" },
+    { frase: "Evitar los problemas o huir de ellos equivale a no crecer.", autor: "— Anónimo" },
+    { frase: "Vivir es gestionar problemas, uno tras otro.", autor: "— Anónimo" },
+    { frase: "Ganar es no tener miedo a perder.", autor: "— Anónimo" },
+    { frase: "Unas veces se gana y otras se aprende.", autor: "— Anónimo" },
+    { frase: "No hay mayor riesgo que no arriesgar.", autor: "— Anónimo" },
+    { frase: "Fracasa pronto para tener éxito rápido.", autor: "— Anónimo" },
+    { frase: "Hay gente que nunca se ha equivocado, pero toda su vida es un error.", autor: "— Anónimo" },
+    { frase: "Si no estás cometiendo errores es que no estás avanzando.", autor: "— Anónimo" },
+    { frase: "La vida no es justa, y cuanto antes lo descubras, mejor te irá.", autor: "— William H. McRaven" },
+    { frase: "Si quieres cambiar el mundo, deslízate de cabeza por el obstáculo.", autor: "— William H. McRaven" },
+    { frase: "Si quieres cambiar el mundo, nunca, pero nunca, toques esa campana.", autor: "— William H. McRaven" },
+    { frase: "La lucha de Rafael ha estado siempre en la idea de superarse a sí mismo.", autor: "— Toni Nadal" },
+    { frase: "Si crees que no puedes mejorar, no sabes nada de la vida.", autor: "— Rafa Nadal" },
+    { frase: "No te establezcas en una forma; adáptala, constrúyela y déjala crecer. Sé como el agua.", autor: "— Bruce Lee" },
+    { frase: "Adapta lo que es útil, rechaza lo que no sirve, y añade lo que es específicamente tuyo.", autor: "— Bruce Lee" },
     // EXCELENCIA Y METAS
-    { frase: "DedÃ­cate a ser el mejor siendo diferente.", autor: "â€” AnÃ³nimo" },
-    { frase: "SÃ© tan bueno que los demÃ¡s no puedan ignorarte.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si no lo entregas todo, lo que entregas es nada.", autor: "â€” AnÃ³nimo" },
-    { frase: "Excelencia = compromiso ciento por ciento.", autor: "â€” AnÃ³nimo" },
-    { frase: "El compromiso se tiene o no se tiene; no existe el compromiso a medias.", autor: "â€” AnÃ³nimo" },
-    { frase: "Lo primero de todo: decide lo que quieres ser, hacer y tener.", autor: "â€” AnÃ³nimo" },
-    { frase: "Quien no sabe lo que quiere acaba donde no quiere estar.", autor: "â€” AnÃ³nimo" },
-    { frase: "No cuestiones si algo es o no posible; solo preocÃºpate de cÃ³mo conseguirlo.", autor: "â€” AnÃ³nimo" },
-    { frase: "Haz lo que amas para que otros amen lo que haces.", autor: "â€” AnÃ³nimo" },
-    { frase: "El talento siempre ha necesitado de energÃ­a, y no existe mejor energÃ©tico que la pasiÃ³n.", autor: "â€” Jorge Valdano" },
-    { frase: "El talento necesita exigencia, porque los seres humanos crecemos al nivel de las dificultades que vamos encontrando.", autor: "â€” Jorge Valdano" },
-    { frase: "Para mÃ­ hay un principio fundamental: el control. De la situaciÃ³n, de la pelota, de cada cosa que hago.", autor: "â€” Rafa Nadal" },
-    { frase: "No concibo no tener ilusiÃ³n por las cosas que uno hace, sea lo que sea, al nivel que sea.", autor: "â€” Rafa Nadal" },
-    { frase: "En todo el mundo existen seres humanos increÃ­bles. Se trata de quererlo como si no hubiera un maÃ±ana, porque puede que no lo haya.", autor: "â€” David Goggins" },
-    { frase: "Elige lo positivo. Tienes la elecciÃ³n; eres el maestro de tu actitud.", autor: "â€” Bruce Lee" },
-    { frase: "La vida es amplia, sin lÃ­mites. No hay bordes, no hay fronteras.", autor: "â€” Bruce Lee" },
-    { frase: "No naciste siendo un ganador, de igual modo que no naciste siendo un perdedor. TÃº eres lo que haces de ti mismo.", autor: "â€” Lou Holtz" },
+    { frase: "Dedícate a ser el mejor siendo diferente.", autor: "— Anónimo" },
+    { frase: "Sé tan bueno que los demás no puedan ignorarte.", autor: "— Anónimo" },
+    { frase: "Si no lo entregas todo, lo que entregas es nada.", autor: "— Anónimo" },
+    { frase: "Excelencia = compromiso ciento por ciento.", autor: "— Anónimo" },
+    { frase: "El compromiso se tiene o no se tiene; no existe el compromiso a medias.", autor: "— Anónimo" },
+    { frase: "Lo primero de todo: decide lo que quieres ser, hacer y tener.", autor: "— Anónimo" },
+    { frase: "Quien no sabe lo que quiere acaba donde no quiere estar.", autor: "— Anónimo" },
+    { frase: "No cuestiones si algo es o no posible; solo preocúpate de cómo conseguirlo.", autor: "— Anónimo" },
+    { frase: "Haz lo que amas para que otros amen lo que haces.", autor: "— Anónimo" },
+    { frase: "El talento siempre ha necesitado de energía, y no existe mejor energético que la pasión.", autor: "— Jorge Valdano" },
+    { frase: "El talento necesita exigencia, porque los seres humanos crecemos al nivel de las dificultades que vamos encontrando.", autor: "— Jorge Valdano" },
+    { frase: "Para mí hay un principio fundamental: el control. De la situación, de la pelota, de cada cosa que hago.", autor: "— Rafa Nadal" },
+    { frase: "No concibo no tener ilusión por las cosas que uno hace, sea lo que sea, al nivel que sea.", autor: "— Rafa Nadal" },
+    { frase: "En todo el mundo existen seres humanos increíbles. Se trata de quererlo como si no hubiera un mañana, porque puede que no lo haya.", autor: "— David Goggins" },
+    { frase: "Elige lo positivo. Tienes la elección; eres el maestro de tu actitud.", autor: "— Bruce Lee" },
+    { frase: "La vida es amplia, sin límites. No hay bordes, no hay fronteras.", autor: "— Bruce Lee" },
+    { frase: "No naciste siendo un ganador, de igual modo que no naciste siendo un perdedor. Tú eres lo que haces de ti mismo.", autor: "— Lou Holtz" },
     // LIDERAZGO Y RESPONSABILIDAD
-    { frase: "La autorresponsabilidad es el primer requisito del autoliderazgo.", autor: "â€” AnÃ³nimo" },
-    { frase: "O eres vÃ­ctima o eres protagonista; o gobiernas tu vida o te la gobiernan otros.", autor: "â€” AnÃ³nimo" },
-    { frase: "No hay nadie que vaya de vÃ­ctima que haya logrado algo grande.", autor: "â€” AnÃ³nimo" },
-    { frase: "Los ganadores buscan soluciones; los perdedores buscan excusas.", autor: "â€” AnÃ³nimo" },
-    { frase: "Cambia el enfoque: del cuÃ¡nto gano al cÃ³mo sirvo.", autor: "â€” AnÃ³nimo" },
-    { frase: "Cuida tu entorno: somos una media de las cinco personas con las que mÃ¡s nos relacionamos.", autor: "â€” AnÃ³nimo" },
-    { frase: "Si quieres cambiar el mundo, encuentra a alguien que te ayude a remar.", autor: "â€” William H. McRaven" },
-    { frase: "Si quieres cambiar el mundo, mide a las personas segÃºn el tamaÃ±o de su corazÃ³n.", autor: "â€” William H. McRaven" },
-    { frase: "Si quieres cambiar el mundo, sÃ© la mejor versiÃ³n de ti mismo en los momentos mÃ¡s oscuros.", autor: "â€” William H. McRaven" },
-    { frase: "Si quieres cambiar el mundo, empieza a cantar cuando el lodo te llegue al cuello.", autor: "â€” William H. McRaven" },
-    { frase: "El hombre sabio se preocupa por la intenciÃ³n de sus acciones, no por sus resultados.", autor: "â€” SÃ©neca" },
-    { frase: "Aprender cuesta. La labor de los profesores y padres es enseÃ±ar a amar el esfuerzo.", autor: "â€” Toni Nadal" },
-    { frase: "Un equipo no estÃ¡ completo si el lÃ­der solo cuenta con los cracks. Sin los humildes no se llega a ninguna parte.", autor: "â€” Manel Estiarte" },
-    { frase: "Conseguir buenos jugadores es fÃ¡cil. Conseguir que jueguen juntos es la parte mÃ¡s difÃ­cil.", autor: "â€” Casey Stengel" },
-    { frase: "Si solo piensas en ti mismo y no en los demÃ¡s, nunca alcanzas objetivos.", autor: "â€” Paolo Maldini" },
+    { frase: "La autorresponsabilidad es el primer requisito del autoliderazgo.", autor: "— Anónimo" },
+    { frase: "O eres víctima o eres protagonista; o gobiernas tu vida o te la gobiernan otros.", autor: "— Anónimo" },
+    { frase: "No hay nadie que vaya de víctima que haya logrado algo grande.", autor: "— Anónimo" },
+    { frase: "Los ganadores buscan soluciones; los perdedores buscan excusas.", autor: "— Anónimo" },
+    { frase: "Cambia el enfoque: del cuánto gano al cómo sirvo.", autor: "— Anónimo" },
+    { frase: "Cuida tu entorno: somos una media de las cinco personas con las que más nos relacionamos.", autor: "— Anónimo" },
+    { frase: "Si quieres cambiar el mundo, encuentra a alguien que te ayude a remar.", autor: "— William H. McRaven" },
+    { frase: "Si quieres cambiar el mundo, mide a las personas según el tamaño de su corazón.", autor: "— William H. McRaven" },
+    { frase: "Si quieres cambiar el mundo, sé la mejor versión de ti mismo en los momentos más oscuros.", autor: "— William H. McRaven" },
+    { frase: "Si quieres cambiar el mundo, empieza a cantar cuando el lodo te llegue al cuello.", autor: "— William H. McRaven" },
+    { frase: "El hombre sabio se preocupa por la intención de sus acciones, no por sus resultados.", autor: "— Séneca" },
+    { frase: "Aprender cuesta. La labor de los profesores y padres es enseñar a amar el esfuerzo.", autor: "— Toni Nadal" },
+    { frase: "Un equipo no está completo si el líder solo cuenta con los cracks. Sin los humildes no se llega a ninguna parte.", autor: "— Manel Estiarte" },
+    { frase: "Conseguir buenos jugadores es fácil. Conseguir que jueguen juntos es la parte más difícil.", autor: "— Casey Stengel" },
+    { frase: "Si solo piensas en ti mismo y no en los demás, nunca alcanzas objetivos.", autor: "— Paolo Maldini" },
   ];
 
   function getFraseDelDia() {
@@ -220,10 +220,10 @@
   }
 
   function mostrarRegistro() {
-    alert('PrÃ³ximamente: registro con email. Por ahora usa Google.');
+    alert('Próximamente: registro con email. Por ahora usa Google.');
   }
 
-  // â”€â”€ DASHBOARD â”€â”€
+  // ── DASHBOARD ──
   function abrirDashboard(nombre) {
     try {
       cerrarLogin();
@@ -247,7 +247,7 @@
       // Guardar para el overlay cinema (se muestra al abrir el panel)
       window._fraseActual = { texto: frase.frase, autor: frase.autor };
       
-      // Resetear menÃº hamburguesa mÃ³vil (puede haber quedado abierto)
+      // Resetear menú hamburguesa móvil (puede haber quedado abierto)
       if (_dashMenuAbierto) {
         const menu = document.getElementById('dashMobileMenu');
         const hbLines = document.querySelectorAll('.dash-hamburger span');
@@ -278,7 +278,7 @@
           if (typeof window.renderCargaRTSS   === 'function') window.renderCargaRTSS();
           if (typeof renderResumenMensual   === 'function') renderResumenMensual();
           if (typeof cargarMiPlan           === 'function') cargarMiPlan(); // fija body.plan-activo (gating Potencia)
-          if (typeof _fsInit               === 'function') _fsInit(); // nutriciÃ³n: solo verifica conexiÃ³n (sincroniza con botÃ³n)
+          if (typeof _fsInit               === 'function') _fsInit(); // nutrición: solo verifica conexión (sincroniza con botón)
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
           // Animaciones de entrada
@@ -287,10 +287,10 @@
             if (typeof animarNumeros === 'function') animarNumeros();
             if (typeof agregarPulseDot === 'function') agregarPulseDot();
           }, 400);
-          // Cargar datos Strava con auto-refresh si el token venciÃ³
+          // Cargar datos Strava con auto-refresh si el token venció
           checkStravaToken();
-          // Re-sincronizar peso/talla/fechaNac a la nube (auto-recuperaciÃ³n
-          // si la nube los perdiÃ³; el worker hace merge, no pisa otros campos)
+          // Re-sincronizar peso/talla/fechaNac a la nube (auto-recuperación
+          // si la nube los perdió; el worker hace merge, no pisa otros campos)
           setTimeout(() => { if (typeof syncPerfilBasicoCloud === 'function') syncPerfilBasicoCloud(); }, 3000);
         }, 200);
       }
@@ -298,7 +298,7 @@
       // Cargar foto si hay guardada
       if (typeof cargarFotoGuardada === 'function') cargarFotoGuardada();
       
-      // Actualizar botÃ³n nav
+      // Actualizar botón nav
       const btnText = document.getElementById('btnIngresarText');
       if (btnText) btnText.textContent = nombre;
       
@@ -314,7 +314,7 @@
     document.getElementById('dashboardAtleta').classList.remove('open');
     document.body.style.overflow = '';
     localStorage.setItem('dashboardOpen', 'false');
-    // Limpiar overlay cinema si quedÃ³ abierto
+    // Limpiar overlay cinema si quedó abierto
     var ov = document.getElementById('fraseOverlay');
     if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
   }
@@ -331,12 +331,9 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<img src="Imagenes/placa.svg?v=20260615x" class="fop-img" alt="" aria-hidden="true">' +
-      '<div class="fop-content">' +
-        '<div class="fop-texto">' + d.texto + '</div>' +
-        '<div class="fop-divider" aria-hidden="true"></div>' +
-        '<div class="fop-autor">' + d.autor + '</div>' +
-      '</div>';
+      '<div class="fop-texto">' + d.texto + '</div>' +
+      '<div class="fop-divider" aria-hidden="true"></div>' +
+      '<div class="fop-autor">' + d.autor + '</div>';
     var hint = document.createElement('div');
     hint.className = 'fop-hint';
     hint.textContent = 'toca para continuar';
@@ -357,8 +354,8 @@
   }
 
   function cerrarDashClick(e) {
-    // En desktop el dashboard-box no ocupa todo el ancho â€” los mÃ¡rgenes
-    // laterales tambiÃ©n disparan este evento. Solo cerrar en mÃ³vil (< 700px)
+    // En desktop el dashboard-box no ocupa todo el ancho — los márgenes
+    // laterales también disparan este evento. Solo cerrar en móvil (< 700px)
     // donde tocar fuera del panel es intencional.
     if (window.innerWidth >= 700) return;
     if (e.target === document.getElementById('dashboardAtleta')) cerrarDash();
@@ -370,7 +367,7 @@
     if (btnTextReset) btnTextReset.textContent = 'Atleta';
   }
 
-  // â”€â”€ HERO SLIDER â”€â”€
+  // ── HERO SLIDER ──
   let currentSlide = 0;
   const slides = document.querySelectorAll('.slide');
   const dots = document.querySelectorAll('.slider-dot');
@@ -400,7 +397,7 @@
   }
 
 
-  // â”€â”€ STRAVA INTEGRATION â”€â”€
+  // ── STRAVA INTEGRATION ──
   const STRAVA_CLIENT_ID = '249036';
   const STRAVA_REDIRECT   = encodeURIComponent('https://maximoesfuerzo.cl');
   const STRAVA_SCOPE      = 'read,activity:read_all';
@@ -411,35 +408,35 @@
     window.location.href = authUrl;
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // CONTROL DE RATE LIMIT DE STRAVA (autorregulaciÃ³n client-side)
-  // El header X-RateLimit-Usage reporta el uso GLOBAL de la app, asÃ­ que
+  // ══════════════════════════════════════════════════════════════
+  // CONTROL DE RATE LIMIT DE STRAVA (autorregulación client-side)
+  // El header X-RateLimit-Usage reporta el uso GLOBAL de la app, así que
   // cada navegador puede frenar antes de que Strava bloquee (429).
-  //   LÃ­mites: ~100 cada 15 min (corto) Â· ~1000 al dÃ­a (diario)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  const STRAVA_MARGEN_15M = 5;  // margen de seguridad bajo el lÃ­mite de 15 min
+  //   Límites: ~100 cada 15 min (corto) · ~1000 al día (diario)
+  // ══════════════════════════════════════════════════════════════
+  const STRAVA_MARGEN_15M = 5;  // margen de seguridad bajo el límite de 15 min
 
   function _getStravaRate() {
     try { return JSON.parse(localStorage.getItem('stravaRate') || 'null'); } catch(e) { return null; }
   }
 
-  // Â¿Podemos llamar a Strava sin arriesgar el bloqueo?
+  // ¿Podemos llamar a Strava sin arriesgar el bloqueo?
   function puedeLlamarStrava() {
-    // Â¿Estamos en un bloqueo activo por 429?
+    // ¿Estamos en un bloqueo activo por 429?
     const bloqueoHasta = parseInt(localStorage.getItem('stravaBlockedUntil') || '0');
     if (Date.now() < bloqueoHasta) return false;
 
     const r = _getStravaRate();
-    if (!r) return true; // sin datos aÃºn â†’ permitir (la primera llamada nos darÃ¡ los headers)
+    if (!r) return true; // sin datos aún → permitir (la primera llamada nos dará los headers)
 
     // La ventana de 15 min de Strava se reinicia en los minutos :00 :15 :30 :45.
-    // Si el Ãºltimo dato es de una ventana anterior, el contador corto ya se reiniciÃ³.
+    // Si el último dato es de una ventana anterior, el contador corto ya se reinició.
     const ventanaActual = Math.floor(Date.now() / (15 * 60 * 1000));
-    if (r.ventana !== ventanaActual) return true; // ventana nueva â†’ contador corto reiniciado
+    if (r.ventana !== ventanaActual) return true; // ventana nueva → contador corto reiniciado
 
-    // Misma ventana: frenar si estamos cerca del lÃ­mite corto
+    // Misma ventana: frenar si estamos cerca del límite corto
     if (r.shortLimit && r.short >= (r.shortLimit - STRAVA_MARGEN_15M)) return false;
-    // Frenar tambiÃ©n si tocamos el diario
+    // Frenar también si tocamos el diario
     if (r.dailyLimit && r.daily >= r.dailyLimit) return false;
     return true;
   }
@@ -476,21 +473,21 @@
     return res;
   }
 
-  let _stravaYaCargado   = false;          // se resetea en cada carga de pÃ¡gina
+  let _stravaYaCargado   = false;          // se resetea en cada carga de página
   let _stravaSyncEnCurso = false;          // evita disparos concurrentes (doble llamada)
-  const STRAVA_FRESH_MS  = 10 * 60 * 1000; // 10 min: no re-llamar a Strava si estÃ¡ fresco
+  const STRAVA_FRESH_MS  = 10 * 60 * 1000; // 10 min: no re-llamar a Strava si está fresco
 
   function _marcarStravaConectado() {
     const card = document.getElementById('btnStrava');
     if (card) card.classList.add('conectado');
     const st = document.getElementById('stravaStatus');
-    if (st) st.textContent = 'âœ“ Conectado';
+    if (st) st.textContent = '✓ Conectado';
   }
 
   async function cargarDatosStrava(accessToken, force = false) {
-    // Anti doble disparo: si ya hay una sincronizaciÃ³n en curso, no lances otra
+    // Anti doble disparo: si ya hay una sincronización en curso, no lances otra
     if (_stravaSyncEnCurso) return;
-    // Frescura: si ya cargamos en esta sesiÃ³n y los datos son recientes, no re-llamamos
+    // Frescura: si ya cargamos en esta sesión y los datos son recientes, no re-llamamos
     if (!force && _stravaYaCargado) {
       const last = parseInt(localStorage.getItem('strava_last_sync') || '0');
       if (Date.now() - last < STRAVA_FRESH_MS) { _marcarStravaConectado(); return; }
@@ -500,8 +497,8 @@
       // Marcar Strava como conectado
       _marcarStravaConectado();
 
-      // Historial reciente en UNA sola llamada; la actividad mÃ¡s reciente (con
-      // distancia) es la primera de la lista â†’ sirve para el hero sin pedirla aparte.
+      // Historial reciente en UNA sola llamada; la actividad más reciente (con
+      // distancia) es la primera de la lista → sirve para el hero sin pedirla aparte.
       const actividades = await fetchTodasLasCarreras(accessToken);
 
       if (actividades.length > 0) {
@@ -515,7 +512,7 @@
         const elNombre = document.getElementById('actNombre');
         const elFecha  = document.getElementById('actFecha');
         if (elNombre) elNombre.textContent = a.name || 'Actividad';
-        if (elFecha)  elFecha.textContent  = `${dia} ${mes} Â· ${hora}`;
+        if (elFecha)  elFecha.textContent  = `${dia} ${mes} · ${hora}`;
 
         // Distancia
         const elDist = document.getElementById('actDist');
@@ -544,39 +541,39 @@
         const fcProm = a.average_heartrate || '--';
         const elFC = document.getElementById('actFC');
         if (elFC) elFC.textContent = typeof fcProm === 'number' ? Math.round(fcProm) : fcProm;
-        // SubtÃ­tulo del grÃ¡fico FC (media Â· mÃ¡x reales)
+        // Subtítulo del gráfico FC (media · máx reales)
         const fcSub = document.getElementById('fcChartSub');
         if (fcSub) {
           const media = typeof fcProm === 'number' ? Math.round(fcProm) + ' ppm media' : '';
-          const max   = a.max_heartrate ? ' Â· ' + Math.round(a.max_heartrate) + ' mÃ¡x' : '';
-          fcSub.textContent = media ? media + max : 'â€”';
+          const max   = a.max_heartrate ? ' · ' + Math.round(a.max_heartrate) + ' máx' : '';
+          fcSub.textContent = media ? media + max : '—';
         }
 
-        // MÃ©tricas globales
+        // Métricas globales
         const kcal = a.calories || Math.round(totalSeg / 60 * 8);
         const elKcal = document.getElementById('mKcalQuem');
         const elFCm  = document.getElementById('mFC');
         if (elKcal) elKcal.textContent = kcal.toLocaleString();
         if (elFCm)  elFCm.textContent  = typeof fcProm === 'number' ? Math.round(fcProm) : fcProm;
 
-        // Icono segÃºn tipo de actividad
+        // Icono según tipo de actividad
         actualizarIconoActividad(a.type);
 
-        // Streams reales para grÃ¡ficos FC y Ritmo
+        // Streams reales para gráficos FC y Ritmo
         cargarStreamsActividad(accessToken, a.id, a.type);
       }
 
-      // PRs automÃ¡ticos en background â€” reusa el historial ya descargado (sin re-fetch)
+      // PRs automáticos en background — reusa el historial ya descargado (sin re-fetch)
       cargarPRsStrava(accessToken, actividades);
 
-      // Info del atleta â€” SOLO en el primer connect (cuando aÃºn no tenemos el ID).
+      // Info del atleta — SOLO en el primer connect (cuando aún no tenemos el ID).
       // Evita una llamada a /athlete en cada entrada posterior.
       if (!localStorage.getItem('strava_athlete_id')) {
         const atletaRes  = await stravaFetch('https://www.strava.com/api/v3/athlete', accessToken);
         const atletaData = await atletaRes.json();
         if (atletaData.id) {
           localStorage.setItem('strava_athlete_id', String(atletaData.id));
-          // VÃ­nculo uidâ†’stravaId en el Worker para que el coach lo detecte
+          // Vínculo uid→stravaId en el Worker para que el coach lo detecte
           const uid = window._auth?.currentUser?.uid;
           if (uid) {
             const existingProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -600,7 +597,7 @@
       const prevSessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
       if (prevSessions.length) pushRuckingToCloud(prevSessions);
 
-      // Datos cargados correctamente â†’ marcar frescura para no re-llamar en la sesiÃ³n
+      // Datos cargados correctamente → marcar frescura para no re-llamar en la sesión
       localStorage.setItem('strava_last_sync', String(Date.now()));
       _stravaYaCargado = true;
 
@@ -612,17 +609,17 @@
     }
   }
 
-  // Muestra un estado amigable cuando Strava estÃ¡ limitando (no es un error real)
+  // Muestra un estado amigable cuando Strava está limitando (no es un error real)
   function mostrarEstadoRateLimit() {
     const bloqueoHasta = parseInt(localStorage.getItem('stravaBlockedUntil') || '0');
     const min = Math.max(1, Math.ceil((bloqueoHasta - Date.now()) / 60000));
     const stravaStatus = document.getElementById('stravaStatus');
-    if (stravaStatus) stravaStatus.textContent = `Strava ocupado Â· reintenta en ~${min} min`;
+    if (stravaStatus) stravaStatus.textContent = `Strava ocupado · reintenta en ~${min} min`;
     const card = document.getElementById('btnStrava');
     if (card) card.classList.remove('sincronizando');
   }
 
-  // â”€â”€ ICONOS POR TIPO DE ACTIVIDAD â”€â”€
+  // ── ICONOS POR TIPO DE ACTIVIDAD ──
   function actualizarIconoActividad(tipo) {
     const c = '#C9A84C';
     const a = `width="30" height="30" fill="none" stroke="${c}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`;
@@ -658,7 +655,7 @@
     el.innerHTML = icons[tipo] || defaultIcon;
   }
 
-  // â”€â”€ HELPER: muestrear array a N puntos uniformes â”€â”€
+  // ── HELPER: muestrear array a N puntos uniformes ──
   function muestrarDatos(arr, n) {
     if (!arr || arr.length === 0) return [];
     if (arr.length <= n) return [...arr];
@@ -666,7 +663,7 @@
     return Array.from({length: n}, (_, i) => arr[Math.round(i * step)]);
   }
 
-  // â”€â”€ ZONAS FC DESDE STRAVA â”€â”€
+  // ── ZONAS FC DESDE STRAVA ──
   async function cargarZonasActividad(token, actId) {
     // Limpiar siempre antes de cargar, para que no queden datos de otra actividad
     for (let z = 1; z <= 5; z++) {
@@ -674,7 +671,7 @@
       const elPct  = document.getElementById('zPct' + z);
       const elBar  = document.getElementById('zBar' + z);
       if (elTime) elTime.textContent = '--:--';
-      if (elPct)  elPct.textContent  = 'â€”';
+      if (elPct)  elPct.textContent  = '—';
       if (elBar)  elBar.style.width  = '0%';
     }
     try {
@@ -682,7 +679,7 @@
         `https://www.strava.com/api/v3/activities/${actId}/zones`, token
       );
       const zonas = await res.json();
-      // Buscar la distribuciÃ³n de HR zones
+      // Buscar la distribución de HR zones
       const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
       if (!hrZone || !hrZone.distribution_buckets) return;
 
@@ -691,7 +688,7 @@
       if (totalSeg === 0) return;
 
       // Mapear: bucket[0]=Z1, bucket[1]=Z2, ..., bucket[4]=Z5
-      // En el HTML: z1=Calent, z2=Suave, z3=AerÃ³b, z4=Umbral, z5=MÃ¡x
+      // En el HTML: z1=Calent, z2=Suave, z3=Aerób, z4=Umbral, z5=Máx
       buckets.forEach((b, i) => {
         const z = i + 1; // 1-5
         const seg = b.time;
@@ -710,7 +707,7 @@
     } catch(e) { console.error('Zonas error:', e); }
   }
 
-  // â”€â”€ STREAMS DE STRAVA â†’ GRÃFICOS REALES â”€â”€
+  // ── STREAMS DE STRAVA → GRÁFICOS REALES ──
   async function cargarStreamsActividad(token, actId, tipo) {
     const cardio = ['Run','Ride','VirtualRide','EBikeRide','Swim','Walk','Hike','Rowing','Kayaking','NordicSki','Skiing'];
     if (!cardio.includes(tipo)) return;
@@ -723,7 +720,7 @@
       const s = await res.json();
       const N = 22;
 
-      // Etiquetas de tiempo MM:SS (reales, compartidas por ambos grÃ¡ficos)
+      // Etiquetas de tiempo MM:SS (reales, compartidas por ambos gráficos)
       const tS = s.time ? muestrarDatos(s.time.data, N) : [];
       const labels = tS.map(t => {
         const m = Math.floor(t / 60);
@@ -733,7 +730,7 @@
 
       // FC
       const hrS = (s.heartrate) ? muestrarDatos(s.heartrate.data, N) : [];
-      // Ritmo (m/s â†’ min/km)
+      // Ritmo (m/s → min/km)
       const paceS = (s.velocity_smooth)
         ? muestrarDatos(s.velocity_smooth.data, N).map(v => v > 0.5 ? parseFloat(((1000/60)/v).toFixed(2)) : null)
         : [];
@@ -754,15 +751,15 @@
     } catch(e) { console.error('Streams error:', e); }
   }
 
-  // â”€â”€ PRs AUTOMÃTICOS DESDE STRAVA (con tolerancia GPS, paginado) â”€â”€
+  // ── PRs AUTOMÁTICOS DESDE STRAVA (con tolerancia GPS, paginado) ──
   const STRAVA_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
 
   async function fetchTodasLasCarreras(token) {
-    // UNA sola llamada: las 200 actividades mÃ¡s recientes.
+    // UNA sola llamada: las 200 actividades más recientes.
     // Suficiente para rTSS (10 sem), resumen mensual (~9 meses) y PRs recientes,
-    // y evita el golpe de hasta 5 llamadas en la conexiÃ³n inicial.
+    // y evita el golpe de hasta 5 llamadas en la conexión inicial.
     if (!puedeLlamarStrava()) {
-      console.warn('[Strava] LÃ­mite cerca â€” se usa el cache existente.');
+      console.warn('[Strava] Límite cerca — se usa el cache existente.');
       return [];
     }
     const res = await stravaFetch(
@@ -773,7 +770,7 @@
     return batch.filter(a => a.distance > 0);
   }
 
-  // â”€â”€ RUCKING: detecciÃ³n desde Strava â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── RUCKING: detección desde Strava ───────────────────────────
   const RUCK_DIST_CATS = [5,8,10,12,15,18,20,25,30,32,35,40]; // km
 
   function parseLastreKg(name) {
@@ -782,7 +779,7 @@
   }
 
   // Tipos a pie que pueden llevar lastre. La palabra "Lastre XX kg" en el
-  // tÃ­tulo es el interruptor maestro: cualquier actividad a pie con lastre â†’ rucking.
+  // título es el interruptor maestro: cualquier actividad a pie con lastre → rucking.
   const FOOT_RUCK_TYPES = new Set(['Walk','Hike','Run','TrailRun','VirtualRun','Treadmill']);
 
   function detectarRuckingDesdeStrava(allActs) {
@@ -803,7 +800,7 @@
       const elevM   = Math.round(a.total_elevation_gain || 0);
       const dateStr = (a.start_date_local || '').split('T')[0] || new Date().toISOString().split('T')[0];
 
-      // Redondear a categorÃ­a de distancia mÃ¡s cercana (Â±15%)
+      // Redondear a categoría de distancia más cercana (±15%)
       let distCat = parseFloat(distKm.toFixed(2));
       let minDiff = Infinity;
       for (const d of RUCK_DIST_CATS) {
@@ -865,23 +862,23 @@
 
   async function cargarPRsStrava(token, preActs) {
     try {
-      // Indicador de sincronizaciÃ³n
+      // Indicador de sincronización
       const stravaCard   = document.getElementById('btnStrava');
       const stravaStatus = document.getElementById('stravaStatus');
       if (stravaCard)   stravaCard.classList.add('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = 'Sincronizando historialâ€¦';
+      if (stravaStatus) stravaStatus.textContent = 'Sincronizando historial…';
 
       // Reusa el historial pasado por cargarDatosStrava; solo refetcha si no vino
       const allActs = (preActs && preActs.length) ? preActs : await fetchTodasLasCarreras(token);
-      // Una carrera con "Lastre" se desvÃ­a a rucking â†’ se excluye del pool de endurance
+      // Una carrera con "Lastre" se desvía a rucking → se excluye del pool de endurance
       const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null);
 
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = `âœ“ ${runs.length} carreras cargadas`;
+      if (stravaStatus) stravaStatus.textContent = `✓ ${runs.length} carreras cargadas`;
 
       if (runs.length === 0) return;
 
-      // Tolerancia GPS: Â±50m en todas las distancias
+      // Tolerancia GPS: ±50m en todas las distancias
       const cats = {
         '1km':   { t:  1000, lo:  950, hi:  1050 },
         '2km':   { t:  2000, lo: 1950, hi:  2050 },
@@ -911,7 +908,7 @@
       }
 
       if (updatedKeys.length) {
-        // â”€â”€ Sincronizar con manualTimesHistory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Sincronizar con manualTimesHistory ─────────────────────────
         // Strava aporta el historial real de carreras; se guarda junto a
         // las entradas manuales del atleta (sin sobreescribirlas).
         const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
@@ -919,7 +916,7 @@
           if (!history[key]) history[key] = [];
           // Remover entradas anteriores de Strava para este distancia
           history[key] = history[key].filter(e => e.source !== 'strava');
-          // AÃ±adir las nuevas desde Strava
+          // Añadir las nuevas desde Strava
           const stravaEntries = prData[key].map(e => ({
             date:   e.date.toISOString().slice(0, 10),
             time:   secToTime(e.seconds),
@@ -933,7 +930,7 @@
         // Reconstruir prData combinando Strava + entradas manuales
         buildPRDataFromHistory(history);
 
-        // Verificar nuevos rÃ©cords y festejar
+        // Verificar nuevos récords y festejar
         updatedKeys.forEach(k => {
           const entries = prData[k];
           if (entries && entries.length) {
@@ -942,7 +939,7 @@
           }
         });
 
-        // Actualizar grÃ¡fico con la distancia activa
+        // Actualizar gráfico con la distancia activa
         const activeBtn = document.querySelector('.th-dist-btn.active');
         const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
         const dist = m ? m[1] : updatedKeys[0];
@@ -953,19 +950,19 @@
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
 
-      // Detectar actividad 5km nueva para sugerir actualizaciÃ³n de zonas
+      // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
 
-      // Detectar carrera 3200m â†’ sugerir actualizaciÃ³n TMR (Kraemer)
+      // Detectar carrera 3200m → sugerir actualización TMR (Kraemer)
       checkStrava3200mUpdate(runs);
 
-      // Detectar evaluaciÃ³n 5 minutos â†’ sugerir actualizaciÃ³n V PICO
+      // Detectar evaluación 5 minutos → sugerir actualización V PICO
       checkStravaEv5minUpdate(allActs);
 
-      // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el tÃ­tulo)
+      // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el título)
       detectarRuckingDesdeStrava(allActs);
 
-      // Detectar nueva FC mÃ¡xima en las actividades y actualizar perfil
+      // Detectar nueva FC máxima en las actividades y actualizar perfil
       detectarFCMaxDesdeStrava(allActs);
 
       // Cachear actividades (compacto) para resumen mensual
@@ -974,9 +971,9 @@
       // Subir stats Strava al cloud para que el coach las vea
       pushStravaStatsToCloud(allActs);
 
-      // Renderizar resumen mensual con el mes mÃ¡s reciente
+      // Renderizar resumen mensual con el mes más reciente
       if (typeof renderResumenMensual === 'function') renderResumenMensual();
-      // Recalcular carga rTSS con las actividades reciÃ©n sincronizadas
+      // Recalcular carga rTSS con las actividades recién sincronizadas
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
 
     } catch(e) {
@@ -998,7 +995,7 @@
       const ritmoSeg = km > 0 && sec > 0 ? sec / km : null;
       const ritmo = ritmoSeg ? `${Math.floor(ritmoSeg/60)}:${String(Math.round(ritmoSeg%60)).padStart(2,'0')}` : null;
 
-      // â”€â”€ Volumen actual: semana en curso (desde el lunes) + mes en curso â”€â”€
+      // ── Volumen actual: semana en curso (desde el lunes) + mes en curso ──
       const hoy = new Date();
       const lunes = new Date(hoy); lunes.setDate(hoy.getDate() - ((hoy.getDay()+6)%7)); lunes.setHours(0,0,0,0);
       const mesAct = hoy.toISOString().slice(0,7); // YYYY-MM
@@ -1015,7 +1012,7 @@
 
       const stats = {
         km:    Math.round(km * 10) / 10,
-        ritmo: ritmo || 'â€”',
+        ritmo: ritmo || '—',
         fc:    avgFC || 0,
         acts:  recientes.length,
         totalActs: allActs.length,
@@ -1037,18 +1034,18 @@
         sec:   a.moving_time || 0,
         hr:    a.average_heartrate ? Math.round(a.average_heartrate) : null,
         type:  a.type,
-        sport: a.sport_type || a.type,              // distingue Carrera de montaÃ±a
+        sport: a.sport_type || a.type,              // distingue Carrera de montaña
         name:  a.name || ''                         // para excluir "Lastre" del pool endurance
       }));
     localStorage.setItem('stravaActsCache', JSON.stringify(compact));
   }
 
-  // Busca la FC mÃ¡xima registrada en Strava y actualiza el perfil del atleta
+  // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
   function detectarFCMaxDesdeStrava(allActs) {
     // max_heartrate viene en actividades con sensor de FC
     const fcs = allActs
       .map(a => a.max_heartrate)
-      .filter(fc => fc && fc > 100 && fc < 230); // rango fisiolÃ³gico vÃ¡lido
+      .filter(fc => fc && fc > 100 && fc < 230); // rango fisiológico válido
     if (!fcs.length) return;
 
     const fcMaxStrava = Math.round(Math.max(...fcs));
@@ -1056,11 +1053,11 @@
     const fcGuardada = perfil.fcMax || 0;
     const fuenteGuardada = perfil.fcMaxFuente || null;
 
-    // La FC mÃ¡x MEDIDA (Strava) siempre gana sobre la ESTIMADA (Nes).
+    // La FC máx MEDIDA (Strava) siempre gana sobre la ESTIMADA (Nes).
     // Entre dos medidas, gana la mayor.
     const reemplazar =
-      fuenteGuardada !== 'strava'        // estimada o vacÃ­a â†’ medida gana siempre
-      || fcMaxStrava > fcGuardada;        // ya era medida â†’ solo si es mayor
+      fuenteGuardada !== 'strava'        // estimada o vacía → medida gana siempre
+      || fcMaxStrava > fcGuardada;        // ya era medida → solo si es mayor
 
     if (reemplazar && fcMaxStrava !== fcGuardada) {
       perfil.fcMax = fcMaxStrava;
@@ -1068,7 +1065,7 @@
       perfil.fcMaxFecha = new Date().toISOString().slice(0, 10);
       localStorage.setItem('atletaPerfil', JSON.stringify(perfil));
 
-      // Prellenar el campo de FC mÃ¡x en Zonas de Carrera si estÃ¡ vacÃ­o
+      // Prellenar el campo de FC máx en Zonas de Carrera si está vacío
       const inp = document.getElementById('inputFcMax');
       if (inp && (!inp.value || parseInt(inp.value) < fcMaxStrava)) {
         inp.value = fcMaxStrava;
@@ -1076,17 +1073,17 @@
 
       // Toast informativo (reutiliza infra de PR si existe)
       if (typeof prShowToast === 'function') {
-        prShowToast('â¤ï¸ Nueva FC mÃ¡xima detectada: ' + fcMaxStrava + ' ppm');
+        prShowToast('❤️ Nueva FC máxima detectada: ' + fcMaxStrava + ' ppm');
       }
 
-      // Actualizar resumen de perfil si estÃ¡ visible
+      // Actualizar resumen de perfil si está visible
       if (typeof actualizarResumenPerfil === 'function') {
         actualizarResumenPerfil(perfil);
       }
     }
   }
 
-  // â”€â”€ RESUMEN MENSUAL DE VOLUMEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── RESUMEN MENSUAL DE VOLUMEN ─────────────────────────────────────────────
   let _resMesActivo = null; // 'YYYY-MM'
 
   const MESES_ABR = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -1138,7 +1135,7 @@
       elTmp.textContent = h > 0 ? `${h}h ${m}m` : `${m}m`;
     }
 
-    // DistribuciÃ³n por zonas FC
+    // Distribución por zonas FC
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const fcMax  = perfil.fcMax || null;
     const zonasEl    = document.getElementById('resZonasFC');
@@ -1151,8 +1148,8 @@
     }
     if (sinFcEl) sinFcEl.style.display = 'none';
 
-    // Clasificar tiempo de cada actividad por zona (segÃºn FC promedio)
-    // Umbrales Cerezuela-Espejo: Z1<71% Z2 71-82% Z3 82-89% Z4 89-94% Z5â‰¥94%
+    // Clasificar tiempo de cada actividad por zona (según FC promedio)
+    // Umbrales Cerezuela-Espejo: Z1<71% Z2 71-82% Z3 82-89% Z4 89-94% Z5≥94%
     const zonaSec = [0, 0, 0, 0, 0]; // Z1..Z5
     acts.forEach(a => {
       if (!a.hr || !a.sec) return;
@@ -1169,10 +1166,10 @@
 
     const Z = [
       { lbl:'Z1 Recup',  cls:'dash-zone-z1', color:'#5b9bd5' },
-      { lbl:'Z2 AerÃ³b',  cls:'dash-zone-z2', color:'#27ae60' },
+      { lbl:'Z2 Aerób',  cls:'dash-zone-z2', color:'#27ae60' },
       { lbl:'Z3 Tempo',  cls:'dash-zone-z3', color:'#f39c12' },
       { lbl:'Z4 Umbral', cls:'dash-zone-z4', color:'#e67e22' },
-      { lbl:'Z5 MÃ¡x',    cls:'dash-zone-z5', color:'#e74c3c' },
+      { lbl:'Z5 Máx',    cls:'dash-zone-z5', color:'#e74c3c' },
     ];
 
     if (zonasEl) {
@@ -1201,7 +1198,7 @@
     flipEl(document.getElementById('resContenido'));
   }
 
-  // â”€â”€ Guardar sesiÃ³n Strava completa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Guardar sesión Strava completa ───────────────────────────
   function guardarSesionStrava(data) {
     localStorage.setItem('strava_token',   data.access_token);
     localStorage.setItem('strava_expiry',  String(data.expires_at));
@@ -1210,7 +1207,7 @@
     }
   }
 
-  // â”€â”€ Renovar token Strava silenciosamente â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Renovar token Strava silenciosamente ──────────────────────
   async function refreshStravaToken() {
     const refreshToken = localStorage.getItem('strava_refresh');
     if (!refreshToken) return null;
@@ -1231,7 +1228,7 @@
     return null;
   }
 
-  // â”€â”€ Revisar y usar token de Strava (con auto-refresh) â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Revisar y usar token de Strava (con auto-refresh) ─────────
   async function checkStravaToken() {
     const token  = localStorage.getItem('strava_token');
     const expiry = parseInt(localStorage.getItem('strava_expiry') || '0');
@@ -1243,20 +1240,20 @@
     }
 
     // Si hay refresh token, mostrar estado "reconectando" inmediatamente
-    // para que el atleta no vea el botÃ³n "Conectar" durante el refresh
+    // para que el atleta no vea el botón "Conectar" durante el refresh
     const refreshToken = localStorage.getItem('strava_refresh');
     if (refreshToken) {
       const stravaCard   = document.getElementById('btnStrava');
       const stravaStatus = document.getElementById('stravaStatus');
       if (stravaCard)   stravaCard.classList.add('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = 'Reconectandoâ€¦';
+      if (stravaStatus) stravaStatus.textContent = 'Reconectando…';
 
       const nuevoToken = await refreshStravaToken();
       if (nuevoToken) {
         cargarDatosStrava(nuevoToken);
         return true;
       }
-      // Refresh fallido: limpiar estado cargando pero no mostrar error crÃ­tico
+      // Refresh fallido: limpiar estado cargando pero no mostrar error crítico
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
       if (stravaStatus) stravaStatus.textContent = 'Conectar';
     }
@@ -1264,7 +1261,7 @@
     return false;
   }
 
-  // Manejar callback de Strava (cÃ³digo en URL)
+  // Manejar callback de Strava (código en URL)
   async function handleStravaCallback() {
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
@@ -1281,7 +1278,7 @@
       const data = await res.json();
       if (data.access_token) {
         guardarSesionStrava(data); // guarda token + refresh_token + expiry
-        cargarDatosStrava(data.access_token, true); // connect nuevo â†’ sincroniza sÃ­ o sÃ­
+        cargarDatosStrava(data.access_token, true); // connect nuevo → sincroniza sí o sí
         const nombre = localStorage.getItem('atletaNombre') || 'Atleta';
         abrirDashboard(nombre);
       }
@@ -1299,7 +1296,7 @@
     // Limpiar URL
     window.history.replaceState({}, document.title, window.location.pathname);
 
-    // Mostrar toast de Ã©xito
+    // Mostrar toast de éxito
     const toast = document.createElement('div');
     toast.style.cssText = `
       position: fixed;
@@ -1318,11 +1315,11 @@
       max-width: 400px;
     `;
     toast.innerHTML = `
-      âœ“ <strong>Â¡Pago exitoso!</strong><br>
-      Tu plan se ha activado. En breve recibirÃ¡s el cÃ³digo de TrainHeroic por email.
+      ✓ <strong>¡Pago exitoso!</strong><br>
+      Tu plan se ha activado. En breve recibirás el código de TrainHeroic por email.
     `;
 
-    // Agregar animaciÃ³n
+    // Agregar animación
     const style = document.createElement('style');
     style.textContent = `
       @keyframes slideIn {
@@ -1333,37 +1330,37 @@
     document.head.appendChild(style);
     document.body.appendChild(toast);
 
-    // Auto-cerrar despuÃ©s de 6 segundos
+    // Auto-cerrar después de 6 segundos
     setTimeout(() => {
       toast.style.animation = 'slideIn 0.4s cubic-bezier(0.22,1,0.36,1) reverse forwards';
       setTimeout(() => toast.remove(), 400);
     }, 6000);
 
-    // Guardar en localStorage que el usuario comprÃ³ (opcional, para stats)
+    // Guardar en localStorage que el usuario compró (opcional, para stats)
     const compras = JSON.parse(localStorage.getItem('comprasPagosExitosos') || '[]');
     compras.push({ timestamp: Date.now(), tipo: 'pago' });
     localStorage.setItem('comprasPagosExitosos', JSON.stringify(compras));
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // MÃ“DULO NUTRICIÃ“N â€” FatSecret (lectura del diario del atleta)
+  // ══════════════════════════════════════════════════════════════
+  // MÓDULO NUTRICIÓN — FatSecret (lectura del diario del atleta)
   // El atleta registra comida en SU app FatSecret (dato chileno + gasto
-  // de Garmin). AquÃ­ solo conectamos y leemos kcal/macros/gasto.
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // de Garmin). Aquí solo conectamos y leemos kcal/macros/gasto.
+  // ══════════════════════════════════════════════════════════════
   const FS_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
   const FS_KEY    = 'ME-sync-26';
-  // Config de macros que fija el coach (% de distribuciÃ³n + ajuste kcal de meta).
-  // Default 15% grasa / 25% proteÃ­na / 60% carbos; se sobreescribe desde el worker.
+  // Config de macros que fija el coach (% de distribución + ajuste kcal de meta).
+  // Default 15% grasa / 25% proteína / 60% carbos; se sobreescribe desde el worker.
   let _fsConfig = { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
 
   function _fsUid() { return window._auth?.currentUser?.uid || null; }
 
-  // Paso 1: pedir URL de autorizaciÃ³n y redirigir al atleta a FatSecret
+  // Paso 1: pedir URL de autorización y redirigir al atleta a FatSecret
   async function conectarFatSecret() {
     const uid = _fsUid();
-    if (!uid) { alert('Inicia sesiÃ³n para conectar tu cuenta de FatSecret.'); return; }
+    if (!uid) { alert('Inicia sesión para conectar tu cuenta de FatSecret.'); return; }
     const btn = document.getElementById('btnFatSecret');
-    if (btn) { btn.disabled = true; btn.textContent = 'Conectandoâ€¦'; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Conectando…'; }
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/request`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1373,7 +1370,7 @@
       if (data.ok && data.authUrl) {
         window.location.href = data.authUrl;
       } else {
-        alert('No se pudo iniciar la conexiÃ³n con FatSecret. Intenta de nuevo.');
+        alert('No se pudo iniciar la conexión con FatSecret. Intenta de nuevo.');
         if (btn) { btn.disabled = false; btn.textContent = 'Conectar con FatSecret'; }
       }
     } catch(e) {
@@ -1389,9 +1386,9 @@
     if (!fs) return;
     window.history.replaceState({}, document.title, window.location.pathname);
     if (fs === 'ok') {
-      _fsToast('âœ“ FatSecret conectado. Pulsa â€œSincronizarâ€ para ver tu diario.', '#27ae60');
+      _fsToast('✓ FatSecret conectado. Pulsa “Sincronizar” para ver tu diario.', '#27ae60');
     } else if (fs === 'expired') {
-      _fsToast('La autorizaciÃ³n expirÃ³. Intenta conectar de nuevo.', '#e67e22');
+      _fsToast('La autorización expiró. Intenta conectar de nuevo.', '#e67e22');
     } else {
       _fsToast('No se pudo conectar FatSecret. Intenta de nuevo.', '#8B1A1A');
     }
@@ -1406,8 +1403,8 @@
     el.textContent = 'Actualizado ' + d.toLocaleDateString('es-CL', { day:'numeric', month:'short' }) + ' ' + d.toLocaleTimeString('es-CL', { hour:'2-digit', minute:'2-digit' });
   }
 
-  // Estado inicial al abrir: muestra lo ÃšLTIMO sincronizado (cache) sin llamar a
-  // FatSecret. El contenido queda visible; el botÃ³n "Actualizar hoy" lo refresca.
+  // Estado inicial al abrir: muestra lo ÚLTIMO sincronizado (cache) sin llamar a
+  // FatSecret. El contenido queda visible; el botón "Actualizar hoy" lo refresca.
   async function _fsInit() {
     const uid = _fsUid(); if (!uid) return;
     const desc = document.getElementById('nutriDesconectado');
@@ -1425,7 +1422,7 @@
       _fsUltActLabel(cache.ts);
       return;
     }
-    // 2) Sin datos previos: verificar conexiÃ³n (barato) y ofrecer la 1Âª sincronizaciÃ³n
+    // 2) Sin datos previos: verificar conexión (barato) y ofrecer la 1ª sincronización
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/status?uid=${encodeURIComponent(uid)}`);
       const d = await res.json();
@@ -1434,7 +1431,7 @@
     } catch(e) { if (desc) desc.style.display = ''; }
   }
 
-  // Lee y renderiza el diario del atleta (solo bajo demanda: botÃ³n "Sincronizar").
+  // Lee y renderiza el diario del atleta (solo bajo demanda: botón "Sincronizar").
   async function cargarDatosFatSecret() {
     const uid = _fsUid();
     if (!uid) return;
@@ -1471,7 +1468,7 @@
     }
   }
 
-  // Normaliza month.day a array (FatSecret devuelve objeto si hay un solo dÃ­a)
+  // Normaliza month.day a array (FatSecret devuelve objeto si hay un solo día)
   function _fsDays(monthResp) {
     const m = monthResp && monthResp.month;
     if (!m || !m.day) return [];
@@ -1485,7 +1482,7 @@
     const diaInt = hoyInt; // siempre mostramos HOY
     const dia = foodDays.find(x => Number(x.date_int) === hoyInt) || null;
     const sinRegistro = !dia;
-    document.getElementById('nutriDiaLabel').textContent = sinRegistro ? 'Hoy Â· sin registros aÃºn' : 'Hoy';
+    document.getElementById('nutriDiaLabel').textContent = sinRegistro ? 'Hoy · sin registros aún' : 'Hoy';
 
     const kcal = dia ? Math.round(Number(dia.calories) || 0) : 0;
     const prot = dia ? Math.round(Number(dia.protein) || 0) : 0;
@@ -1494,7 +1491,7 @@
 
     document.getElementById('nutriIngeridas').textContent = kcal.toLocaleString('es-CL');
 
-    // Gasto del dÃ­a desde Garmin (informativo, lÃ­nea inferior)
+    // Gasto del día desde Garmin (informativo, línea inferior)
     const exer = exerDays.find(d => Number(d.date_int) === diaInt);
     const gasto = exer ? Math.round(Number(exer.calories) || 0) : null;
     const gEl = document.getElementById('nutriGastadas');
@@ -1505,57 +1502,57 @@
       gFuente.style.color = '#27ae60';
       gFuente.style.cursor = ''; gFuente.style.textDecoration = ''; gFuente.onclick = null;
     } else {
-      gEl.textContent = 'â€”';
-      gFuente.textContent = 'conecta tu reloj â†’';
+      gEl.textContent = '—';
+      gFuente.textContent = 'conecta tu reloj →';
       gFuente.style.color = '#e0a82e';
       gFuente.style.cursor = 'pointer'; gFuente.style.textDecoration = 'underline'; gFuente.onclick = abrirGuiaReloj;
     }
 
-    // Objetivo del dÃ­a (gasto + ajuste del coach, o estimado si no hay Garmin)
+    // Objetivo del día (gasto + ajuste del coach, o estimado si no hay Garmin)
     const obj = _fsObjetivo(gasto);
     const objEl = document.getElementById('nutriObjetivo');
     const objFuenteEl = document.getElementById('nutriObjFuente');
     if (obj.kcal) {
       objEl.textContent = obj.kcal.toLocaleString('es-CL');
-      objFuenteEl.textContent = 'kcal Â· ' + obj.fuente;
+      objFuenteEl.textContent = 'kcal · ' + obj.fuente;
     } else {
-      objEl.textContent = 'â€”';
+      objEl.textContent = '—';
       objFuenteEl.textContent = 'completa Mi Perfil';
     }
 
-    // Balance del dÃ­a vs OBJETIVO: ingerido âˆ’ objetivo (dÃ©ficit/superÃ¡vit respecto a la meta)
+    // Balance del día vs OBJETIVO: ingerido − objetivo (déficit/superávit respecto a la meta)
     const balEl = document.getElementById('nutriBalance');
     if (obj.kcal && !sinRegistro) {
       const bal = kcal - obj.kcal;
       balEl.textContent = (bal > 0 ? '+' : '') + bal.toLocaleString('es-CL');
       balEl.style.color = bal > 0 ? '#C9A84C' : '#00b8c4';
-      document.getElementById('nutriBalanceLbl').textContent = bal > 0 ? 'superÃ¡vit' : 'dÃ©ficit';
+      document.getElementById('nutriBalanceLbl').textContent = bal > 0 ? 'superávit' : 'déficit';
     } else {
-      balEl.textContent = 'â€”';
+      balEl.textContent = '—';
       balEl.style.color = '#ccc';
       document.getElementById('nutriBalanceLbl').textContent = sinRegistro ? 'sin registro hoy' : 'vs meta';
     }
 
-    // Macros (barras tipo baterÃ­a): consumido Ã· objetivo
+    // Macros (barras tipo batería): consumido ÷ objetivo
     _fsBat('batProt', 'protG', 'protMeta', prot, obj.prot);
     _fsBat('batCarb', 'carbG', 'carbMeta', carb, obj.carb);
     _fsBat('batFat',  'fatG',  'fatMeta',  fat,  obj.fat);
 
     // Balance semanal (usa los datos del mes ya cargados, sin llamadas extra)
     _fsSemana(foodDays, exerDays, hoyInt);
-    // Contexto para el selector de dÃ­a del detalle
+    // Contexto para el selector de día del detalle
     _fsCtx = { foodDays, exerDays, hoyInt };
     _fsSelDia = diaInt;
     document.getElementById('nutriDetDiaTxt').textContent = 'Hoy';
     const _selEl = document.getElementById('nutriDetSelector');
     if (_selEl && _selEl.style.display !== 'none') _renderDetSelector();
-    // Detalle del dÃ­a por comida
+    // Detalle del día por comida
     cargarDetalleDia(diaInt);
   }
 
-  // â”€â”€ Selector de dÃ­a (semana en curso) para el detalle â”€â”€
-  let _fsCtx = null;     // {foodDays, exerDays, hoyInt} de la Ãºltima carga
-  let _fsSelDia = null;  // dÃ­a entero seleccionado en el detalle
+  // ── Selector de día (semana en curso) para el detalle ──
+  let _fsCtx = null;     // {foodDays, exerDays, hoyInt} de la última carga
+  let _fsSelDia = null;  // día entero seleccionado en el detalle
 
   function _fsDetCacheKey() { const uid = _fsUid(); return uid ? 'nutriDetCache_' + uid : null; }
   function _fsDetCacheGet() {
@@ -1576,10 +1573,10 @@
     const sel = document.getElementById('nutriDetSelector');
     const caret = document.getElementById('nutriDetCaret');
     if (!sel) return;
-    if (sel.style.display === 'flex') { sel.style.display = 'none'; if (caret) caret.textContent = 'â–¾'; return; }
+    if (sel.style.display === 'flex') { sel.style.display = 'none'; if (caret) caret.textContent = '▾'; return; }
     _renderDetSelector();
     sel.style.display = 'flex';
-    if (caret) caret.textContent = 'â–´';
+    if (caret) caret.textContent = '▴';
   }
 
   function _renderDetSelector() {
@@ -1618,9 +1615,9 @@
     cargarDetalleDia(d);
   }
 
-  // Resumen de la semana en curso (lunesâ†’domingo): balance (ingerido âˆ’ gastado) por dÃ­a.
+  // Resumen de la semana en curso (lunes→domingo): balance (ingerido − gastado) por día.
   function _fsSemana(foodDays, exerDays, hoyInt) {
-    // Lunes de la semana actual: getUTCDay sobre el dÃ­a entero (1=lun â€¦ 0=dom)
+    // Lunes de la semana actual: getUTCDay sobre el día entero (1=lun … 0=dom)
     const dowHoy = new Date(hoyInt * 86400000).getUTCDay();
     const lunes = hoyInt - (dowHoy === 0 ? 6 : dowHoy - 1);
     const dias = [];
@@ -1628,13 +1625,13 @@
     for (let d = lunes; d <= lunes + 6; d++) {
       const f = foodDays.find(x => Number(x.date_int) === d);
       const e = exerDays.find(x => Number(x.date_int) === d);
-      // Solo cuentan los dÃ­as con comida registrada: sin registro â‰  dÃ©ficit.
+      // Solo cuentan los días con comida registrada: sin registro ≠ déficit.
       const tiene = !!f && d <= hoyInt;
       let bal = null;
       if (tiene) {
         const ing = Number(f.calories) || 0;
         const gas = e ? Number(e.calories) || 0 : null;
-        const obj = _fsObjetivo(gas).kcal;          // objetivo del dÃ­a (gasto+ajuste, o estimado)
+        const obj = _fsObjetivo(gas).kcal;          // objetivo del día (gasto+ajuste, o estimado)
         if (obj) { bal = Math.round(ing - obj); total += bal; n++; if (Math.abs(bal) > maxAbs) maxAbs = Math.abs(bal); }
       }
       dias.push({ d, bal });
@@ -1645,11 +1642,11 @@
       totalEl.style.color = total > 0 ? '#C9A84C' : '#00b8c4';
     }
     const promEl = document.getElementById('nutriSemProm');
-    if (promEl) promEl.textContent = n ? ('promedio ' + (total/n > 0 ? '+' : '') + Math.round(total/n).toLocaleString('es-CL') + ' kcal/dÃ­a') : 'sin datos esta semana';
+    if (promEl) promEl.textContent = n ? ('promedio ' + (total/n > 0 ? '+' : '') + Math.round(total/n).toLocaleString('es-CL') + ' kcal/día') : 'sin datos esta semana';
     const cont = document.getElementById('nutriSemBarras');
     if (!cont) return;
     const dow = ['D','L','M','M','J','V','S'];
-    const BARS_H = 50;            // alto del Ã¡rea de barras (cada mitad = 25px)
+    const BARS_H = 50;            // alto del área de barras (cada mitad = 25px)
     const MAX_BAR = BARS_H/2 - 2; // tope de cada barra
     const cols = dias.map(x => {
       const ini = dow[new Date(x.d * 86400000).getUTCDay()];
@@ -1670,20 +1667,20 @@
         </div>
         <div style="font-size:8px;color:#999;font-family:'Barlow Condensed',sans-serif;margin-top:3px;">${ini}</div></div>`;
     }).join('');
-    // LÃ­nea de eje central (el 0): superÃ¡vit por encima, dÃ©ficit por debajo
+    // Línea de eje central (el 0): superávit por encima, déficit por debajo
     cont.innerHTML = `<div style="position:absolute;left:0;right:0;top:${BARS_H/2}px;height:1px;background:rgba(212,168,67,0.45);z-index:0;"></div>${cols}`;
   }
 
-  // Detalle por comida del dÃ­a (desayuno/almuerzo/cena/otros) vÃ­a /fatsecret/day
+  // Detalle por comida del día (desayuno/almuerzo/cena/otros) vía /fatsecret/day
   async function cargarDetalleDia(dayInt) {
     const cont = document.getElementById('nutriDetalle');
     if (!cont) return;
     const uid = _fsUid();
     if (!uid) return;
-    // CachÃ© por dÃ­a (solo semana en curso): evita re-consultar a FatSecret al re-abrir un dÃ­a.
+    // Caché por día (solo semana en curso): evita re-consultar a FatSecret al re-abrir un día.
     const cache = _fsDetCacheGet();
     if (cache[dayInt]) { _fsRenderDetalle(cache[dayInt], cont); return; }
-    cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargandoâ€¦</div>';
+    cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargando…</div>';
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/day`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1702,7 +1699,7 @@
     const fe = data && data.entries && data.entries.food_entries;
     if (fe && fe.food_entry) entries = Array.isArray(fe.food_entry) ? fe.food_entry : [fe.food_entry];
     if (!entries.length) {
-      cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Sin comidas registradas este dÃ­a.</div>';
+      cont.innerHTML = '<div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Sin comidas registradas este día.</div>';
       return;
     }
     const orden   = ['Breakfast','Lunch','Dinner','Other'];
@@ -1728,9 +1725,9 @@
     cont.innerHTML = html;
   }
 
-  // Calcula el objetivo de calorÃ­as y macros del atleta.
-  // Meta por defecto = mantener (objetivo calÃ³rico = gasto del dÃ­a).
-  // ProteÃ­na por masa libre de grasa (InBody) si existe; si no, por peso corporal.
+  // Calcula el objetivo de calorías y macros del atleta.
+  // Meta por defecto = mantener (objetivo calórico = gasto del día).
+  // Proteína por masa libre de grasa (InBody) si existe; si no, por peso corporal.
   function _fsObjetivo(gastoDia) {
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const uid = _fsUid();
@@ -1745,27 +1742,27 @@
     const edad  = perfil.edad || null;
     const sexo  = (perfil.sexo || '').toLowerCase();
 
-    // CalorÃ­as objetivo (meta: mantener)
+    // Calorías objetivo (meta: mantener)
     let kcal = null, fuente = '';
     if (gastoDia) {
-      kcal = gastoDia; fuente = 'segÃºn tu gasto';
+      kcal = gastoDia; fuente = 'según tu gasto';
     } else if (peso) {
       let tmb;
       if (lbm)                tmb = 370 + 21.6 * lbm;                        // Katch-McArdle (usa MLG)
       else if (talla && edad) tmb = sexo.charAt(0) === 'f'
                                     ? (10*peso + 6.25*talla - 5*edad - 161)  // Mifflin mujer
                                     : (10*peso + 6.25*talla - 5*edad + 5);   // Mifflin hombre
-      else                    tmb = 22 * peso;                               // aproximaciÃ³n gruesa
+      else                    tmb = 22 * peso;                               // aproximación gruesa
       kcal = Math.round(tmb * 1.55);                                         // factor actividad moderado
       fuente = 'estimado';
     }
     if (!kcal) return { kcal: null };
 
-    // Ajuste de meta (dÃ©ficit/superÃ¡vit) que define el coach
+    // Ajuste de meta (déficit/superávit) que define el coach
     const cfg = _fsConfig || { pctGrasa:15, pctProt:25, pctCarb:60, ajusteKcal:0 };
     kcal = Math.max(0, kcal + (Number(cfg.ajusteKcal) || 0));
 
-    // Macros por PORCENTAJE de las calorÃ­as objetivo (proteÃ­na 4 kcal/g, carbos 4, grasa 9)
+    // Macros por PORCENTAJE de las calorías objetivo (proteína 4 kcal/g, carbos 4, grasa 9)
     const prot = Math.round(kcal * (Number(cfg.pctProt)  || 25) / 100 / 4);
     const carb = Math.round(kcal * (Number(cfg.pctCarb)  || 60) / 100 / 4);
     const fat  = Math.round(kcal * (Number(cfg.pctGrasa) || 15) / 100 / 9);
@@ -1777,18 +1774,18 @@
     const gEl = document.getElementById(gramsId);
     const mEl = document.getElementById(metaId);
     if (gEl) gEl.textContent = grams + ' g';
-    if (mEl) mEl.textContent = objetivo ? ('meta ' + objetivo + ' g') : 'meta â€”';
+    if (mEl) mEl.textContent = objetivo ? ('meta ' + objetivo + ' g') : 'meta —';
     const frac = objetivo ? grams / objetivo : 0;
     if (bar) bar.style.width = Math.round(Math.min(1, Math.max(0, frac)) * 100) + '%';
   }
 
-  // "Hoy" como dÃ­a entero en la zona local del atleta (alinea con el date_int de FatSecret).
+  // "Hoy" como día entero en la zona local del atleta (alinea con el date_int de FatSecret).
   function _fsHoyInt() {
     const n = new Date();
     return Math.floor((n.getTime() - n.getTimezoneOffset() * 60000) / 86400000);
   }
 
-  // date_int â†’ etiqueta. timeZone UTC evita el corrimiento de un dÃ­a al formatear.
+  // date_int → etiqueta. timeZone UTC evita el corrimiento de un día al formatear.
   function _fsFechaLabel(dayInt) {
     const d = new Date(dayInt * 86400000);
     return d.toLocaleDateString('es-CL', { weekday:'short', day:'numeric', month:'short', timeZone:'UTC' });
@@ -1797,7 +1794,7 @@
   async function desconectarFatSecret() {
     const uid = _fsUid();
     if (!uid) return;
-    if (!confirm('Â¿Desvincular tu cuenta de FatSecret? PodrÃ¡s volver a conectarla cuando quieras.')) return;
+    if (!confirm('¿Desvincular tu cuenta de FatSecret? Podrás volver a conectarla cuando quieras.')) return;
     try {
       await fetch(`${FS_WORKER}/fatsecret/disconnect`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1818,7 +1815,7 @@
     setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 3500);
   }
 
-  // GuÃ­a para conectar el reloj a FatSecret (modal)
+  // Guía para conectar el reloj a FatSecret (modal)
   function abrirGuiaReloj() { const m = document.getElementById('guiaRelojModal'); if (m) m.style.display = 'flex'; }
   function cerrarGuiaReloj(e) { if (e && e.target !== e.currentTarget) return; const m = document.getElementById('guiaRelojModal'); if (m) m.style.display = 'none'; }
 
@@ -1864,7 +1861,7 @@
     cargarMiPerfil();
   }
 
-  // â”€â”€ MI PERFIL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── MI PERFIL ──────────────────────────────────────────────
   function toggleMiPerfil() {
     const panel = document.getElementById('miPerfilPanel');
     if (!panel) return;
@@ -1888,12 +1885,12 @@
     if (p.talla)    { const el = document.getElementById('mpTalla');    if(el) el.value = p.talla; }
     if (p.fechaNac) { const el = document.getElementById('mpFechaNac'); if(el) el.value = p.fechaNac; }
     if (p.sexo)     { const el = document.getElementById('mpSexo');     if(el) el.value = p.sexo; }
-    // FC mÃ¡x
+    // FC máx
     const fcEl = document.getElementById('mpFcMax');
     if (fcEl && p.fcMax) fcEl.value = p.fcMax;
     const badge = document.getElementById('mpFcFuenteBadge');
     if (badge) {
-      if (p.fcMaxFuente === 'strava') { badge.textContent = 'âœ“ Strava'; badge.style.color = '#FC4C02'; badge.style.background = 'rgba(252,76,2,0.08)'; }
+      if (p.fcMaxFuente === 'strava') { badge.textContent = '✓ Strava'; badge.style.color = '#FC4C02'; badge.style.background = 'rgba(252,76,2,0.08)'; }
       else if (p.fcMaxFuente === 'nes') { badge.textContent = 'estimada'; badge.style.color = '#888'; badge.style.background = 'rgba(0,0,0,0.06)'; }
       else { badge.textContent = ''; }
     }
@@ -1901,7 +1898,7 @@
     renderPesoProgresion();
   }
 
-  // â”€â”€ EvoluciÃ³n de peso dentro de "Mi Perfil" (el atleta la administra aquÃ­) â”€â”€
+  // ── Evolución de peso dentro de "Mi Perfil" (el atleta la administra aquí) ──
   let _mpPesoChart = null;
   function renderPesoProgresion() {
     const empty   = document.getElementById('mpPesoEmpty');
@@ -1919,10 +1916,10 @@
     document.getElementById('mpPesoActual').textContent = pFin;
     const delEl = document.getElementById('mpPesoDelta');
     if (serie.length < 2 || diff === 0) {
-      delEl.innerHTML = '<span style="color:#aaa;">â€” sin cambio</span>';
+      delEl.innerHTML = '<span style="color:#aaa;">— sin cambio</span>';
     } else {
-      const baja = diff < 0, c = baja ? '#2ecc71' : '#e07b00', ic = baja ? 'â–¼' : 'â–²';
-      delEl.innerHTML = `<span style="color:${c};">${ic} ${Math.abs(diff)} kg Â· ${Math.abs(pct)}%</span> <span style="color:#999;font-weight:400;">desde el inicio</span>`;
+      const baja = diff < 0, c = baja ? '#2ecc71' : '#e07b00', ic = baja ? '▼' : '▲';
+      delEl.innerHTML = `<span style="color:${c};">${ic} ${Math.abs(diff)} kg · ${Math.abs(pct)}%</span> <span style="color:#999;font-weight:400;">desde el inicio</span>`;
     }
     document.getElementById('mpPesoLista').innerHTML = serie.slice().reverse().map(m => `
       <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
@@ -1944,7 +1941,7 @@
   }
   window.renderPesoProgresion = renderPesoProgresion;
 
-  // FC mÃ¡xima estimada por edad â€” Nes et al. (2013): 211 - 0.64 Ã— edad
+  // FC máxima estimada por edad — Nes et al. (2013): 211 - 0.64 × edad
   function calcularFCMaxNes(edad) {
     if (!edad || edad < 5 || edad > 100) return null;
     return Math.round(211 - 0.64 * edad);
@@ -1989,20 +1986,20 @@
     localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
     if (peso || talla || fechaNac) pushRuckProfileToCloud(ruckProfile);
 
-    // Registrar peso en historial InBody si se ingresÃ³ un peso
+    // Registrar peso en historial InBody si se ingresó un peso
     if (peso) registrarPesoEnHistorial(peso);
 
     // Feedback
     const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
     if (btn) {
       const orig = btn.textContent;
-      btn.textContent = 'âœ“ GUARDADO'; btn.style.background = '#27ae60';
+      btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
       setTimeout(() => { btn.textContent = orig; btn.style.background = '#8B1A1A'; }, 1800);
     }
   }
 
-  // Sube peso/talla/fechaNac del perfil local a la nube sin acciÃ³n del atleta.
-  // MÃ¡x. una vez al dÃ­a. El worker fusiona, asÃ­ que no pisa SE/stravaStats/etc.
+  // Sube peso/talla/fechaNac del perfil local a la nube sin acción del atleta.
+  // Máx. una vez al día. El worker fusiona, así que no pisa SE/stravaStats/etc.
   function syncPerfilBasicoCloud() {
     try {
       const p = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
@@ -2026,13 +2023,13 @@
     const cacheKey = 'inbodyHistorial_' + user.uid;
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
 
-    // No sobreescribir si ya hay una entrada completa hoy (con composiciÃ³n)
+    // No sobreescribir si ya hay una entrada completa hoy (con composición)
     const hoyEntry = cached.find(m => m.fecha === hoy);
     if (hoyEntry && (hoyEntry.musculo || hoyEntry.grasa_kg)) {
       // Solo actualizar el peso de la entrada existente
       hoyEntry.peso = peso;
     } else if (hoyEntry) {
-      // Entrada solo-peso existente â†’ actualizar
+      // Entrada solo-peso existente → actualizar
       hoyEntry.peso = peso;
     } else {
       // Crear nueva entrada peso-solo
@@ -2041,11 +2038,11 @@
         agua: null, imc: null, bmr: null, lbm: null });
     }
 
-    // Actualizar cachÃ© local inmediatamente
+    // Actualizar caché local inmediatamente
     const sorted = cached.slice().sort((a,b) => a.fecha.localeCompare(b.fecha));
     localStorage.setItem(cacheKey, JSON.stringify(sorted));
 
-    // Refrescar chart y cards si estÃ¡n visibles
+    // Refrescar chart y cards si están visibles
     if (typeof cargarInbodyHistorial === 'function') cargarInbodyHistorial();
     if (typeof renderPesoProgresion === 'function') renderPesoProgresion();
 
@@ -2060,7 +2057,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ uid: user.uid, email: user.email, medicion })
       });
-    } catch(e) { /* silencioso â€” ya quedÃ³ en cache local */ }
+    } catch(e) { /* silencioso — ya quedó en cache local */ }
   }
 
   function actualizarResumenPerfil(p) {
@@ -2079,26 +2076,26 @@
     let html = '<div style="display:flex;gap:8px;">';
     if (p.peso)  html += card('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
     if (p.talla) html += card('Talla', p.talla + ' cm', '');
-    if (edad)    html += card('Edad', edad + ' aÃ±os', '');
+    if (edad)    html += card('Edad', edad + ' años', '');
     html += '</div>';
     cardsEl.innerHTML = html;
     cardsEl.style.display = 'block';
   }
 
 
-  // â”€â”€ CHARTS DASHBOARD â€” ESTILO TRAINHEROIC â”€â”€
+  // ── CHARTS DASHBOARD — ESTILO TRAINHEROIC ──
   function changeRange(chart, range, btn) {
-    // Actualizar botÃ³n activo
+    // Actualizar botón activo
     const container = btn.closest('.th-range-selector');
     container.querySelectorAll('.th-range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    // En producciÃ³n: recargar datos segÃºn rango desde Strava API
+    // En producción: recargar datos según rango desde Strava API
     if (chart === 'fc') updateFCChart(range);
     else updateRitmoChart(range);
   }
 
   // Datos reales por rango desde el cache de Strava (un punto por carrera).
-  // Sin datos â†’ arrays vacÃ­os (grÃ¡fico limpio, sin relleno demo).
+  // Sin datos → arrays vacíos (gráfico limpio, sin relleno demo).
   function _datosRangoStrava(range) {
     const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
     const RUN = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
@@ -2132,10 +2129,10 @@
     chartRitmo.update('active');
   }
 
-  // â”€â”€ CHARTS DASHBOARD â”€â”€
+  // ── CHARTS DASHBOARD ──
   let chartFC = null;
   let chartRitmo = null;
-  // Datos crudos de la Ãºltima actividad para tooltips cruzados (FC + ritmo + tiempo)
+  // Datos crudos de la última actividad para tooltips cruzados (FC + ritmo + tiempo)
   let _streamData = { labels: [], hr: [], pace: [] };
 
   function initCharts() {
@@ -2146,8 +2143,8 @@
     if (chartFC)    { try { chartFC.destroy();    } catch(e){} chartFC    = null; }
     if (chartRitmo) { try { chartRitmo.destroy(); } catch(e){} chartRitmo = null; }
 
-    // Sin relleno: los grÃ¡ficos arrancan vacÃ­os y se llenan con los streams
-    // reales de la Ãºltima actividad de Strava (cargarStreamsActividad).
+    // Sin relleno: los gráficos arrancan vacíos y se llenan con los streams
+    // reales de la última actividad de Strava (cargarStreamsActividad).
     const labels = [];
     const fcData = [];
     const ritmoData = [];
@@ -2177,9 +2174,9 @@
       elements: { point: { radius: 0 }, line: { tension: 0.4, borderWidth: 2 } }
     };
 
-    // pace decimal (min/km) â†’ "M:SS /km"
+    // pace decimal (min/km) → "M:SS /km"
     function _paceFmt(dec) {
-      if (dec == null || isNaN(dec)) return 'â€”';
+      if (dec == null || isNaN(dec)) return '—';
       const m = Math.floor(dec);
       const s = Math.round((dec - m) * 60);
       return m + ':' + String(s).padStart(2, '0') + ' /km';
@@ -2190,7 +2187,7 @@
       maintainAspectRatio: false,
       animation: { duration: 600, easing: 'easeInOutQuart' },
       // Modo index + intersect false = el toque/deslizamiento captura el punto
-      // mÃ¡s cercano en X aunque el dedo no toque exactamente la lÃ­nea (ideal touch)
+      // más cercano en X aunque el dedo no toque exactamente la línea (ideal touch)
       interaction: { mode: 'index', intersect: false, axis: 'x' },
       plugins: {
         legend: { display: false },
@@ -2206,7 +2203,7 @@
           titleFont: { size: 12, weight: '700' },
           bodyFont: { size: 13 },
           callbacks: {
-            // TÃ­tulo: minuto de la actividad
+            // Título: minuto de la actividad
             title: (items) => {
               if (!items.length) return '';
               return 'Min ' + (_streamData.labels[items[0].dataIndex] || items[0].label);
@@ -2217,8 +2214,8 @@
               const lines = [];
               const hr = _streamData.hr[i];
               const pc = _streamData.pace[i];
-              if (hr != null) lines.push('â¤ï¸  ' + Math.round(hr) + ' ppm');
-              if (pc != null) lines.push('â±ï¸  ' + _paceFmt(pc));
+              if (hr != null) lines.push('❤️  ' + Math.round(hr) + ' ppm');
+              if (pc != null) lines.push('⏱️  ' + _paceFmt(pc));
               return lines.length ? lines : (item.formattedValue || '');
             }
           }
@@ -2280,7 +2277,7 @@
             g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: 'start', // rellena hacia el borde inferior (Ã¡rea coloreada DEBAJO de la curva)
+          fill: 'start', // rellena hacia el borde inferior (área coloreada DEBAJO de la curva)
         }]
       },
       options: { ...thDefaults, scales: { ...thDefaults.scales,
@@ -2298,14 +2295,14 @@
   const origAbrirDash = abrirDashboard;
 
 
-  // â”€â”€ MEJORES TIEMPOS POR DISTANCIA â”€â”€
+  // ── MEJORES TIEMPOS POR DISTANCIA ──
   let chartPR = null;
   let currentDist = '5km';
 
-  // Mejores tiempos por distancia. Empieza VACÃO: solo se llena con datos
+  // Mejores tiempos por distancia. Empieza VACÍO: solo se llena con datos
   // reales (PRs detectados desde Strava + tiempos manuales del atleta).
   // Las distancias sin registros muestran "Sin registros" en vez de datos
-  // simulados (antes habÃ­a un generador demo que inventaba tiempos de 21K/42K).
+  // simulados (antes había un generador demo que inventaba tiempos de 21K/42K).
   const prData = {};
 
   function secToTime(s) {
@@ -2325,7 +2322,7 @@
     document.querySelectorAll('.th-dist-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
 
-    // AnimaciÃ³n flip en el panel de stats al cambiar distancia
+    // Animación flip en el panel de stats al cambiar distancia
     const statsBox = document.querySelector('.th-pr-stats');
     if (statsBox) {
       statsBox.classList.remove('flipping');
@@ -2340,14 +2337,14 @@
     const data = prData[dist] || [];
     if (!chartPR) return;
 
-    // Distancia sin registros reales â†’ estado vacÃ­o honesto, nunca datos inventados
+    // Distancia sin registros reales → estado vacío honesto, nunca datos inventados
     if (!data.length) {
       const set = (id, txt) => { const el = document.getElementById(id); if (el) el.textContent = txt; };
-      set('prBest', 'â€”');  set('prBestDate', 'Sin registros');
-      set('prFirst', 'â€”'); set('prFirstDate', '');
+      set('prBest', '—');  set('prBestDate', 'Sin registros');
+      set('prFirst', '—'); set('prFirstDate', '');
       const dEl = document.getElementById('prDelta');
-      if (dEl) { dEl.textContent = 'â€”'; dEl.style.color = ''; }
-      set('prDeltaSub', 'sin datos aÃºn');
+      if (dEl) { dEl.textContent = '—'; dEl.style.color = ''; }
+      set('prDeltaSub', 'sin datos aún');
       chartPR.data.labels = [];
       chartPR.data.datasets[0].data = [];
       chartPR.update();
@@ -2357,7 +2354,7 @@
     const labels = data.map(e => formatDate(e.date));
     const values = data.map(e => e.seconds);
     const best    = Math.min(...values);
-    const latest  = values[values.length - 1];           // mÃ¡s reciente (Ãºltimo en el array)
+    const latest  = values[values.length - 1];           // más reciente (último en el array)
     const first   = values[0];
     const bestEntry = data.find(e => e.seconds === best);
 
@@ -2366,28 +2363,28 @@
     document.getElementById('prBestDate').textContent  = formatDate(bestEntry.date);
     document.getElementById('prFirst').textContent     = secToTime(latest);
     document.getElementById('prFirstDate').textContent = formatDate(data[data.length - 1].date);
-    // Diferencia primer registro vs mÃ¡s reciente  (positivo = mejorÃ³ = mÃ¡s rÃ¡pido)
+    // Diferencia primer registro vs más reciente  (positivo = mejoró = más rápido)
     const diff    = first - latest;
     const pct     = first > 0 ? (Math.abs(diff) / first * 100).toFixed(1) : '0.0';
     const deltaEl = document.getElementById('prDelta');
     const subEl   = document.getElementById('prDeltaSub');
     if (diff > 0) {
-      // MejorÃ³: tiempo bajÃ³ â†’ triÃ¡ngulo verde apuntando arriba
-      deltaEl.textContent = 'â–² ' + secToTime(diff);
+      // Mejoró: tiempo bajó → triángulo verde apuntando arriba
+      deltaEl.textContent = '▲ ' + secToTime(diff);
       deltaEl.style.color = '#27ae60';
-      if (subEl) subEl.textContent = 'mejora Â· ' + pct + '%';
+      if (subEl) subEl.textContent = 'mejora · ' + pct + '%';
     } else if (diff < 0) {
-      // EmpeorÃ³: tiempo subiÃ³ â†’ triÃ¡ngulo naranja apuntando abajo
-      deltaEl.textContent = 'â–¼ ' + secToTime(-diff);
+      // Empeoró: tiempo subió → triángulo naranja apuntando abajo
+      deltaEl.textContent = '▼ ' + secToTime(-diff);
       deltaEl.style.color = '#e67e22';
-      if (subEl) subEl.textContent = 'disminuciÃ³n Â· ' + pct + '%';
+      if (subEl) subEl.textContent = 'disminución · ' + pct + '%';
     } else {
-      deltaEl.textContent = 'â€” igual';
+      deltaEl.textContent = '— igual';
       deltaEl.style.color = '';
       if (subEl) subEl.textContent = '';
     }
 
-    // Puntos: dorado = mejor, cian = mÃ¡s reciente, gris = el resto
+    // Puntos: dorado = mejor, cian = más reciente, gris = el resto
     const bestIdx   = values.indexOf(best);
     const latestIdx = values.length - 1;
     const pointRadius = values.map((_, i) =>
@@ -2446,7 +2443,7 @@
             g.addColorStop(1,'rgba(201,168,76,0.02)');
             return g;
           },
-          fill: 'start', // rellena hacia el borde inferior (Ã¡rea coloreada DEBAJO de la curva)
+          fill: 'start', // rellena hacia el borde inferior (área coloreada DEBAJO de la curva)
           pointRadius: 0,
           pointHoverRadius: 0,
         }]
@@ -2499,7 +2496,7 @@
 
 
 
-  // â”€â”€ ANIMACIONES PR: FLIP DIGITS / PROG BARS / WAVE / CONFETTI / TOAST â”€â”€â”€â”€â”€â”€
+  // ── ANIMACIONES PR: FLIP DIGITS / PROG BARS / WAVE / CONFETTI / TOAST ──────
 
   function prBuildFlip(id, sec) {
     const h  = Math.floor(sec / 3600);
@@ -2522,7 +2519,7 @@
     const list = document.getElementById('pr-prog-list');
     if (!list) return;
     list.innerHTML = '';
-    const SHOW = 8; // mÃ¡ximo de sesiones a mostrar
+    const SHOW = 8; // máximo de sesiones a mostrar
     const slice = data.length > SHOW ? data.slice(-SHOW) : data;
     const secs  = slice.map(e => e.seconds);
     const mn    = Math.min(...secs);
@@ -2547,7 +2544,7 @@
         const diff = s - prev;
         if (diff !== 0) {
           delta.className = 'pr-prog-delta show ' + (diff < 0 ? 'good' : 'bad');
-          delta.textContent = diff < 0 ? 'â–¼ ' + secToTime(-diff) : 'â–² +' + secToTime(diff);
+          delta.textContent = diff < 0 ? '▼ ' + secToTime(-diff) : '▲ +' + secToTime(diff);
         }
       }
 
@@ -2644,18 +2641,18 @@
     const key  = 'prBest_' + dist;
     const prev = parseInt(localStorage.getItem(key) || '0', 10);
     if (prev === 0 || newBestSec < prev) {
-      if (prev > 0) { // solo festejar si habÃ­a registro anterior
+      if (prev > 0) { // solo festejar si había registro anterior
         prBurst();
         const distLabel = dist.replace('km',' km').replace('m',' m');
-        prShowToast('ðŸ† Nuevo rÃ©cord â€” ' + distLabel + ' Â· ' + secToTime(newBestSec));
+        prShowToast('🏆 Nuevo récord — ' + distLabel + ' · ' + secToTime(newBestSec));
       }
       localStorage.setItem(key, newBestSec);
     }
   }
 
-  // â”€â”€ DATOS REALES TRAINHEROIC â”€â”€
-  const thRealData = {"Press con mancuernas en banca inclinada":[{"d":"2023-06-09","w":105.8,"r":7,"s":3,"e":131},{"d":"2023-07-10","w":25.0,"r":15,"s":3,"e":38},{"d":"2023-08-02","w":88.2,"r":13,"s":3,"e":126},{"d":"2023-08-29","w":49.6,"r":12,"s":3,"e":69},{"d":"2023-09-05","w":105.8,"r":12,"s":3,"e":148},{"d":"2023-11-27","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-12-01","w":50.0,"r":12,"s":3,"e":70},{"d":"2023-12-05","w":99.2,"r":10,"s":3,"e":132},{"d":"2023-12-11","w":110.2,"r":10,"s":3,"e":147},{"d":"2023-12-28","w":105.8,"r":9,"s":3,"e":138},{"d":"2024-01-18","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-01-29","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-02-23","w":50.0,"r":12,"s":3,"e":70},{"d":"2024-03-15","w":123.5,"r":12,"s":3,"e":173},{"d":"2024-03-26","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-03-28","w":75.0,"r":15,"s":3,"e":112},{"d":"2024-04-15","w":110.2,"r":10,"s":3,"e":147},{"d":"2024-05-30","w":99.2,"r":10,"s":3,"e":132},{"d":"2024-06-11","w":123.5,"r":12,"s":3,"e":173},{"d":"2024-06-22","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-27","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-30","w":123.5,"r":11,"s":3,"e":169},{"d":"2024-07-11","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-07-17","w":105.8,"r":12,"s":3,"e":148},{"d":"2024-07-22","w":132.3,"r":15,"s":5,"e":198},{"d":"2024-09-01","w":105.8,"r":9,"s":3,"e":138},{"d":"2024-09-04","w":132.3,"r":12,"s":4,"e":185},{"d":"2024-09-09","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-09-21","w":141.1,"r":12,"s":4,"e":198},{"d":"2024-09-25","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-10-02","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-10-15","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-11-02","w":149.9,"r":8,"s":3,"e":190},{"d":"2024-11-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-12-01","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-12-05","w":110.2,"r":12,"s":3,"e":154},{"d":"2024-12-07","w":141.1,"r":10,"s":3,"e":188},{"d":"2024-12-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-12-27","w":123.5,"r":6,"s":3,"e":148},{"d":"2025-01-11","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-01-17","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-01-24","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-01-28","w":132.3,"r":10,"s":4,"e":176},{"d":"2025-02-16","w":149.9,"r":10,"s":3,"e":200},{"d":"2025-03-10","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-04-08","w":110.2,"r":12,"s":3,"e":154},{"d":"2025-04-12","w":132.3,"r":12,"s":4,"e":185},{"d":"2025-04-16","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-04-24","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-07-03","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-07-20","w":149.9,"r":12,"s":4,"e":210},{"d":"2025-07-28","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-08-03","w":158.7,"r":10,"s":4,"e":212},{"d":"2025-08-09","w":158.7,"r":9,"s":3,"e":206},{"d":"2025-08-18","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-08-22","w":132.3,"r":12,"s":2,"e":185},{"d":"2025-08-25","w":123.5,"r":10,"s":3,"e":165},{"d":"2025-08-31","w":158.7,"r":12,"s":4,"e":222},{"d":"2025-10-26","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-11-17","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-11-23","w":158.7,"r":12,"s":4,"e":222},{"d":"2025-11-30","w":149.9,"r":10,"s":3,"e":200},{"d":"2025-12-28","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-01-04","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-01-11","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-02-16","w":99.2,"r":8,"s":1,"e":126},{"d":"2026-02-18","w":132.3,"r":12,"s":3,"e":185},{"d":"2026-02-24","w":132.3,"r":12,"s":4,"e":185},{"d":"2026-03-07","w":132.3,"r":12,"s":3,"e":185}],"Curl de bÃ­ceps con mancuerna en banco inclinado":[{"d":"2023-07-11","w":12.5,"r":12,"s":3,"e":18},{"d":"2023-08-02","w":33.1,"r":5,"s":3,"e":39},{"d":"2023-08-12","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-08-29","w":27.6,"r":8,"s":3,"e":35},{"d":"2023-09-05","w":30.9,"r":12,"s":3,"e":43},{"d":"2023-10-11","w":15.0,"r":9,"s":3,"e":20},{"d":"2023-11-02","w":15.0,"r":9,"s":3,"e":20},{"d":"2023-11-14","w":17.5,"r":8,"s":3,"e":22},{"d":"2023-11-27","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-12-01","w":15.0,"r":6,"s":3,"e":18},{"d":"2023-12-05","w":38.6,"r":10,"s":3,"e":51},{"d":"2023-12-11","w":38.6,"r":12,"s":3,"e":54},{"d":"2023-12-27","w":18.0,"r":6,"s":3,"e":22},{"d":"2023-12-28","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-02-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-03-18","w":33.1,"r":8,"s":3,"e":42},{"d":"2024-06-27","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-06-29","w":35.3,"r":12,"s":4,"e":49},{"d":"2024-07-14","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-07-20","w":30.9,"r":10,"s":3,"e":41},{"d":"2024-09-12","w":33.1,"r":11,"s":3,"e":45},{"d":"2024-09-17","w":35.3,"r":11,"s":3,"e":48},{"d":"2024-10-01","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-10-16","w":33.1,"r":11,"s":3,"e":45},{"d":"2024-11-11","w":35.3,"r":12,"s":4,"e":49},{"d":"2024-11-25","w":33.1,"r":12,"s":4,"e":46},{"d":"2024-11-27","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-12-05","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-12-29","w":44.1,"r":11,"s":4,"e":60},{"d":"2025-01-11","w":33.1,"r":10,"s":3,"e":44},{"d":"2025-01-24","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-03-10","w":33.1,"r":10,"s":3,"e":44},{"d":"2025-04-10","w":44.1,"r":9,"s":4,"e":57},{"d":"2025-04-15","w":44.1,"r":8,"s":3,"e":56},{"d":"2025-05-13","w":44.1,"r":8,"s":3,"e":56},{"d":"2025-06-28","w":39.7,"r":6,"s":3,"e":48},{"d":"2025-07-03","w":35.3,"r":9,"s":3,"e":46},{"d":"2025-07-26","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-08-01","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-08-13","w":38.6,"r":10,"s":3,"e":51},{"d":"2025-08-17","w":35.3,"r":8,"s":3,"e":45},{"d":"2025-08-20","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-24","w":44.1,"r":9,"s":3,"e":57},{"d":"2025-09-07","w":39.7,"r":9,"s":3,"e":52},{"d":"2025-09-08","w":30.9,"r":12,"s":3,"e":43},{"d":"2025-09-14","w":35.3,"r":12,"s":3,"e":49},{"d":"2025-09-28","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-10-26","w":39.7,"r":10,"s":3,"e":53},{"d":"2025-10-29","w":30.9,"r":12,"s":3,"e":43},{"d":"2025-12-23","w":44.1,"r":9,"s":3,"e":57},{"d":"2026-01-11","w":44.1,"r":12,"s":3,"e":62},{"d":"2026-01-17","w":44.1,"r":8,"s":4,"e":56},{"d":"2026-02-01","w":35.3,"r":12,"s":3,"e":49},{"d":"2026-02-03","w":44.1,"r":12,"s":3,"e":62},{"d":"2026-02-16","w":44.1,"r":4,"s":3,"e":50},{"d":"2026-02-21","w":44.1,"r":6,"s":3,"e":53},{"d":"2026-02-25","w":38.6,"r":10,"s":3,"e":51},{"d":"2026-03-09","w":49.6,"r":10,"s":3,"e":66}],"Curl de bÃ­ceps alterno":[{"d":"2023-06-13","w":37.5,"r":10,"s":4,"e":50},{"d":"2023-07-11","w":15.0,"r":12,"s":3,"e":21},{"d":"2023-08-12","w":55.1,"r":6,"s":3,"e":66},{"d":"2023-09-07","w":44.1,"r":10,"s":3,"e":59},{"d":"2023-11-27","w":15.0,"r":15,"s":3,"e":22},{"d":"2023-12-01","w":17.5,"r":12,"s":3,"e":24},{"d":"2023-12-05","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-12-11","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-12-27","w":20.0,"r":12,"s":3,"e":28},{"d":"2023-12-30","w":22.0,"r":10,"s":3,"e":29},{"d":"2024-01-18","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-02-01","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-02-12","w":44.1,"r":15,"s":3,"e":66},{"d":"2024-02-14","w":26.5,"r":15,"s":3,"e":40},{"d":"2024-03-28","w":38.6,"r":15,"s":3,"e":58},{"d":"2024-05-04","w":44.1,"r":10,"s":2,"e":59},{"d":"2024-05-30","w":38.6,"r":10,"s":3,"e":51},{"d":"2024-06-10","w":44.1,"r":8,"s":3,"e":56},{"d":"2024-06-22","w":44.1,"r":12,"s":2,"e":62},{"d":"2024-06-24","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-06-27","w":48.5,"r":13,"s":3,"e":70},{"d":"2024-06-29","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-07-14","w":39.7,"r":11,"s":3,"e":54},{"d":"2024-07-20","w":44.1,"r":12,"s":3,"e":62},{"d":"2024-08-30","w":44.1,"r":12,"s":3,"e":62},{"d":"2024-09-03","w":44.1,"r":15,"s":4,"e":66},{"d":"2024-09-17","w":39.7,"r":9,"s":3,"e":52},{"d":"2024-09-24","w":49.6,"r":12,"s":3,"e":69},{"d":"2024-10-01","w":49.6,"r":10,"s":3,"e":66},{"d":"2024-10-16","w":49.6,"r":8,"s":3,"e":63},{"d":"2024-11-25","w":55.1,"r":12,"s":3,"e":77},{"d":"2024-12-05","w":48.5,"r":10,"s":3,"e":65},{"d":"2025-01-11","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-01-17","w":33.1,"r":12,"s":4,"e":46},{"d":"2025-01-24","w":49.6,"r":7,"s":3,"e":61},{"d":"2025-03-10","w":38.6,"r":8,"s":4,"e":49},{"d":"2025-04-08","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-07-26","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-08-13","w":49.6,"r":8,"s":3,"e":63},{"d":"2025-08-17","w":48.5,"r":12,"s":3,"e":68},{"d":"2025-08-20","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-09-07","w":48.5,"r":12,"s":3,"e":68},{"d":"2025-09-14","w":48.5,"r":10,"s":3,"e":65},{"d":"2025-11-15","w":20.0,"r":12,"s":3,"e":28}],"Rompe CrÃ¡neo Con Barra Z":[{"d":"2023-10-11","w":66.1,"r":10,"s":3,"e":88},{"d":"2023-11-02","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-11-14","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-12-01","w":40.0,"r":10,"s":3,"e":53},{"d":"2023-12-05","w":66.1,"r":15,"s":3,"e":99},{"d":"2023-12-11","w":66.1,"r":12,"s":3,"e":93},{"d":"2023-12-28","w":88.2,"r":4,"s":3,"e":100},{"d":"2024-01-18","w":66.1,"r":15,"s":3,"e":99},{"d":"2024-01-29","w":88.2,"r":15,"s":4,"e":132},{"d":"2024-03-26","w":77.2,"r":12,"s":3,"e":108},{"d":"2024-04-15","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-05-30","w":66.1,"r":8,"s":3,"e":84},{"d":"2024-06-11","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-06-30","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-07-11","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-07-17","w":77.2,"r":15,"s":3,"e":116},{"d":"2024-07-22","w":55.1,"r":8,"s":3,"e":70},{"d":"2024-09-09","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-09-21","w":77.2,"r":8,"s":3,"e":98},{"d":"2024-10-02","w":88.2,"r":10,"s":2,"e":118},{"d":"2024-10-15","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-01-28","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-04-08","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-12","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-04-16","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-24","w":99.2,"r":12,"s":3,"e":139},{"d":"2025-05-08","w":110.2,"r":5,"s":1,"e":129},{"d":"2025-07-03","w":77.2,"r":8,"s":3,"e":98},{"d":"2025-07-20","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-07-28","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-08-03","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-08-09","w":99.2,"r":6,"s":3,"e":119},{"d":"2025-08-18","w":77.2,"r":15,"s":3,"e":116},{"d":"2025-08-25","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-08-31","w":77.2,"r":10,"s":3,"e":103},{"d":"2025-09-15","w":88.2,"r":12,"s":1,"e":123},{"d":"2025-11-17","w":88.2,"r":8,"s":3,"e":112},{"d":"2025-11-23","w":99.2,"r":10,"s":3,"e":132},{"d":"2026-01-11","w":77.2,"r":12,"s":3,"e":108},{"d":"2026-02-09","w":110.2,"r":10,"s":4,"e":147}],"Elevaciones laterales con mancuerna":[{"d":"2023-07-11","w":15.0,"r":15,"s":3,"e":22},{"d":"2023-08-02","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-08-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2023-09-05","w":30.9,"r":12,"s":2,"e":43},{"d":"2023-09-20","w":33.1,"r":8,"s":3,"e":42},{"d":"2023-09-27","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-10-10","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-10-24","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-12-27","w":14.0,"r":12,"s":3,"e":20},{"d":"2023-12-30","w":16.0,"r":12,"s":3,"e":22},{"d":"2024-02-01","w":33.1,"r":14,"s":4,"e":49},{"d":"2024-02-14","w":33.1,"r":10,"s":3,"e":44},{"d":"2024-03-18","w":26.5,"r":12,"s":3,"e":37},{"d":"2024-03-25","w":33.1,"r":15,"s":3,"e":50},{"d":"2024-04-18","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-06-10","w":26.5,"r":12,"s":3,"e":37},{"d":"2024-06-24","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-06-29","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-07-20","w":30.9,"r":14,"s":3,"e":45},{"d":"2024-08-30","w":33.1,"r":15,"s":3,"e":50},{"d":"2024-09-03","w":33.1,"r":10,"s":3,"e":44},{"d":"2024-09-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-09-17","w":35.3,"r":10,"s":3,"e":47},{"d":"2024-09-25","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-10-02","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-12-29","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-01-27","w":88.2,"r":15,"s":3,"e":132},{"d":"2025-04-10","w":38.6,"r":10,"s":4,"e":51},{"d":"2025-04-15","w":38.6,"r":12,"s":3,"e":54},{"d":"2025-04-22","w":33.1,"r":12,"s":2,"e":46},{"d":"2025-06-28","w":30.9,"r":10,"s":3,"e":41},{"d":"2025-07-03","w":35.3,"r":12,"s":3,"e":49},{"d":"2025-07-26","w":39.7,"r":10,"s":3,"e":53},{"d":"2025-08-01","w":39.7,"r":8,"s":3,"e":50},{"d":"2025-08-13","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-17","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-24","w":33.1,"r":12,"s":3,"e":46},{"d":"2026-01-17","w":39.7,"r":10,"s":3,"e":53}],"Split con mancuernas":[{"d":"2023-02-15","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-03-04","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-03-13","w":20.0,"r":12,"s":3,"e":28},{"d":"2023-03-16","w":20.0,"r":15,"s":3,"e":30},{"d":"2023-07-05","w":40.0,"r":12,"s":3,"e":56},{"d":"2023-07-13","w":44.1,"r":15,"s":3,"e":66},{"d":"2023-08-03","w":132.3,"r":12,"s":3,"e":185},{"d":"2023-08-07","w":44.1,"r":15,"s":3,"e":66},{"d":"2023-08-14","w":132.3,"r":12,"s":3,"e":185},{"d":"2023-09-11","w":60.0,"r":12,"s":3,"e":84},{"d":"2023-09-25","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-10-03","w":60.0,"r":12,"s":1,"e":84},{"d":"2023-10-06","w":60.0,"r":12,"s":1,"e":84},{"d":"2023-10-10","w":60.0,"r":10,"s":1,"e":80},{"d":"2023-10-25","w":132.3,"r":15,"s":3,"e":198},{"d":"2023-12-29","w":60.0,"r":12,"s":3,"e":84},{"d":"2024-03-13","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-03-21","w":88.2,"r":15,"s":3,"e":132},{"d":"2024-03-27","w":88.2,"r":10,"s":2,"e":118},{"d":"2024-04-16","w":99.2,"r":12,"s":3,"e":139},{"d":"2024-05-04","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-20","w":64.0,"r":12,"s":3,"e":90},{"d":"2024-07-18","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-07-27","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-07-30","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-09-06","w":141.1,"r":12,"s":3,"e":198}],"Seal Row inclinado con mancuernas, banco inclinado":[{"d":"2023-03-16","w":44.1,"r":12,"s":4,"e":62},{"d":"2023-06-03","w":185.2,"r":8,"s":4,"e":235},{"d":"2023-06-13","w":132.3,"r":15,"s":3,"e":198},{"d":"2023-07-11","w":60.0,"r":18,"s":3,"e":96},{"d":"2023-11-28","w":88.2,"r":15,"s":1,"e":132},{"d":"2023-12-27","w":72.0,"r":12,"s":3,"e":101},{"d":"2024-02-14","w":110.2,"r":10,"s":3,"e":147},{"d":"2024-02-23","w":60.0,"r":12,"s":3,"e":84},{"d":"2024-03-25","w":66.1,"r":15,"s":3,"e":99},{"d":"2024-04-18","w":132.3,"r":15,"s":3,"e":198},{"d":"2024-06-24","w":185.2,"r":15,"s":5,"e":278},{"d":"2024-06-29","w":158.7,"r":12,"s":3,"e":222},{"d":"2024-07-14","w":158.7,"r":15,"s":3,"e":238},{"d":"2024-09-17","w":158.7,"r":14,"s":3,"e":233},{"d":"2024-11-02","w":158.7,"r":15,"s":3,"e":238},{"d":"2024-11-11","w":158.7,"r":15,"s":1,"e":238},{"d":"2024-12-01","w":158.7,"r":8,"s":3,"e":201},{"d":"2024-12-07","w":158.7,"r":12,"s":3,"e":222},{"d":"2024-12-23","w":110.2,"r":8,"s":1,"e":140},{"d":"2025-01-13","w":88.2,"r":15,"s":3,"e":132},{"d":"2025-06-28","w":158.7,"r":10,"s":3,"e":212},{"d":"2025-06-30","w":187.4,"r":10,"s":3,"e":250},{"d":"2025-07-03","w":158.7,"r":12,"s":3,"e":222},{"d":"2025-08-01","w":158.7,"r":12,"s":3,"e":222},{"d":"2025-09-01","w":59.5,"r":12,"s":3,"e":83},{"d":"2025-09-07","w":158.7,"r":15,"s":3,"e":238}],"Remo con barra, apoyo en banca":[{"d":"2023-01-16","w":176.4,"r":12,"s":3,"e":247},{"d":"2023-07-04","w":308.6,"r":10,"s":4,"e":412},{"d":"2024-03-18","w":242.5,"r":15,"s":3,"e":364},{"d":"2024-08-30","w":242.5,"r":10,"s":3,"e":323},{"d":"2024-09-03","w":198.4,"r":10,"s":3,"e":265},{"d":"2024-09-12","w":242.5,"r":12,"s":3,"e":340},{"d":"2024-09-24","w":286.6,"r":12,"s":3,"e":401},{"d":"2024-10-01","w":286.6,"r":12,"s":5,"e":401},{"d":"2024-10-16","w":308.6,"r":15,"s":4,"e":463},{"d":"2024-10-30","w":198.4,"r":12,"s":3,"e":278},{"d":"2024-11-25","w":154.3,"r":15,"s":3,"e":231},{"d":"2024-11-27","w":286.6,"r":8,"s":3,"e":363},{"d":"2024-12-09","w":264.6,"r":15,"s":4,"e":397},{"d":"2025-01-17","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-01-23","w":220.5,"r":10,"s":2,"e":294},{"d":"2025-01-27","w":264.6,"r":8,"s":4,"e":335},{"d":"2025-03-10","w":220.5,"r":10,"s":3,"e":294},{"d":"2025-04-15","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-04-22","w":264.6,"r":10,"s":3,"e":353},{"d":"2025-05-09","w":264.6,"r":10,"s":4,"e":353},{"d":"2025-05-13","w":286.6,"r":8,"s":4,"e":363},{"d":"2025-08-13","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-08-20","w":242.5,"r":15,"s":3,"e":364},{"d":"2025-11-19","w":220.5,"r":10,"s":3,"e":294}],"ExtensiÃ³n de trÃ­ceps unilateral en polea":[{"d":"2024-01-18","w":26.5,"r":12,"s":4,"e":37},{"d":"2024-03-15","w":50.7,"r":12,"s":3,"e":71},{"d":"2024-05-06","w":30.9,"r":15,"s":3,"e":46},{"d":"2024-06-11","w":37.5,"r":12,"s":3,"e":52},{"d":"2024-06-30","w":50.7,"r":12,"s":3,"e":71},{"d":"2024-07-17","w":22.1,"r":6,"s":2,"e":26},{"d":"2024-09-01","w":27.6,"r":10,"s":3,"e":37},{"d":"2024-09-21","w":19.8,"r":9,"s":4,"e":26},{"d":"2024-11-02","w":29.8,"r":12,"s":3,"e":42},{"d":"2024-12-07","w":29.8,"r":9,"s":3,"e":39},{"d":"2024-12-27","w":27.6,"r":10,"s":3,"e":37},{"d":"2025-07-03","w":27.6,"r":12,"s":3,"e":39},{"d":"2025-07-20","w":24.9,"r":9,"s":3,"e":32},{"d":"2025-08-03","w":29.8,"r":7,"s":3,"e":37},{"d":"2025-08-18","w":24.2,"r":8,"s":3,"e":31},{"d":"2025-08-25","w":22.1,"r":10,"s":2,"e":29},{"d":"2025-08-31","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-09-15","w":66.1,"r":8,"s":3,"e":84},{"d":"2025-09-30","w":66.1,"r":12,"s":3,"e":93},{"d":"2025-11-17","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-11-30","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-12-28","w":28.7,"r":9,"s":3,"e":37},{"d":"2026-02-01","w":28.7,"r":12,"s":3,"e":40},{"d":"2026-05-08","w":28.7,"r":8,"s":3,"e":36}],"Press cerrado con mancuernas":[{"d":"2023-06-09","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-08-29","w":88.2,"r":10,"s":3,"e":118},{"d":"2023-09-05","w":97.0,"r":10,"s":3,"e":129},{"d":"2023-09-12","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-12-01","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-12-05","w":99.2,"r":12,"s":3,"e":139},{"d":"2023-12-11","w":99.2,"r":12,"s":3,"e":139},{"d":"2023-12-28","w":97.0,"r":9,"s":3,"e":126},{"d":"2024-01-18","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-01-29","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-03-15","w":141.1,"r":10,"s":3,"e":188},{"d":"2024-03-26","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-04-15","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-05-06","w":132.3,"r":8,"s":3,"e":168},{"d":"2024-05-21","w":105.8,"r":10,"s":3,"e":141},{"d":"2024-05-30","w":99.2,"r":12,"s":3,"e":139},{"d":"2024-09-04","w":110.2,"r":12,"s":2,"e":154},{"d":"2024-09-09","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-10-30","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-11-11","w":97.0,"r":12,"s":2,"e":136},{"d":"2024-12-05","w":110.2,"r":13,"s":3,"e":158},{"d":"2025-01-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-01-24","w":132.3,"r":10,"s":3,"e":176}],"Prensa horizontal unilateral":[{"d":"2023-08-03","w":121.2,"r":12,"s":3,"e":170},{"d":"2023-08-14","w":99.2,"r":15,"s":3,"e":149},{"d":"2023-09-11","w":55.0,"r":12,"s":3,"e":77},{"d":"2023-09-20","w":143.3,"r":15,"s":3,"e":215},{"d":"2023-10-03","w":60.0,"r":12,"s":3,"e":84},{"d":"2023-10-06","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-10","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-17","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-25","w":176.4,"r":8,"s":3,"e":223},{"d":"2023-11-27","w":70.0,"r":10,"s":3,"e":93},{"d":"2023-11-29","w":80.0,"r":12,"s":3,"e":112},{"d":"2024-03-13","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-03-27","w":110.2,"r":12,"s":3,"e":154},{"d":"2024-05-20","w":158.7,"r":10,"s":3,"e":212},{"d":"2024-07-09","w":165.3,"r":10,"s":4,"e":220},{"d":"2024-08-20","w":158.7,"r":8,"s":3,"e":201},{"d":"2024-09-20","w":238.1,"r":12,"s":3,"e":333},{"d":"2024-09-30","w":165.3,"r":15,"s":3,"e":248},{"d":"2024-11-25","w":99.2,"r":15,"s":3,"e":149},{"d":"2024-12-10","w":143.3,"r":12,"s":3,"e":201},{"d":"2025-01-02","w":143.3,"r":10,"s":3,"e":191},{"d":"2025-01-21","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-04-09","w":154.3,"r":12,"s":3,"e":216}],"Curl de bÃ­ceps con barra Z":[{"d":"2023-10-24","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-11-02","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-11-14","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-12-01","w":40.0,"r":12,"s":3,"e":56},{"d":"2023-12-30","w":35.0,"r":18,"s":3,"e":56},{"d":"2024-02-01","w":88.2,"r":18,"s":3,"e":141},{"d":"2025-04-15","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-22","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-05-09","w":121.2,"r":12,"s":5,"e":170},{"d":"2025-05-13","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-06-28","w":77.2,"r":12,"s":3,"e":108},{"d":"2025-07-03","w":88.2,"r":14,"s":3,"e":129},{"d":"2025-07-26","w":88.2,"r":8,"s":3,"e":112},{"d":"2025-08-01","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-08-24","w":99.2,"r":12,"s":3,"e":139},{"d":"2025-09-28","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-11-19","w":88.2,"r":12,"s":3,"e":123},{"d":"2026-01-17","w":88.2,"r":10,"s":3,"e":118},{"d":"2026-02-16","w":110.2,"r":15,"s":3,"e":165},{"d":"2026-02-21","w":110.2,"r":12,"s":3,"e":154},{"d":"2026-02-25","w":132.3,"r":10,"s":3,"e":176},{"d":"2026-03-09","w":88.2,"r":12,"s":2,"e":123},{"d":"2026-03-18","w":30.0,"r":30,"s":1,"e":60}]};
-  const thExerciseNames = ["Press con mancuernas en banca inclinada", "Curl de bÃ­ceps con mancuerna en banco inclinado", "Curl de bÃ­ceps alterno", "Rompe CrÃ¡neo Con Barra Z", "Elevaciones laterales con mancuerna", "Split con mancuernas", "Seal Row inclinado con mancuernas, banco inclinado", "Remo con barra, apoyo en banca", "ExtensiÃ³n de trÃ­ceps unilateral en polea", "Press cerrado con mancuernas", "Prensa horizontal unilateral", "Curl de bÃ­ceps con barra Z"];
+  // ── DATOS REALES TRAINHEROIC ──
+  const thRealData = {"Press con mancuernas en banca inclinada":[{"d":"2023-06-09","w":105.8,"r":7,"s":3,"e":131},{"d":"2023-07-10","w":25.0,"r":15,"s":3,"e":38},{"d":"2023-08-02","w":88.2,"r":13,"s":3,"e":126},{"d":"2023-08-29","w":49.6,"r":12,"s":3,"e":69},{"d":"2023-09-05","w":105.8,"r":12,"s":3,"e":148},{"d":"2023-11-27","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-12-01","w":50.0,"r":12,"s":3,"e":70},{"d":"2023-12-05","w":99.2,"r":10,"s":3,"e":132},{"d":"2023-12-11","w":110.2,"r":10,"s":3,"e":147},{"d":"2023-12-28","w":105.8,"r":9,"s":3,"e":138},{"d":"2024-01-18","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-01-29","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-02-23","w":50.0,"r":12,"s":3,"e":70},{"d":"2024-03-15","w":123.5,"r":12,"s":3,"e":173},{"d":"2024-03-26","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-03-28","w":75.0,"r":15,"s":3,"e":112},{"d":"2024-04-15","w":110.2,"r":10,"s":3,"e":147},{"d":"2024-05-30","w":99.2,"r":10,"s":3,"e":132},{"d":"2024-06-11","w":123.5,"r":12,"s":3,"e":173},{"d":"2024-06-22","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-27","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-30","w":123.5,"r":11,"s":3,"e":169},{"d":"2024-07-11","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-07-17","w":105.8,"r":12,"s":3,"e":148},{"d":"2024-07-22","w":132.3,"r":15,"s":5,"e":198},{"d":"2024-09-01","w":105.8,"r":9,"s":3,"e":138},{"d":"2024-09-04","w":132.3,"r":12,"s":4,"e":185},{"d":"2024-09-09","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-09-21","w":141.1,"r":12,"s":4,"e":198},{"d":"2024-09-25","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-10-02","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-10-15","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-11-02","w":149.9,"r":8,"s":3,"e":190},{"d":"2024-11-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-12-01","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-12-05","w":110.2,"r":12,"s":3,"e":154},{"d":"2024-12-07","w":141.1,"r":10,"s":3,"e":188},{"d":"2024-12-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-12-27","w":123.5,"r":6,"s":3,"e":148},{"d":"2025-01-11","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-01-17","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-01-24","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-01-28","w":132.3,"r":10,"s":4,"e":176},{"d":"2025-02-16","w":149.9,"r":10,"s":3,"e":200},{"d":"2025-03-10","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-04-08","w":110.2,"r":12,"s":3,"e":154},{"d":"2025-04-12","w":132.3,"r":12,"s":4,"e":185},{"d":"2025-04-16","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-04-24","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-07-03","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-07-20","w":149.9,"r":12,"s":4,"e":210},{"d":"2025-07-28","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-08-03","w":158.7,"r":10,"s":4,"e":212},{"d":"2025-08-09","w":158.7,"r":9,"s":3,"e":206},{"d":"2025-08-18","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-08-22","w":132.3,"r":12,"s":2,"e":185},{"d":"2025-08-25","w":123.5,"r":10,"s":3,"e":165},{"d":"2025-08-31","w":158.7,"r":12,"s":4,"e":222},{"d":"2025-10-26","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-11-17","w":149.9,"r":12,"s":3,"e":210},{"d":"2025-11-23","w":158.7,"r":12,"s":4,"e":222},{"d":"2025-11-30","w":149.9,"r":10,"s":3,"e":200},{"d":"2025-12-28","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-01-04","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-01-11","w":158.7,"r":12,"s":3,"e":222},{"d":"2026-02-16","w":99.2,"r":8,"s":1,"e":126},{"d":"2026-02-18","w":132.3,"r":12,"s":3,"e":185},{"d":"2026-02-24","w":132.3,"r":12,"s":4,"e":185},{"d":"2026-03-07","w":132.3,"r":12,"s":3,"e":185}],"Curl de bíceps con mancuerna en banco inclinado":[{"d":"2023-07-11","w":12.5,"r":12,"s":3,"e":18},{"d":"2023-08-02","w":33.1,"r":5,"s":3,"e":39},{"d":"2023-08-12","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-08-29","w":27.6,"r":8,"s":3,"e":35},{"d":"2023-09-05","w":30.9,"r":12,"s":3,"e":43},{"d":"2023-10-11","w":15.0,"r":9,"s":3,"e":20},{"d":"2023-11-02","w":15.0,"r":9,"s":3,"e":20},{"d":"2023-11-14","w":17.5,"r":8,"s":3,"e":22},{"d":"2023-11-27","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-12-01","w":15.0,"r":6,"s":3,"e":18},{"d":"2023-12-05","w":38.6,"r":10,"s":3,"e":51},{"d":"2023-12-11","w":38.6,"r":12,"s":3,"e":54},{"d":"2023-12-27","w":18.0,"r":6,"s":3,"e":22},{"d":"2023-12-28","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-02-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-03-18","w":33.1,"r":8,"s":3,"e":42},{"d":"2024-06-27","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-06-29","w":35.3,"r":12,"s":4,"e":49},{"d":"2024-07-14","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-07-20","w":30.9,"r":10,"s":3,"e":41},{"d":"2024-09-12","w":33.1,"r":11,"s":3,"e":45},{"d":"2024-09-17","w":35.3,"r":11,"s":3,"e":48},{"d":"2024-10-01","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-10-16","w":33.1,"r":11,"s":3,"e":45},{"d":"2024-11-11","w":35.3,"r":12,"s":4,"e":49},{"d":"2024-11-25","w":33.1,"r":12,"s":4,"e":46},{"d":"2024-11-27","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-12-05","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-12-29","w":44.1,"r":11,"s":4,"e":60},{"d":"2025-01-11","w":33.1,"r":10,"s":3,"e":44},{"d":"2025-01-24","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-03-10","w":33.1,"r":10,"s":3,"e":44},{"d":"2025-04-10","w":44.1,"r":9,"s":4,"e":57},{"d":"2025-04-15","w":44.1,"r":8,"s":3,"e":56},{"d":"2025-05-13","w":44.1,"r":8,"s":3,"e":56},{"d":"2025-06-28","w":39.7,"r":6,"s":3,"e":48},{"d":"2025-07-03","w":35.3,"r":9,"s":3,"e":46},{"d":"2025-07-26","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-08-01","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-08-13","w":38.6,"r":10,"s":3,"e":51},{"d":"2025-08-17","w":35.3,"r":8,"s":3,"e":45},{"d":"2025-08-20","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-24","w":44.1,"r":9,"s":3,"e":57},{"d":"2025-09-07","w":39.7,"r":9,"s":3,"e":52},{"d":"2025-09-08","w":30.9,"r":12,"s":3,"e":43},{"d":"2025-09-14","w":35.3,"r":12,"s":3,"e":49},{"d":"2025-09-28","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-10-26","w":39.7,"r":10,"s":3,"e":53},{"d":"2025-10-29","w":30.9,"r":12,"s":3,"e":43},{"d":"2025-12-23","w":44.1,"r":9,"s":3,"e":57},{"d":"2026-01-11","w":44.1,"r":12,"s":3,"e":62},{"d":"2026-01-17","w":44.1,"r":8,"s":4,"e":56},{"d":"2026-02-01","w":35.3,"r":12,"s":3,"e":49},{"d":"2026-02-03","w":44.1,"r":12,"s":3,"e":62},{"d":"2026-02-16","w":44.1,"r":4,"s":3,"e":50},{"d":"2026-02-21","w":44.1,"r":6,"s":3,"e":53},{"d":"2026-02-25","w":38.6,"r":10,"s":3,"e":51},{"d":"2026-03-09","w":49.6,"r":10,"s":3,"e":66}],"Curl de bíceps alterno":[{"d":"2023-06-13","w":37.5,"r":10,"s":4,"e":50},{"d":"2023-07-11","w":15.0,"r":12,"s":3,"e":21},{"d":"2023-08-12","w":55.1,"r":6,"s":3,"e":66},{"d":"2023-09-07","w":44.1,"r":10,"s":3,"e":59},{"d":"2023-11-27","w":15.0,"r":15,"s":3,"e":22},{"d":"2023-12-01","w":17.5,"r":12,"s":3,"e":24},{"d":"2023-12-05","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-12-11","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-12-27","w":20.0,"r":12,"s":3,"e":28},{"d":"2023-12-30","w":22.0,"r":10,"s":3,"e":29},{"d":"2024-01-18","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-02-01","w":38.6,"r":12,"s":3,"e":54},{"d":"2024-02-12","w":44.1,"r":15,"s":3,"e":66},{"d":"2024-02-14","w":26.5,"r":15,"s":3,"e":40},{"d":"2024-03-28","w":38.6,"r":15,"s":3,"e":58},{"d":"2024-05-04","w":44.1,"r":10,"s":2,"e":59},{"d":"2024-05-30","w":38.6,"r":10,"s":3,"e":51},{"d":"2024-06-10","w":44.1,"r":8,"s":3,"e":56},{"d":"2024-06-22","w":44.1,"r":12,"s":2,"e":62},{"d":"2024-06-24","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-06-27","w":48.5,"r":13,"s":3,"e":70},{"d":"2024-06-29","w":44.1,"r":10,"s":3,"e":59},{"d":"2024-07-14","w":39.7,"r":11,"s":3,"e":54},{"d":"2024-07-20","w":44.1,"r":12,"s":3,"e":62},{"d":"2024-08-30","w":44.1,"r":12,"s":3,"e":62},{"d":"2024-09-03","w":44.1,"r":15,"s":4,"e":66},{"d":"2024-09-17","w":39.7,"r":9,"s":3,"e":52},{"d":"2024-09-24","w":49.6,"r":12,"s":3,"e":69},{"d":"2024-10-01","w":49.6,"r":10,"s":3,"e":66},{"d":"2024-10-16","w":49.6,"r":8,"s":3,"e":63},{"d":"2024-11-25","w":55.1,"r":12,"s":3,"e":77},{"d":"2024-12-05","w":48.5,"r":10,"s":3,"e":65},{"d":"2025-01-11","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-01-17","w":33.1,"r":12,"s":4,"e":46},{"d":"2025-01-24","w":49.6,"r":7,"s":3,"e":61},{"d":"2025-03-10","w":38.6,"r":8,"s":4,"e":49},{"d":"2025-04-08","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-07-26","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-08-13","w":49.6,"r":8,"s":3,"e":63},{"d":"2025-08-17","w":48.5,"r":12,"s":3,"e":68},{"d":"2025-08-20","w":44.1,"r":10,"s":3,"e":59},{"d":"2025-09-07","w":48.5,"r":12,"s":3,"e":68},{"d":"2025-09-14","w":48.5,"r":10,"s":3,"e":65},{"d":"2025-11-15","w":20.0,"r":12,"s":3,"e":28}],"Rompe Cráneo Con Barra Z":[{"d":"2023-10-11","w":66.1,"r":10,"s":3,"e":88},{"d":"2023-11-02","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-11-14","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-12-01","w":40.0,"r":10,"s":3,"e":53},{"d":"2023-12-05","w":66.1,"r":15,"s":3,"e":99},{"d":"2023-12-11","w":66.1,"r":12,"s":3,"e":93},{"d":"2023-12-28","w":88.2,"r":4,"s":3,"e":100},{"d":"2024-01-18","w":66.1,"r":15,"s":3,"e":99},{"d":"2024-01-29","w":88.2,"r":15,"s":4,"e":132},{"d":"2024-03-26","w":77.2,"r":12,"s":3,"e":108},{"d":"2024-04-15","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-05-30","w":66.1,"r":8,"s":3,"e":84},{"d":"2024-06-11","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-06-30","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-07-11","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-07-17","w":77.2,"r":15,"s":3,"e":116},{"d":"2024-07-22","w":55.1,"r":8,"s":3,"e":70},{"d":"2024-09-09","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-09-21","w":77.2,"r":8,"s":3,"e":98},{"d":"2024-10-02","w":88.2,"r":10,"s":2,"e":118},{"d":"2024-10-15","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-01-28","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-04-08","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-12","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-04-16","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-24","w":99.2,"r":12,"s":3,"e":139},{"d":"2025-05-08","w":110.2,"r":5,"s":1,"e":129},{"d":"2025-07-03","w":77.2,"r":8,"s":3,"e":98},{"d":"2025-07-20","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-07-28","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-08-03","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-08-09","w":99.2,"r":6,"s":3,"e":119},{"d":"2025-08-18","w":77.2,"r":15,"s":3,"e":116},{"d":"2025-08-25","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-08-31","w":77.2,"r":10,"s":3,"e":103},{"d":"2025-09-15","w":88.2,"r":12,"s":1,"e":123},{"d":"2025-11-17","w":88.2,"r":8,"s":3,"e":112},{"d":"2025-11-23","w":99.2,"r":10,"s":3,"e":132},{"d":"2026-01-11","w":77.2,"r":12,"s":3,"e":108},{"d":"2026-02-09","w":110.2,"r":10,"s":4,"e":147}],"Elevaciones laterales con mancuerna":[{"d":"2023-07-11","w":15.0,"r":15,"s":3,"e":22},{"d":"2023-08-02","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-08-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2023-09-05","w":30.9,"r":12,"s":2,"e":43},{"d":"2023-09-20","w":33.1,"r":8,"s":3,"e":42},{"d":"2023-09-27","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-10-10","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-10-24","w":33.1,"r":10,"s":3,"e":44},{"d":"2023-12-27","w":14.0,"r":12,"s":3,"e":20},{"d":"2023-12-30","w":16.0,"r":12,"s":3,"e":22},{"d":"2024-02-01","w":33.1,"r":14,"s":4,"e":49},{"d":"2024-02-14","w":33.1,"r":10,"s":3,"e":44},{"d":"2024-03-18","w":26.5,"r":12,"s":3,"e":37},{"d":"2024-03-25","w":33.1,"r":15,"s":3,"e":50},{"d":"2024-04-18","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-06-10","w":26.5,"r":12,"s":3,"e":37},{"d":"2024-06-24","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-06-29","w":30.9,"r":12,"s":3,"e":43},{"d":"2024-07-20","w":30.9,"r":14,"s":3,"e":45},{"d":"2024-08-30","w":33.1,"r":15,"s":3,"e":50},{"d":"2024-09-03","w":33.1,"r":10,"s":3,"e":44},{"d":"2024-09-12","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-09-17","w":35.3,"r":10,"s":3,"e":47},{"d":"2024-09-25","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-10-02","w":33.1,"r":12,"s":3,"e":46},{"d":"2024-12-29","w":35.3,"r":10,"s":3,"e":47},{"d":"2025-01-27","w":88.2,"r":15,"s":3,"e":132},{"d":"2025-04-10","w":38.6,"r":10,"s":4,"e":51},{"d":"2025-04-15","w":38.6,"r":12,"s":3,"e":54},{"d":"2025-04-22","w":33.1,"r":12,"s":2,"e":46},{"d":"2025-06-28","w":30.9,"r":10,"s":3,"e":41},{"d":"2025-07-03","w":35.3,"r":12,"s":3,"e":49},{"d":"2025-07-26","w":39.7,"r":10,"s":3,"e":53},{"d":"2025-08-01","w":39.7,"r":8,"s":3,"e":50},{"d":"2025-08-13","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-17","w":33.1,"r":12,"s":3,"e":46},{"d":"2025-08-24","w":33.1,"r":12,"s":3,"e":46},{"d":"2026-01-17","w":39.7,"r":10,"s":3,"e":53}],"Split con mancuernas":[{"d":"2023-02-15","w":44.1,"r":12,"s":3,"e":62},{"d":"2023-03-04","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-03-13","w":20.0,"r":12,"s":3,"e":28},{"d":"2023-03-16","w":20.0,"r":15,"s":3,"e":30},{"d":"2023-07-05","w":40.0,"r":12,"s":3,"e":56},{"d":"2023-07-13","w":44.1,"r":15,"s":3,"e":66},{"d":"2023-08-03","w":132.3,"r":12,"s":3,"e":185},{"d":"2023-08-07","w":44.1,"r":15,"s":3,"e":66},{"d":"2023-08-14","w":132.3,"r":12,"s":3,"e":185},{"d":"2023-09-11","w":60.0,"r":12,"s":3,"e":84},{"d":"2023-09-25","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-10-03","w":60.0,"r":12,"s":1,"e":84},{"d":"2023-10-06","w":60.0,"r":12,"s":1,"e":84},{"d":"2023-10-10","w":60.0,"r":10,"s":1,"e":80},{"d":"2023-10-25","w":132.3,"r":15,"s":3,"e":198},{"d":"2023-12-29","w":60.0,"r":12,"s":3,"e":84},{"d":"2024-03-13","w":66.1,"r":12,"s":3,"e":93},{"d":"2024-03-21","w":88.2,"r":15,"s":3,"e":132},{"d":"2024-03-27","w":88.2,"r":10,"s":2,"e":118},{"d":"2024-04-16","w":99.2,"r":12,"s":3,"e":139},{"d":"2024-05-04","w":114.6,"r":12,"s":3,"e":160},{"d":"2024-06-20","w":64.0,"r":12,"s":3,"e":90},{"d":"2024-07-18","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-07-27","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-07-30","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-09-06","w":141.1,"r":12,"s":3,"e":198}],"Seal Row inclinado con mancuernas, banco inclinado":[{"d":"2023-03-16","w":44.1,"r":12,"s":4,"e":62},{"d":"2023-06-03","w":185.2,"r":8,"s":4,"e":235},{"d":"2023-06-13","w":132.3,"r":15,"s":3,"e":198},{"d":"2023-07-11","w":60.0,"r":18,"s":3,"e":96},{"d":"2023-11-28","w":88.2,"r":15,"s":1,"e":132},{"d":"2023-12-27","w":72.0,"r":12,"s":3,"e":101},{"d":"2024-02-14","w":110.2,"r":10,"s":3,"e":147},{"d":"2024-02-23","w":60.0,"r":12,"s":3,"e":84},{"d":"2024-03-25","w":66.1,"r":15,"s":3,"e":99},{"d":"2024-04-18","w":132.3,"r":15,"s":3,"e":198},{"d":"2024-06-24","w":185.2,"r":15,"s":5,"e":278},{"d":"2024-06-29","w":158.7,"r":12,"s":3,"e":222},{"d":"2024-07-14","w":158.7,"r":15,"s":3,"e":238},{"d":"2024-09-17","w":158.7,"r":14,"s":3,"e":233},{"d":"2024-11-02","w":158.7,"r":15,"s":3,"e":238},{"d":"2024-11-11","w":158.7,"r":15,"s":1,"e":238},{"d":"2024-12-01","w":158.7,"r":8,"s":3,"e":201},{"d":"2024-12-07","w":158.7,"r":12,"s":3,"e":222},{"d":"2024-12-23","w":110.2,"r":8,"s":1,"e":140},{"d":"2025-01-13","w":88.2,"r":15,"s":3,"e":132},{"d":"2025-06-28","w":158.7,"r":10,"s":3,"e":212},{"d":"2025-06-30","w":187.4,"r":10,"s":3,"e":250},{"d":"2025-07-03","w":158.7,"r":12,"s":3,"e":222},{"d":"2025-08-01","w":158.7,"r":12,"s":3,"e":222},{"d":"2025-09-01","w":59.5,"r":12,"s":3,"e":83},{"d":"2025-09-07","w":158.7,"r":15,"s":3,"e":238}],"Remo con barra, apoyo en banca":[{"d":"2023-01-16","w":176.4,"r":12,"s":3,"e":247},{"d":"2023-07-04","w":308.6,"r":10,"s":4,"e":412},{"d":"2024-03-18","w":242.5,"r":15,"s":3,"e":364},{"d":"2024-08-30","w":242.5,"r":10,"s":3,"e":323},{"d":"2024-09-03","w":198.4,"r":10,"s":3,"e":265},{"d":"2024-09-12","w":242.5,"r":12,"s":3,"e":340},{"d":"2024-09-24","w":286.6,"r":12,"s":3,"e":401},{"d":"2024-10-01","w":286.6,"r":12,"s":5,"e":401},{"d":"2024-10-16","w":308.6,"r":15,"s":4,"e":463},{"d":"2024-10-30","w":198.4,"r":12,"s":3,"e":278},{"d":"2024-11-25","w":154.3,"r":15,"s":3,"e":231},{"d":"2024-11-27","w":286.6,"r":8,"s":3,"e":363},{"d":"2024-12-09","w":264.6,"r":15,"s":4,"e":397},{"d":"2025-01-17","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-01-23","w":220.5,"r":10,"s":2,"e":294},{"d":"2025-01-27","w":264.6,"r":8,"s":4,"e":335},{"d":"2025-03-10","w":220.5,"r":10,"s":3,"e":294},{"d":"2025-04-15","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-04-22","w":264.6,"r":10,"s":3,"e":353},{"d":"2025-05-09","w":264.6,"r":10,"s":4,"e":353},{"d":"2025-05-13","w":286.6,"r":8,"s":4,"e":363},{"d":"2025-08-13","w":242.5,"r":10,"s":3,"e":323},{"d":"2025-08-20","w":242.5,"r":15,"s":3,"e":364},{"d":"2025-11-19","w":220.5,"r":10,"s":3,"e":294}],"Extensión de tríceps unilateral en polea":[{"d":"2024-01-18","w":26.5,"r":12,"s":4,"e":37},{"d":"2024-03-15","w":50.7,"r":12,"s":3,"e":71},{"d":"2024-05-06","w":30.9,"r":15,"s":3,"e":46},{"d":"2024-06-11","w":37.5,"r":12,"s":3,"e":52},{"d":"2024-06-30","w":50.7,"r":12,"s":3,"e":71},{"d":"2024-07-17","w":22.1,"r":6,"s":2,"e":26},{"d":"2024-09-01","w":27.6,"r":10,"s":3,"e":37},{"d":"2024-09-21","w":19.8,"r":9,"s":4,"e":26},{"d":"2024-11-02","w":29.8,"r":12,"s":3,"e":42},{"d":"2024-12-07","w":29.8,"r":9,"s":3,"e":39},{"d":"2024-12-27","w":27.6,"r":10,"s":3,"e":37},{"d":"2025-07-03","w":27.6,"r":12,"s":3,"e":39},{"d":"2025-07-20","w":24.9,"r":9,"s":3,"e":32},{"d":"2025-08-03","w":29.8,"r":7,"s":3,"e":37},{"d":"2025-08-18","w":24.2,"r":8,"s":3,"e":31},{"d":"2025-08-25","w":22.1,"r":10,"s":2,"e":29},{"d":"2025-08-31","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-09-15","w":66.1,"r":8,"s":3,"e":84},{"d":"2025-09-30","w":66.1,"r":12,"s":3,"e":93},{"d":"2025-11-17","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-11-30","w":29.8,"r":12,"s":3,"e":42},{"d":"2025-12-28","w":28.7,"r":9,"s":3,"e":37},{"d":"2026-02-01","w":28.7,"r":12,"s":3,"e":40},{"d":"2026-05-08","w":28.7,"r":8,"s":3,"e":36}],"Press cerrado con mancuernas":[{"d":"2023-06-09","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-08-29","w":88.2,"r":10,"s":3,"e":118},{"d":"2023-09-05","w":97.0,"r":10,"s":3,"e":129},{"d":"2023-09-12","w":40.0,"r":15,"s":3,"e":60},{"d":"2023-12-01","w":88.2,"r":12,"s":3,"e":123},{"d":"2023-12-05","w":99.2,"r":12,"s":3,"e":139},{"d":"2023-12-11","w":99.2,"r":12,"s":3,"e":139},{"d":"2023-12-28","w":97.0,"r":9,"s":3,"e":126},{"d":"2024-01-18","w":88.2,"r":12,"s":3,"e":123},{"d":"2024-01-29","w":88.2,"r":10,"s":3,"e":118},{"d":"2024-03-15","w":141.1,"r":10,"s":3,"e":188},{"d":"2024-03-26","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-04-15","w":132.3,"r":10,"s":3,"e":176},{"d":"2024-05-06","w":132.3,"r":8,"s":3,"e":168},{"d":"2024-05-21","w":105.8,"r":10,"s":3,"e":141},{"d":"2024-05-30","w":99.2,"r":12,"s":3,"e":139},{"d":"2024-09-04","w":110.2,"r":12,"s":2,"e":154},{"d":"2024-09-09","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-10-30","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-11-11","w":97.0,"r":12,"s":2,"e":136},{"d":"2024-12-05","w":110.2,"r":13,"s":3,"e":158},{"d":"2025-01-11","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-01-24","w":132.3,"r":10,"s":3,"e":176}],"Prensa horizontal unilateral":[{"d":"2023-08-03","w":121.2,"r":12,"s":3,"e":170},{"d":"2023-08-14","w":99.2,"r":15,"s":3,"e":149},{"d":"2023-09-11","w":55.0,"r":12,"s":3,"e":77},{"d":"2023-09-20","w":143.3,"r":15,"s":3,"e":215},{"d":"2023-10-03","w":60.0,"r":12,"s":3,"e":84},{"d":"2023-10-06","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-10","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-17","w":75.0,"r":15,"s":3,"e":112},{"d":"2023-10-25","w":176.4,"r":8,"s":3,"e":223},{"d":"2023-11-27","w":70.0,"r":10,"s":3,"e":93},{"d":"2023-11-29","w":80.0,"r":12,"s":3,"e":112},{"d":"2024-03-13","w":132.3,"r":12,"s":3,"e":185},{"d":"2024-03-27","w":110.2,"r":12,"s":3,"e":154},{"d":"2024-05-20","w":158.7,"r":10,"s":3,"e":212},{"d":"2024-07-09","w":165.3,"r":10,"s":4,"e":220},{"d":"2024-08-20","w":158.7,"r":8,"s":3,"e":201},{"d":"2024-09-20","w":238.1,"r":12,"s":3,"e":333},{"d":"2024-09-30","w":165.3,"r":15,"s":3,"e":248},{"d":"2024-11-25","w":99.2,"r":15,"s":3,"e":149},{"d":"2024-12-10","w":143.3,"r":12,"s":3,"e":201},{"d":"2025-01-02","w":143.3,"r":10,"s":3,"e":191},{"d":"2025-01-21","w":132.3,"r":12,"s":3,"e":185},{"d":"2025-04-09","w":154.3,"r":12,"s":3,"e":216}],"Curl de bíceps con barra Z":[{"d":"2023-10-24","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-11-02","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-11-14","w":88.2,"r":15,"s":3,"e":132},{"d":"2023-12-01","w":40.0,"r":12,"s":3,"e":56},{"d":"2023-12-30","w":35.0,"r":18,"s":3,"e":56},{"d":"2024-02-01","w":88.2,"r":18,"s":3,"e":141},{"d":"2025-04-15","w":88.2,"r":12,"s":3,"e":123},{"d":"2025-04-22","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-05-09","w":121.2,"r":12,"s":5,"e":170},{"d":"2025-05-13","w":110.2,"r":10,"s":3,"e":147},{"d":"2025-06-28","w":77.2,"r":12,"s":3,"e":108},{"d":"2025-07-03","w":88.2,"r":14,"s":3,"e":129},{"d":"2025-07-26","w":88.2,"r":8,"s":3,"e":112},{"d":"2025-08-01","w":88.2,"r":10,"s":3,"e":118},{"d":"2025-08-24","w":99.2,"r":12,"s":3,"e":139},{"d":"2025-09-28","w":132.3,"r":10,"s":3,"e":176},{"d":"2025-11-19","w":88.2,"r":12,"s":3,"e":123},{"d":"2026-01-17","w":88.2,"r":10,"s":3,"e":118},{"d":"2026-02-16","w":110.2,"r":15,"s":3,"e":165},{"d":"2026-02-21","w":110.2,"r":12,"s":3,"e":154},{"d":"2026-02-25","w":132.3,"r":10,"s":3,"e":176},{"d":"2026-03-09","w":88.2,"r":12,"s":2,"e":123},{"d":"2026-03-18","w":30.0,"r":30,"s":1,"e":60}]};
+  const thExerciseNames = ["Press con mancuernas en banca inclinada", "Curl de bíceps con mancuerna en banco inclinado", "Curl de bíceps alterno", "Rompe Cráneo Con Barra Z", "Elevaciones laterales con mancuerna", "Split con mancuernas", "Seal Row inclinado con mancuernas, banco inclinado", "Remo con barra, apoyo en banca", "Extensión de tríceps unilateral en polea", "Press cerrado con mancuernas", "Prensa horizontal unilateral", "Curl de bíceps con barra Z"];
   
 
   function formatDateShort(dateStr) {
@@ -2663,10 +2660,10 @@
     return d.getDate() + '/' + (d.getMonth()+1) + '/' + String(d.getFullYear()).slice(2);
   }
 
-  // â”€â”€ HELPERS TRAINHEROIC â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HELPERS TRAINHEROIC ──────────────────────────
 
   // Construye la grilla top-20 de ejercicios
-  // exercises: [{name, count, bestWeight}], callbackFn: nombre de la funciÃ³n JS a llamar al clic
+  // exercises: [{name, count, bestWeight}], callbackFn: nombre de la función JS a llamar al clic
   function buildExerciseGrid(exercises, callbackFn) {
     const grid = document.getElementById('exerciseGrid');
     if (!grid) return;
@@ -2680,16 +2677,16 @@
     }).join('');
   }
 
-  // AnimaciÃ³n flip (rotateY) reutilizable para revelar contenido actualizado
+  // Animación flip (rotateY) reutilizable para revelar contenido actualizado
   function flipEl(el) {
     if (!el) return;
     el.classList.remove('flip-y');
-    void el.offsetWidth; // fuerza reflow para reiniciar la animaciÃ³n
+    void el.offsetWidth; // fuerza reflow para reiniciar la animación
     el.classList.add('flip-y');
     el.addEventListener('animationend', () => el.classList.remove('flip-y'), { once: true });
   }
 
-  // Calcula y muestra la tira RM (12â†’1) desde el mejor est1RM
+  // Calcula y muestra la tira RM (12→1) desde el mejor est1RM
   function computeAndShowRMStrip(best1rm) {
     const strip = document.getElementById('thRMStrip');
     if (!strip || !best1rm) return;
@@ -2709,13 +2706,13 @@
   }
 
   function loadRealTHData() {
-    // Si el coach subiÃ³ un CSV, mostrarlo â€” pero validar que los pesos sean reales
+    // Si el coach subió un CSV, mostrarlo — pero validar que los pesos sean reales
     const storedCSV = localStorage.getItem('thCSVData');
     if (storedCSV) {
       try {
         const data = JSON.parse(storedCSV);
-        // ValidaciÃ³n: detectar mapeo incorrecto (aÃ±o de fecha mapeado como peso)
-        // Un peso vÃ¡lido estÃ¡ entre 0.5 kg y 1000 kg; valores â‰¥1990 son aÃ±os
+        // Validación: detectar mapeo incorrecto (año de fecha mapeado como peso)
+        // Un peso válido está entre 0.5 kg y 1000 kg; valores ≥1990 son años
         const sampleW = Object.values(data)
           .flatMap(s => s.slice(0,5).map(e => e.weight))
           .filter(w => typeof w === 'number' && !isNaN(w) && isFinite(w));
@@ -2724,7 +2721,7 @@
           .filter(r => typeof r === 'number' && !isNaN(r));
         const yearLikeW = sampleW.filter(w => w >= 1990 && w <= 2110).length;
         const yearLikeR = sampleR.filter(r => r >= 1990 && r <= 2110).length;
-        // Corrupto si: sin datos, o >25% de pesos/reps son valores de aÃ±o
+        // Corrupto si: sin datos, o >25% de pesos/reps son valores de año
         const badData = sampleW.length === 0
           || (yearLikeW / sampleW.length) > 0.25
           || (sampleR.length > 0 && (yearLikeR / sampleR.length) > 0.25);
@@ -2739,11 +2736,11 @@
           loadCSVData(data, filename, exCount, sessionCount);
           return;
         }
-      } catch(e) { /* CSV malformado â†’ caer a datos embebidos */ }
+      } catch(e) { /* CSV malformado → caer a datos embebidos */ }
     }
 
     // Los datos embebidos (thRealData) son el historial personal del coach.
-    // Cualquier otra cuenta ve el estado vacÃ­o + zona de carga de su propio CSV.
+    // Cualquier otra cuenta ve el estado vacío + zona de carga de su propio CSV.
     const _emailTH = (window._auth?.currentUser?.email || '').toLowerCase();
     if (_emailTH !== 'jaimea.gomezh@gmail.com') return;
 
@@ -2755,7 +2752,7 @@
     // Top-20 ejercicios por frecuencia de sesiones
     const sorted = Object.keys(thRealData)
       .map(name => {
-        const f = 1 / 2.205;  // lbs â†’ kg (TH exporta CSV en libras, muestra en kg)
+        const f = 1 / 2.205;  // lbs → kg (TH exporta CSV en libras, muestra en kg)
         return {
           name,
           count:      thRealData[name].length,
@@ -2776,7 +2773,7 @@
       document.getElementById('csvFileName').textContent = 'training_data.csv';
       const total = Object.values(thRealData).reduce((s,v) => s + v.length, 0);
       document.getElementById('csvFileMeta').textContent =
-        `${Object.keys(thRealData).length} ejercicios Â· ${total} sesiones desde 2023`;
+        `${Object.keys(thRealData).length} ejercicios · ${total} sesiones desde 2023`;
     }
     document.getElementById('thLastUpdate').textContent = 'Actualizado: Mar 2026';
 
@@ -2792,24 +2789,24 @@
     const sessions = thRealData[exName];
     if (!sessions || !sessions.length) return;
 
-    const factor     = 1 / 2.205;  // lbs â†’ kg (datos embebidos estÃ¡n en libras)
+    const factor     = 1 / 2.205;  // lbs → kg (datos embebidos están en libras)
     const rawWeights = sessions.map(s => s.w);
     const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
     const labels     = sessions.map(s => formatDateShort(s.d));
     const best       = Math.max(...weights);
-    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones râ‰¤15, aplicando factor
+    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones r≤15, aplicando factor
     const validSess  = sessions.filter(s => s.r <= 15 && s.e > 0);
     const est1rm     = validSess.length ? Math.round(Math.max(...validSess.map(s => s.e)) * factor) : Math.round(best * (1 + 5/30));
 
     // Working max
-    document.getElementById('thWMLabel').textContent = exName.length > 32 ? exName.slice(0,32) + 'â€¦' : exName;
+    document.getElementById('thWMLabel').textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
     document.getElementById('thWMValue').textContent = best % 1 === 0 ? best : best.toFixed(1);
     document.getElementById('thEst1RM').textContent  = est1rm + ' kg';
 
     // Tira RM
     computeAndShowRMStrip(est1rm);
 
-    // GrÃ¡fico
+    // Gráfico
     if (chartStrength) {
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
@@ -2823,21 +2820,21 @@
       chartStrength.update();
     }
 
-    // Tabla Ãºltimas 5 sesiones
+    // Tabla últimas 5 sesiones
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
-      tbody.innerHTML = '<tr><th>Fecha</th><th>SeriesÃ—Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
+      tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s, i) => {
         const dispW   = parseFloat((s.w * factor).toFixed(1));
         const dispE   = Math.round(s.e * factor);
         const isMax   = dispW === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}Ã—${s.r}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
+        tr.innerHTML = `<td>${formatDateShort(s.d)}</td><td>${s.s}×${s.r}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
         tbody.appendChild(tr);
       });
     }
 
-    // Si hay un rango activo (no ALL), aplicarlo al ejercicio reciÃ©n cargado.
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado.
     // Usar #strRangeBtns para no confundir con el selector de ritmo (#ritmoRangeBtns).
     const rBtn = document.querySelector('#strRangeBtns .th-range-btn.active');
     if (rBtn) {
@@ -2847,14 +2844,14 @@
     }
   }
 
-  // â”€â”€ CSV PARSER TRAINHEROIC â”€â”€
+  // ── CSV PARSER TRAINHEROIC ──
   let csvRawData = null;
   let csvHeaders = [];
   let csvParsed = [];
 
-  // Mapeo automÃ¡tico de nombres comunes de columnas
+  // Mapeo automático de nombres comunes de columnas
   const COL_ALIASES = {
-    date:     ['date','fecha','day','dÃ­a','session date','workout date'],
+    date:     ['date','fecha','day','día','session date','workout date'],
     exercise: ['exercise','ejercicio','movement','exercise name','nombre ejercicio','lift'],
     weight:   ['weight','peso','kg','load','carga','weight (kg)','load (kg)','weight (lbs)','load (lbs)'],
     reps:     ['reps','repeticiones','rep','repetition','repetitions','reps completed'],
@@ -2863,7 +2860,7 @@
   };
 
   // Devuelve el encabezado que coincide con `field`, o null si no encuentra ninguno.
-  // NUNCA usa headers[0] como fallback â€” eso causarÃ­a que la columna de fecha
+  // NUNCA usa headers[0] como fallback — eso causaría que la columna de fecha
   // (formato YYYY-MM-DD) se interprete como peso (~2025 kg).
   function guessColumn(headers, field) {
     const aliases = COL_ALIASES[field] || [];
@@ -2877,22 +2874,22 @@
         if (h.toLowerCase().includes(a) || a.includes(h.toLowerCase().trim())) return h;
       }
     }
-    return null; // sin fallback â€” el llamador decide quÃ© hacer
+    return null; // sin fallback — el llamador decide qué hacer
   }
 
   // Lee un objeto File y lo procesa como CSV.
-  // Centralizado aquÃ­ para que tanto el input como el drag-drop usen el mismo flujo.
+  // Centralizado aquí para que tanto el input como el drag-drop usen el mismo flujo.
   function readAndProcessFile(file) {
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) {
-      alert('El archivo es demasiado grande (mÃ¡x. 20 MB). Exporta un rango de fechas mÃ¡s acotado desde TrainHeroic.');
+      alert('El archivo es demasiado grande (máx. 20 MB). Exporta un rango de fechas más acotado desde TrainHeroic.');
       return;
     }
     showProcessing(true);
     const reader = new FileReader();
     reader.onerror = () => {
       showProcessing(false);
-      alert('No se pudo leer el archivo. Intenta seleccionarlo con el botÃ³n en lugar de arrastrarlo.');
+      alert('No se pudo leer el archivo. Intenta seleccionarlo con el botón en lugar de arrastrarlo.');
     };
     reader.onload = (ev) => {
       setTimeout(() => {
@@ -2901,7 +2898,7 @@
         } catch(err) {
           showProcessing(false);
           console.error('Error procesando CSV:', err);
-          alert('El archivo no pudo procesarse. Verifica que sea un CSV vÃ¡lido.\n\n' + err.message);
+          alert('El archivo no pudo procesarse. Verifica que sea un CSV válido.\n\n' + err.message);
         }
       }, 200);
     };
@@ -2912,8 +2909,8 @@
     readAndProcessFile(input.files[0]);
   }
 
-  // â”€â”€ PARSEO CSV (RFC 4180) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Une lÃ­neas que pertenecen al mismo campo entre comillas (campos multi-lÃ­nea).
+  // ── PARSEO CSV (RFC 4180) ─────────────────────────────────────────────────
+  // Une líneas que pertenecen al mismo campo entre comillas (campos multi-línea).
   function splitCSVLines(text) {
     const rows = []; let cur = '', inQ = false;
     for (let i = 0; i < text.length; i++) {
@@ -2968,11 +2965,11 @@
     // Detectar separador (coma, punto y coma, tab)
     const sep = text.includes(';') ? ';' : text.includes('\t') ? '\t' : ',';
     const lines = splitCSVLines(text);
-    if (lines.length < 2) { showProcessing(false); alert('CSV vacÃ­o o invÃ¡lido'); return; }
+    if (lines.length < 2) { showProcessing(false); alert('CSV vacío o inválido'); return; }
 
     // Parsear encabezados, eliminando BOM si existe (Excel UTF-8)
     const rawHeaders = parseCSVRow(lines[0], sep);
-    csvHeaders = rawHeaders.map((h, i) => (i === 0 ? h.replace(/^ï»¿/, '') : h).trim());
+    csvHeaders = rawHeaders.map((h, i) => (i === 0 ? h.replace(/^﻿/, '') : h).trim());
     csvRawData = lines.slice(1).map(line => {
       const vals = parseCSVRow(line, sep);
       const obj  = {};
@@ -2980,9 +2977,9 @@
       return obj;
     });
 
-    // â”€â”€ Formato TrainHeroic con columna ExerciseData â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Formato TrainHeroic con columna ExerciseData ───────────────────────
     // Los pesos y reps vienen embebidos: "12, 12 rep x 110.23, 110.23 kilogram"
-    // Los valores estÃ¡n en libras aunque la etiqueta diga "kilogram".
+    // Los valores están en libras aunque la etiqueta diga "kilogram".
     if (csvHeaders.includes('ExerciseData')) {
       const dateCol     = guessColumn(csvHeaders, 'date');
       const exerciseCol = guessColumn(csvHeaders, 'exercise');
@@ -2993,24 +2990,24 @@
       }
     }
 
-    // Intentar mapeo automÃ¡tico por alias de nombre de columna
+    // Intentar mapeo automático por alias de nombre de columna
     const dateCol     = guessColumn(csvHeaders, 'date');
     const exerciseCol = guessColumn(csvHeaders, 'exercise');
     let   weightCol   = guessColumn(csvHeaders, 'weight');
     const repsCol     = guessColumn(csvHeaders, 'reps');
     console.log('[CSV] Headers:', csvHeaders);
-    console.log('[CSV] Detectado â†’ fecha:', dateCol, '| ejercicio:', exerciseCol, '| peso:', weightCol, '| reps:', repsCol);
+    console.log('[CSV] Detectado → fecha:', dateCol, '| ejercicio:', exerciseCol, '| peso:', weightCol, '| reps:', repsCol);
 
-    // Si no se detectÃ³ columna de peso por alias, buscar heurÃ­sticamente:
-    // columna numÃ©rica con valores plausibles (0.5â€“999 lbs), excluyendo fecha, ejercicio y reps.
-    // Excluye tambiÃ©n columnas donde los valores parecen aÃ±os (â‰¥1990).
+    // Si no se detectó columna de peso por alias, buscar heurísticamente:
+    // columna numérica con valores plausibles (0.5–999 lbs), excluyendo fecha, ejercicio y reps.
+    // Excluye también columnas donde los valores parecen años (≥1990).
     if (!weightCol) {
       const rows0 = csvRawData.slice(0, 20);
       for (const h of csvHeaders) {
         if (h === dateCol || h === exerciseCol || h === repsCol) continue;
         const nums = rows0.map(r => parseFloat(r[h])).filter(v => !isNaN(v) && v > 0);
         const yearLike = nums.filter(v => v >= 1990);
-        if (yearLike.length > 0) continue; // descartar si tiene valores de aÃ±o
+        if (yearLike.length > 0) continue; // descartar si tiene valores de año
         const plausible = nums.filter(v => v >= 0.5 && v < 1000);
         if (plausible.length >= Math.min(5, rows0.length * 0.5)) {
           weightCol = h;
@@ -3019,8 +3016,8 @@
       }
     }
 
-    // Verificar si el mapeo automÃ¡tico produjo columnas vÃ¡lidas:
-    // peso: 0.5â€“1400 (lbs); reps: 1â€“99; ninguna columna clave puede ser null
+    // Verificar si el mapeo automático produjo columnas válidas:
+    // peso: 0.5–1400 (lbs); reps: 1–99; ninguna columna clave puede ser null
     const sampleRows = csvRawData.slice(0, 5);
     const validRows  = (dateCol && exerciseCol && weightCol && repsCol)
       ? sampleRows.filter(row => {
@@ -3051,10 +3048,10 @@
       if (!sel) return;
       const best = guessColumn(csvHeaders, fields[i]); // puede ser null
       // Si no hay coincidencia, poner placeholder deshabilitado para que el usuario elija.
-      // Sin placeholder, el browser pre-selecciona la primera opciÃ³n (tÃ­picamente la fecha).
+      // Sin placeholder, el browser pre-selecciona la primera opción (típicamente la fecha).
       const placeholder = best
         ? ''
-        : `<option value="" disabled selected>â€” seleccionar columna â€”</option>`;
+        : `<option value="" disabled selected>— seleccionar columna —</option>`;
       sel.innerHTML = placeholder + csvHeaders.map(h =>
         `<option value="${h}" ${h === best ? 'selected' : ''}>${h}</option>`
       ).join('');
@@ -3088,7 +3085,7 @@
       const dateStr = row[dateCol] || '';
       if (!ex || isNaN(w) || w <= 0) return;
 
-      // 1RM Epley con cap 15 reps (igual que TrainHeroic: r>15 â†’ no calcular)
+      // 1RM Epley con cap 15 reps (igual que TrainHeroic: r>15 → no calcular)
       const est1rm = reps <= 15 ? Math.round(w * (1 + reps / 30)) : 0;
       const date = parseDate(dateStr);
 
@@ -3096,7 +3093,7 @@
       exercises[ex].push({ date, dateStr, weight: w, reps, sets: 1, est1rm });
     });
 
-    // Agrupar sesiones del mismo ejercicio en el mismo dÃ­a
+    // Agrupar sesiones del mismo ejercicio en el mismo día
     const merged = {};
     Object.keys(exercises).forEach(ex => {
       const byDate = {};
@@ -3114,9 +3111,9 @@
     const exCount = Object.keys(merged).length;
     const sessionCount = Object.values(merged).reduce((s,v)=>s+v.length,0);
 
-    if (exCount === 0) { alert('No se pudieron leer datos vÃ¡lidos. Verifica el formato del CSV.'); return; }
+    if (exCount === 0) { alert('No se pudieron leer datos válidos. Verifica el formato del CSV.'); return; }
 
-    // ValidaciÃ³n de integridad: si los pesos se ven como aÃ±os (ej. 2025) el mapeo fue incorrecto.
+    // Validación de integridad: si los pesos se ven como años (ej. 2025) el mapeo fue incorrecto.
     // Forzar el panel de mapeo manual para que el usuario elija la columna correcta.
     const sampleWeights = Object.values(merged)
       .flatMap(s => s.slice(0, 3).map(e => e.weight))
@@ -3134,7 +3131,7 @@
       localStorage.setItem('thCSVFilename', filename);
     } catch(e) {
       // Datos demasiado grandes para localStorage: continuar en memoria sin guardar
-      console.warn('localStorage lleno; los datos no se guardarÃ¡n entre sesiones.', e);
+      console.warn('localStorage lleno; los datos no se guardarán entre sesiones.', e);
     }
 
     // Actualizar UI
@@ -3142,7 +3139,7 @@
   }
 
   // Importa el formato TrainHeroic con columna ExerciseData.
-  // Los pesos estÃ¡n en libras (aunque la etiqueta diga "kilogram") â†’ convierte a kg.
+  // Los pesos están en libras (aunque la etiqueta diga "kilogram") → convierte a kg.
   function importCSVFromExerciseData(dateCol, exerciseCol, dataCol, filename) {
     const LBS_TO_KG = 1 / 2.2046;
     const exercises = {};
@@ -3159,7 +3156,7 @@
       const weightKg = parseFloat((parsed.weightLbs * LBS_TO_KG).toFixed(2));
       if (weightKg < 0.5) continue;
 
-      // Normalizar fecha: "2023-3-28" â†’ "2023-03-28"
+      // Normalizar fecha: "2023-3-28" → "2023-03-28"
       const dp      = dateRaw.split('-');
       const dateStr = dp.length === 3
         ? `${dp[0]}-${dp[1].padStart(2,'0')}-${dp[2].padStart(2,'0')}`
@@ -3172,7 +3169,7 @@
       exercises[ex].push({ date, dateStr, weight: weightKg, reps, sets: 1, est1rm });
     }
 
-    // Agrupar por dÃ­a: conservar el mayor peso por sesiÃ³n
+    // Agrupar por día: conservar el mayor peso por sesión
     const merged = {};
     for (const [ex, entries] of Object.entries(exercises)) {
       const byDate = {};
@@ -3226,14 +3223,14 @@
     if (uploadZone) uploadZone.style.display = 'none';
     document.getElementById('csvSummary')?.classList.add('show');
     const fnEl = document.getElementById('csvFileName');  if (fnEl) fnEl.textContent = filename;
-    const fmEl = document.getElementById('csvFileMeta');  if (fmEl) fmEl.textContent = exCount + ' ejercicios Â· ' + sessionCount + ' sesiones';
+    const fmEl = document.getElementById('csvFileMeta');  if (fmEl) fmEl.textContent = exCount + ' ejercicios · ' + sessionCount + ' sesiones';
     const luEl = document.getElementById('thLastUpdate'); if (luEl) luEl.textContent = 'Actualizado hoy';
     const rstEl = document.getElementById('csvResetBtn'); if (rstEl) rstEl.style.display = 'block';
 
     const dataSection = document.getElementById('thDataSection');
     if (dataSection) dataSection.style.display = 'block';
 
-    // Top 20 por frecuencia de sesiones â†’ grilla de tarjetas
+    // Top 20 por frecuencia de sesiones → grilla de tarjetas
     const sorted = Object.keys(data)
       .map(name => {
         const f = isBilateralDumbbell(name) ? 0.5 : 1;
@@ -3266,7 +3263,7 @@
     const factor     = isBilateralDumbbell(exName) ? 0.5 : 1;
     const rawWeights = sessions.map(s => s.weight);
     const weights    = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
-    // Mostrar dd/mm/yy en el primer punto de cada aÃ±o nuevo
+    // Mostrar dd/mm/yy en el primer punto de cada año nuevo
     const labels     = sessions.map((s, idx) => {
       const d = new Date(s.date);
       const prevD = idx > 0 ? new Date(sessions[idx-1].date) : null;
@@ -3276,13 +3273,13 @@
         : base;
     });
     const best = Math.max(...weights);
-    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones râ‰¤15, con factor
+    // Epley cap 15 reps (igual a TrainHeroic): mejor est1rm de sesiones r≤15, con factor
     const validSess = sessions.filter(s => s.reps <= 15 && s.est1rm > 0);
     const est1rm    = validSess.length ? Math.round(Math.max(...validSess.map(s => s.est1rm)) * factor) : Math.round(best * (1 + 5/30));
 
     // Working Max
     const labelEl = document.getElementById('thWMLabel');
-    if (labelEl) labelEl.textContent = exName.length > 32 ? exName.slice(0,32) + 'â€¦' : exName;
+    if (labelEl) labelEl.textContent = exName.length > 32 ? exName.slice(0,32) + '…' : exName;
     const wmEl = document.getElementById('thWMValue');
     if (wmEl) wmEl.textContent = best % 1 === 0 ? best : best.toFixed(1);
     const rmEl = document.getElementById('thEst1RM');
@@ -3291,7 +3288,7 @@
     // Tira RM estimada
     computeAndShowRMStrip(est1rm);
 
-    // GrÃ¡fico
+    // Gráfico
     if (chartStrength) {
       const margin = Math.max((best - Math.min(...weights)) * 0.25, best * 0.05);
       chartStrength.data.labels = labels;
@@ -3306,10 +3303,10 @@
       chartStrength.update();
     }
 
-    // Tabla Ãºltimas 5 sesiones
+    // Tabla últimas 5 sesiones
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
-      tbody.innerHTML = '<tr><th>Fecha</th><th>SeriesÃ—Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
+      tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s) => {
         const d = new Date(s.date);
         const dateStr  = d.getDate()+'/'+(d.getMonth()+1);
@@ -3317,12 +3314,12 @@
         const dispE    = Math.round(s.est1rm * factor);
         const isMax    = dispW === best;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}Ã—${s.reps}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
+        tr.innerHTML = `<td>${dateStr}</td><td>${s.sets||1}×${s.reps}</td><td class="${isMax?'highlight':''}">${dispW}</td><td>${dispE} kg</td>`;
         tbody.appendChild(tr);
       });
     }
 
-    // Si hay un rango activo (no ALL), aplicarlo al ejercicio reciÃ©n cargado.
+    // Si hay un rango activo (no ALL), aplicarlo al ejercicio recién cargado.
     // Usar #strRangeBtns para no confundir con el selector de ritmo (#ritmoRangeBtns).
     const rBtn = document.querySelector('#strRangeBtns .th-range-btn.active');
     if (rBtn) {
@@ -3341,7 +3338,7 @@
     document.getElementById('thDataSection').style.display = 'none';
     document.getElementById('csvResetBtn').style.display = 'none';
     document.getElementById('csvFileInput').value = '';
-    document.getElementById('thLastUpdate').textContent = 'Sin datos â€” sube tu CSV';
+    document.getElementById('thLastUpdate').textContent = 'Sin datos — sube tu CSV';
     // Restablecer rango a ALL para evitar interferencias al subir nuevo CSV
     const allBtn = document.querySelector('#strRangeBtns .th-range-btn:last-child');
     if (allBtn) {
@@ -3384,30 +3381,30 @@
     });
   });
 
-  // â”€â”€ TRAINHEROIC STRENGTH CHARTS â”€â”€
+  // ── TRAINHEROIC STRENGTH CHARTS ──
   let chartStrength = null;
 
-  // (Datos demo de fuerza eliminados: el mÃ³dulo Fuerza solo muestra datos
+  // (Datos demo de fuerza eliminados: el módulo Fuerza solo muestra datos
   //  reales del CSV de TrainHeroic o del historial embebido del atleta.)
 
-  // â”€â”€ Helper: ejercicios con mancuernas bilaterales â”€â”€
+  // ── Helper: ejercicios con mancuernas bilaterales ──
   // TrainHeroic exporta el peso TOTAL (ambas mancuernas). La UI de TH muestra por mancuerna.
-  // Para coincidir con TH, dividimos por 2 en la presentaciÃ³n.
-  // â”€â”€ RUCKING: dashboard del atleta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Para coincidir con TH, dividimos por 2 en la presentación.
+  // ── RUCKING: dashboard del atleta ────────────────────────────
   const RUCK_LOAD_CATS = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
   let chartRucking = null;
   let ruckAtletaDist = null;
   let ruckAtletaLoad = null;
-  let ruckMetrica = 'potencia'; // 'tiempo' | 'potencia' â€” default: potencia
+  let ruckMetrica = 'potencia'; // 'tiempo' | 'potencia' — default: potencia
 
   function setRuckMetrica(modo, btn) {
     if (modo === 'potencia' && !hayBMRegistrado()) {
       const warn = document.getElementById('ruckBMWarning');
       if (warn) {
         warn.style.display = 'block';
-        warn.innerHTML = 'âš  <strong>Peso corporal obligatorio.</strong> Ve a <a onclick="toggleAccord(document.querySelector(\'[data-accord=composicion]\'))" style="color:#e07b00;cursor:pointer;text-decoration:underline;">ComposiciÃ³n Corporal</a> e ingresa tu peso para activar esta mÃ©trica.';
+        warn.innerHTML = '⚠ <strong>Peso corporal obligatorio.</strong> Ve a <a onclick="toggleAccord(document.querySelector(\'[data-accord=composicion]\'))" style="color:#e07b00;cursor:pointer;text-decoration:underline;">Composición Corporal</a> e ingresa tu peso para activar esta métrica.';
       }
-      return; // No cambiar mÃ©trica
+      return; // No cambiar métrica
     }
     ruckMetrica = modo;
     const warn = document.getElementById('ruckBMWarning');
@@ -3438,10 +3435,10 @@
   function getBMForDate(fecha) {
     const historial = getBMHistorial();
     if (!historial.length) return null;
-    // Buscar el peso mÃ¡s reciente en o antes de la fecha de la sesiÃ³n
+    // Buscar el peso más reciente en o antes de la fecha de la sesión
     const anteriores = historial.filter(m => m.fecha <= fecha);
     if (anteriores.length) return anteriores[anteriores.length - 1].peso;
-    // Si la sesiÃ³n es anterior a todos los registros, usar el mÃ¡s antiguo
+    // Si la sesión es anterior a todos los registros, usar el más antiguo
     return historial[0].peso;
   }
 
@@ -3449,19 +3446,19 @@
     return getBMHistorial().length > 0;
   }
 
-  // â”€â”€ POTENCIA MECÃNICA RUCKING (Watts) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // FÃ­sica newtoniana: aÃ­sla trabajo de fricciÃ³n horizontal + trabajo contra
+  // ── POTENCIA MECÁNICA RUCKING (Watts) ──────────────────────────────────────
+  // Física newtoniana: aísla trabajo de fricción horizontal + trabajo contra
   // gravedad en ascensos. Usa tiempo NETO en movimiento (no penaliza pausas).
-  //   Power(W) = (Masa Ã— g Ã— (Î¼Â·distancia_m + desnivel_m)) / tiempo_movimiento_s
+  //   Power(W) = (Masa × g × (μ·distancia_m + desnivel_m)) / tiempo_movimiento_s
   const G_RUCK = 9.81;
   const MU_TERRENO = { asfalto: 0.10, tierra: 0.15, trail: 0.20, arena: 0.28 };
 
   function calcPotenciaRucking(bodyWeight, packWeight, distanceM, elevationGain, movingTime, terrainType) {
     const warnings = [];
     const totalMass = bodyWeight + packWeight;
-    // ValidaciÃ³n biomecÃ¡nica: carga > 40% del peso corporal
+    // Validación biomecánica: carga > 40% del peso corporal
     if (packWeight > 0.40 * bodyWeight) {
-      warnings.push('Carga extrema: la fÃ³rmula de potencia puede subestimar la fatiga real debido al colapso biomecÃ¡nico');
+      warnings.push('Carga extrema: la fórmula de potencia puede subestimar la fatiga real debido al colapso biomecánico');
     }
     if (!movingTime || movingTime <= 0) {
       return { power_watts: null, total_mass: totalMass, warnings };
@@ -3488,14 +3485,14 @@
   }
 
   function fmtTimerRuck(sec) {
-    if (!sec || sec <= 0) return 'â€”';
+    if (!sec || sec <= 0) return '—';
     const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
     return h > 0
       ? h+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0')
       : m+':'+String(s).padStart(2,'0');
   }
   function fmtDateRuck(str) {
-    if (!str) return 'â€”';
+    if (!str) return '—';
     const d = new Date(str+'T12:00:00');
     return d.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]+' '+d.getFullYear();
   }
@@ -3511,7 +3508,7 @@
       function ruckTimeFmt(inp) {
         const d = inp._digits;
         if (!d) { inp.value = ''; return; }
-        // 5 dÃ­gitos: [H][MM][SS] â†’ mÃ¡x 9:59:59
+        // 5 dígitos: [H][MM][SS] → máx 9:59:59
         const padded = d.padStart(5, '0');
         const h  = parseInt(padded[0]);
         const mm = padded.slice(1, 3);
@@ -3544,7 +3541,7 @@
         this.setSelectionRange(len, len);
       });
     }
-    // Activar botÃ³n Potencia por defecto
+    // Activar botón Potencia por defecto
     const btnP = document.getElementById('ruckTogglePotencia');
     const btnT = document.getElementById('ruckToggleTiempo');
     if (btnP && btnT) {
@@ -3552,15 +3549,15 @@
       btnP.style.background='rgba(139,26,26,0.1)'; btnP.style.color='#8B1A1A'; btnP.style.borderColor='rgba(139,26,26,0.4)';
     }
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
-    // Backfill: garantizar id estable en toda sesiÃ³n (las del cloud pueden perderlo)
+    // Backfill: garantizar id estable en toda sesión (las del cloud pueden perderlo)
     let _idFix = false;
     sessions.forEach((s, i) => {
       if (!s.id) { s.id = (s.stravaId ? 'st_'+s.stravaId : 'sess_'+i+'_'+(s.date||'')+'_'+(s.time||'')); _idFix = true; }
     });
     if (_idFix) localStorage.setItem('ruckSessions', JSON.stringify(sessions));
 
-    // â”€â”€ Binding robusto por closure (inmune a fallos de window.*) â”€â”€
-    // DelegaciÃ³n en la lista de sesiones: editar / eliminar
+    // ── Binding robusto por closure (inmune a fallos de window.*) ──
+    // Delegación en la lista de sesiones: editar / eliminar
     const listEl = document.getElementById('ruckASessionsList');
     if (listEl && !listEl._ruckBound) {
       listEl._ruckBound = true;
@@ -3572,7 +3569,7 @@
         if (act === 'edit') {
           editRuckSession(id);
         } else if (act === 'del') {
-          if (!confirm('Â¿Eliminar esta sesiÃ³n de rucking?')) return;
+          if (!confirm('¿Eliminar esta sesión de rucking?')) return;
           const arr = JSON.parse(localStorage.getItem('ruckSessions')||'[]').filter(s => String(s.id) !== String(id));
           localStorage.setItem('ruckSessions', JSON.stringify(arr));
           if (typeof pushRuckingToCloud === 'function') pushRuckingToCloud(arr);
@@ -3581,7 +3578,7 @@
         }
       });
     }
-    // BotÃ³n Cancelar del formulario manual
+    // Botón Cancelar del formulario manual
     const cancelBtn = document.getElementById('ruckCancelBtn');
     if (cancelBtn && !cancelBtn._ruckBound) {
       cancelBtn._ruckBound = true;
@@ -3593,7 +3590,7 @@
         const terr = document.getElementById('ruckATerrain'); if (terr) terr.value = 'trail';
       });
     }
-    // BotÃ³n Agregar / Guardar del formulario manual
+    // Botón Agregar / Guardar del formulario manual
     const addBtnEl = document.getElementById('ruckAddBtn');
     if (addBtnEl && !addBtnEl._ruckBound) {
       addBtnEl._ruckBound = true;
@@ -3604,7 +3601,7 @@
     const loadBtns = document.getElementById('ruckALoadBtns');
     if (!distBtns || !loadBtns) return;
 
-    // Distancias Ãºnicas presentes en las sesiones
+    // Distancias únicas presentes en las sesiones
     const usedDists = [...new Set(sessions.map(s=>s.dist))].sort((a,b)=>a-b);
     const usedLoads = [...new Set(sessions.map(s=>s.load))].sort((a,b)=>a-b);
 
@@ -3630,7 +3627,7 @@
     const countEl = document.getElementById('ruckACount');
     if (countEl) {
       const stravaCount = sessions.filter(s=>s.source==='strava').length;
-      countEl.textContent = sessions.length+' sesiÃ³n'+(sessions.length!==1?'es':'')+' Â· '+stravaCount+' desde Strava';
+      countEl.textContent = sessions.length+' sesión'+(sessions.length!==1?'es':'')+' · '+stravaCount+' desde Strava';
     }
 
     // Seleccionar primeros por defecto
@@ -3649,7 +3646,7 @@
     const yaActivo = btn.classList.contains('active');
     document.querySelectorAll('#ruckALoadBtns .th-range-btn').forEach(b=>b.classList.remove('active'));
     if (yaActivo) {
-      ruckAtletaLoad = null; // deseleccionar â†’ ver todos los kg
+      ruckAtletaLoad = null; // deseleccionar → ver todos los kg
     } else {
       btn.classList.add('active');
       ruckAtletaLoad = kg;
@@ -3671,13 +3668,13 @@
     const elBest = document.getElementById('ruckABestTime');
     const elDate = document.getElementById('ruckABestDate');
     const elSess = document.getElementById('ruckASessions');
-    if (elBest) elBest.textContent = best ? fmtTimerRuck(best.time) : 'â€”';
-    if (elDate) elDate.textContent = best ? fmtDateRuck(best.date) : 'â€”';
+    if (elBest) elBest.textContent = best ? fmtTimerRuck(best.time) : '—';
+    if (elDate) elDate.textContent = best ? fmtDateRuck(best.date) : '—';
     if (elSess) elSess.textContent = filtered.length;
 
-    // â”€â”€ DetecciÃ³n PR rucking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Detección PR rucking ───────────────────────────────────────────────
     if (best && ruckAtletaDist && ruckAtletaLoad && withTime.length > 1) {
-      // Solo comparar cuando hay mÃ¡s de 1 sesiÃ³n (evitar falso positivo en primer registro)
+      // Solo comparar cuando hay más de 1 sesión (evitar falso positivo en primer registro)
       const rkKey = 'ruckBest_' + ruckAtletaDist + '_' + ruckAtletaLoad + '_' + ruckMetrica;
       if (ruckMetrica === 'potencia') {
         const bestW = calcPotenciaRuck(best);
@@ -3688,17 +3685,17 @@
           } else if (bestW > prevW) {
             localStorage.setItem(rkKey, bestW);
             prBurst();
-            prShowToast('ðŸ† RÃ©cord Rucking â€” ' + ruckAtletaDist + ' km Â· ' + ruckAtletaLoad + ' kg Â· ' + bestW + ' W');
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + bestW + ' W');
           }
         } else {
-          // Sin BM registrado â†’ comparar por tiempo igual que en modo tiempo
+          // Sin BM registrado → comparar por tiempo igual que en modo tiempo
           const prevT = parseInt(localStorage.getItem(rkKey + '_t') || '0', 10);
           if (prevT === 0) {
             localStorage.setItem(rkKey + '_t', best.time);
           } else if (best.time < prevT) {
             localStorage.setItem(rkKey + '_t', best.time);
             prBurst();
-            prShowToast('ðŸ† RÃ©cord Rucking â€” ' + ruckAtletaDist + ' km Â· ' + ruckAtletaLoad + ' kg Â· ' + fmtTimerRuck(best.time));
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
           }
         }
       } else {
@@ -3709,7 +3706,7 @@
           } else if (best.time < prevT) {
             localStorage.setItem(rkKey, best.time);
             prBurst();
-            prShowToast('ðŸ† RÃ©cord Rucking â€” ' + ruckAtletaDist + ' km Â· ' + ruckAtletaLoad + ' kg Â· ' + fmtTimerRuck(best.time));
+            prShowToast('🏆 Récord Rucking — ' + ruckAtletaDist + ' km · ' + ruckAtletaLoad + ' kg · ' + fmtTimerRuck(best.time));
           }
         }
       }
@@ -3725,11 +3722,11 @@
           const diff = latestW - firstW;
           const pct  = (Math.abs(diff)/firstW*100).toFixed(1);
           if (diff > 0) {
-            deltaEl.innerHTML = `<span style="color:#1e8c3a;">â–² +${diff} W</span> <span style="font-size:11px;color:#999;">mejora Â· ${pct}%</span>`;
+            deltaEl.innerHTML = `<span style="color:#1e8c3a;">▲ +${diff} W</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
           } else if (diff < 0) {
-            deltaEl.innerHTML = `<span style="color:#d32f2f;">â–¼ ${diff} W</span> <span style="font-size:11px;color:#999;">baja Â· ${pct}%</span>`;
+            deltaEl.innerHTML = `<span style="color:#d32f2f;">▼ ${diff} W</span> <span style="font-size:11px;color:#999;">baja · ${pct}%</span>`;
           } else {
-            deltaEl.innerHTML = `<span style="color:#999;">â€” sin cambio</span>`;
+            deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
           }
         } else {
           deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">Sin peso registrado</span>';
@@ -3740,18 +3737,18 @@
         const diff   = first - latest;
         const pct    = (Math.abs(diff)/first*100).toFixed(1);
         if (diff > 0) {
-          deltaEl.innerHTML = `<span style="color:#1e8c3a;">â–² ${fmtTimerRuck(diff)}</span> <span style="font-size:11px;color:#999;">mejora Â· ${pct}%</span>`;
+          deltaEl.innerHTML = `<span style="color:#1e8c3a;">▲ ${fmtTimerRuck(diff)}</span> <span style="font-size:11px;color:#999;">mejora · ${pct}%</span>`;
         } else if (diff < 0) {
-          deltaEl.innerHTML = `<span style="color:#d32f2f;">â–¼ ${fmtTimerRuck(-diff)}</span> <span style="font-size:11px;color:#999;">baja Â· ${pct}%</span>`;
+          deltaEl.innerHTML = `<span style="color:#d32f2f;">▼ ${fmtTimerRuck(-diff)}</span> <span style="font-size:11px;color:#999;">baja · ${pct}%</span>`;
         } else {
-          deltaEl.innerHTML = `<span style="color:#999;">â€” sin cambio</span>`;
+          deltaEl.innerHTML = `<span style="color:#999;">— sin cambio</span>`;
         }
       }
     } else if (deltaEl) {
-      deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">â€”</span>';
+      deltaEl.innerHTML = '<span style="color:#bbb;font-size:12px;">—</span>';
     }
 
-    // GrÃ¡fico
+    // Gráfico
     const ctx = document.getElementById('chartRucking');
     const bmWarn = document.getElementById('ruckBMWarning');
     if (ctx) {
@@ -3808,37 +3805,37 @@
       }
     }
 
-    // Sesiones recientes (Ãºltimas 5)
+    // Sesiones recientes (últimas 5)
     const tbody = document.getElementById('ruckASessionsList');
     if (tbody) {
       const recent = [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,5);
       if (!recent.length) {
-        tbody.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones para esta selecciÃ³n</div>';
+        tbody.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones para esta selección</div>';
       } else {
         tbody.innerHTML = recent.map(s=>{
           const pot     = calcPotenciaRuck(s);
           const trabajo = calcTrabajoRuck(s);
           const esStrava = s.source === 'strava';
-          const editTitle = esStrava ? 'Editar tiempo (Strava)' : 'Editar sesiÃ³n';
+          const editTitle = esStrava ? 'Editar tiempo (Strava)' : 'Editar sesión';
           return `
           <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(0,0,0,0.05);gap:8px;">
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:600;color:#333;">${fmtTimerRuck(s.time)}</div>
-              <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${esStrava?' Â· <span style="color:#FC4C02;">Strava</span>':''}</div>
+              <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${esStrava?' · <span style="color:#FC4C02;">Strava</span>':''}</div>
             </div>
             <div style="text-align:right;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km Â· ${s.load} kg</div>
-              ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W Â· ${trabajo} kJ</div>` : ''}
-              ${s.elev>0?`<div style="font-size:10px;color:#bbb;">â†‘ ${s.elev} m desnivel</div>`:''}
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
+              ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W · ${trabajo} kJ</div>` : ''}
+              ${s.elev>0?`<div style="font-size:10px;color:#bbb;">↑ ${s.elev} m desnivel</div>`:''}
             </div>
             <button data-ruck-act="edit" data-ruck-id="${s.id}" title="${editTitle}"
               style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
               onmouseover="this.style.borderColor='#C9A84C';this.style.color='#C9A84C';"
-              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">âœŽ</button>
-            <button data-ruck-act="del" data-ruck-id="${s.id}" title="Eliminar sesiÃ³n"
+              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✎</button>
+            <button data-ruck-act="del" data-ruck-id="${s.id}" title="Eliminar sesión"
               style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:13px;padding:3px 7px;cursor:pointer;flex-shrink:0;transition:all 0.15s;line-height:1;"
               onmouseover="this.style.borderColor='#d32f2f';this.style.color='#d32f2f';"
-              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">âœ•</button>
+              onmouseout="this.style.borderColor='rgba(0,0,0,0.15)';this.style.color='#aaa';">✕</button>
           </div>`;
         }).join('');
       }
@@ -3855,18 +3852,18 @@
     const visible = f.style.display !== 'none' && f.style.display !== '';
     f.style.display = visible ? 'none' : 'block';
     if (!visible) {
-      // Prellenar fecha de hoy si estÃ¡ vacÃ­a
+      // Prellenar fecha de hoy si está vacía
       const dateInp = document.getElementById('ruckADate');
       if (dateInp && !dateInp.value) {
         dateInp.value = new Date().toISOString().slice(0, 10);
       }
-      // Limpiar tiempo y resetear buffer de dÃ­gitos
+      // Limpiar tiempo y resetear buffer de dígitos
       const timeInp = document.getElementById('ruckATime');
       if (timeInp) { timeInp.value = ''; timeInp._digits = ''; timeInp.focus(); }
     }
   }
 
-  // ID de sesiÃ³n en ediciÃ³n (null = modo agregar)
+  // ID de sesión en edición (null = modo agregar)
   let _ruckEditId = null;
 
   function editRuckSession(id) {
@@ -3889,7 +3886,7 @@
     if (distInp) { distInp.value = s.dist; distInp.disabled = s.source==='strava'; }
     if (loadInp) { loadInp.value = s.load; loadInp.disabled = s.source==='strava'; }
 
-    // Desnivel, terreno y notas (terreno editable tambiÃ©n para sesiones Strava)
+    // Desnivel, terreno y notas (terreno editable también para sesiones Strava)
     const elevInp = document.getElementById('ruckAElev');
     if (elevInp) elevInp.value = s.elev || '';
     const terrInp = document.getElementById('ruckATerrain');
@@ -3910,13 +3907,13 @@
       timeInp._digits = timeInp._digits.replace(/^0+/,'') || '';
     }
 
-    // Cambiar botÃ³n y tÃ­tulo del formulario
+    // Cambiar botón y título del formulario
     const addBtn = document.getElementById('ruckAddBtn');
     if (addBtn) addBtn.textContent = s.source==='strava' ? 'GUARDAR TIEMPO' : 'GUARDAR CAMBIOS';
     const formTitle = document.getElementById('ruckAFormTitle');
     if (formTitle) formTitle.textContent = s.source==='strava'
-      ? 'EDITAR TIEMPO â€” STRAVA'
-      : 'EDITAR SESIÃ“N MANUAL';
+      ? 'EDITAR TIEMPO — STRAVA'
+      : 'EDITAR SESIÓN MANUAL';
 
     // Scroll al formulario
     form?.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -3927,7 +3924,7 @@
     const addBtn = document.getElementById('ruckAddBtn');
     if (addBtn) addBtn.textContent = 'AGREGAR';
     const formTitle = document.getElementById('ruckAFormTitle');
-    if (formTitle) formTitle.textContent = 'AGREGAR SESIÃ“N MANUAL';
+    if (formTitle) formTitle.textContent = 'AGREGAR SESIÓN MANUAL';
     ['ruckADate','ruckADist','ruckALoad'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.disabled = false;
@@ -3942,14 +3939,14 @@
     if (!date||!dist||!load||!tStr) { alert('Completa todos los campos.'); return; }
     const parts = tStr.split(':').map(Number);
     const tSec  = parts.length===3 ? parts[0]*3600+parts[1]*60+parts[2] : parts[0]*60+(parts[1]||0);
-    if (!tSec||tSec<=0) { alert('Formato de tiempo invÃ¡lido (H:MM:SS).'); return; }
+    if (!tSec||tSec<=0) { alert('Formato de tiempo inválido (H:MM:SS).'); return; }
     const elev    = parseFloat(document.getElementById('ruckAElev')?.value)||0;
     const terrain = document.getElementById('ruckATerrain')?.value || 'trail';
     const notes   = document.getElementById('ruckANotes')?.value?.trim()||'Manual';
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]');
 
     if (_ruckEditId) {
-      // â”€â”€ MODO EDICIÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── MODO EDICIÓN ──────────────────────────────────────────
       const idx = sessions.findIndex(x => x.id === _ruckEditId);
       if (idx !== -1) {
         const orig = sessions[idx];
@@ -3959,18 +3956,18 @@
       }
       _resetRuckForm();
     } else {
-      // â”€â”€ MODO AGREGAR â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+      // ── MODO AGREGAR ─────────────────────────────────────────
       sessions.push({ id:Date.now().toString(), date, dist, load, time:tSec, elev, notes, terrain, source:'manual' });
     }
 
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     pushRuckingToCloud(sessions);
 
-    // Alerta biomecÃ¡nica: carga > 40% del peso corporal
+    // Alerta biomecánica: carga > 40% del peso corporal
     const bmHoy = getBMForDate(date);
     if (bmHoy && load > 0.40 * bmHoy) {
       if (typeof prShowToast === 'function') {
-        prShowToast('âš  Carga extrema (' + Math.round(load/bmHoy*100) + '% del peso corporal): la potencia puede subestimar la fatiga real por colapso biomecÃ¡nico.');
+        prShowToast('⚠ Carga extrema (' + Math.round(load/bmHoy*100) + '% del peso corporal): la potencia puede subestimar la fatiga real por colapso biomecánico.');
       }
     }
 
@@ -3986,12 +3983,12 @@
     initRuckingAtleta();
   }
 
-  // â”€â”€ SQUAT ENDURANCE (SE) â€” ingreso manual atleta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── SQUAT ENDURANCE (SE) — ingreso manual atleta ──────────────────────────
   function guardarRuckSE() {
     const val = parseInt(document.getElementById('ruckSEInput')?.value);
     const statusEl = document.getElementById('ruckSEStatus');
     if (!val || val < 1 || val > 300) {
-      if (statusEl) statusEl.textContent = 'Ingresa un nÃºmero vÃ¡lido de repeticiones.';
+      if (statusEl) statusEl.textContent = 'Ingresa un número válido de repeticiones.';
       return;
     }
     // Guardar en ruckProfile (mismo objeto que usa el coach)
@@ -4000,23 +3997,23 @@
     profile.seDate = new Date().toISOString().slice(0,10);
     // Historial SE
     if (!profile.seHistory) profile.seHistory = [];
-    // Evitar duplicado exacto mismo dÃ­a
+    // Evitar duplicado exacto mismo día
     const hoy = profile.seDate;
     profile.seHistory = profile.seHistory.filter(e => e.date !== hoy);
     profile.seHistory.push({ reps: val, date: hoy });
     profile.seHistory.sort((a,b) => a.date.localeCompare(b.date));
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
     if (statusEl) {
-      statusEl.textContent = `âœ“ SE guardado: ${val} reps Â· ${profile.seDate}`;
+      statusEl.textContent = `✓ SE guardado: ${val} reps · ${profile.seDate}`;
       statusEl.style.color = '#27ae60';
     }
-    // Resultado semÃ¡foro
+    // Resultado semáforo
     mostrarSEResultado(val);
-    // Feedback visual en el botÃ³n
+    // Feedback visual en el botón
     const btn = document.querySelector('[onclick="guardarRuckSE()"]');
     if (btn) {
       const orig = btn.textContent;
-      btn.textContent = 'âœ“ GUARDADO';
+      btn.textContent = '✓ GUARDADO';
       btn.style.background = '#27ae60';
       btn.style.transform = 'scale(1.04)';
       setTimeout(() => {
@@ -4035,11 +4032,11 @@
                 || '';
     const stravaId = localStorage.getItem('strava_athlete_id');
     const uid = window._auth?.currentUser?.uid;
-    // Preservar linkedStravaId en el perfil para que el coach siempre tenga el vÃ­nculo
+    // Preservar linkedStravaId en el perfil para que el coach siempre tenga el vínculo
     const profileToSave = stravaId ? { ...profile, linkedStravaId: stravaId } : profile;
 
     // Guardar el perfil bajo TODAS las llaves del atleta (uid Firebase + Strava ID).
-    // El coach resuelve por emailâ†’uid, asÃ­ que el perfil debe existir bajo uid:xxx
+    // El coach resuelve por email→uid, así que el perfil debe existir bajo uid:xxx
     // aunque el atleta tenga Strava conectado (donde antes solo se guardaba).
     const llaves = [];
     if (uid)      llaves.push('uid:' + uid);
@@ -4057,9 +4054,9 @@
     }
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // ENDURANCE Â· Test de campo (VAM / FTP) â€” panel del atleta
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ══════════════════════════════════════════════════════════════
+  // ENDURANCE · Test de campo (VAM / FTP) — panel del atleta
+  // ══════════════════════════════════════════════════════════════
   function mostrarEnduranceResultados(e) {
     const res = document.getElementById('endResultados');
     if (!res || !e) return;
@@ -4067,22 +4064,22 @@
     const vamMs   = document.getElementById('endVamMs');
     const ftpPace = document.getElementById('endFtpPace');
     const ftpMs   = document.getElementById('endFtpMs');
-    if (vamPace) vamPace.textContent = e.vamPace || 'â€”';
-    if (vamMs)   vamMs.textContent   = e.vamMs ? e.vamMs.toFixed(2) + ' m/s' : 'â€”';
-    if (ftpPace) ftpPace.textContent = e.ftpPace || 'â€”';
-    if (ftpMs)   ftpMs.textContent   = e.ftpMs ? e.ftpMs.toFixed(2) + ' m/s' : 'â€”';
+    if (vamPace) vamPace.textContent = e.vamPace || '—';
+    if (vamMs)   vamMs.textContent   = e.vamMs ? e.vamMs.toFixed(2) + ' m/s' : '—';
+    if (ftpPace) ftpPace.textContent = e.ftpPace || '—';
+    if (ftpMs)   ftpMs.textContent   = e.ftpMs ? e.ftpMs.toFixed(2) + ' m/s' : '—';
 
     const multNota = document.getElementById('endMultNota');
     if (multNota) {
       if (e.ftpMultiplier && e.ftpMultiplier !== 1) {
         multNota.style.display = 'block';
-        multNota.textContent = `FTP recalibrado por el coach Â· Ã—${e.ftpMultiplier} (test crudo ${e.raw20minMs ? e.raw20minMs.toFixed(2) : 'â€”'} m/s)`;
+        multNota.textContent = `FTP recalibrado por el coach · ×${e.ftpMultiplier} (test crudo ${e.raw20minMs ? e.raw20minMs.toFixed(2) : '—'} m/s)`;
       } else {
         multNota.style.display = 'none';
       }
     }
     const fechaEl = document.getElementById('endFecha');
-    if (fechaEl) fechaEl.textContent = e.fecha ? 'Ãšltima evaluaciÃ³n: ' + e.fecha : '';
+    if (fechaEl) fechaEl.textContent = e.fecha ? 'Última evaluación: ' + e.fecha : '';
     res.style.display = 'block';
   }
 
@@ -4091,7 +4088,7 @@
     if (errEl) errEl.style.display = 'none';
 
     if (typeof window.calcularPerfilEndurance !== 'function') {
-      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'MÃ³dulo de endurance no cargado. Recarga la pÃ¡gina.'; }
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Módulo de endurance no cargado. Recarga la página.'; }
       return;
     }
 
@@ -4112,7 +4109,7 @@
     if (tiene5 || tiene20) {
       const r = window.calcularPerfilEndurance(d5, d20, mult);
       if (!r.ok) {
-        if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos invÃ¡lidos.'; }
+        if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
         return;
       }
       const prev = profile.endurance || {};
@@ -4135,13 +4132,13 @@
       mostrarEnduranceResultados(profile.endurance);
       if (profile.endurance.vamMs) vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
     } else if (profile.endurance && profile.endurance.vamMs) {
-      // Sin test nuevo, pero ya existe una VAM previa â†’ usarla para las zonas
+      // Sin test nuevo, pero ya existe una VAM previa → usarla para las zonas
       vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
     }
 
-    // 2) ValidaciÃ³n: se necesita al menos VAM (test 5 min) o FC mÃ¡x
+    // 2) Validación: se necesita al menos VAM (test 5 min) o FC máx
     if (!vamKmh && !fcmax) {
-      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa el test de 5 min (para VAM y zonas) o al menos la FC mÃ¡x.'; }
+      if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa el test de 5 min (para VAM y zonas) o al menos la FC máx.'; }
       return;
     }
 
@@ -4150,7 +4147,7 @@
       vpico: vamKmh, fcmax, mode: 'directo', dist5min: null
     }));
     if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
-    // 4) Si cambiÃ³ el FTP, refrescar la carga rTSS
+    // 4) Si cambió el FTP, refrescar la carga rTSS
     if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
   }
 
@@ -4170,7 +4167,7 @@
       if (i20 && e.d20) i20.value = e.d20;
       mostrarEnduranceResultados(e);
     }
-    // Precargar FC mÃ¡x desde los parÃ¡metros de zonas guardados
+    // Precargar FC máx desde los parámetros de zonas guardados
     const zp = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     if (zp && zp.fcmax) {
       const fcInp = document.getElementById('inputFcMax');
@@ -4179,10 +4176,10 @@
   }
   window.bindEnduranceTest = bindEnduranceTest;
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  // CARGA DE ENTRENAMIENTO Â· rTSS (client-side, sin llamadas extra a Strava)
+  // ══════════════════════════════════════════════════════════════
+  // CARGA DE ENTRENAMIENTO · rTSS (client-side, sin llamadas extra a Strava)
   // Usa el FTP del Test de Campo + velocidad media derivada del cache (km*1000/sec)
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ══════════════════════════════════════════════════════════════
   let _chartRTSS = null;
   const RTSS_RUN_TYPES = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
 
@@ -4201,10 +4198,10 @@
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     const ftp = profile.endurance && profile.endurance.ftpMs;
 
-    // Gate: necesita FTP (test 20 min) y el mÃ³dulo cargado
+    // Gate: necesita FTP (test 20 min) y el módulo cargado
     if (!ftp || ftp <= 0 || typeof window.calcularFatigaDiaria !== 'function') {
       sinFtp.style.display = 'block';
-      sinFtp.querySelector('div').innerHTML = 'Haz tu test de 20 min (arriba) para activar<br>el cÃ¡lculo de carga rTSS';
+      sinFtp.querySelector('div').innerHTML = 'Haz tu test de 20 min (arriba) para activar<br>el cálculo de carga rTSS';
       cont.style.display = 'none';
       if (_chartRTSS) { _chartRTSS.destroy(); _chartRTSS = null; }
       return;
@@ -4233,14 +4230,14 @@
       return { date: r.date, km: r.km, rtss: res.ok ? res.rTSS : 0, iff: res.ok ? res.if : 0 };
     });
 
-    // Ãšltima carrera
+    // Última carrera
     const ult = conRTSS[conRTSS.length - 1];
     const elVal = document.getElementById('rtssUltimaVal');
     const elIF  = document.getElementById('rtssUltimaIF');
     const elInfo= document.getElementById('rtssUltimaInfo');
     if (elVal)  elVal.textContent  = ult.rtss;
-    if (elIF)   elIF.textContent   = 'rTSS Â· IF ' + ult.iff;
-    if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} Â· ${ult.km} km`; }
+    if (elIF)   elIF.textContent   = 'rTSS · IF ' + ult.iff;
+    if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} · ${ult.km} km`; }
 
     // Agrupar por semana (lunes)
     const porSemana = {};
@@ -4249,7 +4246,7 @@
       porSemana[wk] = (porSemana[wk] || 0) + r.rtss;
     });
 
-    // Ãšltimas 10 semanas consecutivas (incluye semanas con 0)
+    // Últimas 10 semanas consecutivas (incluye semanas con 0)
     const semanas = Object.keys(porSemana).sort();
     const ultimaWk = semanas[semanas.length - 1];
     const labels = [], data = [];
@@ -4266,8 +4263,8 @@
       data.push(w.val);
     });
 
-    // Interpretabilidad: colorear semanas segÃºn su carga vs el promedio del atleta.
-    // Verde = suave Â· rojo = habitual Â· naranja = carga alta (pico, ojo recuperaciÃ³n)
+    // Interpretabilidad: colorear semanas según su carga vs el promedio del atleta.
+    // Verde = suave · rojo = habitual · naranja = carga alta (pico, ojo recuperación)
     const _nz = data.filter(v => v > 0);
     const _prom = _nz.length ? _nz.reduce((s,v)=>s+v,0) / _nz.length : 0;
     const _colores = data.map(v => {
@@ -4277,18 +4274,18 @@
       return 'rgba(139,26,26,0.7)';                                    // carga habitual
     });
 
-    // Titular en lenguaje claro: Ãºltima semana vs anterior
+    // Titular en lenguaje claro: última semana vs anterior
     const ultima = data[data.length - 1] || 0;
     const previa = data[data.length - 2] || 0;
     const resumenEl = document.getElementById('rtssResumenSemanal');
     if (resumenEl) {
-      let txt = `Ãšltima semana: <strong>${ultima} rTSS</strong>`;
+      let txt = `Última semana: <strong>${ultima} rTSS</strong>`;
       if (previa > 0) {
         const dif = Math.round((ultima - previa) / previa * 100);
         const sube = dif > 0;
         const col = Math.abs(dif) < 15 ? '#888' : (sube ? '#e07b00' : '#1e8c3a');
-        const ico = sube ? 'â–²' : (dif < 0 ? 'â–¼' : 'Â·');
-        txt += ` Â· <span style="color:${col};font-weight:600;">${ico} ${Math.abs(dif)}% vs semana anterior</span>`;
+        const ico = sube ? '▲' : (dif < 0 ? '▼' : '·');
+        txt += ` · <span style="color:${col};font-weight:600;">${ico} ${Math.abs(dif)}% vs semana anterior</span>`;
       }
       resumenEl.innerHTML = txt;
     }
@@ -4310,7 +4307,7 @@
       });
     }
 
-    // â”€â”€ Subir resumen de carga al cloud para que el coach lo vea â”€â”€
+    // ── Subir resumen de carga al cloud para que el coach lo vea ──
     // rTSS calculado con FTP crudo (mult=1); el coach lo reescala con su multiplicador.
     const resumen = {
       semanas: arr.map(w => ({ wk: w.key, val: w.val })),
@@ -4318,7 +4315,7 @@
       ftpMs:   ftp,
       actualizado: new Date().toISOString().slice(0, 10),
     };
-    // Solo subir si cambiÃ³ (evita fetches redundantes en cada apertura del panel)
+    // Solo subir si cambió (evita fetches redundantes en cada apertura del panel)
     if (JSON.stringify(profile.cargaRTSS) !== JSON.stringify(resumen)) {
       profile.cargaRTSS = resumen;
       localStorage.setItem('ruckProfile', JSON.stringify(profile));
@@ -4335,7 +4332,7 @@
     if (profile.se && inp) {
       inp.value = profile.se;
       if (statusEl) {
-        statusEl.textContent = `Ãšltimo registro: ${profile.se} reps Â· ${profile.seDate || ''}`;
+        statusEl.textContent = `Último registro: ${profile.se} reps · ${profile.seDate || ''}`;
         statusEl.style.color = '#999';
       }
       mostrarSEResultado(profile.se);
@@ -4355,7 +4352,7 @@
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
         <span style="color:#555;">${fecha}</span>
         <span style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#007a85;">${e.reps} reps</span>
-        <button onclick="borrarSEEntry('${e.date}')" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:15px;padding:0 4px;line-height:1;" title="Borrar">Ã—</button>
+        <button onclick="borrarSEEntry('${e.date}')" style="background:none;border:none;color:#bbb;cursor:pointer;font-size:15px;padding:0 4px;line-height:1;" title="Borrar">×</button>
       </div>`;
     }).join('');
     container.innerHTML = `<div style="margin-top:10px;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:6px;">Historial</div>${rows}`;
@@ -4365,7 +4362,7 @@
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     if (!profile.seHistory) return;
     profile.seHistory = profile.seHistory.filter(e => e.date !== fecha);
-    // Si borramos el mÃ¡s reciente, actualizar profile.se al nuevo Ãºltimo
+    // Si borramos el más reciente, actualizar profile.se al nuevo último
     if (profile.seDate === fecha) {
       const ultimo = profile.seHistory[profile.seHistory.length - 1];
       profile.se = ultimo?.reps || null;
@@ -4387,17 +4384,17 @@
     let color, bg, border, banda, mensaje, anim;
     if (val >= 40) {
       color='#1e8c3a'; bg='rgba(30,140,58,0.10)'; border='rgba(30,140,58,0.4)';
-      banda='â— Zona Ã³ptima';
+      banda='● Zona óptima';
       mensaje='Buena resistencia muscular para rucking. Tu tren inferior aguanta la fatiga de marcha con carga.';
       anim='none';
     } else if (val >= 25) {
       color='#e07b00'; bg='rgba(224,123,0,0.10)'; border='rgba(224,123,0,0.4)';
-      banda='â— Zona media';
+      banda='● Zona media';
       mensaje='Resistencia muscular mejorable. Trabajar sentadilla con cargas moderadas y series largas.';
       anim='se-pulse-orange 2.4s ease-in-out infinite';
     } else {
       color='#d32f2f'; bg='rgba(211,47,47,0.10)'; border='rgba(211,47,47,0.4)';
-      banda='â— Zona crÃ­tica';
+      banda='● Zona crítica';
       mensaje='Priorizar fuerza-resistencia de tren inferior antes de aumentar la carga de rucking.';
       anim='se-pulse-red 1.2s ease-in-out infinite';
     }
@@ -4451,7 +4448,7 @@
         : sessions.filter(s => new Date(s.date) >= cutoff);
     }
 
-    // Sin datos en el rango: limpiar grÃ¡fico en lugar de retornar silenciosamente
+    // Sin datos en el rango: limpiar gráfico en lugar de retornar silenciosamente
     if (!sessions.length) {
       if (chartStrength) {
         chartStrength.data.labels = [];
@@ -4459,16 +4456,16 @@
         chartStrength.update();
       }
       const tbody = document.getElementById('thSetsTable');
-      if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:12px;font-style:italic;">Sin datos en este perÃ­odo</td></tr>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:12px;font-style:italic;">Sin datos en este período</td></tr>';
       return;
     }
 
-    // Factor: datos embebidos estÃ¡n en lbs â†’ dividir por 2.205; CSV ya viene con factor bilateral aplicado
+    // Factor: datos embebidos están en lbs → dividir por 2.205; CSV ya viene con factor bilateral aplicado
     const factor  = isEmbedded ? 1/2.205 : (isBilateralDumbbell(fullName) ? 0.5 : 1);
 
     const rawWeights  = isEmbedded ? sessions.map(s => s.w) : sessions.map(s => s.weight);
     const weights     = rawWeights.map(w => parseFloat((w * factor).toFixed(1)));
-    // Mostrar dd/mm/yy en el primer punto de cada aÃ±o nuevo (especialmente visible en vista ALL)
+    // Mostrar dd/mm/yy en el primer punto de cada año nuevo (especialmente visible en vista ALL)
     const labels      = sessions.map((s, idx) => {
       const raw = isEmbedded ? s.d : s.date;
       const d   = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
@@ -4497,17 +4494,17 @@
       chartStrength.update();
     }
 
-    // Tabla Ãºltimas 5 sesiones filtradas
+    // Tabla últimas 5 sesiones filtradas
     const tbody = document.getElementById('thSetsTable');
     if (tbody) {
-      tbody.innerHTML = '<tr><th>Fecha</th><th>SeriesÃ—Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
+      tbody.innerHTML = '<tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>';
       sessions.slice(-5).reverse().forEach((s, i, arr) => {
         const raw   = isEmbedded ? s.d : s.date;
         const d     = typeof raw === 'string' && !raw.includes('T') ? new Date(raw + 'T12:00:00') : new Date(raw);
         const label = d.getDate() + '/' + (d.getMonth()+1);
         const rawW  = isEmbedded ? s.w      : s.weight;
         const w     = parseFloat((rawW * factor).toFixed(1));
-        const sr    = isEmbedded ? `${s.s}Ã—${s.r}` : `${s.sets||1}Ã—${s.reps}`;
+        const sr    = isEmbedded ? `${s.s}×${s.r}` : `${s.sets||1}×${s.reps}`;
         const e1rm  = Math.round((isEmbedded ? s.e : s.est1rm) * factor);
         const isMax = w === best;
         const tr = document.createElement('tr');
@@ -4521,11 +4518,11 @@
     const ctx = document.getElementById('chartStrength');
     if (!ctx) return;
     if (chartStrength) { try { chartStrength.destroy(); } catch(e){} chartStrength = null; }
-    // TambiÃ©n limpiar window.chartStrength si el parche anterior lo habÃ­a creado
+    // También limpiar window.chartStrength si el parche anterior lo había creado
     if (window.chartStrength && window.chartStrength !== chartStrength) {
       try { window.chartStrength.destroy(); } catch(e){} window.chartStrength = null;
     }
-    // Inicia vacÃ­o: los datos reales llegan via selectExerciseReal / selectExerciseFromCSV
+    // Inicia vacío: los datos reales llegan via selectExerciseReal / selectExerciseFromCSV
     const d = { dates: [], data: [] };
     chartStrength = new Chart(ctx, {
       type: 'line',
@@ -4587,7 +4584,7 @@
     });
   }
 
-  // â”€â”€ ENTRADA MANUAL â”€â”€
+  // ── ENTRADA MANUAL ──
   function toggleManual(btn) {
     const panel = document.getElementById('manualPanel');
     const icon = btn.querySelector('.manual-toggle-icon');
@@ -4597,15 +4594,15 @@
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
 
-  // â”€â”€ HISTORIAL DE TIEMPOS MANUALES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── HISTORIAL DE TIEMPOS MANUALES ────────────────
   // Formato localStorage: manualTimesHistory = { "10km": [{date:"YYYY-MM-DD", time:"MM:SS"}, ...], ... }
-  // Orden cronolÃ³gico ascendente por distancia; las zonas usan el MÃS RECIENTE
+  // Orden cronológico ascendente por distancia; las zonas usan el MÁS RECIENTE
 
   function todayISO() {
     return new Date().toISOString().slice(0, 10);
   }
 
-  // Convierte el historial completo en entradas prData[] para el grÃ¡fico
+  // Convierte el historial completo en entradas prData[] para el gráfico
   function buildPRDataFromHistory(history) {
     const dists = ['1km','2km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
     dists.forEach(d => {
@@ -4625,7 +4622,7 @@
     });
   }
 
-  // Devuelve {distKey: timeString} con el tiempo MÃS RECIENTE por distancia
+  // Devuelve {distKey: timeString} con el tiempo MÁS RECIENTE por distancia
   function getLatestTimes(history) {
     const latest = {};
     Object.keys(history).forEach(d => {
@@ -4640,7 +4637,7 @@
   function saveManualTimes() {
     const dists = ['1km','2km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
 
-    // Cargar historial existente (con migraciÃ³n desde formato antiguo si fuera necesario)
+    // Cargar historial existente (con migración desde formato antiguo si fuera necesario)
     let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
     const oldFlat = localStorage.getItem('manualTimes');
     if (oldFlat && !Object.keys(history).length) {
@@ -4656,7 +4653,7 @@
       const dateVal = dateEl?.value || todayISO();
       if (!timeVal) return;
 
-      // Validar formato mÃ­nimo MM:SS o H:MM:SS
+      // Validar formato mínimo MM:SS o H:MM:SS
       const parts = timeVal.split(':');
       if (parts.length < 2 || parts.length > 3) return;
 
@@ -4667,10 +4664,10 @@
       if (dup) return;
 
       history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
-      history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronolÃ³gico
+      history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronológico
       added++;
 
-      // Si es 3200m â†’ sincronizar como TMR en ruckProfile para Kraemer
+      // Si es 3200m → sincronizar como TMR en ruckProfile para Kraemer
       if (d === '3200m') {
         const parts3 = timeVal.split(':').map(Number);
         const tmrSec = parts3.length === 3
@@ -4685,7 +4682,7 @@
         }
       }
 
-      // Limpiar campo de tiempo; la fecha se queda lista para la prÃ³xima entrada
+      // Limpiar campo de tiempo; la fecha se queda lista para la próxima entrada
       const timeEl = document.getElementById('mt_'+d);
       if (timeEl) timeEl.value = '';
     });
@@ -4716,7 +4713,7 @@
     setTimeout(() => { btn.innerHTML = orig; btn.style.color=''; btn.style.borderColor=''; if(typeof lucide!=='undefined') lucide.createIcons(); }, 2200);
   }
 
-  // Guarda UN solo tiempo (el de la distancia d) â€” botÃ³n por fila
+  // Guarda UN solo tiempo (el de la distancia d) — botón por fila
   function saveManualTime(d) {
     const timeVal = document.getElementById('mt_'+d)?.value.trim();
     const dateEl  = document.getElementById('md_'+d);
@@ -4736,7 +4733,7 @@
     history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
     history[d].sort((a, b) => a.date.localeCompare(b.date));
 
-    // 3200m â†’ sincronizar TMR para Kraemer
+    // 3200m → sincronizar TMR para Kraemer
     if (d === '3200m') {
       const p3 = timeVal.split(':').map(Number);
       const tmrSec = p3.length === 3 ? p3[0]*3600+p3[1]*60+p3[2] : p3[0]*60+(p3[1]||0);
@@ -4759,12 +4756,12 @@
 
     const timeEl = document.getElementById('mt_'+d);
     if (timeEl) timeEl.value = '';
-    aviso('âœ“ Guardado', '#2ecc71');
+    aviso('✓ Guardado', '#2ecc71');
     setTimeout(() => { if (feedEl) feedEl.style.color = ''; mostrarUltimosRegistros(JSON.parse(localStorage.getItem('manualTimesHistory')||'{}')); }, 2000);
   }
   window.saveManualTime = saveManualTime;
 
-  // Inyecta un botÃ³n "Guardar" en cada fila de distancia + guardar con Enter
+  // Inyecta un botón "Guardar" en cada fila de distancia + guardar con Enter
   function _injectManualSaveButtons() {
     document.querySelectorAll('.manual-dist-item').forEach(item => {
       const inp = item.querySelector('.manual-time-input');
@@ -4773,7 +4770,7 @@
       if (!item.querySelector('.manual-row-save')) {
         const b = document.createElement('button');
         b.className = 'manual-row-save';
-        b.textContent = 'âœ“ Guardar';
+        b.textContent = '✓ Guardar';
         b.style.cssText = 'margin-top:6px;width:100%;background:rgba(0,122,133,0.08);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:\'Barlow Condensed\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:6px;border-radius:5px;cursor:pointer;';
         b.onclick = () => saveManualTime(d);
         item.appendChild(b);
@@ -4807,9 +4804,9 @@
 
     buildPRDataFromHistory(history);
     mostrarUltimosRegistros(history);
-    _injectManualSaveButtons(); // botÃ³n "Guardar" por fila + guardar con Enter
+    _injectManualSaveButtons(); // botón "Guardar" por fila + guardar con Enter
 
-    // Actualizar grÃ¡fico con la distancia activa
+    // Actualizar gráfico con la distancia activa
     const activeBtn = document.querySelector('.th-dist-btn.active');
     const m2 = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
     const dist = m2 ? m2[1] : '5km';
@@ -4818,7 +4815,7 @@
     calcularZonasCarrera();
   }
 
-  // Muestra el Ãºltimo tiempo guardado debajo de cada input como referencia
+  // Muestra el último tiempo guardado debajo de cada input como referencia
   function mostrarUltimosRegistros(history) {
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'].forEach(d => {
@@ -4830,13 +4827,13 @@
       const last = sorted[0];
       const [y, mo, da] = last.date.split('-').map(Number);
       const fechaStr = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
-      const fuente  = last.source === 'strava' ? 'ðŸ”— Strava' : 'âœï¸';
-      el.textContent = `${fuente} ${last.time} Â· ${fechaStr}`;
+      const fuente  = last.source === 'strava' ? '🔗 Strava' : '✏️';
+      el.textContent = `${fuente} ${last.time} · ${fechaStr}`;
     });
   }
 
-  // â”€â”€ ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // â”€â”€ BANNER STRAVA â†’ ZONAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
+  // ── BANNER STRAVA → ZONAS ──────────────────────────────────────────────────
   function mostrarZonaStravaBanner(pending) {
     const banner = document.getElementById('zonaStravaBanner');
     const infoEl = document.getElementById('zonaStravaInfo');
@@ -4850,19 +4847,19 @@
       `${tiempo} &mdash; ${pace}/km &mdash; ${fechaLabel}<br>` +
       `<span style="font-size:11px;color:#aaa;">V PICO estimada: ` +
       `<strong style="color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;">${pending.vPicoEst} km/h</strong>` +
-      ` (5km â‰ˆ 92% V PICO)</span>`;
+      ` (5km ≈ 92% V PICO)</span>`;
     banner.style.display = 'block';
   }
 
   function checkStravaZonaUpdate(runs) {
     const runs5km = runs.filter(a => a.distance >= 4950 && a.distance <= 5050);
     if (!runs5km.length) return;
-    // La actividad 5km mÃ¡s reciente
+    // La actividad 5km más reciente
     const latest = runs5km.sort(
       (a,b) => new Date(b.start_date_local) - new Date(a.start_date_local)
     )[0];
     const latestDate = new Date(latest.start_date_local).toISOString().slice(0,10);
-    // Ya fue ofrecida/aplicada â†’ no volver a mostrar
+    // Ya fue ofrecida/aplicada → no volver a mostrar
     if (localStorage.getItem('zonaStrava5kmDate') === latestDate) return;
     // Tiempo ajustado a exactamente 5km
     const seconds5k = Math.round(latest.moving_time * (5000 / latest.distance));
@@ -4879,7 +4876,7 @@
     // Prellenar V PICO estimada (flujo unificado, campo VAM)
     const inp = document.getElementById('inputVpico');
     if (inp) inp.value = pending.vPicoEst;
-    // Leer FC mÃ¡x si ya estaba ingresada
+    // Leer FC máx si ya estaba ingresada
     const fcmax = parseFloat(document.getElementById('inputFcMax')?.value);
     localStorage.setItem('zonaParams', JSON.stringify({
       vpico:      pending.vPicoEst,
@@ -4902,7 +4899,7 @@
     localStorage.removeItem('zonaStrava5km_pending');
   }
 
-  // â”€â”€ BANNER TMR 3200m â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── BANNER TMR 3200m ────────────────────────────────────────────────────────
   function checkStrava3200mUpdate(runs) {
     const runs3200 = runs.filter(a => STRAVA_RUN_TYPES.has(a.type) && a.distance >= 3150 && a.distance <= 3250);
     if (!runs3200.length) return;
@@ -4923,8 +4920,8 @@
     if (!banner || !pending) return;
     const [y, mo, da] = pending.date.split('-').map(Number);
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> Â· 3.2 km Â· ${pending.tmrStr} ` +
-      `<span style="color:#888;">(Â¿Usar como tu nuevo TMR?)</span>`;
+    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> · 3.2 km · ${pending.tmrStr} ` +
+      `<span style="color:#888;">(¿Usar como tu nuevo TMR?)</span>`;
     banner.style.display = 'block';
   }
 
@@ -4949,8 +4946,8 @@
     localStorage.removeItem('tmr3200m_pending');
   }
 
-  // â”€â”€ BANNER EV. 5 MINUTOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  const EV5_PATTERN = /\bev\.?\s*5\s*min|\btest\s*5\s*min|\b5\s*min(uto)?s?\s*(test|ev)|\bevaluaci[oÃ³]n\s*5\s*min/i;
+  // ── BANNER EV. 5 MINUTOS ────────────────────────────────────────────────────
+  const EV5_PATTERN = /\bev\.?\s*5\s*min|\btest\s*5\s*min|\b5\s*min(uto)?s?\s*(test|ev)|\bevaluaci[oó]n\s*5\s*min/i;
 
   function checkStravaEv5minUpdate(acts) {
     const evRuns = acts.filter(a => STRAVA_RUN_TYPES.has(a.type) && EV5_PATTERN.test(a.name || ''));
@@ -4971,8 +4968,8 @@
     if (!banner || !pending) return;
     const [y, mo, da] = pending.date.split('-').map(Number);
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> Â· "${pending.name}" Â· ` +
-      `${pending.distKm} km â†’ V PICO estimada <strong>${pending.vPico} km/h</strong>`;
+    infoEl.innerHTML = `<strong>${da} ${meses[mo-1]} ${y}</strong> · "${pending.name}" · ` +
+      `${pending.distKm} km → V PICO estimada <strong>${pending.vPico} km/h</strong>`;
     banner.style.display = 'block';
   }
 
@@ -5003,7 +5000,7 @@
     localStorage.removeItem('ev5min_pending');
   }
 
-  // â”€â”€ INIT ZONAS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── INIT ZONAS ─────────────────────────────────────────────────────────────
   function initZonasCarrera() {
     // VAM del Test de Campo (km/h) si existe
     const prof  = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -5012,7 +5009,7 @@
 
     const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     if (saved) {
-      // Compatibilidad con datos viejos en modo '5min' â†’ derivar VAM (distÃ—12)
+      // Compatibilidad con datos viejos en modo '5min' → derivar VAM (dist×12)
       if (!saved.vpico && saved.mode === '5min' && saved.dist5min) {
         saved.vpico = parseFloat((saved.dist5min * 12).toFixed(1));
         localStorage.setItem('zonaParams', JSON.stringify(saved));
@@ -5024,11 +5021,11 @@
       }
       calcularZonasCarrera();
     } else if (vamKmh) {
-      // Sin params guardados pero hay Test de Campo â†’ generar zonas desde la VAM
+      // Sin params guardados pero hay Test de Campo → generar zonas desde la VAM
       localStorage.setItem('zonaParams', JSON.stringify({ vpico: vamKmh, fcmax: null, mode: 'directo', dist5min: null }));
       calcularZonasCarrera();
     }
-    // Restaurar banners de Strava pendientes de sesiÃ³n anterior
+    // Restaurar banners de Strava pendientes de sesión anterior
     const pending5km = JSON.parse(localStorage.getItem('zonaStrava5km_pending') || 'null');
     if (pending5km && localStorage.getItem('zonaStrava5kmDate') !== pending5km.date) {
       mostrarZonaStravaBanner(pending5km);
@@ -5043,23 +5040,23 @@
     }
   }
 
-  // â”€â”€ ZONAS DE ENTRENAMIENTO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-  // Test de 5 minutos de Berthon (1997) â†’ VAM (distÃ—12) y VO2max (distÃ—39)
-  // Modelo de zonificaciÃ³n de Cerezuela-Espejo (2018) â†’ reparte en 5 zonas
-  //   (% de VAM y % de FCmÃ¡x para cada zona Z1-Z5 / R0-R3+)
+  // ── ZONAS DE ENTRENAMIENTO ─────────────────────────────────────────────────
+  // Test de 5 minutos de Berthon (1997) → VAM (dist×12) y VO2max (dist×39)
+  // Modelo de zonificación de Cerezuela-Espejo (2018) → reparte en 5 zonas
+  //   (% de VAM y % de FCmáx para cada zona Z1-Z5 / R0-R3+)
   // Calcula rangos de pace (MM:SS), FC y RPE por zona.
   // distancia_5m: km recorridos en 5 min (float, requerido)
-  // fc_max: pulsaciones mÃ¡ximas (int, opcional/nullable)
+  // fc_max: pulsaciones máximas (int, opcional/nullable)
   function calcularZonasBerthon(distancia_5m, fc_max = null) {
     if (typeof distancia_5m !== 'number' || isNaN(distancia_5m) || distancia_5m <= 0) {
-      throw new Error('distancia_5m debe ser un nÃºmero positivo (km).');
+      throw new Error('distancia_5m debe ser un número positivo (km).');
     }
     const hasFc = fc_max != null && !isNaN(fc_max) && fc_max > 0;
 
-    const VAM    = distancia_5m * 12;   // Velocidad AerÃ³bica MÃ¡xima (km/h)
+    const VAM    = distancia_5m * 12;   // Velocidad Aeróbica Máxima (km/h)
     const VO2max = distancia_5m * 39;   // VO2max estimado (ml/kg/min)
 
-    // velocidad (km/h) â†’ ritmo "MM:SS" min/km
+    // velocidad (km/h) → ritmo "MM:SS" min/km
     function paceToMMSS(velKmh) {
       if (!velKmh || velKmh <= 0) return null;
       const dec = 60 / velKmh;                // min/km decimal
@@ -5069,35 +5066,35 @@
       return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
     }
 
-    // Rangos segÃºn Cerezuela-Espejo (% VAM) + FC (% FCmÃ¡x)
+    // Rangos según Cerezuela-Espejo (% VAM) + FC (% FCmáx)
     const DEF = [
-      { zona:'Z1', ref:'R0',  nombre:'RecuperaciÃ³n',      vLo:0.00, vHi:0.53, fcLo:0.00, fcHi:0.71, rpe:'1-2'  },
-      { zona:'Z2', ref:'R1',  nombre:'Umbral aerÃ³bico',   vLo:0.53, vHi:0.65, fcLo:0.71, fcHi:0.82, rpe:'3-4'  },
+      { zona:'Z1', ref:'R0',  nombre:'Recuperación',      vLo:0.00, vHi:0.53, fcLo:0.00, fcHi:0.71, rpe:'1-2'  },
+      { zona:'Z2', ref:'R1',  nombre:'Umbral aeróbico',   vLo:0.53, vHi:0.65, fcLo:0.71, fcHi:0.82, rpe:'3-4'  },
       { zona:'Z3', ref:'R2',  nombre:'Tempo / MLSS',      vLo:0.65, vHi:0.80, fcLo:0.82, fcHi:0.89, rpe:'5-6'  },
-      { zona:'Z4', ref:'R3',  nombre:'Umbral anaerÃ³bico', vLo:0.80, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'7-8'  },
-      { zona:'Z5', ref:'R3+', nombre:'Potencia aerÃ³bica', vLo:0.89, vHi:1.00, fcLo:0.94, fcHi:1.00, rpe:'9-10' },
+      { zona:'Z4', ref:'R3',  nombre:'Umbral anaeróbico', vLo:0.80, vHi:0.89, fcLo:0.89, fcHi:0.94, rpe:'7-8'  },
+      { zona:'Z5', ref:'R3+', nombre:'Potencia aeróbica', vLo:0.89, vHi:1.00, fcLo:0.94, fcHi:1.00, rpe:'9-10' },
     ];
 
     const zonas = DEF.map(z => {
       const vLow  = +(VAM * z.vLo).toFixed(2);
       const vHigh = +(VAM * z.vHi).toFixed(2);
-      const paceFast = paceToMMSS(vHigh);             // ritmo mÃ¡s rÃ¡pido (lÃ­mite alto)
+      const paceFast = paceToMMSS(vHigh);             // ritmo más rápido (límite alto)
       const paceSlow = z.vLo > 0 ? paceToMMSS(vLow) : null;
       const pace = z.vLo > 0
-        ? `${paceFast} â€“ ${paceSlow}`
+        ? `${paceFast} – ${paceSlow}`
         : `> ${paceFast}`;
 
       let heartRate = 'N/A';
       if (hasFc) {
         const fcLow  = Math.round(fc_max * z.fcLo);
         const fcHigh = Math.round(fc_max * z.fcHi);
-        heartRate = z.fcLo > 0 ? `${fcLow} â€“ ${fcHigh}` : `< ${fcHigh}`;
+        heartRate = z.fcLo > 0 ? `${fcLow} – ${fcHigh}` : `< ${fcHigh}`;
       }
 
       return {
         zona: z.zona, ref: z.ref, nombre: z.nombre,
         vLow, vHigh,
-        speed: `${vLow} â€“ ${vHigh} km/h`,
+        speed: `${vLow} – ${vHigh} km/h`,
         pace, heartRate, rpe: z.rpe
       };
     });
@@ -5118,9 +5115,9 @@
     const tablaEl    = document.getElementById('zonasTabla');
     const filasEl    = document.getElementById('zonasFilas');
 
-    // km/h â†’ min:ss /km
+    // km/h → min:ss /km
     function kphToPace(kph) {
-      if (!kph || kph <= 0) return 'â€”';
+      if (!kph || kph <= 0) return '—';
       const secs = 3600 / kph;
       const m = Math.floor(secs / 60);
       const s = Math.round(secs % 60);
@@ -5152,15 +5149,15 @@
       const parts = [];
       if (resultado) {
         parts.push(`VAM ${resultado.VAM} km/h`);
-        parts.push(`VOâ‚‚mÃ¡x ${resultado.VO2max} ml/kg/min`);
+        parts.push(`VO₂máx ${resultado.VO2max} ml/kg/min`);
       } else if (vpico) {
         parts.push(`V PICO ${vpico.toFixed(1)} km/h`);
       }
-      if (fcmax) parts.push(`FC mÃ¡x ${Math.round(fcmax)} ppm`);
-      refTexto.textContent = parts.join(' Â· ');
+      if (fcmax) parts.push(`FC máx ${Math.round(fcmax)} ppm`);
+      refTexto.textContent = parts.join(' · ');
     }
 
-    // Colores por zona (Z1 azul â†’ Z5 rojo)
+    // Colores por zona (Z1 azul → Z5 rojo)
     const COLORS = ['#5b9bd5', '#27ae60', '#f39c12', '#e67e22', '#e74c3c'];
 
     if (filasEl && resultado) {
@@ -5192,11 +5189,11 @@
     if (tablaEl) tablaEl.style.display = 'block';
   }
 
-  // â”€â”€ FLOW PAGOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── FLOW PAGOS ────────────────────────────────
   const FLOW_WORKER = 'https://flow-payments.jaimea-gomezh.workers.dev';
 
-  // FunciÃ³n que procesa el pago segÃºn la opciÃ³n elegida (mensual o Ãºnico)
-  // â”€â”€ RUT chileno: formato y validaciÃ³n â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // Función que procesa el pago según la opción elegida (mensual o único)
+  // ── RUT chileno: formato y validación ─────────────────────
   function formatearRutInput(input) {
     let v = input.value.replace(/[^0-9kK]/g, '').toUpperCase();
     if (v.length > 9) v = v.slice(0, 9);
@@ -5227,7 +5224,7 @@
   }
 
   function limpiarRUT(rut) {
-    // Devuelve RUT sin puntos con guiÃ³n: "12345678-9"
+    // Devuelve RUT sin puntos con guión: "12345678-9"
     const limpio = rut.replace(/[^0-9kK]/g, '').toUpperCase();
     return limpio.slice(0, -1) + '-' + limpio.slice(-1);
   }
@@ -5243,9 +5240,9 @@
 
     const user = window._auth?.currentUser;
 
-    // El correo se detecta de la sesiÃ³n (Google). Sin sesiÃ³n, pedir login.
+    // El correo se detecta de la sesión (Google). Sin sesión, pedir login.
     if (!user) {
-      alert('Inicia sesiÃ³n con Google para continuar con tu compra.');
+      alert('Inicia sesión con Google para continuar con tu compra.');
       return;
     }
     const email = user.email;
@@ -5275,7 +5272,7 @@
           monto,
           email,
           nombre,
-          rutCliente,          // â† RUT para boleta SII
+          rutCliente,          // ← RUT para boleta SII
           tipoPago,
           tipoSuscripcion,
           isAnonymous: !user
@@ -5290,7 +5287,7 @@
         console.error('Flow error:', data);
       }
     } catch(e) {
-      alert('Error de conexiÃ³n. Intenta de nuevo.');
+      alert('Error de conexión. Intenta de nuevo.');
       console.error(e);
     }
   }
@@ -5298,7 +5295,7 @@
   async function contratarPlan(plan, monto) {
     const user = window._auth?.currentUser;
     if (!user) {
-      alert('Debes iniciar sesiÃ³n primero para contratar un plan.');
+      alert('Debes iniciar sesión primero para contratar un plan.');
       return;
     }
     try {
@@ -5320,7 +5317,7 @@
         console.error('Flow error:', data);
       }
     } catch(e) {
-      alert('Error de conexiÃ³n. Intenta de nuevo.');
+      alert('Error de conexión. Intenta de nuevo.');
       console.error(e);
     }
   }
@@ -5328,7 +5325,7 @@
   async function contratarAsesoria(meses, monto) {
     const user = window._auth?.currentUser;
     if (!user) {
-      alert('Debes iniciar sesiÃ³n primero para contratar una asesorÃ­a.');
+      alert('Debes iniciar sesión primero para contratar una asesoría.');
       return;
     }
     try {
@@ -5346,23 +5343,23 @@
       if (data.ok && data.url) {
         window.location.href = data.url;
       } else {
-        alert('Error al procesar la suscripciÃ³n. Intenta de nuevo.');
+        alert('Error al procesar la suscripción. Intenta de nuevo.');
         console.error('Flow error:', data);
       }
     } catch(e) {
-      alert('Error de conexiÃ³n. Intenta de nuevo.');
+      alert('Error de conexión. Intenta de nuevo.');
       console.error(e);
     }
   }
 
-  // â”€â”€ Formato fecha dd/mm/aa â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Formato fecha dd/mm/aa ──────────────────────────────────
   function fmtFecha(iso) {
     if (!iso) return '';
     const [a, m, d] = iso.split('-');
     return `${d}/${m}/${a.slice(2)}`;
   }
 
-  // â”€â”€ MI CUENTA: dropdown con Mis Planes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── MI CUENTA: dropdown con Mis Planes ──────────────────────
   let _miCuentaAbierto = false;
 
   function toggleMiCuenta() {
@@ -5385,7 +5382,7 @@
     }
   });
 
-  // â”€â”€ MENÃš MÃ“VIL DEL DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── MENÚ MÓVIL DEL DASHBOARD ─────────────────────────────────
   let _dashMenuAbierto = false;
 
   function toggleDashMenu() {
@@ -5393,7 +5390,7 @@
     const menu = document.getElementById('dashMobileMenu');
     const hbLines = document.querySelectorAll('.dash-hamburger span');
     if (menu) menu.classList.toggle('open', _dashMenuAbierto);
-    // AnimaciÃ³n hamburger â†’ X
+    // Animación hamburger → X
     if (hbLines.length === 3) {
       if (_dashMenuAbierto) {
         hbLines[0].style.transform = 'rotate(45deg) translate(5px,5px)';
@@ -5406,11 +5403,11 @@
       }
     }
     if (!_dashMenuAbierto) {
-    // Al cerrar el menÃº, colapsar tambiÃ©n el acordeÃ³n de planes
+    // Al cerrar el menú, colapsar también el acordeón de planes
     const wrap = document.getElementById('miPlanContentMobileWrap');
     const icon = document.getElementById('iconMiPlanesMobile');
     if (wrap) wrap.style.display = 'none';
-    if (icon) { icon.textContent = 'â–¼'; icon.style.transform = ''; }
+    if (icon) { icon.textContent = '▼'; icon.style.transform = ''; }
     _miPlanesMobileAbierto = false;
   }
   }
@@ -5439,10 +5436,10 @@
     const mostrarBanner = (show) => { if (banner) banner.style.display = show ? 'flex' : 'none'; };
 
     const sinPlanHtml = () =>
-      '<div style="color:#888;font-size:13px;">No tienes ningÃºn plan activo.</div>';
+      '<div style="color:#888;font-size:13px;">No tienes ningún plan activo.</div>';
 
     if (!user) {
-      targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesiÃ³n para ver tu plan.</div>');
+      targets.forEach(el => el.innerHTML = '<div style="color:#666;font-size:13px;font-style:italic;">Inicia sesión para ver tu plan.</div>');
       mostrarBanner(false);
       document.body.classList.remove('plan-activo');
       return;
@@ -5460,12 +5457,12 @@
       const p = data.plan;
       const activo  = p.activo;
       const color   = activo ? '#2ecc71' : '#e74c3c';
-      mostrarBanner(!activo); // mostrar banner si el plan estÃ¡ vencido
-      // Gating: desbloquear secciones de plan (Potencia, etc.) solo si estÃ¡ activo
+      mostrarBanner(!activo); // mostrar banner si el plan está vencido
+      // Gating: desbloquear secciones de plan (Potencia, etc.) solo si está activo
       document.body.classList.toggle('plan-activo', !!activo);
-      const badge   = activo ? 'âœ… Activo' : 'âŒ Vencido';
+      const badge   = activo ? '✅ Activo' : '❌ Vencido';
       const diasTxt = p.diasRestantes !== null
-        ? (p.diasRestantes > 0 ? `${p.diasRestantes} dÃ­as restantes` : 'Vence hoy')
+        ? (p.diasRestantes > 0 ? `${p.diasRestantes} días restantes` : 'Vence hoy')
         : '';
       const html = `
         <div style="background:rgba(255,255,255,0.04);border-radius:8px;padding:12px;">
@@ -5503,7 +5500,7 @@
     const user    = window._auth?.currentUser;
     const motivo  = document.getElementById('cancelarMotivo')?.value || '';
     const msg     = document.getElementById('cancelarMsg');
-    if (!user) { alert('Debes iniciar sesiÃ³n.'); return; }
+    if (!user) { alert('Debes iniciar sesión.'); return; }
     try {
       const res = await fetch(`${FLOW_WORKER}/cancelar-plan`, {
         method: 'POST',
@@ -5512,13 +5509,13 @@
       });
       const data = await res.json();
       if (data.ok) {
-        if (msg) { msg.textContent = 'âœ… Solicitud enviada. El coach te contactarÃ¡ pronto.'; msg.style.display = 'block'; }
+        if (msg) { msg.textContent = '✅ Solicitud enviada. El coach te contactará pronto.'; msg.style.display = 'block'; }
         setTimeout(() => { const ov = document.getElementById('modalCancelarOverlay'); if (ov) ov.style.display = 'none'; }, 3000);
       } else {
-        if (msg) { msg.textContent = 'âŒ Error al enviar. Intenta de nuevo.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
+        if (msg) { msg.textContent = '❌ Error al enviar. Intenta de nuevo.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
       }
     } catch(e) {
-      if (msg) { msg.textContent = 'âŒ Error de conexiÃ³n.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
+      if (msg) { msg.textContent = '❌ Error de conexión.'; msg.style.color = '#e74c3c'; msg.style.display = 'block'; }
     }
   }
 
@@ -5528,11 +5525,11 @@
   window.toggleMiPerfil     = toggleMiPerfil;
   window.guardarMiPerfil    = guardarMiPerfil;
   window.precargarPesoVelocidad = precargarPesoVelocidad;
-  // Abre Mi Perfil siempre (nunca cierra), luego cierra dropdown y menÃº mÃ³vil
+  // Abre Mi Perfil siempre (nunca cierra), luego cierra dropdown y menú móvil
   function abrirMiPerfil() {
     const panel = document.getElementById('miPerfilPanel');
     if (panel) panel.style.display = 'block';
-    // Esperar a que el menÃº hamburguesa cierre y el layout se estabilice,
+    // Esperar a que el menú hamburguesa cierre y el layout se estabilice,
     // luego scrollear el contenedor del dashboard (no la ventana)
     setTimeout(() => {
       const dash = document.getElementById('dashboardAtleta');
@@ -5547,7 +5544,7 @@
     if (dd) dd.style.display = 'none';
     if (ch) ch.style.transform = '';
     _miCuentaAbierto = false;
-    // Cerrar menÃº mÃ³vil si estÃ¡ abierto
+    // Cerrar menú móvil si está abierto
     if (_dashMenuAbierto) toggleDashMenu();
   }
 
@@ -5560,7 +5557,7 @@
   window.toggleDashMenu     = toggleDashMenu;
   window.editRuckSession    = editRuckSession;
   window.deleteRuckSessionAtleta = function(id) {
-    if (!confirm('Â¿Eliminar esta sesiÃ³n de rucking?')) return;
+    if (!confirm('¿Eliminar esta sesión de rucking?')) return;
     const sessions = JSON.parse(localStorage.getItem('ruckSessions')||'[]').filter(s => s.id !== id);
     localStorage.setItem('ruckSessions', JSON.stringify(sessions));
     if (typeof pushRuckingToCloud === 'function') pushRuckingToCloud(sessions);
@@ -5587,7 +5584,7 @@
   if (typeof lucide !== "undefined") lucide.createIcons();
   startSlider();
 
-  // AnimaciÃ³n barras tracker al hacer scroll
+  // Animación barras tracker al hacer scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -5602,4 +5599,3 @@
 
   const trackerSection = document.getElementById('tracker');
   if (trackerSection) observer.observe(trackerSection);
-

@@ -1,18 +1,18 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MÃXIMO ESFUERZO | Rendimiento Militar</title>
+<title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260615x">
+<link rel="stylesheet" href="styles.css?v=20260615w">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-/* â”€â”€â”€ MÃ¡ximoEsfuerzo Â· Animaciones dashboard â”€â”€â”€ */
+/* ─── MáximoEsfuerzo · Animaciones dashboard ─── */
 
-/* 1 Â· Stagger fade-up */
+/* 1 · Stagger fade-up */
 @keyframes meUp {
   from { opacity:0; transform:translateY(16px); }
   to   { opacity:1; transform:translateY(0); }
@@ -23,13 +23,13 @@
 .me-d3 { animation-delay:.22s; }
 .me-d4 { animation-delay:.30s; }
 
-/* 2 Â· Barras â€” parten en 0, JS restaura width real con delay */
+/* 2 · Barras — parten en 0, JS restaura width real con delay */
 .me-bar-animate {
   width: 0 !important;
   transition: width .9s cubic-bezier(.22,1,.36,1) !important;
 }
 
-/* 3 Â· Pulse dot paleta negro/rojo/dorado */
+/* 3 · Pulse dot paleta negro/rojo/dorado */
 @keyframes pGold { 0%,100%{box-shadow:0 0 0 0 rgba(201,168,76,.7)} 60%{box-shadow:0 0 0 8px rgba(201,168,76,0)} }
 @keyframes pRed  { 0%,100%{box-shadow:0 0 0 0 rgba(139,26,26,.7)}  60%{box-shadow:0 0 0 8px rgba(139,26,26,0)} }
 
@@ -50,7 +50,7 @@
 .me-live-gold { background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.45); color:#C9A84C; }
 .me-live-red  { background:rgba(139,26,26,.08);  border:1px solid rgba(139,26,26,.45);  color:#c0392b; }
 
-/* â”€â”€â”€ ACORDEÃ“N â”€â”€â”€ */
+/* ─── ACORDEÓN ─── */
 .me-accord { margin: 2px 0; border-radius:0; overflow:hidden; }
 
 .me-accord-btn {
@@ -111,7 +111,7 @@
     signOut, onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-  // MÃ³dulo de Endurance (fuente de verdad de los cÃ¡lculos VAM/FTP/rTSS)
+  // Módulo de Endurance (fuente de verdad de los cálculos VAM/FTP/rTSS)
   import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo } from "./endurance-module.js?v=20260608";
 
   const firebaseConfig = {
@@ -136,7 +136,7 @@
   window._sendEmailVerification = sendEmailVerification;
   window._signOut = signOut;
 
-  // Exponer funciones de endurance para el cÃ³digo no-modular (scripts.js + onclick)
+  // Exponer funciones de endurance para el código no-modular (scripts.js + onclick)
   window.calcularPerfilEndurance = calcularPerfilEndurance;
   window.calcularFatigaDiaria    = calcularFatigaDiaria;
   window.msARitmo                = msARitmo;
@@ -146,7 +146,7 @@
     const userInfo = document.getElementById('nav-user-info');
     const userName = document.getElementById('nav-user-name');
     if (user) {
-      // Si es cuenta email/contraseÃ±a y aÃºn no verificÃ³ el correo, no abrir dashboard
+      // Si es cuenta email/contraseña y aún no verificó el correo, no abrir dashboard
       const esEmailYNoVerificado = !user.providerData.some(p => p.providerId === 'google.com') && !user.emailVerified;
       if (esEmailYNoVerificado) return; // esperar a que verifique
       if (btnNav)   btnNav.style.display = 'none';
@@ -179,10 +179,10 @@
 
 <div class="login-overlay" id="loginOverlay" onclick="cerrarLoginOverlay(event)">
   <div class="login-modal">
-    <button class="login-modal-close" onclick="cerrarLogin()">Ã—</button>
+    <button class="login-modal-close" onclick="cerrarLogin()">×</button>
     <div class="login-modal-label">Acceso</div>
     <div class="login-modal-title">
-      <img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo" class="login-modal-logo">
+      <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="login-modal-logo">
     </div>
     <div class="login-tabs">
       <button class="login-tab active" onclick="cambiarTab('login',this)">Ingresar</button>
@@ -191,7 +191,7 @@
     <div class="login-msg" id="loginMsg"></div>
     <div class="login-form active" id="formLogin">
       <div class="login-field"><label>Correo</label><input type="email" id="loginEmail" placeholder="tu@correo.com"></div>
-      <div class="login-field"><label>ContraseÃ±a</label><input type="password" id="loginPassword" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"></div>
+      <div class="login-field"><label>Contraseña</label><input type="password" id="loginPassword" placeholder="••••••••"></div>
       <button class="login-btn-primary" onclick="iniciarSesionEmail()">INGRESAR</button>
       <div class="login-divider-new"><span>o</span></div>
       <button class="login-btn-google" onclick="iniciarSesionGoogle()">
@@ -203,8 +203,8 @@
       <input type="text" style="display:none;" aria-hidden="true">
       <input type="password" style="display:none;" aria-hidden="true">
       <div class="login-field"><label>Correo</label><input type="email" id="regEmail" placeholder="tu@correo.com" autocomplete="new-password"></div>
-      <div class="login-field"><label>ContraseÃ±a</label><input type="password" id="regPassword" placeholder="MÃ­nimo 6 caracteres" autocomplete="new-password"></div>
-      <div class="login-field"><label>Confirmar contraseÃ±a</label><input type="password" id="regPasswordConfirm" placeholder="Repite tu contraseÃ±a" autocomplete="new-password"></div>
+      <div class="login-field"><label>Contraseña</label><input type="password" id="regPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+      <div class="login-field"><label>Confirmar contraseña</label><input type="password" id="regPasswordConfirm" placeholder="Repite tu contraseña" autocomplete="new-password"></div>
       <button class="login-btn-primary" onclick="registrarse()">CREAR CUENTA</button>
       <div class="login-divider-new"><span>o</span></div>
       <button class="login-btn-google" onclick="iniciarSesionGoogle()">
@@ -228,7 +228,7 @@
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo"><img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
+  <div class="nav-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
   <ul class="nav-links">
     <li><a href="#" onclick="abrirPlanes();return false;">Planes</a></li>
     <li><a href="blog.html">Blog</a></li>
@@ -311,11 +311,11 @@
     </div>
   </div>
   <div class="hero-grid"></div>
-  <div class="hero-label">Entrenamiento de Ã‰lite Militar</div>
+  <div class="hero-label">Entrenamiento de Élite Militar</div>
   <div class="hero-stats">
     <div class="stat-item"><div class="stat-number">+400</div><div class="stat-label">Atletas</div></div>
-    <div class="stat-item"><div class="stat-number">+10</div><div class="stat-label">AÃ±os de experiencia</div></div>
-    <div class="stat-item"><div class="stat-number">93%</div><div class="stat-label">Tasa de Ã©xito</div></div>
+    <div class="stat-item"><div class="stat-number">+10</div><div class="stat-label">Años de experiencia</div></div>
+    <div class="stat-item"><div class="stat-number">93%</div><div class="stat-label">Tasa de éxito</div></div>
   </div>
   <h1 class="hero-title">
     FORJADO<br>
@@ -324,29 +324,29 @@
     <span class="line-gold">COMBATE</span>
   </h1>
 
-  <p class="hero-sub">MetodologÃ­a militar aplicada al rendimiento humano.</p>
+  <p class="hero-sub">Metodología militar aplicada al rendimiento humano.</p>
   <div class="seneca-block">
     <div class="seneca-quote">"El cuerpo debe ser tratado con rigor para que no desobedezca a la mente."</div>
-    <div class="seneca-autor">â€” SÃ©neca</div>
+    <div class="seneca-autor">— Séneca</div>
   </div>
   <div class="hero-actions">
     <a href="#" onclick="abrirPlanes();return false;" class="btn-primary">Ver Planes de Entrenamiento</a>
-    <a href="#filosofia" class="btn-ghost" style="border-color:rgba(245,240,235,0.7);color:#f5f0eb;background:rgba(255,255,255,0.08);">â†“ Mi FilosofÃ­a</a>
+    <a href="#filosofia" class="btn-ghost" style="border-color:rgba(245,240,235,0.7);color:#f5f0eb;background:rgba(255,255,255,0.08);">↓ Mi Filosofía</a>
   </div>
 
 
 </section>
 
-<!-- FILOSOFÃA -->
+<!-- FILOSOFÍA -->
 <section id="filosofia">
   <div class="filosofia-inner">
-    <div class="section-label">Mi FilosofÃ­a</div>
-    <h2 class="section-title">DISCIPLINA<br><span>SOBRE</span> MOTIVACIÃ“N</h2>
+    <div class="section-label">Mi Filosofía</div>
+    <h2 class="section-title">DISCIPLINA<br><span>SOBRE</span> MOTIVACIÓN</h2>
     <p style="color: var(--gris); line-height: 1.8; font-size: 0.95rem; max-width: 600px;">
-      La motivaciÃ³n fluctÃºa. Los resultados no esperan. DespuÃ©s de aÃ±os de servicio activo, entendÃ­ que el cuerpo no distingue entre el gimnasio y el campo: ambos exigen el mismo principio fundamental â€” <strong style="color:var(--blanco)">sistematizaciÃ³n, progresiÃ³n y rigor.</strong>
+      La motivación fluctúa. Los resultados no esperan. Después de años de servicio activo, entendí que el cuerpo no distingue entre el gimnasio y el campo: ambos exigen el mismo principio fundamental — <strong style="color:var(--blanco)">sistematización, progresión y rigor.</strong>
     </p>
     <p style="color: var(--gris); line-height: 1.8; font-size: 0.95rem; max-width: 600px; margin-top: 16px;">
-      AquÃ­ no hay programas genÃ©ricos. Cada plan estÃ¡ diseÃ±ado con la lÃ³gica de un operativo: objetivo claro, recursos medibles, ejecuciÃ³n implacable.
+      Aquí no hay programas genéricos. Cada plan está diseñado con la lógica de un operativo: objetivo claro, recursos medibles, ejecución implacable.
     </p>
     <div class="filosofia-pilares">
       <div class="pilar">
@@ -356,41 +356,41 @@
       </div>
       <div class="pilar">
         <div class="pilar-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-        <div class="pilar-titulo">ProgresiÃ³n Estructurada</div>
-        <div class="pilar-texto">Sobrecarga progresiva calculada. Cada semana tiene un propÃ³sito especÃ­fico dentro del ciclo.</div>
+        <div class="pilar-titulo">Progresión Estructurada</div>
+        <div class="pilar-texto">Sobrecarga progresiva calculada. Cada semana tiene un propósito específico dentro del ciclo.</div>
       </div>
       <div class="pilar">
         <div class="pilar-icon"><i class="fa-solid fa-moon"></i></div>
-        <div class="pilar-titulo">RecuperaciÃ³n como Activo</div>
-        <div class="pilar-texto">El descanso no es debilidad â€” es parte del protocolo. HRV, sueÃ±o y periodizaciÃ³n integrados.</div>
+        <div class="pilar-titulo">Recuperación como Activo</div>
+        <div class="pilar-texto">El descanso no es debilidad — es parte del protocolo. HRV, sueño y periodización integrados.</div>
       </div>
       <div class="pilar">
         <div class="pilar-icon"><i class="fa-solid fa-shield"></i></div>
         <div class="pilar-titulo">Compromiso</div>
-        <div class="pilar-texto">Si lo harÃ¡s a medias, mejor no lo hagas. La mediocridad es el enemigo del progreso.</div>
+        <div class="pilar-texto">Si lo harás a medias, mejor no lo hagas. La mediocridad es el enemigo del progreso.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- â•â•â• SECCIÃ“N: APP SHOWCASE estilo TrainHeroic â•â•â• -->
+<!-- ═══ SECCIÓN: APP SHOWCASE estilo TrainHeroic ═══ -->
 <section id="app-showcase" class="showcase-section">
 
   <!-- Lado izquierdo: texto -->
   <div class="showcase-left">
     <div class="section-label">RENDIMIENTO MEDIDO</div>
-    <h2 class="section-title">CONTROL TOTAL,<br><span>DIRECTO A LA ACCIÃ“N.</span></h2>
+    <h2 class="section-title">CONTROL TOTAL,<br><span>DIRECTO A LA ACCIÓN.</span></h2>
     <p class="showcase-desc">
-      Elimina la improvisaciÃ³n. Tu plan estructurado incluye videos tÃ©cnicos, con una mediciÃ³n constante y automÃ¡tica de cargas, volÃºmenes, potencia y composiciÃ³n corporal. Tu progreso real no es azar, es ciencia.
+      Elimina la improvisación. Tu plan estructurado incluye videos técnicos, con una medición constante y automática de cargas, volúmenes, potencia y composición corporal. Tu progreso real no es azar, es ciencia.
     </p>
 
-    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary" style="margin-top:20px;display:inline-block;">Probar un Plan â†’</a>
+    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary" style="margin-top:20px;display:inline-block;">Probar un Plan →</a>
   </div>
 
-  <!-- Lado derecho: 3 telÃ©fonos animados -->
+  <!-- Lado derecho: 3 teléfonos animados -->
   <div class="showcase-right" id="showcasePhones">
 
-    <!-- TelÃ©fono 1 â€” Endurance (llega desde la izquierda-abajo) -->
+    <!-- Teléfono 1 — Endurance (llega desde la izquierda-abajo) -->
     <div class="phone-mockup phone-left-anim" id="ph1">
       <div class="phone-frame">
         <div class="phone-notch"></div>
@@ -401,7 +401,7 @@
       </div>
     </div>
 
-    <!-- TelÃ©fono 2 â€” Dashboard (llega desde abajo al centro, destaca) -->
+    <!-- Teléfono 2 — Dashboard (llega desde abajo al centro, destaca) -->
     <div class="phone-mockup phone-center-anim phone-featured" id="ph2">
       <div class="phone-frame phone-frame-gold">
         <div class="phone-notch"></div>
@@ -413,7 +413,7 @@
       </div>
     </div>
 
-    <!-- TelÃ©fono 3 â€” Fuerza (llega desde la derecha-abajo) -->
+    <!-- Teléfono 3 — Fuerza (llega desde la derecha-abajo) -->
     <div class="phone-mockup phone-right-anim" id="ph3">
       <div class="phone-frame">
         <div class="phone-notch"></div>
@@ -427,9 +427,9 @@
   </div>
 </section>
 
-<!-- â•â•â• SECCIÃ“N: APP FEATURES GRID â•â•â• -->
+<!-- ═══ SECCIÓN: APP FEATURES GRID ═══ -->
 <section class="app-features-section">
-  <h2 class="af-title">Todo lo que desearÃ­as que hiciera tu vieja libreta de entrenamiento</h2>
+  <h2 class="af-title">Todo lo que desearías que hiciera tu vieja libreta de entrenamiento</h2>
 
   <div class="af-grid">
     <div class="af-item">
@@ -442,7 +442,7 @@
         </svg>
       </div>
       <h3 class="af-item-title">Entrena en cualquier lugar</h3>
-      <p class="af-item-desc">No dejes que los viajes interfieran con tu entrenamiento. Tu programaciÃ³n, tus datos y tus progresos estÃ¡n justo en tu bolsillo. Sin importar dÃ³nde entrenes, tu plan te acompaÃ±a.</p>
+      <p class="af-item-desc">No dejes que los viajes interfieran con tu entrenamiento. Tu programación, tus datos y tus progresos están justo en tu bolsillo. Sin importar dónde entrenes, tu plan te acompaña.</p>
     </div>
     <div class="af-item">
       <div class="af-icon icon-red">
@@ -457,7 +457,7 @@
         </svg>
       </div>
       <h3 class="af-item-title">Controla tu calendario</h3>
-      <p class="af-item-desc">Revisa tus sesiones de entrenamiento pasadas y futuras, ajusta tus dÃ­as de entreno cuando surjan imprevistos y sÃ© dueÃ±o absoluto de tu progreso semanal.</p>
+      <p class="af-item-desc">Revisa tus sesiones de entrenamiento pasadas y futuras, ajusta tus días de entreno cuando surjan imprevistos y sé dueño absoluto de tu progreso semanal.</p>
     </div>
     <div class="af-item">
       <div class="af-icon icon-gold">
@@ -472,7 +472,7 @@
         </svg>
       </div>
       <h3 class="af-item-title">Celebra tu progreso</h3>
-      <p class="af-item-desc">Celebra tus RÃ©cords Personales (PRs) y grafica tu evoluciÃ³n. Encuentra satisfacciÃ³n en tu viaje al registrar tu volumen total levantado y repeticiones a lo largo del tiempo.</p>
+      <p class="af-item-desc">Celebra tus Récords Personales (PRs) y grafica tu evolución. Encuentra satisfacción en tu viaje al registrar tu volumen total levantado y repeticiones a lo largo del tiempo.</p>
     </div>
     <div class="af-item">
       <div class="af-icon icon-gold">
@@ -490,7 +490,7 @@
         </svg>
       </div>
       <h3 class="af-item-title">Adapta tu entrenamiento</h3>
-      <p class="af-item-desc">Â¿Prefieres empezar tu semana de entrenamiento un Lunes en vez del Domingo? Â¿Usas KG en lugar de LBs? Personaliza tu perfil de atleta y entrena exactamente a tu manera.</p>
+      <p class="af-item-desc">¿Prefieres empezar tu semana de entrenamiento un Lunes en vez del Domingo? ¿Usas KG en lugar de LBs? Personaliza tu perfil de atleta y entrena exactamente a tu manera.</p>
     </div>
     <div class="af-item">
       <div class="af-icon">
@@ -507,7 +507,7 @@
         </svg>
       </div>
       <h3 class="af-item-title">Herramientas integradas</h3>
-      <p class="af-item-desc">Â¿Intentas calcular el 80% de tu 1RM mentalmente o medir el tiempo de descanso con el reloj de pared? Usa nuestros smart timers y calculadora integrada sin salir de la app.</p>
+      <p class="af-item-desc">¿Intentas calcular el 80% de tu 1RM mentalmente o medir el tiempo de descanso con el reloj de pared? Usa nuestros smart timers y calculadora integrada sin salir de la app.</p>
     </div>
     <div class="af-item">
       <div class="af-icon icon-red">
@@ -520,8 +520,8 @@
           <path d="M21 6l0 13" />
         </svg>
       </div>
-      <h3 class="af-item-title">LibrerÃ­a de ejercicios</h3>
-      <p class="af-item-desc">Cientos de movimientos militares y de fuerza completos con instrucciÃ³n en video y puntos clave de rendimiento aseguran que la tÃ©cnica nunca sea una excusa.</p>
+      <h3 class="af-item-title">Librería de ejercicios</h3>
+      <p class="af-item-desc">Cientos de movimientos militares y de fuerza completos con instrucción en video y puntos clave de rendimiento aseguran que la técnica nunca sea una excusa.</p>
     </div>
   </div>
 </section>
@@ -529,38 +529,38 @@
 <!-- PLANES OVERLAY (pantalla completa, se abre con abrirPlanes()) -->
 <div id="planesOverlay">
   <div class="planes-overlay-hdr">
-    <button class="planes-overlay-back" id="planesBackBtn" onclick="planesBack()">â† Volver</button>
+    <button class="planes-overlay-back" id="planesBackBtn" onclick="planesBack()">← Volver</button>
     <div class="planes-overlay-titulo">
       <span class="section-label" style="margin:0;" id="planesCrumb">Programas</span>
       <span id="planesTitulo" style="font-family:'Barlow Condensed',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--crema);">ELIGE TU PROTOCOLO</span>
     </div>
   </div>
 
-  <!-- Contenido dinÃ¡mico: se rellena por JS (renderPlanesVista) -->
+  <!-- Contenido dinámico: se rellena por JS (renderPlanesVista) -->
   <div class="planes-overlay-body" id="planesContent"></div>
 </div>
 
 <!-- BLOG -->
 <section id="blog">
   <div class="section-label">Conocimiento</div>
-  <h2 class="section-title">TÃCTICA<br><span>Y CIENCIA</span></h2>
+  <h2 class="section-title">TÁCTICA<br><span>Y CIENCIA</span></h2>
 
   <div class="blog-grid">
     <a class="blog-card" href="articulo.html?slug=sobrecarga-progresiva" style="text-decoration:none;color:inherit;display:block;">
       <div class="blog-img-placeholder">FUERZA</div>
       <div class="blog-body">
         <div class="blog-cat">Fuerza</div>
-        <div class="blog-titulo">Por quÃ© la sobrecarga progresiva es el Ãºnico principio que necesitas entender</div>
-        <div class="blog-preview">Si solo pudieras aplicar un principio durante un aÃ±o, este serÃ­a. Todo lo demÃ¡s es derivado.</div>
+        <div class="blog-titulo">Por qué la sobrecarga progresiva es el único principio que necesitas entender</div>
+        <div class="blog-preview">Si solo pudieras aplicar un principio durante un año, este sería. Todo lo demás es derivado.</div>
         <div class="blog-meta"><span>12 May 2025</span><span>5 min lectura</span></div>
       </div>
     </a>
     <a class="blog-card" href="articulo.html?slug=rastrear-macros" style="text-decoration:none;color:inherit;display:block;">
-      <div class="blog-img-placeholder">NUTRICIÃ“N</div>
+      <div class="blog-img-placeholder">NUTRICIÓN</div>
       <div class="blog-body">
-        <div class="blog-cat">NutriciÃ³n</div>
-        <div class="blog-titulo">CÃ³mo rastrear macros sin que te consuma 2 horas al dÃ­a</div>
-        <div class="blog-preview">El seguimiento perfecto que no haces vale menos que el seguimiento imperfecto que sÃ­ haces.</div>
+        <div class="blog-cat">Nutrición</div>
+        <div class="blog-titulo">Cómo rastrear macros sin que te consuma 2 horas al día</div>
+        <div class="blog-preview">El seguimiento perfecto que no haces vale menos que el seguimiento imperfecto que sí haces.</div>
         <div class="blog-meta"><span>28 Abr 2025</span><span>7 min lectura</span></div>
       </div>
     </a>
@@ -568,8 +568,8 @@
       <div class="blog-img-placeholder">CARDIO</div>
       <div class="blog-body">
         <div class="blog-cat">Endurance</div>
-        <div class="blog-titulo">Zonas de entrenamiento: el mapa que la mayorÃ­a ignora</div>
-        <div class="blog-preview">Zona 2 no es fÃ¡cil â€” es estratÃ©gico. La diferencia entre entrenar duro y entrenar bien.</div>
+        <div class="blog-titulo">Zonas de entrenamiento: el mapa que la mayoría ignora</div>
+        <div class="blog-preview">Zona 2 no es fácil — es estratégico. La diferencia entre entrenar duro y entrenar bien.</div>
         <div class="blog-meta"><span>08 May 2025</span><span>6 min lectura</span></div>
       </div>
     </a>
@@ -577,49 +577,49 @@
       <div class="blog-img-placeholder">MENTE</div>
       <div class="blog-body">
         <div class="blog-cat">Mentalidad</div>
-        <div class="blog-titulo">Lo que 10 aÃ±os de servicio me enseÃ±aron sobre la consistencia</div>
-        <div class="blog-preview">No es inspiraciÃ³n. Es protocolo. AsÃ­ funciona la disciplina cuando la motivaciÃ³n falla.</div>
+        <div class="blog-titulo">Lo que 10 años de servicio me enseñaron sobre la consistencia</div>
+        <div class="blog-preview">No es inspiración. Es protocolo. Así funciona la disciplina cuando la motivación falla.</div>
         <div class="blog-meta"><span>02 Abr 2025</span><span>8 min lectura</span></div>
       </div>
     </a>
   </div>
   <div style="text-align:center;margin-top:44px;">
-    <a href="blog.html" class="btn-ghost">Ver todos los artÃ­culos â†’</a>
+    <a href="blog.html" class="btn-ghost">Ver todos los artículos →</a>
   </div>
 </section>
 
-<!-- RESEÃ‘AS -->
+<!-- RESEÑAS -->
 <section id="resenas">
   <div class="section-label">Resultados Reales</div>
   <h2 class="section-title">LO QUE DICEN<br><span>LOS HECHOS</span></h2>
 
   <div class="resenas-grid">
     <div class="resena-card">
-      <div class="resena-stars">â˜…â˜…â˜…â˜…â˜…</div>
-      <div class="resena-texto">"Llevaba 2 aÃ±os en el gym sin progresar. En 8 semanas con el plan OPERATOR rompÃ­ todos mis mÃ¡ximos. La diferencia es la estructura â€” cada sesiÃ³n tiene un propÃ³sito claro."</div>
+      <div class="resena-stars">★★★★★</div>
+      <div class="resena-texto">"Llevaba 2 años en el gym sin progresar. En 8 semanas con el plan OPERATOR rompí todos mis máximos. La diferencia es la estructura — cada sesión tiene un propósito claro."</div>
       <div class="resena-autor">Rodrigo M.</div>
-      <div class="resena-rol">Carabinero Â· Santiago</div>
+      <div class="resena-rol">Carabinero · Santiago</div>
       <div class="resena-resultado">+18kg en sentadilla</div>
     </div>
     <div class="resena-card">
-      <div class="resena-stars">â˜…â˜…â˜…â˜…â˜…</div>
-      <div class="resena-texto">"Ver mis zonas de FC en tiempo real cambiÃ³ cÃ³mo entreno. En 3 meses bajÃ© mi ritmo de 6:10 a 5:24 min/km sin reventar en cada sesiÃ³n."</div>
+      <div class="resena-stars">★★★★★</div>
+      <div class="resena-texto">"Ver mis zonas de FC en tiempo real cambió cómo entreno. En 3 meses bajé mi ritmo de 6:10 a 5:24 min/km sin reventar en cada sesión."</div>
       <div class="resena-autor">Camila F.</div>
-      <div class="resena-rol">Oficial de EjÃ©rcito Â· ValparaÃ­so</div>
-      <div class="resena-resultado">Ritmo: 6:10 â†’ 5:24 min/km</div>
+      <div class="resena-rol">Oficial de Ejército · Valparaíso</div>
+      <div class="resena-resultado">Ritmo: 6:10 → 5:24 min/km</div>
     </div>
     <div class="resena-card">
-      <div class="resena-stars">â˜…â˜…â˜…â˜…â˜…</div>
-      <div class="resena-texto">"PensÃ© que esto era otro plan genÃ©rico de internet. Me equivoquÃ©. La periodizaciÃ³n estÃ¡ pensada para alguien con pocas horas disponibles pero que quiere resultados reales."</div>
+      <div class="resena-stars">★★★★★</div>
+      <div class="resena-texto">"Pensé que esto era otro plan genérico de internet. Me equivoqué. La periodización está pensada para alguien con pocas horas disponibles pero que quiere resultados reales."</div>
       <div class="resena-autor">Felipe A.</div>
-      <div class="resena-rol">PolicÃ­a Federal Â· ConcepciÃ³n</div>
-      <div class="resena-resultado">5km en 19:42 â†’ 18:01</div>
+      <div class="resena-rol">Policía Federal · Concepción</div>
+      <div class="resena-resultado">5km en 19:42 → 18:01</div>
     </div>
     <div class="resena-card">
-      <div class="resena-stars">â˜…â˜…â˜…â˜…â˜…</div>
-      <div class="resena-texto">"El protocolo ELITE cambiÃ³ mi VO2max de 42 a 49 en 3 meses. Nunca habÃ­a tenido acceso a ese tipo de anÃ¡lisis. Que el coach sea militar marca la diferencia."</div>
-      <div class="resena-autor">SebastiÃ¡n R.</div>
-      <div class="resena-rol">Instructor de Combate Â· Temuco</div>
+      <div class="resena-stars">★★★★★</div>
+      <div class="resena-texto">"El protocolo ELITE cambió mi VO2max de 42 a 49 en 3 meses. Nunca había tenido acceso a ese tipo de análisis. Que el coach sea militar marca la diferencia."</div>
+      <div class="resena-autor">Sebastián R.</div>
+      <div class="resena-rol">Instructor de Combate · Temuco</div>
       <div class="resena-resultado">VO2max +7 puntos</div>
     </div>
   </div>
@@ -629,68 +629,68 @@
 <section id="cta-final">
   <div class="section-aurora" id="ctaAurora"></div>
   <div id="ctaLinterna"></div>
-  <div class="section-label" style="justify-content:center">Â¿EstÃ¡s listo?</div>
+  <div class="section-label" style="justify-content:center">¿Estás listo?</div>
   <h2 class="cta-title">EL PROTOCOLO<br><span>EMPIEZA</span><br>HOY</h2>
   <p style="color:var(--gris); margin: 20px auto; max-width: 400px; font-size: 0.9rem; line-height: 1.7;">
     Elige tu plan y comienza de inmediato a progresar.
   </p>
   <div style="display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-top:32px;">
-    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary">Ver Planes â†’</a>
+    <a href="#" onclick="abrirPlanes();return false;" class="btn-primary">Ver Planes →</a>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo"><a href="#hero" aria-label="Volver al inicio" style="display:inline-block;"><img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo" class="footer-logo-img" style="height:48px;width:auto;opacity:0.9;"></a></div>
+  <div class="footer-logo"><a href="#hero" aria-label="Volver al inicio" style="display:inline-block;"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="footer-logo-img" style="height:48px;width:auto;opacity:0.9;"></a></div>
   <ul class="footer-links">
     <li><a href="#" onclick="abrirPlanes();return false;">Planes</a></li>
     <li><a href="blog.html">Blog</a></li>
     <li><a href="#resenas">Resultados</a></li>
     <li><a href="/privacidad.html">Privacidad</a></li>
   </ul>
-  <div class="footer-copy">Â© 2025 Ã‰lite Training</div>
+  <div class="footer-copy">© 2025 Élite Training</div>
 </footer>
 
 
 <!-- MODAL LOGIN -->
-<!-- modalLogin eliminado â€” reemplazado por loginOverlay -->
+<!-- modalLogin eliminado — reemplazado por loginOverlay -->
 
 <!-- DASHBOARD ATLETA -->
 <div id="dashboardAtleta" onclick="cerrarDashClick(event)">
   <div class="dashboard-box">
 
     <div class="dash-header">
-      <div class="dash-header-logo"><img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
+      <div class="dash-header-logo"><img src="Imagenes/img01.png" alt="Máximo Esfuerzo" style="height:36px;width:auto;filter:drop-shadow(0 0 4px rgba(212,168,67,0.4));"></div>
 
-      <!-- â”€â”€ DESKTOP: MI CUENTA dropdown + SALIR â”€â”€ -->
+      <!-- ── DESKTOP: MI CUENTA dropdown + SALIR ── -->
       <div class="dash-desktop-nav">
         <div style="position:relative;" id="miCuentaWrap">
           <button onclick="toggleMiCuenta()" style="background:none;border:2px solid #d4a843;color:#d4a843;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:7px 16px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all 0.2s;" onmouseover="this.style.background='#d4a843';this.style.color='#111'" onmouseout="this.style.background='none';this.style.color='#d4a843'">
-            Mi Cuenta <span id="miCuentaChevron" style="font-size:11px;transition:transform 0.2s;">â–¾</span>
+            Mi Cuenta <span id="miCuentaChevron" style="font-size:11px;transition:transform 0.2s;">▾</span>
           </button>
           <div id="miCuentaDropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#1a1a2e;border:1px solid rgba(212,168,67,0.25);border-radius:10px;min-width:300px;box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:1000;overflow:hidden;">
             <div style="padding:16px 18px;border-bottom:1px solid rgba(255,255,255,0.08);">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:#d4a843;text-transform:uppercase;margin-bottom:12px;">ðŸ“‹ Mis Planes</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:3px;color:#d4a843;text-transform:uppercase;margin-bottom:12px;">📋 Mis Planes</div>
               <div id="miPlanContent" style="font-size:14px;color:#ccc;"><div style="color:#666;font-style:italic;font-size:13px;">Cargando...</div></div>
             </div>
             <div style="padding:10px 8px;">
-              <button onclick="abrirMiPerfil()" style="width:100%;background:none;border:none;color:#ccc;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">âœŽ &nbsp;Mi Perfil</button>
-              <button onclick="cerrarSesion()" style="width:100%;background:none;border:none;color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(231,76,60,0.08)'" onmouseout="this.style.background='none'">â» &nbsp;Cerrar SesiÃ³n</button>
+              <button onclick="abrirMiPerfil()" style="width:100%;background:none;border:none;color:#ccc;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='none'">✎ &nbsp;Mi Perfil</button>
+              <button onclick="cerrarSesion()" style="width:100%;background:none;border:none;color:#e74c3c;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:9px 14px;text-align:left;cursor:pointer;border-radius:6px;transition:background 0.15s;" onmouseover="this.style.background='rgba(231,76,60,0.08)'" onmouseout="this.style.background='none'">⏻ &nbsp;Cerrar Sesión</button>
             </div>
           </div>
         </div>
         <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Salir</button>
       </div>
 
-      <!-- â”€â”€ MÃ“VIL: hamburger â”€â”€ -->
+      <!-- ── MÓVIL: hamburger ── -->
       <div class="dash-hamburger" id="dashHamburger" onclick="toggleDashMenu()">
         <span></span><span></span><span></span>
       </div>
     </div>
 
-    <!-- MenÃº mÃ³vil del dashboard -->
+    <!-- Menú móvil del dashboard -->
     <div id="dashMobileMenu" class="dash-mobile-menu">
-      <!-- Mis Planes (acordeÃ³n) -->
+      <!-- Mis Planes (acordeón) -->
       <button class="dash-menu-link" onclick="toggleMiPlanesMobile()" id="btnMiPlanesMobile"
         style="color:#d4a843 !important;display:flex;align-items:center;justify-content:space-between;width:100%;">
         <span style="display:inline-flex;align-items:center;">
@@ -699,7 +699,7 @@
             <rect x="9" y="3" width="6" height="4" rx="1"/>
             <path d="M9 12h6M9 16h6"/>
           </svg>Mis Planes</span>
-        <span id="iconMiPlanesMobile" style="font-size:10px;transition:transform 0.25s;">â–¼</span>
+        <span id="iconMiPlanesMobile" style="font-size:10px;transition:transform 0.25s;">▼</span>
       </button>
       <div id="miPlanContentMobileWrap" style="display:none;padding:0 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1);">
         <div id="miPlanContentMobile" style="font-size:13px;color:#ccc;"><div style="color:#666;font-style:italic;font-size:12px;">Cargando...</div></div>
@@ -720,7 +720,7 @@
       <button onclick="cerrarSesion()" class="dash-menu-link" style="color:#e74c3c !important;border-top:1px solid rgba(231,76,60,0.15);display:flex;align-items:center;">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/>
-        </svg>Cerrar SesiÃ³n</button>
+        </svg>Cerrar Sesión</button>
     </div>
 
     <div class="dash-profile">
@@ -730,7 +730,7 @@
           <span id="dashAvatarLetter">A</span>
         </div>
         <label class="dash-avatar-edit" title="Cambiar foto">
-          <input type="file" accept="image/*" onchange="cambiarFoto(this)" style="display:none;">âœŽ
+          <input type="file" accept="image/*" onchange="cambiarFoto(this)" style="display:none;">✎
         </label>
       </div>
       <div class="dash-profile-info">
@@ -739,7 +739,7 @@
         <div id="dashPerfilResumen" style="display:none;"></div>
       </div>
     </div>
-    <!-- Mini-cards de mÃ©tricas del perfil -->
+    <!-- Mini-cards de métricas del perfil -->
     <div id="dashPerfilCards" style="display:none;padding:12px 16px 0;"></div>
 
     <!-- MI PERFIL (colapsable) -->
@@ -764,20 +764,20 @@
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Sexo</div>
           <select id="mpSexo"
             style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
-            <option value="">â€”</option>
+            <option value="">—</option>
             <option value="M">Masculino</option>
             <option value="F">Femenino</option>
           </select>
         </div>
-        <!-- FC mÃ¡x â€” fila completa -->
+        <!-- FC máx — fila completa -->
         <div style="grid-column:1/-1;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">
-            FC MÃ¡xima (ppm)
+            FC Máxima (ppm)
             <span id="mpFcFuenteBadge" style="margin-left:6px;font-size:9px;letter-spacing:1px;padding:1px 6px;border-radius:10px;background:rgba(0,0,0,0.06);color:#999;"></span>
           </div>
           <input type="number" id="mpFcMax" placeholder="ej. 190" step="1" min="100" max="230"
             style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
-          <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Ingresa manualmente Â· Se actualiza automÃ¡ticamente desde Strava</div>
+          <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Ingresa manualmente · Se actualiza automáticamente desde Strava</div>
         </div>
       </div>
       <button onclick="guardarMiPerfil()"
@@ -785,13 +785,13 @@
         Guardar
       </button>
 
-      <!-- EVOLUCIÃ“N DE PESO (se administra aquÃ­) -->
+      <!-- EVOLUCIÓN DE PESO (se administra aquí) -->
       <div style="margin-top:16px;border-top:1px solid rgba(0,0,0,0.08);padding-top:14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:10px;">EvoluciÃ³n de peso</div>
-        <div id="mpPesoEmpty" style="font-size:12px;color:#aaa;font-style:italic;">Guarda tu peso arriba para empezar a registrar tu progresiÃ³n.</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:10px;">Evolución de peso</div>
+        <div id="mpPesoEmpty" style="font-size:12px;color:#aaa;font-style:italic;">Guarda tu peso arriba para empezar a registrar tu progresión.</div>
         <div id="mpPesoResumen" style="display:none;">
           <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
-            <span id="mpPesoActual" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:#222;">â€”</span>
+            <span id="mpPesoActual" style="font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1;color:#222;">—</span>
             <span style="font-size:11px;color:#999;">kg actual</span>
             <span id="mpPesoDelta" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:0.5px;"></span>
           </div>
@@ -801,7 +801,7 @@
       </div>
     </div>
 
-    <!-- STRAVA CONNECT â€” al inicio -->
+    <!-- STRAVA CONNECT — al inicio -->
     <div style="padding:0 16px;margin-bottom:4px;">
       <div class="dash-connect-card" onclick="conectarStrava()" id="btnStrava" style="border-radius:8px;">
         <div class="dash-app-logo">
@@ -812,15 +812,11 @@
     </div>
 
     <div class="dash-frase-wrap">
-      <img src="Imagenes/placa.svg?v=20260615x" class="dash-frase-img" alt="" aria-hidden="true">
-      <div class="dash-frase-content">
-        <div class="dash-frase" id="dashFrase">Cargando...</div>
-        <div class="dash-frase-div" aria-hidden="true"></div>
-        <div class="dash-frase-autor" id="dashAutor">â€” AnÃ³nimo</div>
-      </div>
+      <div class="dash-frase" id="dashFrase">Cargando...</div>
+      <div class="dash-frase-autor" id="dashAutor">— Anónimo</div>
     </div>
 
-    <!-- â•â• ACORDEÃ“N ENDURANCE â•â• -->
+    <!-- ══ ACORDEÓN ENDURANCE ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
@@ -838,8 +834,8 @@
 
       <div class="me-accord-body">
 
-    <!-- ÃšLTIMA ACTIVIDAD -->
-    <div class="dash-section-title">Ãšltima Actividad</div>
+    <!-- ÚLTIMA ACTIVIDAD -->
+    <div class="dash-section-title">Última Actividad</div>
 
     <div class="dash-activity-header">
       <div>
@@ -855,46 +851,46 @@
     <div class="dash-stats-row" style="padding:0 16px;">
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Distancia</div>
-        <div class="dash-stat-value" id="actDist">â€”</div>
+        <div class="dash-stat-value" id="actDist">—</div>
         <div class="dash-stat-unit">km</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Tiempo</div>
-        <div class="dash-stat-value" id="actTiempo">â€”</div>
+        <div class="dash-stat-value" id="actTiempo">—</div>
         <div class="dash-stat-unit">h:m:s</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">Ritmo</div>
-        <div class="dash-stat-value" id="actRitmo">â€”</div>
+        <div class="dash-stat-value" id="actRitmo">—</div>
         <div class="dash-stat-unit">min/km</div>
       </div>
       <div class="dash-stat-cell">
         <div class="dash-stat-label">FC Media</div>
-        <div class="dash-stat-value" id="actFC">â€”</div>
+        <div class="dash-stat-value" id="actFC">—</div>
         <div class="dash-stat-unit">ppm</div>
       </div>
     </div>
 
-    <!-- GrÃ¡fico FC -->
+    <!-- Gráfico FC -->
     <div class="dash-chart-card" style="margin:6px 16px 0;border-radius:8px;">
-      <div class="dash-chart-title">Frecuencia CardÃ­aca <span id="fcChartSub">â€”</span></div>
+      <div class="dash-chart-title">Frecuencia Cardíaca <span id="fcChartSub">—</span></div>
       <div class="dash-chart-wrap"><canvas id="chartFC"></canvas></div>
     </div>
 
-    <!-- GrÃ¡fico Ritmo â€” estilo TrainHeroic -->
+    <!-- Gráfico Ritmo — estilo TrainHeroic -->
     <div class="th-chart-container">
       <div class="th-chart-header">
         <div>
           <div class="th-chart-title">Ritmo</div>
-          <div class="th-chart-subtitle">min/km Â· menor = mÃ¡s rÃ¡pido</div>
+          <div class="th-chart-subtitle">min/km · menor = más rápido</div>
         </div>
       </div>
       <div class="th-working-max">
         <div class="th-wm-icon"><i data-lucide="timer" style="width:18px;height:18px;color:#C9A84C;"></i></div>
         <div>
-          <div class="th-wm-label">Ritmo Medio Â· Ãšltima carrera</div>
+          <div class="th-wm-label">Ritmo Medio · Última carrera</div>
           <div style="display:flex;align-items:baseline;gap:6px;">
-            <div class="th-wm-value" style="color:#C9A84C;" id="ritmoWmValue">â€”</div>
+            <div class="th-wm-value" style="color:#C9A84C;" id="ritmoWmValue">—</div>
             <div class="th-wm-unit">min/km</div>
           </div>
         </div>
@@ -913,29 +909,29 @@
     <div class="dash-section-title" style="margin-top:4px;">Tiempo en Zonas de FC</div>
     <div class="dash-zones-card" style="margin:0 16px;border-radius:8px;">
       <div class="dash-zone-row">
-        <div class="dash-zone-label">Z5 MÃ¡x</div>
+        <div class="dash-zone-label">Z5 Máx</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z5" id="zBar5" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime5">--:--</div><div class="dash-zone-pct" id="zPct5">â€”</div>
+        <div class="dash-zone-time" id="zTime5">--:--</div><div class="dash-zone-pct" id="zPct5">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z4 Umbral</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z4" id="zBar4" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime4">--:--</div><div class="dash-zone-pct" id="zPct4">â€”</div>
+        <div class="dash-zone-time" id="zTime4">--:--</div><div class="dash-zone-pct" id="zPct4">—</div>
       </div>
       <div class="dash-zone-row">
-        <div class="dash-zone-label">Z3 AerÃ³b</div>
+        <div class="dash-zone-label">Z3 Aerób</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z3" id="zBar3" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime3">--:--</div><div class="dash-zone-pct" id="zPct3">â€”</div>
+        <div class="dash-zone-time" id="zTime3">--:--</div><div class="dash-zone-pct" id="zPct3">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z2 Suave</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z2" id="zBar2" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime2">--:--</div><div class="dash-zone-pct" id="zPct2">â€”</div>
+        <div class="dash-zone-time" id="zTime2">--:--</div><div class="dash-zone-pct" id="zPct2">—</div>
       </div>
       <div class="dash-zone-row">
         <div class="dash-zone-label">Z1 Calent</div>
         <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z1" id="zBar1" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime1">--:--</div><div class="dash-zone-pct" id="zPct1">â€”</div>
+        <div class="dash-zone-time" id="zTime1">--:--</div><div class="dash-zone-pct" id="zPct1">—</div>
       </div>
     </div>
 
@@ -948,7 +944,7 @@
                text-transform:uppercase;color:#007a85;border:1.5px solid rgba(0,122,133,0.3);
                background:rgba(0,122,133,0.07);padding:5px 12px;border-radius:20px;cursor:pointer;
                transition:all .2s;" title="Actualizar datos de Strava">
-        â†» Actualizar
+        ↻ Actualizar
       </button>
     </div>
     <div id="resumenMensualWrap" style="margin:0 8px 6px;">
@@ -966,23 +962,23 @@
           <!-- Stats principales -->
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;">
             <div style="background:rgba(0,122,133,0.08);border:1.5px solid rgba(0,122,133,0.25);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resKm" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#007a85;line-height:1;">â€”</div>
+              <div id="resKm" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#007a85;line-height:1;">—</div>
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">km totales</div>
             </div>
             <div style="background:rgba(212,168,67,0.08);border:1.5px solid rgba(212,168,67,0.25);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resSesiones" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#9a6e00;line-height:1;">â€”</div>
+              <div id="resSesiones" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#9a6e00;line-height:1;">—</div>
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">sesiones</div>
             </div>
             <div style="background:rgba(0,0,0,0.03);border:1.5px solid rgba(0,0,0,0.1);border-radius:8px;padding:12px;text-align:center;">
-              <div id="resTiempo" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#333;line-height:1;">â€”</div>
+              <div id="resTiempo" style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#333;line-height:1;">—</div>
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-top:4px;font-weight:600;">tiempo total</div>
             </div>
           </div>
 
-          <!-- DistribuciÃ³n por zonas FC -->
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">DistribuciÃ³n por zona FC</div>
+          <!-- Distribución por zonas FC -->
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Distribución por zona FC</div>
           <div id="resZonasFC"></div>
-          <div id="resZonasSinFC" style="display:none;font-size:12px;color:#999;font-style:italic;font-family:'Barlow Condensed',sans-serif;">Registra tu FC mÃ¡xima (vÃ­a Strava) para ver la distribuciÃ³n por zonas.</div>
+          <div id="resZonasSinFC" style="display:none;font-size:12px;color:#999;font-style:italic;font-family:'Barlow Condensed',sans-serif;">Registra tu FC máxima (vía Strava) para ver la distribución por zonas.</div>
         </div>
       </div>
     </div>
@@ -1001,8 +997,8 @@
     <div class="th-chart-container" style="margin:0 8px 6px;">
       <div class="th-chart-header">
         <div>
-          <div class="th-chart-title">ProgresiÃ³n de RÃ©cords</div>
-          <div class="th-chart-subtitle">Derived from Strava Â· 1 mes</div>
+          <div class="th-chart-title">Progresión de Récords</div>
+          <div class="th-chart-subtitle">Derived from Strava · 1 mes</div>
         </div>
       </div>
 
@@ -1025,29 +1021,29 @@
       <div class="th-pr-stats" id="prStats">
         <div class="th-pr-stat best">
           <div class="th-pr-stat-label">Mejor Tiempo</div>
-          <div class="th-pr-stat-value" id="prBest">â€”</div>
-          <div class="th-pr-stat-sub" id="prBestDate">â€”</div>
+          <div class="th-pr-stat-value" id="prBest">—</div>
+          <div class="th-pr-stat-sub" id="prBestDate">—</div>
         </div>
         <div class="th-pr-stat">
-          <div class="th-pr-stat-label">MÃ¡s Reciente</div>
-          <div class="th-pr-stat-value" id="prFirst">â€”</div>
-          <div class="th-pr-stat-sub" id="prFirstDate">â€”</div>
+          <div class="th-pr-stat-label">Más Reciente</div>
+          <div class="th-pr-stat-value" id="prFirst">—</div>
+          <div class="th-pr-stat-sub" id="prFirstDate">—</div>
         </div>
         <div class="th-pr-stat delta">
           <div class="th-pr-stat-label">Vs. Primer Registro</div>
-          <div class="th-pr-stat-value" id="prDelta">â€”</div>
+          <div class="th-pr-stat-value" id="prDelta">—</div>
           <div class="th-pr-stat-sub" id="prDeltaSub"></div>
         </div>
       </div>
 
-      <!-- GrÃ¡fico de progresiÃ³n -->
+      <!-- Gráfico de progresión -->
       <div class="th-pr-wrap">
         <canvas id="chartPR"></canvas>
       </div>
     </div>
 
 
-    <!-- ENTRADA MANUAL â€” MEJORES TIEMPOS SIN STRAVA -->
+    <!-- ENTRADA MANUAL — MEJORES TIEMPOS SIN STRAVA -->
     <div class="dash-section-title" style="margin-top:4px;">Tiempos de Referencia</div>
     <div style="padding:0 16px 6px;">
       <div style="font-size:12px;color:rgba(255,255,255,0.35);line-height:1.6;margin-bottom:10px;">
@@ -1059,101 +1055,101 @@
             <path d="M31.5 11 Q37 11 36 16 Q35.5 19.5 31.5 19.5"/>
             <path d="M24 23.5 V28"/><path d="M19 31 H29"/><path d="M21 28 H27"/>
             <path d="M24 12.6 l1 2 2.2 .3 -1.6 1.55 .37 2.2 -1.97 -1.04 -1.97 1.04 .37 -2.2 -1.6 -1.55 2.2 -.3 z"/>
-          </svg><span style="line-height:1.2;">RÃ©cords Personales<br>Ingreso Manual</span>
+          </svg><span style="line-height:1.2;">Récords Personales<br>Ingreso Manual</span>
         </div>
         <div style="font-size:13px;color:#555;margin-bottom:12px;line-height:1.5;">
-          Registra tus mejores tiempos y aparecerÃ¡n en tu grÃ¡fico de progresiÃ³n.
+          Registra tus mejores tiempos y aparecerán en tu gráfico de progresión.
         </div>
 
       <!-- Toggle para mostrar/ocultar -->
       <button class="manual-toggle" onclick="toggleManual(this)" style="font-weight:600;font-size:13px;">
         <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
         Ingresar tiempos manualmente
-        <span class="manual-toggle-icon">â–¼</span>
+        <span class="manual-toggle-icon">▼</span>
       </button>
 
       <div id="manualPanel" style="display:none;">
         <div class="manual-entry-panel" style="background:#f8f9fa;border:1px solid rgba(0,0,0,0.06);border-radius:8px;margin-top:10px;">
           <div class="manual-entry-title" style="font-weight:700;font-size:12px;letter-spacing:1px;color:#333;">
             <i data-lucide="plus-circle" style="width:14px;height:14px;"></i>
-            Registrar tiempo â€” MM:SS o H:MM:SS
+            Registrar tiempo — MM:SS o H:MM:SS
           </div>
           <div class="manual-dist-grid">
             <div class="manual-dist-item">
               <div class="manual-dist-label">1 km</div>
               <input class="manual-time-input" id="mt_1km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_1km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('1km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('1km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_1km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2 km</div>
               <input class="manual-time-input" id="mt_2km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('2km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('2km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_2km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">2.4 km</div>
               <input class="manual-time-input" id="mt_2400m" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_2400m" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('2400m')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('2400m')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_2400m"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">3.2 km</div>
               <input class="manual-time-input" id="mt_3200m" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_3200m" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('3200m')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('3200m')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_3200m"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">5 km</div>
               <input class="manual-time-input" id="mt_5km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_5km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('5km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('5km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_5km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">8 km</div>
               <input class="manual-time-input" id="mt_8km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_8km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('8km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('8km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_8km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">10 km</div>
               <input class="manual-time-input" id="mt_10km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_10km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('10km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('10km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_10km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">12 km</div>
               <input class="manual-time-input" id="mt_12km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_12km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('12km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('12km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_12km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">15 km</div>
               <input class="manual-time-input" id="mt_15km" placeholder="00:00" maxlength="8">
               <input class="manual-date-input" id="md_15km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('15km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('15km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_15km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">21 km</div>
               <input class="manual-time-input" id="mt_21km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_21km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('21km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('21km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_21km"></div>
             </div>
             <div class="manual-dist-item">
               <div class="manual-dist-label">42 km</div>
               <input class="manual-time-input" id="mt_42km" placeholder="00:00:00" maxlength="9">
               <input class="manual-date-input" id="md_42km" type="date">
-              <button class="manual-row-save" onclick="saveOneTime('42km')" title="Guardar">âœ“</button>
+              <button class="manual-row-save" onclick="saveOneTime('42km')" title="Guardar">✓</button>
               <div class="manual-last" id="mlast_42km"></div>
             </div>
           </div>
@@ -1165,13 +1161,13 @@
       </div>
       </div>
 
-    <!-- TEST DE CAMPO Â· UMBRALES (VAM / FTP) -->
-    <div class="dash-section-title" style="margin-top:4px;">Test de Campo Â· Umbrales</div>
+    <!-- TEST DE CAMPO · UMBRALES (VAM / FTP) -->
+    <div class="dash-section-title" style="margin-top:4px;">Test de Campo · Umbrales</div>
     <div style="margin:0 16px 8px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
       <div style="padding:14px 14px 12px;">
         <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:12px;">
-          Tests mÃ¡ximos <strong>en terreno plano</strong>. El de <strong>5 min</strong> calcula tu <strong>VAM</strong>
-          y ya genera tus zonas. El de <strong>20 min</strong> es opcional: aÃ±ade el <strong>FTP</strong> (umbral) para el rTSS.
+          Tests máximos <strong>en terreno plano</strong>. El de <strong>5 min</strong> calcula tu <strong>VAM</strong>
+          y ya genera tus zonas. El de <strong>20 min</strong> es opcional: añade el <strong>FTP</strong> (umbral) para el rTSS.
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
@@ -1188,7 +1184,7 @@
         </div>
 
         <div style="margin-bottom:10px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">FC mÃ¡xima (ppm) <span style="color:#ccc;text-transform:none;letter-spacing:0;">â€” opcional, para zonas de FC</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">FC máxima (ppm) <span style="color:#ccc;text-transform:none;letter-spacing:0;">— opcional, para zonas de FC</span></div>
           <input type="number" id="inputFcMax" placeholder="ej. 185" min="100" max="250" step="1"
             style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
         </div>
@@ -1203,14 +1199,14 @@
         <div id="endResultados" style="display:none;margin-top:14px;">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div style="background:rgba(0,122,133,0.05);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:12px;text-align:center;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.8);text-transform:uppercase;margin-bottom:4px;">VAM Â· 5 min</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#007a85;line-height:1;" id="endVamPace">â€”</div>
-              <div style="font-size:10px;color:#999;margin-top:3px;" id="endVamMs">â€”</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.8);text-transform:uppercase;margin-bottom:4px;">VAM · 5 min</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#007a85;line-height:1;" id="endVamPace">—</div>
+              <div style="font-size:10px;color:#999;margin-top:3px;" id="endVamMs">—</div>
             </div>
             <div style="background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:12px;text-align:center;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#a8842a;text-transform:uppercase;margin-bottom:4px;">FTP Â· Umbral</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A84C;line-height:1;" id="endFtpPace">â€”</div>
-              <div style="font-size:10px;color:#999;margin-top:3px;" id="endFtpMs">â€”</div>
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#a8842a;text-transform:uppercase;margin-bottom:4px;">FTP · Umbral</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:#C9A84C;line-height:1;" id="endFtpPace">—</div>
+              <div style="font-size:10px;color:#999;margin-top:3px;" id="endFtpMs">—</div>
             </div>
           </div>
           <div id="endMultNota" style="display:none;font-size:10px;color:#a8842a;margin-top:8px;text-align:center;"></div>
@@ -1229,12 +1225,12 @@
         <div style="display:flex;align-items:flex-start;gap:10px;flex:1;">
           <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0;margin-top:3px;"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
           <div style="flex:1;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava â€” Actividad 5 km detectada</div>
-            <div id="zonaStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">â€”</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava — Actividad 5 km detectada</div>
+            <div id="zonaStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">—</div>
             <button onclick="usarStrava5kmParaZonas()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(252,76,2,0.08);border:1px solid rgba(252,76,2,0.3);color:#d4420a;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;">Actualizar zonas</button>
           </div>
         </div>
-        <button onclick="descartarStravaBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">Ã—</button>
+        <button onclick="descartarStravaBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">×</button>
       </div>
     </div>
 
@@ -1244,12 +1240,12 @@
         <div style="display:flex;align-items:flex-start;gap:10px;flex:1;">
           <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0;margin-top:3px;"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
           <div style="flex:1;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava â€” Carrera 3.2 km detectada</div>
-            <div id="tmrStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">â€”</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava — Carrera 3.2 km detectada</div>
+            <div id="tmrStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">—</div>
             <button onclick="usarTMRStrava()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(252,76,2,0.08);border:1px solid rgba(252,76,2,0.3);color:#d4420a;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;">Usar como TMR</button>
           </div>
         </div>
-        <button onclick="descartarTMRBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">Ã—</button>
+        <button onclick="descartarTMRBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">×</button>
       </div>
     </div>
 
@@ -1259,19 +1255,19 @@
         <div style="display:flex;align-items:flex-start;gap:10px;flex:1;">
           <svg viewBox="0 0 24 24" width="18" height="18" style="flex-shrink:0;margin-top:3px;"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
           <div style="flex:1;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava â€” EvaluaciÃ³n 5 minutos detectada</div>
-            <div id="ev5minStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">â€”</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:4px;">Strava — Evaluación 5 minutos detectada</div>
+            <div id="ev5minStravaInfo" style="font-family:'Barlow',sans-serif;font-size:12px;color:#555;line-height:1.5;margin-bottom:8px;">—</div>
             <button onclick="usarEv5minStrava()" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;background:rgba(252,76,2,0.08);border:1px solid rgba(252,76,2,0.3);color:#d4420a;padding:6px 12px;border-radius:4px;cursor:pointer;transition:all .2s;">Actualizar V PICO</button>
           </div>
         </div>
-        <button onclick="descartarEv5minBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">Ã—</button>
+        <button onclick="descartarEv5minBanner()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;line-height:1;padding:0;flex-shrink:0;">×</button>
       </div>
     </div>
 
 
     <!-- Referencia usada -->
     <div id="zonasRef" style="display:none;margin:0 16px 8px;padding:8px 12px;background:rgba(0,122,133,0.05);border-left:2px solid rgba(0,122,133,0.3);border-radius:4px;">
-      <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;">Base Â· </span>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;">Base · </span>
       <span id="zonasRefTexto" style="font-family:'Barlow',sans-serif;font-size:11px;color:#888;"></span>
     </div>
 
@@ -1288,8 +1284,8 @@
     </div>
     </div><!-- cierre extra balance -->
 
-    <!-- CARGA DE ENTRENAMIENTO Â· rTSS -->
-    <div class="dash-section-title" style="margin-top:4px;">Carga de Entrenamiento Â· rTSS</div>
+    <!-- CARGA DE ENTRENAMIENTO · rTSS -->
+    <div class="dash-section-title" style="margin-top:4px;">Carga de Entrenamiento · rTSS</div>
 
     <!-- Candado plan -->
     <div class="plan-lock">
@@ -1300,8 +1296,8 @@
         </svg>
       </div>
       <div class="pl-title">DESBLOQUEA TU <span>CARGA rTSS</span></div>
-      <div class="pl-sub">El anÃ¡lisis de carga y fatiga de entrenamiento es parte de tu plan.</div>
-      <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta secciÃ³n</button>
+      <div class="pl-sub">El análisis de carga y fatiga de entrenamiento es parte de tu plan.</div>
+      <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta sección</button>
     </div>
 
     <!-- Contenido real: visible solo con plan activo -->
@@ -1311,27 +1307,27 @@
           <!-- Sin FTP: gate -->
           <div id="rtssSinFtp" style="text-align:center;padding:8px 0;">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#ccc;text-transform:uppercase;line-height:1.8;">
-              Haz tu test de 20 min (arriba) para activar<br>el cÃ¡lculo de carga rTSS
+              Haz tu test de 20 min (arriba) para activar<br>el cálculo de carga rTSS
             </div>
           </div>
           <!-- Con FTP: contenido -->
           <div id="rtssContenido" style="display:none;">
-            <!-- Ãšltima carrera -->
+            <!-- Última carrera -->
             <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.12);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
               <div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;">Ãšltima carrera</div>
-                <div id="rtssUltimaInfo" style="font-size:12px;color:#666;margin-top:2px;">â€”</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;">Última carrera</div>
+                <div id="rtssUltimaInfo" style="font-size:12px;color:#666;margin-top:2px;">—</div>
               </div>
               <div style="text-align:right;">
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8B1A1A;line-height:1;" id="rtssUltimaVal">â€”</div>
-                <div style="font-size:9px;color:#aaa;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="rtssUltimaIF">rTSS Â· IF â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8B1A1A;line-height:1;" id="rtssUltimaVal">—</div>
+                <div style="font-size:9px;color:#aaa;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="rtssUltimaIF">rTSS · IF —</div>
               </div>
             </div>
-            <!-- GrÃ¡fico carga semanal -->
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:6px;">Carga semanal (Ãºltimas 10 semanas)</div>
+            <!-- Gráfico carga semanal -->
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:6px;">Carga semanal (últimas 10 semanas)</div>
             <div class="th-chart-wrap" style="height:140px;"><canvas id="chartRTSS"></canvas></div>
             <div style="font-size:10px;color:#bbb;margin-top:8px;line-height:1.5;">
-              rTSS = carga de estrÃ©s de cada carrera (100 â‰ˆ 1 h a tu umbral FTP). La suma semanal muestra tu tendencia de volumen.
+              rTSS = carga de estrés de cada carrera (100 ≈ 1 h a tu umbral FTP). La suma semanal muestra tu tendencia de volumen.
             </div>
           </div>
         </div>
@@ -1341,7 +1337,7 @@
       </div><!-- /body endurance -->
     </div><!-- /accord endurance -->
 
-    <!-- â•â• ACORDEÃ“N FUERZA â•â• -->
+    <!-- ══ ACORDEÓN FUERZA ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
@@ -1352,10 +1348,10 @@
       </button>
       <div class="me-accord-body">
 
-    <!-- MÃ‰TRICAS DE FUERZA -->
-    <div class="dash-section-title" style="margin-top:4px;">MÃ©tricas de Fuerza</div>
+    <!-- MÉTRICAS DE FUERZA -->
+    <div class="dash-section-title" style="margin-top:4px;">Métricas de Fuerza</div>
 
-    <!-- Banner direcciÃ³n a planes â€” tarjeta candado premium -->
+    <!-- Banner dirección a planes — tarjeta candado premium -->
     <div class="plan-lock">
       <div class="pl-aura"></div>
       <div class="pl-ic">
@@ -1363,22 +1359,22 @@
           <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
         </svg>
       </div>
-      <div class="pl-title">DESBLOQUEA TUS <span>MÃ‰TRICAS</span></div>
-      <div class="pl-sub">Tu progresiÃ³n de fuerza y proyecciones de RM son parte de tu plan de entrenamiento.</div>
-      <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta secciÃ³n</button>
+      <div class="pl-title">DESBLOQUEA TUS <span>MÉTRICAS</span></div>
+      <div class="pl-sub">Tu progresión de fuerza y proyecciones de RM son parte de tu plan de entrenamiento.</div>
+      <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta sección</button>
     </div>
 
-    <!-- Datos de fuerza (cargados por el coach vÃ­a CSV) -->
+    <!-- Datos de fuerza (cargados por el coach vía CSV) -->
     <div class="th-chart-container" style="margin:0 8px 6px;">
       <div class="th-chart-header">
         <div>
-          <div class="th-chart-title">ProgresiÃ³n por Ejercicio</div>
-          <div class="th-chart-subtitle" id="thLastUpdate">Tu coach actualizarÃ¡ tus datos</div>
+          <div class="th-chart-title">Progresión por Ejercicio</div>
+          <div class="th-chart-subtitle" id="thLastUpdate">Tu coach actualizará tus datos</div>
         </div>
       </div>
       <div id="thDataSection" style="display:none;">
 
-      <!-- Grilla top-20 ejercicios mÃ¡s usados -->
+      <!-- Grilla top-20 ejercicios más usados -->
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:4px;">Top ejercicios</div>
       <div class="th-exercise-grid" id="exerciseGrid"></div>
 
@@ -1388,14 +1384,14 @@
         <div style="min-width:0;">
           <div class="th-wm-label" id="thWMLabel">Working Max</div>
           <div style="display:flex;align-items:baseline;gap:6px;">
-            <div class="th-wm-value" style="color:#d4a843;" id="thWMValue">â€”</div>
-            <div class="th-wm-unit">kg Â· Est. 1RM: <span id="thEst1RM">â€”</span></div>
+            <div class="th-wm-value" style="color:#d4a843;" id="thWMValue">—</div>
+            <div class="th-wm-unit">kg · Est. 1RM: <span id="thEst1RM">—</span></div>
           </div>
         </div>
       </div>
 
-      <!-- Tira de progresiÃ³n RM (12RM â†’ 1RM) -->
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(0,0,0,0.4);text-transform:uppercase;margin-bottom:4px;">ProgresiÃ³n RM estimada</div>
+      <!-- Tira de progresión RM (12RM → 1RM) -->
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(0,0,0,0.4);text-transform:uppercase;margin-bottom:4px;">Progresión RM estimada</div>
       <div class="th-rm-strip" id="thRMStrip"></div>
 
       <!-- Selectores de rango -->
@@ -1403,25 +1399,25 @@
         <button class="th-range-btn" onclick="changeStrRange('1m',this)">1M</button>
         <button class="th-range-btn" onclick="changeStrRange('3m',this)">3M</button>
         <button class="th-range-btn" onclick="changeStrRange('6m',this)">6M</button>
-        <button class="th-range-btn th-range-proj" onclick="changeStrRange('1y',this)" title="Ãšltimo aÃ±o">1A</button>
+        <button class="th-range-btn th-range-proj" onclick="changeStrRange('1y',this)" title="Último año">1A</button>
         <button class="th-range-btn active" onclick="changeStrRange('all',this)">ALL</button>
       </div>
 
-      <!-- GrÃ¡fico -->
+      <!-- Gráfico -->
       <div class="th-chart-wrap" style="height:150px;">
         <canvas id="chartStrength"></canvas>
       </div>
 
-      <!-- Tabla Ãºltimas sesiones -->
+      <!-- Tabla últimas sesiones -->
       <div style="margin-top:14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Ãšltimas Sesiones</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Últimas Sesiones</div>
         <table class="th-sets-table" id="thSetsTable">
-          <tr><th>Fecha</th><th>SeriesÃ—Reps</th><th>Kg</th><th>1RM Est.</th></tr>
-          <tr><td>20 May</td><td>4Ã—5</td><td class="highlight">142</td><td>158 kg</td></tr>
-          <tr><td>16 May</td><td>3Ã—5</td><td class="highlight">138</td><td>154 kg</td></tr>
-          <tr><td>12 May</td><td>4Ã—6</td><td>135</td><td>153 kg</td></tr>
-          <tr><td>08 May</td><td>3Ã—8</td><td>125</td><td>148 kg</td></tr>
-          <tr><td>04 May</td><td>4Ã—5</td><td>120</td><td>134 kg <span class="th-set-badge">Inicio</span></td></tr>
+          <tr><th>Fecha</th><th>Series×Reps</th><th>Kg</th><th>1RM Est.</th></tr>
+          <tr><td>20 May</td><td>4×5</td><td class="highlight">142</td><td>158 kg</td></tr>
+          <tr><td>16 May</td><td>3×5</td><td class="highlight">138</td><td>154 kg</td></tr>
+          <tr><td>12 May</td><td>4×6</td><td>135</td><td>153 kg</td></tr>
+          <tr><td>08 May</td><td>3×8</td><td>125</td><td>148 kg</td></tr>
+          <tr><td>04 May</td><td>4×5</td><td>120</td><td>134 kg <span class="th-set-badge">Inicio</span></td></tr>
         </table>
       </div>
 
@@ -1431,7 +1427,7 @@
       </div><!-- /body fuerza -->
     </div><!-- /accord fuerza -->
 
-    <!-- â•â• ACORDEÃ“N POTENCIA â•â• -->
+    <!-- ══ ACORDEÓN POTENCIA ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
@@ -1445,7 +1441,7 @@
       </button>
       <div class="me-accord-body">
 
-      <!-- Candado premium: visible si el plan NO estÃ¡ activo -->
+      <!-- Candado premium: visible si el plan NO está activo -->
       <div class="plan-lock">
         <div class="pl-aura"></div>
         <div class="pl-ic">
@@ -1454,21 +1450,21 @@
           </svg>
         </div>
         <div class="pl-title">DESBLOQUEA <span>POTENCIA</span></div>
-        <div class="pl-sub">Mide tu potencia de salto y sube tus videos. Esta secciÃ³n es parte de tu plan de entrenamiento.</div>
-        <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta secciÃ³n</button>
+        <div class="pl-sub">Mide tu potencia de salto y sube tus videos. Esta sección es parte de tu plan de entrenamiento.</div>
+        <button class="pl-btn" onclick="abrirPlanes();return false;">Desbloquear esta sección</button>
       </div>
 
       <!-- Contenido real: visible solo con plan activo -->
       <div class="plan-gated">
 
-      <!-- Video salto â€” TARJETA -->
+      <!-- Video salto — TARJETA -->
       <div style="margin:0 16px 12px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
         <div style="padding:14px 14px 10px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">Video Salto</div>
 
           <!-- Selector FPS -->
           <div style="margin-bottom:12px;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Velocidad de cÃ¡mara</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Velocidad de cámara</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;" id="fpsBtns">
               <button class="fps-btn" onclick="selFPS(60,this)" data-fps="60"
                 style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
@@ -1482,16 +1478,16 @@
                        background:linear-gradient(135deg,rgba(0,168,179,0.25),rgba(0,200,212,0.18));
                        color:#005f6b;cursor:pointer;transition:all .2s;text-transform:uppercase;
                        box-shadow:0 0 14px rgba(0,168,179,0.22);">
-                120 fps â˜…
+                120 fps ★
               </button>
               <button class="fps-btn fps-rec" onclick="selFPS(240,this)" data-fps="240"
                 style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;
                        padding:8px 18px;border-radius:22px;border:1.5px solid rgba(0,122,133,0.2);
                        background:rgba(0,122,133,0.06);color:#007a85;cursor:pointer;transition:all .2s;text-transform:uppercase;">
-                240 fps â˜…
+                240 fps ★
               </button>
             </div>
-            <div style="font-size:12px;color:#888;margin-top:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">â˜… Recomendado para mayor precisiÃ³n</div>
+            <div style="font-size:12px;color:#888;margin-top:6px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">★ Recomendado para mayor precisión</div>
           </div>
 
           <input type="file" id="myJumpVideo" accept="video/*" style="display:none" onchange="handleVideoUpload(this)">
@@ -1510,7 +1506,7 @@
           <!-- Barra progreso -->
           <div id="videoProgressWrap" style="display:none;margin-top:10px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:#666;text-transform:uppercase;">Subiendo a Driveâ€¦</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:#666;text-transform:uppercase;">Subiendo a Drive…</span>
               <span id="videoPct" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#8B1A1A;">0%</span>
             </div>
             <div style="height:4px;background:rgba(0,0,0,0.08);border-radius:2px;">
@@ -1521,7 +1517,7 @@
         </div>
       </div>
 
-      <!-- Test de velocidad â€” TARJETA -->
+      <!-- Test de velocidad — TARJETA -->
       <div style="margin:0 16px 16px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
         <div style="padding:14px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">Test de Velocidad</div>
@@ -1555,7 +1551,7 @@
               <input type="number" id="velPeso" step="0.1" placeholder="ej. 75"
                 style="width:100%;padding:9px;border:1.5px solid rgba(0,122,133,0.2);border-radius:8px;font-size:14px;box-sizing:border-box;margin-top:4px;outline:none;">
               <div id="velPesoAviso" style="display:none;margin-top:5px;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#C9A84C;">
-                Sin peso en perfil â€”
+                Sin peso en perfil —
                 <a href="#" onclick="abrirPerfilDesdeVel();return false;"
                    style="color:#8B1A1A;text-decoration:underline;cursor:pointer;">completar perfil</a>
               </div>
@@ -1574,11 +1570,11 @@
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:8px;font-weight:600;">Resultado</div>
             <div style="display:flex;gap:24px;">
               <div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#007a85;line-height:1;" id="velResultado">â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#007a85;line-height:1;" id="velResultado">—</div>
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#888;font-weight:600;">km/h</div>
               </div>
               <div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#8B1A1A;line-height:1;" id="potResultado">â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:#8B1A1A;line-height:1;" id="potResultado">—</div>
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#888;font-weight:600;">Watts/kg</div>
               </div>
             </div>
@@ -1590,11 +1586,11 @@
 
       </div><!-- /accord potencia -->
 
-    <!-- â•â• ACORDEÃ“N RUCKING â•â• -->
+    <!-- ══ ACORDEÓN RUCKING ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- RUCKING: montaÃ±a con nieve y rÃ­o (diseÃ±o propio) -->
+          <!-- RUCKING: montaña con nieve y río (diseño propio) -->
           <svg viewBox="0 0 48 48" fill="none" stroke="#00c8d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M5 35 L19 11 L29 28 L34 21 L43 35 Z" />
             <path d="M14.5 19.5 l2.2 -2.2 2.3 2.3 2.3 -2.3 1.9 1.9" />
@@ -1614,8 +1610,8 @@
       <!-- Header -->
       <div class="th-chart-header">
         <div>
-          <div class="th-chart-title">ProgresiÃ³n de Rucking</div>
-          <div class="th-chart-subtitle" id="ruckACount">Sincronizando con Stravaâ€¦</div>
+          <div class="th-chart-title">Progresión de Rucking</div>
+          <div class="th-chart-subtitle" id="ruckACount">Sincronizando con Strava…</div>
         </div>
         <button onclick="toggleRuckManualAdd()" style="font-family:'Barlow Condensed',sans-serif;font-size:12.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;background:#007a85;border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;box-shadow:0 3px 10px rgba(0,122,133,0.35);white-space:nowrap;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1624,7 +1620,7 @@
 
       <!-- Formulario entrada manual (colapsado) -->
       <div id="ruckAManualForm" style="display:none;background:rgba(0,122,133,0.04);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:13px;margin-bottom:10px;">
-        <div id="ruckAFormTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:10px;">Agregar sesiÃ³n manual</div>
+        <div id="ruckAFormTitle" style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:10px;">Agregar sesión manual</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Fecha</div>
@@ -1636,7 +1632,7 @@
               <input type="tel" id="ruckATime" placeholder="0:00:00" maxlength="7"
                 style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 36px 8px 10px;font-size:15px;color:#333;outline:none;font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;">
               <button onclick="const _t=document.getElementById('ruckATime');_t.value='';_t._digits='';_t.focus();"
-                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:2px 4px;line-height:1;" title="Borrar">Ã—</button>
+                style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:#bbb;font-size:16px;cursor:pointer;padding:2px 4px;line-height:1;" title="Borrar">×</button>
             </div>
           </div>
           <div>
@@ -1663,22 +1659,22 @@
             </select>
           </div>
           <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Desnivel (m) â€” opcional</div>
-            <input type="number" id="ruckAElev" placeholder="ej. 350 â€” 0 si plano" min="0" step="1"
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Desnivel (m) — opcional</div>
+            <input type="number" id="ruckAElev" placeholder="ej. 350 — 0 si plano" min="0" step="1"
               style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Terreno</div>
             <select id="ruckATerrain" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
-              <option value="asfalto">Asfalto / Cemento (Î¼ 0.10)</option>
-              <option value="tierra">Tierra compacta (Î¼ 0.15)</option>
-              <option value="trail" selected>Trail / MontaÃ±a (Î¼ 0.20)</option>
-              <option value="arena">Arena / Nieve (Î¼ 0.28)</option>
+              <option value="asfalto">Asfalto / Cemento (μ 0.10)</option>
+              <option value="tierra">Tierra compacta (μ 0.15)</option>
+              <option value="trail" selected>Trail / Montaña (μ 0.20)</option>
+              <option value="arena">Arena / Nieve (μ 0.28)</option>
             </select>
           </div>
           <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Notas â€” opcional</div>
-            <input type="text" id="ruckANotes" placeholder="ej. Cerro San CristÃ³bal"
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Notas — opcional</div>
+            <input type="text" id="ruckANotes" placeholder="ej. Cerro San Cristóbal"
               style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
           </div>
         </div>
@@ -1688,11 +1684,11 @@
         </div>
       </div>
 
-      <!-- Estado vacÃ­o -->
+      <!-- Estado vacío -->
       <div id="ruckAEmpty" style="display:none;text-align:center;padding:22px 16px;">
         <div style="margin-bottom:12px;"><i class="fa-solid fa-boot" style="font-size:32px;color:#aaa;"></i></div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#aaa;text-transform:uppercase;line-height:1.8;">
-          AÃºn no se detectaron sesiones de rucking<br>
+          Aún no se detectaron sesiones de rucking<br>
           <span style="font-size:10px;color:#ccc;">Titula tu actividad en Strava como <strong style="color:#FC4C02;">"Lastre XX kg"</strong> (XX = tus kilos)</span>
         </div>
       </div>
@@ -1712,19 +1708,19 @@
         <div class="th-pr-stats">
           <div class="th-pr-stat best">
             <div class="th-pr-stat-label">Mejor tiempo</div>
-            <div class="th-pr-stat-value" id="ruckABestTime">â€”</div>
+            <div class="th-pr-stat-value" id="ruckABestTime">—</div>
           </div>
           <div class="th-pr-stat">
             <div class="th-pr-stat-label">Fecha PR</div>
-            <div class="th-pr-stat-value" id="ruckABestDate" style="font-size:1rem;">â€”</div>
+            <div class="th-pr-stat-value" id="ruckABestDate" style="font-size:1rem;">—</div>
           </div>
           <div class="th-pr-stat delta">
             <div class="th-pr-stat-label">Vs. primer registro</div>
-            <div class="th-pr-stat-value" id="ruckADelta">â€”</div>
+            <div class="th-pr-stat-value" id="ruckADelta">—</div>
           </div>
         </div>
 
-        <!-- Toggle mÃ©trica grÃ¡fico -->
+        <!-- Toggle métrica gráfico -->
         <div style="display:flex;gap:6px;margin-top:10px;margin-bottom:4px;">
           <button id="ruckToggleTiempo" onclick="setRuckMetrica('tiempo',this)"
             style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;border:1px solid rgba(139,26,26,0.4);background:rgba(139,26,26,0.1);color:#8B1A1A;cursor:pointer;">
@@ -1736,16 +1732,16 @@
           </button>
         </div>
         <div id="ruckBMWarning" style="display:none;font-size:10px;color:#e07b00;margin-bottom:4px;">
-          âš  Sin peso corporal â€” completa tu InBody o composiciÃ³n para ver Potencia
+          ⚠ Sin peso corporal — completa tu InBody o composición para ver Potencia
         </div>
-        <!-- GrÃ¡fico -->
+        <!-- Gráfico -->
         <div class="th-chart-wrap" style="height:150px;margin-top:2px;">
           <canvas id="chartRucking"></canvas>
         </div>
 
         <!-- Sesiones recientes -->
         <div style="margin-top:14px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Ãšltimas Sesiones</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Últimas Sesiones</div>
           <div id="ruckASessionsList"></div>
         </div>
 
@@ -1753,9 +1749,9 @@
 
       <!-- SE Test -->
       <div style="margin-top:12px;background:rgba(0,122,133,0.04);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:12px 14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.7);text-transform:uppercase;margin-bottom:8px;">Test Sentadilla Â· Squat Endurance</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.7);text-transform:uppercase;margin-bottom:8px;">Test Sentadilla · Squat Endurance</div>
         <div style="display:flex;align-items:center;gap:10px;">
-          <input type="number" id="ruckSEInput" placeholder="Reps hasta el fallo (90Â°)" min="1" max="300"
+          <input type="number" id="ruckSEInput" placeholder="Reps hasta el fallo (90°)" min="1" max="300"
             style="flex:1;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
           <button onclick="guardarRuckSE()" style="background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;">Guardar</button>
         </div>
@@ -1774,12 +1770,12 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
         </div>
         <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:6px;">DetecciÃ³n automÃ¡tica</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:#FC4C02;text-transform:uppercase;margin-bottom:6px;">Detección automática</div>
           <div style="font-size:12.5px;line-height:1.6;color:#cfc9c1;">
-            Titula tu actividad en Strava como <strong style="color:#fff;">"Lastre XX kg"</strong> <span style="color:#9a948a;">(reemplaza XX por los kilos que cargas)</span> y elige el tipo segÃºn cÃ³mo te muevas:
+            Titula tu actividad en Strava como <strong style="color:#fff;">"Lastre XX kg"</strong> <span style="color:#9a948a;">(reemplaza XX por los kilos que cargas)</span> y elige el tipo según cómo te muevas:
             <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px;">
-              <div><strong style="color:#fff;">Carrera</strong> o <strong style="color:#fff;">Carrera de montaÃ±a</strong> â€” cuando corres, con cualquier peso.</div>
-              <div><strong style="color:#fff;">Senderismo</strong> <span style="color:#9a948a;">(marcha militar)</span> â€” cuando marchas, sin correr.</div>
+              <div><strong style="color:#fff;">Carrera</strong> o <strong style="color:#fff;">Carrera de montaña</strong> — cuando corres, con cualquier peso.</div>
+              <div><strong style="color:#fff;">Senderismo</strong> <span style="color:#9a948a;">(marcha militar)</span> — cuando marchas, sin correr.</div>
             </div>
           </div>
         </div>
@@ -1790,11 +1786,11 @@
       </div><!-- /body rucking -->
     </div><!-- /accord rucking -->
 
-    <!-- â•â• ACORDEÃ“N COMPOSICIÃ“N CORPORAL â•â• -->
+    <!-- ══ ACORDEÓN COMPOSICIÓN CORPORAL ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- COMPOSICIÃ“N: cuerpo atlÃ©tico con tronco en V (diseÃ±o propio) -->
+          <!-- COMPOSICIÓN: cuerpo atlético con tronco en V (diseño propio) -->
           <svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
             <path d="M10.3 16.2 L9.8 21" />
             <path d="M13.7 16.2 L14.2 21" />
@@ -1806,18 +1802,18 @@
           </svg>
         </div>
 
-        <span class="me-accord-label">ComposiciÃ³n</span>
+        <span class="me-accord-label">Composición</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="me-accord-body">
 
-    <!-- COMPOSICIÃ“N CORPORAL -->
-    <div class="dash-section-title" style="margin-top:4px;">ComposiciÃ³n Corporal</div>
+    <!-- COMPOSICIÓN CORPORAL -->
+    <div class="dash-section-title" style="margin-top:4px;">Composición Corporal</div>
     <div style="margin:0 16px 8px;background:#fff;border:1px solid rgba(0,0,0,0.07);border-radius:10px;overflow:hidden;">
 
       <!-- InBody -->
       <div style="padding:14px 14px 10px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">InBody Â· Resultado</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:12px;font-weight:600;">InBody · Resultado</div>
 
         <input type="file" id="inbodyPDF" accept=".pdf" style="display:none" onchange="handleInbodyPDF(this)">
         <input type="file" id="inbodyIMG" accept="image/*" style="display:none" onchange="handleInbodyImage(this)">
@@ -1897,7 +1893,7 @@
               style="flex:1;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;
                      font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;
                      border:none;border-radius:5px;cursor:pointer;">
-              Guardar mediciÃ³n
+              Guardar medición
             </button>
             <button onclick="document.getElementById('inbodyForm').style.display='none'"
               style="background:none;border:1px solid rgba(0,0,0,0.12);color:#999;
@@ -1908,7 +1904,7 @@
           </div>
         </div>
 
-        <!-- BotÃ³n para ingresar datos sin PDF -->
+        <!-- Botón para ingresar datos sin PDF -->
         <button id="inbodyFormBtn" onclick="toggleInbodyForm()"
           style="background:none;border:none;color:#888;font-family:'Barlow Condensed',sans-serif;
                  font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0;font-weight:600;">
@@ -1935,32 +1931,32 @@
       </div><!-- /body composicion -->
     </div><!-- /accord composicion -->
 
-    <!-- â•â• ACORDEÃ“N NUTRICIÃ“N â•â• -->
+    <!-- ══ ACORDEÓN NUTRICIÓN ══ -->
     <div class="me-accord">
       <button class="me-accord-btn" onclick="toggleAccord(this)">
         <div class="me-accord-icon" style="display:flex;align-items:center;justify-content:center;">
-          <!-- NUTRICIÃ“N: Tabler apple.svg oficial -->
+          <!-- NUTRICIÓN: Tabler apple.svg oficial -->
           <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 11.319c0 3.102 .444 5.319 2.222 7.978c1.351 1.797 3.156 2.247 5.08 .988c.426 -.268 .97 -.268 1.397 0c1.923 1.26 3.728 .809 5.079 -.988c1.778 -2.66 2.222 -4.876 2.222 -7.977c0 -2.661 -1.99 -5.32 -4.444 -5.32c-1.267 0 -2.41 .693 -3.22 1.44a.5 .5 0 0 1 -.672 0c-.809 -.746 -1.953 -1.44 -3.22 -1.44c-2.454 0 -4.444 2.66 -4.444 5.319" />
             <path d="M7 12c0 -1.47 .454 -2.34 1.5 -3" />
             <path d="M12 7c0 -1.2 .867 -4 3 -4" />
           </svg>
         </div>
-        <span class="me-accord-label">NutriciÃ³n</span>
+        <span class="me-accord-label">Nutrición</span>
         <svg class="me-accord-arrow" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="me-accord-body">
         <div class="dash-nutri-banner" style="margin:12px 16px;border-radius:8px;">
           <div class="dash-nutri-text">
             <strong>Consulta con tu nutricionista</strong>
-            <span>Agenda tu prÃ³xima sesiÃ³n o revisa tu minuta semanal</span>
+            <span>Agenda tu próxima sesión o revisa tu minuta semanal</span>
           </div>
-          <button class="btn-agendar" onclick="alert('PrÃ³ximamente: calendario de agenda')"><i data-lucide="calendar" style="width:14px;height:14px;vertical-align:middle;margin-right:5px;"></i> Agendar</button>
+          <button class="btn-agendar" onclick="alert('Próximamente: calendario de agenda')"><i data-lucide="calendar" style="width:14px;height:14px;vertical-align:middle;margin-right:5px;"></i> Agendar</button>
         </div>
-        <!-- â•â• SEGUIMIENTO DE CALORÃAS Y MACROS (FatSecret) â•â• -->
-        <div class="dash-section-title" style="margin-top:4px;">CalorÃ­as y Macronutrientes</div>
+        <!-- ══ SEGUIMIENTO DE CALORÍAS Y MACROS (FatSecret) ══ -->
+        <div class="dash-section-title" style="margin-top:4px;">Calorías y Macronutrientes</div>
 
-        <!-- TARJETA CONTENEDORA â€” borde dorado marca el mÃ³dulo completo -->
+        <!-- TARJETA CONTENEDORA — borde dorado marca el módulo completo -->
         <div style="margin:0 16px 18px;border:1.5px solid rgba(212,168,67,0.55);border-radius:14px;padding:12px;background:rgba(212,168,67,0.03);">
 
         <!-- ESTADO: DESCONECTADO -->
@@ -1970,29 +1966,29 @@
             <path d="M12 7c0 -1.2 .867 -4 3 -4" />
           </svg>
           <div style="font-size:15px;font-weight:700;color:#333;margin:14px 0 6px;">Conecta tu cuenta de FatSecret</div>
-          <div style="font-size:13px;color:#888;line-height:1.55;margin-bottom:20px;">Registra tus comidas en la app de FatSecret y mira aquÃ­ tus calorÃ­as y macros junto a tu entrenamiento. Si ademÃ¡s conectas Garmin a FatSecret, verÃ¡s tu gasto real del dÃ­a.</div>
+          <div style="font-size:13px;color:#888;line-height:1.55;margin-bottom:20px;">Registra tus comidas en la app de FatSecret y mira aquí tus calorías y macros junto a tu entrenamiento. Si además conectas Garmin a FatSecret, verás tu gasto real del día.</div>
           <button id="btnFatSecret" onclick="conectarFatSecret()" style="background:#27ae60;color:#fff;border:none;padding:13px 26px;border-radius:24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;">Conectar con FatSecret</button>
         </div>
 
         <!-- ESTADO: CONECTADO, PENDIENTE DE SINCRONIZAR -->
         <div id="nutriSync" style="display:none;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:24px 20px;text-align:center;">
           <div style="font-size:10px;color:#27ae60;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;"><span style="width:6px;height:6px;border-radius:50%;background:#27ae60;display:inline-block;margin-right:5px;"></span>FatSecret conectado</div>
-          <div style="font-size:13px;color:#888;line-height:1.55;margin-bottom:18px;">Pulsa para ver tu dÃ­a y tu balance de la semana actualizados.</div>
+          <div style="font-size:13px;color:#888;line-height:1.55;margin-bottom:18px;">Pulsa para ver tu día y tu balance de la semana actualizados.</div>
           <button onclick="cargarDatosFatSecret()" style="background:#00b8c4;color:#fff;border:none;padding:13px 26px;border-radius:24px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Sincronizar mi diario</button>
         </div>
 
         <!-- ESTADO: CONECTANDO/CARGANDO -->
         <div id="nutriCargando" style="display:none;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:28px 20px;text-align:center;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#aaa;text-transform:uppercase;">Cargando tu diarioâ€¦</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#aaa;text-transform:uppercase;">Cargando tu diario…</div>
         </div>
 
         <!-- ESTADO: CONECTADO -->
         <div id="nutriConectado" style="display:none;">
 
-          <!-- DÃ­a mostrado + actualizar -->
+          <!-- Día mostrado + actualizar -->
           <div style="margin:2px 2px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <div><div id="nutriDiaLabel" style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#999;text-transform:uppercase;">Hoy</div><div id="nutriUltAct" style="font-size:9px;color:#777;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div></div>
-            <button onclick="cargarDatosFatSecret()" style="flex-shrink:0;background:rgba(0,184,196,0.1);border:1px solid rgba(0,184,196,0.4);color:#00b8c4;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;padding:6px 13px;border-radius:14px;cursor:pointer;">â†» Actualizar hoy</button>
+            <button onclick="cargarDatosFatSecret()" style="flex-shrink:0;background:rgba(0,184,196,0.1);border:1px solid rgba(0,184,196,0.4);color:#00b8c4;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;text-transform:uppercase;font-weight:700;padding:6px 13px;border-radius:14px;cursor:pointer;">↻ Actualizar hoy</button>
           </div>
 
           <!-- BALANCE vs OBJETIVO -->
@@ -2000,32 +1996,32 @@
             <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px;">
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Ingeridas</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#00b8c4;line-height:1;" id="nutriIngeridas">â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#00b8c4;line-height:1;" id="nutriIngeridas">—</div>
                 <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">kcal</div>
               </div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ccc;padding-bottom:8px;">âˆ’</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ccc;padding-bottom:8px;">−</div>
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Objetivo</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#C9A84C;line-height:1;" id="nutriObjetivo">â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;color:#C9A84C;line-height:1;" id="nutriObjetivo">—</div>
                 <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriObjFuente">kcal</div>
               </div>
               <div style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:#ccc;padding-bottom:8px;">=</div>
               <div style="text-align:center;flex:1;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:3px;">Balance</div>
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;" id="nutriBalance">â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.9rem;line-height:1;" id="nutriBalance">—</div>
                 <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriBalanceLbl">vs meta</div>
               </div>
             </div>
-            <!-- Gasto del dÃ­a (Garmin), informativo -->
-            <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,168,67,0.15);text-align:center;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#999;">Gasto del dÃ­a: <span id="nutriGastadas" style="color:#cfc9c1;">â€”</span> Â· <span id="nutriGastoFuente">â€”</span></div>
+            <!-- Gasto del día (Garmin), informativo -->
+            <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,168,67,0.15);text-align:center;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#999;">Gasto del día: <span id="nutriGastadas" style="color:#cfc9c1;">—</span> · <span id="nutriGastoFuente">—</span></div>
           </div>
 
-          <!-- MACROS â€” barras tipo baterÃ­a -->
+          <!-- MACROS — barras tipo batería -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
 
-            <!-- ProteÃ­na -->
+            <!-- Proteína -->
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-              <div style="width:60px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#00b8c4;">ProteÃ­na</div>
+              <div style="width:60px;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-weight:700;color:#00b8c4;">Proteína</div>
               <div style="flex:1;display:flex;align-items:center;">
                 <div style="position:relative;flex:1;height:20px;border:1.5px solid rgba(212,168,67,0.7);border-radius:4px;overflow:hidden;background:rgba(255,255,255,0.05);">
                   <div id="batProt" style="height:100%;width:0%;background:#00b8c4;transition:width .7s cubic-bezier(.22,1,.36,1);"></div>
@@ -2034,8 +2030,8 @@
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
               <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="protG">â€”</div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="protMeta">meta â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="protG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="protMeta">meta —</div>
               </div>
             </div>
 
@@ -2050,8 +2046,8 @@
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
               <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="carbG">â€”</div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="carbMeta">meta â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="carbG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="carbMeta">meta —</div>
               </div>
             </div>
 
@@ -2066,104 +2062,104 @@
                 <div style="width:3px;height:9px;background:rgba(212,168,67,0.7);border-radius:0 2px 2px 0;flex-shrink:0;"></div>
               </div>
               <div style="width:64px;flex-shrink:0;text-align:right;line-height:1.05;">
-                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="fatG">â€”</div>
-                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="fatMeta">meta â€”</div>
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.15rem;color:#f5f0eb;" id="fatG">—</div>
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:8.5px;color:#999;letter-spacing:.5px;" id="fatMeta">meta —</div>
               </div>
             </div>
 
-            <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Consumido vs objetivo del dÃ­a</div>
+            <div style="font-size:9px;color:#888;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-top:12px;text-align:center;">Consumido vs objetivo del día</div>
           </div>
 
-          <!-- BALANCE SEMANAL (+/âˆ’) -->
+          <!-- BALANCE SEMANAL (+/−) -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:16px;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Balance de la semana</div>
-              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;line-height:1;" id="nutriSemTotal">â€”</div>
+              <div style="font-family:'Bebas Neue',sans-serif;font-size:1.7rem;line-height:1;" id="nutriSemTotal">—</div>
             </div>
             <div id="nutriSemBarras" style="position:relative;display:flex;align-items:stretch;gap:4px;height:66px;"></div>
             <div style="display:flex;justify-content:space-between;margin-top:7px;">
-              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriSemProm">â€”</div>
-              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">â†‘ superÃ¡vit Â· â†“ dÃ©ficit</div>
+              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="nutriSemProm">—</div>
+              <div style="font-size:9px;color:#bbb;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">↑ superávit · ↓ déficit</div>
             </div>
             <div style="margin-top:10px;padding-top:9px;border-top:1px solid rgba(212,168,67,0.15);display:flex;gap:7px;align-items:flex-start;">
-              <span style="color:#e0a82e;font-size:12px;flex-shrink:0;line-height:1.3;">â“˜</span>
-              <span style="font-size:10px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;line-height:1.45;">Registra tus comidas <strong style="color:#cfc9c1;">todos los dÃ­as</strong> en FatSecret para que el balance de la semana sea preciso. Los dÃ­as sin registro no se cuentan.</span>
+              <span style="color:#e0a82e;font-size:12px;flex-shrink:0;line-height:1.3;">ⓘ</span>
+              <span style="font-size:10px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;line-height:1.45;">Registra tus comidas <strong style="color:#cfc9c1;">todos los días</strong> en FatSecret para que el balance de la semana sea preciso. Los días sin registro no se cuentan.</span>
             </div>
           </div>
 
-          <!-- DETALLE DEL DÃA POR COMIDA -->
+          <!-- DETALLE DEL DÍA POR COMIDA -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:16px;">
             <button onclick="toggleDetSelector()" style="width:100%;display:flex;justify-content:space-between;align-items:center;background:none;border:none;padding:0;cursor:pointer;margin-bottom:10px;">
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Detalle del dÃ­a</span>
-              <span style="display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.5px;color:#C9A84C;text-transform:capitalize;"><span id="nutriDetDiaTxt">Hoy</span><span id="nutriDetCaret" style="font-size:9px;">â–¾</span></span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">Detalle del día</span>
+              <span style="display:flex;align-items:center;gap:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:.5px;color:#C9A84C;text-transform:capitalize;"><span id="nutriDetDiaTxt">Hoy</span><span id="nutriDetCaret" style="font-size:9px;">▾</span></span>
             </button>
             <div id="nutriDetSelector" style="display:none;gap:4px;margin-bottom:12px;"></div>
-            <div id="nutriDetalle"><div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargandoâ€¦</div></div>
+            <div id="nutriDetalle"><div style="font-size:12px;color:#888;text-align:center;padding:8px 0;">Cargando…</div></div>
           </div>
 
-          <!-- Pie: guÃ­a reloj + desvincular -->
+          <!-- Pie: guía reloj + desvincular -->
           <div style="margin:4px 0 0;display:flex;justify-content:center;gap:18px;flex-wrap:wrap;">
-            <button onclick="abrirGuiaReloj()" style="background:none;border:none;color:#00b8c4;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">Â¿CÃ³mo conecto mi reloj?</button>
+            <button onclick="abrirGuiaReloj()" style="background:none;border:none;color:#00b8c4;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">¿Cómo conecto mi reloj?</button>
             <button onclick="desconectarFatSecret()" style="background:none;border:none;color:#bbb;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:underline;">Desvincular FatSecret</button>
           </div>
         </div>
 
-        </div><!-- /tarjeta contenedora nutriciÃ³n -->
+        </div><!-- /tarjeta contenedora nutrición -->
 
-        <!-- MODAL: guÃ­a para conectar el reloj a FatSecret -->
+        <!-- MODAL: guía para conectar el reloj a FatSecret -->
         <div id="guiaRelojModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;padding:18px;" onclick="cerrarGuiaReloj(event)">
           <div style="background:#0d0d0d;border:1.5px solid rgba(212,168,67,0.55);border-radius:14px;max-width:380px;width:100%;max-height:88vh;overflow:auto;padding:18px;" onclick="event.stopPropagation()">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-              <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#f5f0eb;letter-spacing:1px;text-transform:uppercase;">Â¿CÃ³mo conecto mi reloj?</span>
+              <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#f5f0eb;letter-spacing:1px;text-transform:uppercase;">¿Cómo conecto mi reloj?</span>
               <button onclick="cerrarGuiaReloj()" style="background:none;border:none;color:#999;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
             </div>
-            <p style="font-size:13px;color:#cfc9c1;line-height:1.5;margin:0 0 16px;">Tu gasto del dÃ­a lo lee FatSecret desde tu reloj. Elige el tuyo:</p>
+            <p style="font-size:13px;color:#cfc9c1;line-height:1.5;margin:0 0 16px;">Tu gasto del día lo lee FatSecret desde tu reloj. Elige el tuyo:</p>
 
             <div style="border:1px solid rgba(212,168,67,0.4);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                 <span style="font-size:13px;font-weight:600;color:#f5f0eb;">Garmin</span>
-                <span style="font-size:10px;color:#0d0d0d;background:#00b8c4;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">conexiÃ³n directa</span>
+                <span style="font-size:10px;color:#0d0d0d;background:#00b8c4;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">conexión directa</span>
               </div>
               <ol style="margin:0;padding-left:18px;font-size:12px;color:#cfc9c1;line-height:1.7;">
-                <li>Abre la app FatSecret â†’ MÃ¡s</li>
+                <li>Abre la app FatSecret → Más</li>
                 <li>Aplicaciones y dispositivos</li>
-                <li>Garmin Connect â†’ Conectar</li>
+                <li>Garmin Connect → Conectar</li>
               </ol>
             </div>
 
             <div style="border:1px solid rgba(212,168,67,0.4);border-radius:10px;padding:12px 14px;margin-bottom:10px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                 <span style="font-size:13px;font-weight:600;color:#f5f0eb;">Apple Watch</span>
-                <span style="font-size:10px;color:#412402;background:#FAC775;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">vÃ­a Apple Health</span>
+                <span style="font-size:10px;color:#412402;background:#FAC775;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">vía Apple Health</span>
               </div>
               <ol style="margin:0;padding-left:18px;font-size:12px;color:#cfc9c1;line-height:1.7;">
-                <li>FatSecret â†’ Aplicaciones y dispositivos</li>
+                <li>FatSecret → Aplicaciones y dispositivos</li>
                 <li>Activa Apple Health</li>
-                <li>Permite leer â€œEnergÃ­a activaâ€</li>
+                <li>Permite leer “Energía activa”</li>
               </ol>
             </div>
 
             <div style="border:1px solid rgba(212,168,67,0.4);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                <span style="font-size:13px;font-weight:600;color:#f5f0eb;">Smartwatch Android (Samsung, Huaweiâ€¦)</span>
-                <span style="font-size:10px;color:#412402;background:#FAC775;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">vÃ­a Google Health</span>
+                <span style="font-size:13px;font-weight:600;color:#f5f0eb;">Smartwatch Android (Samsung, Huawei…)</span>
+                <span style="font-size:10px;color:#412402;background:#FAC775;padding:2px 8px;border-radius:8px;letter-spacing:.5px;">vía Google Health</span>
               </div>
               <ol style="margin:0;padding-left:18px;font-size:12px;color:#cfc9c1;line-height:1.7;">
                 <li>Instala Google Health Connect</li>
-                <li>FatSecret â†’ Google Health Connect â†’ Conectar</li>
+                <li>FatSecret → Google Health Connect → Conectar</li>
                 <li>Tu reloj sincroniza con Google Health</li>
               </ol>
             </div>
 
             <div style="display:flex;gap:8px;align-items:flex-start;background:rgba(0,184,196,0.08);border-left:3px solid #00b8c4;padding:10px 12px;">
-              <span style="font-size:11px;color:#cfc9c1;line-height:1.5;">Strava solo registra tu entrenamiento. Para el gasto del dÃ­a completo, conecta tu reloj a FatSecret.</span>
+              <span style="font-size:11px;color:#cfc9c1;line-height:1.5;">Strava solo registra tu entrenamiento. Para el gasto del día completo, conecta tu reloj a FatSecret.</span>
             </div>
           </div>
         </div>
       </div>
     </div><!-- /accord nutricion -->
 
-    <!-- BANNER SIN PLAN (movido al final Â· tras NutriciÃ³n, para no vender antes de entregar valor) -->
+    <!-- BANNER SIN PLAN (movido al final · tras Nutrición, para no vender antes de entregar valor) -->
     <div id="dashSinPlanBanner" style="display:none;margin:16px 16px 0;background:linear-gradient(135deg,#1a1400 0%,#2a1f00 100%);border:1px solid rgba(212,168,67,0.35);border-radius:10px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
       <div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:4px;">Sin plan activo</div>
@@ -2173,7 +2169,7 @@
     </div>
 
     <div class="dash-footer">
-      <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesiÃ³n</button>
+      <button class="btn-cerrar-sesion" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 
   </div>
@@ -2182,43 +2178,43 @@
 <!-- MODAL PAGO -->
 <div class="modal-overlay" id="modalOverlay" onclick="cerrarModal(event)">
   <div class="modal">
-    <button class="modal-close" onclick="cerrarModal()">âœ•</button>
+    <button class="modal-close" onclick="cerrarModal()">✕</button>
     <div class="modal-plan-nombre" id="modalNombre">Plan</div>
-    <div class="modal-plan-precio" id="modalPrecio">$â€”</div>
+    <div class="modal-plan-precio" id="modalPrecio">$—</div>
 
     <!-- OPCIONES DE PAGO -->
     <div class="modal-opciones-pago" style="margin:24px 0;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:0.85rem;letter-spacing:2px;text-transform:uppercase;color:#d4a843;margin-bottom:14px;">Elige tu forma de pago</div>
 
-      <!-- OpciÃ³n 1: Mensual -->
+      <!-- Opción 1: Mensual -->
       <label style="display:block;margin-bottom:12px;cursor:pointer;">
         <div style="padding:14px;border:2px solid rgba(212,168,67,0.3);border-radius:8px;background:rgba(212,168,67,0.05);transition:all 0.2s;display:flex;gap:12px;align-items:flex-start;">
           <input type="radio" name="tipoPago" value="mensual" id="pago-mensual" checked style="margin-top:6px;width:20px;height:20px;cursor:pointer;accent-color:#d4a843;">
           <div style="flex:1;">
             <div style="color:#f5f0eb;font-weight:700;font-size:1rem;">Pago mensual</div>
-            <div style="color:#9aa0a6;font-size:0.9rem;margin-top:3px;" id="precioMensual">3 Ã— $â€” CLP (total $â€”)</div>
+            <div style="color:#9aa0a6;font-size:0.9rem;margin-top:3px;" id="precioMensual">3 × $— CLP (total $—)</div>
           </div>
         </div>
       </label>
 
-      <!-- OpciÃ³n 2: Ãšnico con descuento -->
+      <!-- Opción 2: Único con descuento -->
       <label style="display:block;cursor:pointer;">
         <div style="padding:14px;border:2px solid rgba(212,168,67,0.3);border-radius:8px;background:rgba(212,168,67,0.05);transition:all 0.2s;display:flex;gap:12px;align-items:flex-start;">
           <input type="radio" name="tipoPago" value="unico" id="pago-unico" style="margin-top:6px;width:20px;height:20px;cursor:pointer;accent-color:#52c41a;">
           <div style="flex:1;">
             <div style="display:flex;gap:8px;align-items:center;">
-              <span style="color:#f5f0eb;font-weight:700;font-size:1rem;">Pago Ãºnico</span>
+              <span style="color:#f5f0eb;font-weight:700;font-size:1rem;">Pago único</span>
               <span style="background:#52c41a;color:#000;font-weight:700;font-size:0.75rem;padding:2px 8px;border-radius:4px;letter-spacing:0.5px;">AHORRA 15%</span>
             </div>
-            <div style="color:#9aa0a6;font-size:0.9rem;margin-top:3px;" id="precioUnico">1 pago de $â€” CLP</div>
+            <div style="color:#9aa0a6;font-size:0.9rem;margin-top:3px;" id="precioUnico">1 pago de $— CLP</div>
           </div>
         </div>
       </label>
     </div>
 
-    <!-- INVITADO: iniciar sesiÃ³n con Google (detecta el correo automÃ¡ticamente, sin re-escribirlo) -->
+    <!-- INVITADO: iniciar sesión con Google (detecta el correo automáticamente, sin re-escribirlo) -->
     <div id="modalEmailSection" style="margin:20px 0 4px;display:none;">
-      <div style="font-size:0.9rem;color:#cfc9c1;line-height:1.5;margin-bottom:14px;">Inicia sesiÃ³n para continuar. Usaremos el correo de tu cuenta para enviarte el acceso â€” no necesitas escribirlo.</div>
+      <div style="font-size:0.9rem;color:#cfc9c1;line-height:1.5;margin-bottom:14px;">Inicia sesión para continuar. Usaremos el correo de tu cuenta para enviarte el acceso — no necesitas escribirlo.</div>
       <button onclick="loginGoogleDesdePago()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1a1a1a;border:none;border-radius:8px;padding:13px;font-family:'Barlow',sans-serif;font-size:0.95rem;font-weight:600;cursor:pointer;">
         <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
         Continuar con Google
@@ -2230,7 +2226,7 @@
       Comprando como <span id="modalCompradorEmail" style="color:#d4a843;font-weight:600;"></span>
     </div>
 
-    <!-- ÃREA DE PAGO: solo cuando hay sesiÃ³n (correo ya detectado) -->
+    <!-- ÁREA DE PAGO: solo cuando hay sesión (correo ya detectado) -->
     <div id="modalPagoArea">
       <!-- CAMPO RUT (requerido para boleta) -->
       <div id="modalRutSection" style="margin:0 0 20px;">
@@ -2238,8 +2234,8 @@
         <input type="text" id="modalRut" placeholder="12.345.678-9" maxlength="12"
           style="width:100%;padding:12px;background:#1a1a1a;border:1px solid rgba(212,168,67,0.3);border-radius:6px;color:#f5f0eb;font-size:0.95rem;letter-spacing:1px;box-sizing:border-box;"
           oninput="formatearRutInput(this)" required>
-        <div id="modalRutError" style="font-size:0.8rem;color:#ff6b6b;margin-top:6px;display:none;">RUT invÃ¡lido. Verifica el dÃ­gito verificador.</div>
-        <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Para emitir tu boleta de honorarios electrÃ³nica automÃ¡ticamente</div>
+        <div id="modalRutError" style="font-size:0.8rem;color:#ff6b6b;margin-top:6px;display:none;">RUT inválido. Verifica el dígito verificador.</div>
+        <div style="font-size:0.8rem;color:#9aa0a6;margin-top:6px;">Para emitir tu boleta de honorarios electrónica automáticamente</div>
       </div>
 
       <div class="modal-steps">
@@ -2247,23 +2243,23 @@
           <div class="step-num">1</div>
           <div class="step-text">
             <strong>Pago seguro con Flow</strong>
-            Tarjeta de dÃ©bito, crÃ©dito o transferencia bancaria en Chile.
+            Tarjeta de débito, crédito o transferencia bancaria en Chile.
           </div>
         </div>
         <div class="modal-step">
           <div class="step-num">2</div>
           <div class="step-text">
             <strong>Activa tu plan</strong>
-            RecibirÃ¡s tu cÃ³digo de acceso a TrainHeroic por correo; ingrÃ©salo en la app y comienza.
+            Recibirás tu código de acceso a TrainHeroic por correo; ingrésalo en la app y comienza.
           </div>
         </div>
       </div>
 
       <div class="modal-divider"></div>
       <button class="btn-primary" style="width:100%;text-align:center;font-size:1rem;" onclick="procesarPago()">
-        ðŸ’³ Pagar con Flow
+        💳 Pagar con Flow
       </button>
-      <div class="modal-guarantee">ðŸ”’ Pago 100% seguro Â· Acceso inmediato al comprar</div>
+      <div class="modal-guarantee">🔒 Pago 100% seguro · Acceso inmediato al comprar</div>
     </div>
   </div>
 </div>
@@ -2271,73 +2267,73 @@
 <!-- MODAL CANCELAR PLAN -->
 <div class="modal-overlay" id="modalCancelarOverlay" onclick="cerrarModalCancelar(event)" style="display:none;">
   <div class="modal" style="max-width:420px;">
-    <button class="modal-close" onclick="cerrarModalCancelar()">âœ•</button>
+    <button class="modal-close" onclick="cerrarModalCancelar()">✕</button>
     <div class="modal-plan-nombre" style="color:#e74c3c;">Cancelar Plan</div>
-    <p style="color:#aaa;font-size:14px;margin:8px 0 20px;line-height:1.5;">Tu solicitud de cancelaciÃ³n llegarÃ¡ al coach, quien la procesarÃ¡ en 24-48 horas. El acceso se mantiene hasta el fin del perÃ­odo pagado.</p>
+    <p style="color:#aaa;font-size:14px;margin:8px 0 20px;line-height:1.5;">Tu solicitud de cancelación llegará al coach, quien la procesará en 24-48 horas. El acceso se mantiene hasta el fin del período pagado.</p>
     <div style="margin-bottom:16px;">
       <label style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:8px;">Motivo (opcional)</label>
-      <textarea id="cancelarMotivo" placeholder="CuÃ©ntanos brevemente por quÃ© cancelas..." rows="3"
+      <textarea id="cancelarMotivo" placeholder="Cuéntanos brevemente por qué cancelas..." rows="3"
         style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.12);border-radius:6px;color:#f5f0eb;font-size:14px;padding:10px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
     </div>
     <button onclick="enviarSolicitudCancelacion()" style="width:100%;background:#c0392b;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:15px;letter-spacing:3px;text-transform:uppercase;padding:14px;border:none;border-radius:6px;cursor:pointer;">
-      Solicitar cancelaciÃ³n
+      Solicitar cancelación
     </button>
     <div id="cancelarMsg" style="display:none;margin-top:12px;text-align:center;font-size:13px;color:#2ecc71;"></div>
   </div>
 </div>
 
-<script src="scripts.js?v=20260615x"></script>
+<script src="scripts.js?v=20260615w"></script>
 <script>
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  //  SISTEMA DE PLANES â€” 3 vistas: Ã¡reas â†’ orientaciÃ³n â†’ detalle
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════
+  //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
+  // ═══════════════════════════════════════════════════════════
 
   const PLANES_NIVELES = [
-    { id:'basico', nombre:'BÃ¡sico', precio:'$14.990', total3m:'$38.220', etiqueta:'Nivel 1 Â· Fundamentos', destacado:false,
-      desc:'Domina los fundamentos y principios. Base estructurada para construir hÃ¡bitos sÃ³lidos antes de subir de nivel.',
-      detalle:'Este nivel construye tu base: tÃ©cnica correcta, principios de entrenamiento y hÃ¡bitos sostenibles. Ideal si reciÃ©n comienzas o vuelves despuÃ©s de una pausa. Avanzas al siguiente nivel cuando tus datos demuestran que dominaste los fundamentos.',
-      incluye:['ProgramaciÃ³n de 12 semanas','Videos tÃ©cnicos de cada movimiento','ProgresiÃ³n guiada por datos','Asistencia por chat'] },
-    { id:'intermedio', nombre:'Intermedio', precio:'$19.990', total3m:'$50.970', etiqueta:'Nivel 2 Â· ProgresiÃ³n', destacado:true,
-      desc:'Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con mÃ¡s carga.',
-      detalle:'Subes la exigencia: mÃ¡s volumen, ejercicios mÃ¡s complejos y periodizaciÃ³n estructurada. Para quien ya domina los fundamentos del nivel bÃ¡sico y busca seguir progresando.',
-      incluye:['ProgramaciÃ³n de 12 semanas','Mayor volumen e intensidad','PeriodizaciÃ³n estructurada','Asistencia por chat'] },
-    { id:'avanzado', nombre:'Avanzado', precio:'$24.990', total3m:'$63.720', etiqueta:'Nivel 3 Â· Alto rendimiento', destacado:false,
-      desc:'MÃ¡xima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.',
-      detalle:'MÃ¡xima exigencia para atletas con base consolidada. Alta intensidad, tÃ©cnicas avanzadas y periodizaciÃ³n de rendimiento para llevar tu nivel al lÃ­mite.',
-      incluye:['ProgramaciÃ³n de 12 semanas','Alta intensidad','TÃ©cnicas avanzadas','Asistencia por chat'] },
+    { id:'basico', nombre:'Básico', precio:'$14.990', total3m:'$38.220', etiqueta:'Nivel 1 · Fundamentos', destacado:false,
+      desc:'Domina los fundamentos y principios. Base estructurada para construir hábitos sólidos antes de subir de nivel.',
+      detalle:'Este nivel construye tu base: técnica correcta, principios de entrenamiento y hábitos sostenibles. Ideal si recién comienzas o vuelves después de una pausa. Avanzas al siguiente nivel cuando tus datos demuestran que dominaste los fundamentos.',
+      incluye:['Programación de 12 semanas','Videos técnicos de cada movimiento','Progresión guiada por datos','Asistencia por chat'] },
+    { id:'intermedio', nombre:'Intermedio', precio:'$19.990', total3m:'$50.970', etiqueta:'Nivel 2 · Progresión', destacado:true,
+      desc:'Mayor volumen y complejidad. Para quien ya domina los fundamentos y busca progresar con más carga.',
+      detalle:'Subes la exigencia: más volumen, ejercicios más complejos y periodización estructurada. Para quien ya domina los fundamentos del nivel básico y busca seguir progresando.',
+      incluye:['Programación de 12 semanas','Mayor volumen e intensidad','Periodización estructurada','Asistencia por chat'] },
+    { id:'avanzado', nombre:'Avanzado', precio:'$24.990', total3m:'$63.720', etiqueta:'Nivel 3 · Alto rendimiento', destacado:false,
+      desc:'Máxima exigencia. Para atletas con base consolidada que buscan el siguiente nivel de rendimiento.',
+      detalle:'Máxima exigencia para atletas con base consolidada. Alta intensidad, técnicas avanzadas y periodización de rendimiento para llevar tu nivel al límite.',
+      incluye:['Programación de 12 semanas','Alta intensidad','Técnicas avanzadas','Asistencia por chat'] },
   ];
 
-  // CaracterÃ­sticas del plan (estilo TrainHeroic, sin "comunidad")
+  // Características del plan (estilo TrainHeroic, sin "comunidad")
   const PLAN_CARACTERISTICAS = [
-    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`, titulo:'Soporte cuando lo necesitas', desc:'EscrÃ­benos dentro de la app para resolver dudas, aclaraciones y apoyo â€” nunca quedas atascado.' },
-    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`, titulo:'ProgramaciÃ³n estructurada', desc:'Una semana completa de entrenamiento: siempre sabes quÃ© hacer para volverte mÃ¡s fuerte y acondicionado.' },
-    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>`, titulo:'Notas y estrategia', desc:'Cada sesiÃ³n con intenciÃ³n, seÃ±ales de ritmo, orientaciÃ³n de carga y progresiÃ³n inteligente.' },
-    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`, titulo:'GuÃ­a en video de ejercicios', desc:'Cada movimiento con demo en video: la tÃ©cnica nunca es una excusa.' },
-    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>`, titulo:'Sesiones diarias claras', desc:'Cada sesiÃ³n organizada paso a paso, con estructura y sincronizaciÃ³n â€” sin adivinar.' },
+    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`, titulo:'Soporte cuando lo necesitas', desc:'Escríbenos dentro de la app para resolver dudas, aclaraciones y apoyo — nunca quedas atascado.' },
+    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`, titulo:'Programación estructurada', desc:'Una semana completa de entrenamiento: siempre sabes qué hacer para volverte más fuerte y acondicionado.' },
+    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#00c8d4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/><circle cx="12" cy="12" r="10"/></svg>`, titulo:'Notas y estrategia', desc:'Cada sesión con intención, señales de ritmo, orientación de carga y progresión inteligente.' },
+    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`, titulo:'Guía en video de ejercicios', desc:'Cada movimiento con demo en video: la técnica nunca es una excusa.' },
+    { svg:`<svg viewBox="0 0 24 24" fill="none" stroke="#d4a843" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><polyline points="3 6 4 7 6 5"/><polyline points="3 12 4 13 6 11"/><polyline points="3 18 4 19 6 17"/></svg>`, titulo:'Sesiones diarias claras', desc:'Cada sesión organizada paso a paso, con estructura y sincronización — sin adivinar.' },
   ];
 
   const PLANES_AREAS = [
-    { id:'estetica', nombre:'EstÃ©tica Corporal', modalidad:'Autogestionado', tipo:'orientacion',
+    { id:'estetica', nombre:'Estética Corporal', modalidad:'Autogestionado', tipo:'orientacion',
       img:'Imagenes/Planes/estetica-mujer.jpg',
-      desc:'ComposiciÃ³n corporal, hipertrofia y estÃ©tica. Construye el fÃ­sico que buscas con un plan estructurado.',
-      generos:[ { id:'mujer',  nombre:'Mujer',  icono:'â™€', img:'Imagenes/Planes/estetica-mujer.jpg' },
-                { id:'hombre', nombre:'Hombre', icono:'â™‚', img:'Imagenes/Planes/estetica-hombre.jpg' } ] },
-    { id:'acond', nombre:'Acondicionamiento TÃ¡ctico', modalidad:'Autogestionado', tipo:'orientacion',
+      desc:'Composición corporal, hipertrofia y estética. Construye el físico que buscas con un plan estructurado.',
+      generos:[ { id:'mujer',  nombre:'Mujer',  icono:'♀', img:'Imagenes/Planes/estetica-mujer.jpg' },
+                { id:'hombre', nombre:'Hombre', icono:'♂', img:'Imagenes/Planes/estetica-hombre.jpg' } ] },
+    { id:'acond', nombre:'Acondicionamiento Táctico', modalidad:'Autogestionado', tipo:'orientacion',
       img:'Imagenes/Planes/tactico-general.jpg', generos:null,
-      desc:'Acondicionamiento fÃ­sico general con enfoque tÃ¡ctico. Fuerza, resistencia y capacidad de trabajo.' },
-    { id:'potencia', nombre:'Potencia TÃ¡ctica', modalidad:'Autogestionado', tipo:'orientacion',
+      desc:'Acondicionamiento físico general con enfoque táctico. Fuerza, resistencia y capacidad de trabajo.' },
+    { id:'potencia', nombre:'Potencia Táctica', modalidad:'Autogestionado', tipo:'orientacion',
       img:'Imagenes/Planes/marines_e9ddc1bf3f5a4d1abf675303f54a6e3f.jpg', generos:null,
-      desc:'PliometrÃ­a y marcha con carga (rucking). Potencia explosiva y rendimiento. No apto para principiantes absolutos.' },
-    { id:'grupal', nombre:'Atleta TÃ¡ctico', modalidad:'Grupal', tipo:'plan-unico', precio:'$29.990',
+      desc:'Pliometría y marcha con carga (rucking). Potencia explosiva y rendimiento. No apto para principiantes absolutos.' },
+    { id:'grupal', nombre:'Atleta Táctico', modalidad:'Grupal', tipo:'plan-unico', precio:'$29.990',
       img:'Imagenes/Planes/marines_b260e29ceb0648088834b32d0aa7a46a.jpg',
-      desc:'Grupo continuo de acondicionamiento tÃ¡ctico. Te sumas y entras a la fase en curso.',
-      detalle:'Grupo continuo: te sumas cuando quieras y entras a la fase en la que va el grupo. Siempre tienes una sesiÃ³n lista para ejecutar â€”todos o ciertos dÃ­as de la semanaâ€” con el fin de mejorar tu forma general, tengas o no un objetivo definido. Las cargas se individualizan dentro de TrainHeroic segÃºn tu nivel.',
+      desc:'Grupo continuo de acondicionamiento táctico. Te sumas y entras a la fase en curso.',
+      detalle:'Grupo continuo: te sumas cuando quieras y entras a la fase en la que va el grupo. Siempre tienes una sesión lista para ejecutar —todos o ciertos días de la semana— con el fin de mejorar tu forma general, tengas o no un objetivo definido. Las cargas se individualizan dentro de TrainHeroic según tu nivel.',
       incluye:['Entrena en grupo','Sesiones continuas, sin fin fijo','Te sumas a la fase en curso','Cargas individualizadas','Fecha de inicio para nuevos grupos'] },
     { id:'personalizado', nombre:'Personalizado', modalidad:'1 a 1', tipo:'plan-unico', precio:'$36.990',
       img:'Imagenes/Planes/marines_9a1e03667a9a4cac84e4709185270e5a.jpg',
-      desc:'Plan diseÃ±ado desde cero segÃºn tu orientaciÃ³n y objetivos.',
-      detalle:'Plan construido desde cero para ti, segÃºn tu orientaciÃ³n y objetivos. Incluye seguimiento cercano, contacto constante y videollamadas en vivo. La opciÃ³n premium, con cupos limitados.',
-      incluye:['Cualquier orientaciÃ³n','Videollamadas en vivo','Plan a medida','Contacto directo','Cupos limitados'] },
+      desc:'Plan diseñado desde cero según tu orientación y objetivos.',
+      detalle:'Plan construido desde cero para ti, según tu orientación y objetivos. Incluye seguimiento cercano, contacto constante y videollamadas en vivo. La opción premium, con cupos limitados.',
+      incluye:['Cualquier orientación','Videollamadas en vivo','Plan a medida','Contacto directo','Cupos limitados'] },
   ];
 
   let planesVista = { tipo:'areas' };
@@ -2363,7 +2359,7 @@
     renderPlanes();
   }
 
-  // â”€â”€ NavegaciÃ³n â”€â”€
+  // ── Navegación ──
   function verArea(areaId) {
     const a = PLANES_AREAS.find(x => x.id === areaId);
     if (!a) return;
@@ -2380,7 +2376,7 @@
     renderPlanes();
   }
 
-  // â”€â”€ Render dispatcher â”€â”€
+  // ── Render dispatcher ──
   function renderPlanes() {
     const c = document.getElementById('planesContent');
     const back = document.getElementById('planesBackBtn');
@@ -2393,29 +2389,29 @@
     if (v.tipo === 'areas') {
       crumb.textContent = 'Programas';
       titulo.textContent = 'ELIGE TU PROTOCOLO';
-      back.innerHTML = 'âœ• Cerrar';
+      back.innerHTML = '✕ Cerrar';
       c.innerHTML = renderAreasHTML();
     } else if (v.tipo === 'orientacion') {
       const a = PLANES_AREAS.find(x => x.id === v.areaId);
-      crumb.textContent = 'Programas Â· ' + a.modalidad;
+      crumb.textContent = 'Programas · ' + a.modalidad;
       titulo.textContent = a.nombre.toUpperCase();
-      back.innerHTML = 'â† Volver';
+      back.innerHTML = '← Volver';
       c.innerHTML = renderOrientacionHTML(a);
       initPlanDeck();
     } else if (v.tipo === 'detalle') {
       crumb.textContent = 'Detalle del plan';
       titulo.textContent = 'TU PLAN';
-      back.innerHTML = 'â† Volver';
+      back.innerHTML = '← Volver';
       c.innerHTML = renderDetalleHTML();
     }
     aplicarSpotlight(c);
     if (o) o.scrollTop = 0;
   }
 
-  // â”€â”€ Vista 1: Ã¡reas (sin precios) â”€â”€
+  // ── Vista 1: áreas (sin precios) ──
   function renderAreasHTML() {
     return `
-      <p class="planes-intro">Elige tu camino. Cada Ã¡rea tiene su enfoque â€” entra para ver los planes y niveles.</p>
+      <p class="planes-intro">Elige tu camino. Cada área tiene su enfoque — entra para ver los planes y niveles.</p>
       <div class="areas-grid">
         ${PLANES_AREAS.map(a => `
           <div class="area-card" onclick="verArea('${a.id}')">
@@ -2425,15 +2421,15 @@
             <div class="area-card-body">
               <div class="area-card-nombre">${a.nombre}</div>
               <div class="area-card-desc">${a.desc}</div>
-              <span class="area-card-cta">${a.tipo === 'plan-unico' ? 'Ver plan' : 'Ver planes'} â†’</span>
+              <span class="area-card-cta">${a.tipo === 'plan-unico' ? 'Ver plan' : 'Ver planes'} →</span>
             </div>
           </div>`).join('')}
       </div>
-      <div class="planes-nota">âž• <strong>Suma nutriciÃ³n</strong> a cualquier plan, atendida por nuestro nutricionista (servicio aparte).</div>
+      <div class="planes-nota">➕ <strong>Suma nutrición</strong> a cualquier plan, atendida por nuestro nutricionista (servicio aparte).</div>
     `;
   }
 
-  // â”€â”€ Vista 2: orientaciÃ³n â†’ niveles como DECK deslizable (estilo app-switcher) â”€â”€
+  // ── Vista 2: orientación → niveles como DECK deslizable (estilo app-switcher) ──
   let _deck = null; // { areaId, genero, cur }
 
   function renderOrientacionHTML(a) {
@@ -2451,15 +2447,15 @@
         ${toggle}
         <div class="deck-stage" id="deckStage"></div>
         <div class="deck-nav">
-          <button class="deck-arrow" onclick="deckMove(-1)" aria-label="Anterior">â€¹</button>
+          <button class="deck-arrow" onclick="deckMove(-1)" aria-label="Anterior">‹</button>
           <div class="deck-dots" id="deckDots"></div>
-          <button class="deck-arrow" onclick="deckMove(1)" aria-label="Siguiente">â€º</button>
+          <button class="deck-arrow" onclick="deckMove(1)" aria-label="Siguiente">›</button>
         </div>
-        <div class="deck-hint">Desliza â†” o usa las flechas Â· toca la tarjeta para ver el plan</div>
+        <div class="deck-hint">Desliza ↔ o usa las flechas · toca la tarjeta para ver el plan</div>
       </div>`;
   }
 
-  // Construye las tarjetas del deck segÃºn el gÃ©nero activo
+  // Construye las tarjetas del deck según el género activo
   function renderDeckCards() {
     const a = PLANES_AREAS.find(x => x.id === _deck.areaId);
     const stage = document.getElementById('deckStage');
@@ -2475,12 +2471,12 @@
         <div class="area-card-body">
           <div class="area-card-nombre">${n.nombre}</div>
           <div class="area-card-desc">${n.desc}</div>
-          <span class="area-card-cta">Ver plan â†’</span>
+          <span class="area-card-cta">Ver plan →</span>
         </div>
       </div>`).join('');
     if (dots) dots.innerHTML = PLANES_NIVELES.map((n, i) =>
       `<button class="deck-dot${i === _deck.cur ? ' on' : ''}" onclick="deckGoto(${i})" aria-label="${n.nombre}"></button>`).join('');
-    // Click en tarjeta: activa la de atrÃ¡s o abre la del frente
+    // Click en tarjeta: activa la de atrás o abre la del frente
     stage.querySelectorAll('.deck-card').forEach(card => {
       card.addEventListener('click', () => {
         const i = +card.dataset.i;
@@ -2496,7 +2492,7 @@
     if (!stage) return;
     const n = PLANES_NIVELES.length;
     stage.querySelectorAll('.deck-card').forEach(card => {
-      // Offset cÃ­clico: siempre en rango [-floor(n/2), +floor(n/2)]
+      // Offset cíclico: siempre en rango [-floor(n/2), +floor(n/2)]
       let off = ((+card.dataset.i - _deck.cur) % n + n) % n;
       if (off > Math.floor(n / 2)) off -= n;
       const abs = Math.abs(off);
@@ -2506,7 +2502,7 @@
       card.style.opacity = String(1 - abs * 0.32);
       card.style.zIndex = String(30 - abs);
       card.style.pointerEvents = 'auto';
-      // Sin transiciÃ³n durante el arrastre para seguimiento inmediato del dedo
+      // Sin transición durante el arrastre para seguimiento inmediato del dedo
       card.style.transition = dragDx ? 'none' : '';
     });
     const dots = document.getElementById('deckDots');
@@ -2517,7 +2513,7 @@
   function deckGoto(i) {
     if (!_deck) return;
     const n = PLANES_NIVELES.length;
-    _deck.cur = ((i % n) + n) % n; // mÃ³dulo para rotaciÃ³n infinita
+    _deck.cur = ((i % n) + n) % n; // módulo para rotación infinita
     applyDeckTransforms();
   }
   function deckSetGenero(gid) {
@@ -2568,7 +2564,7 @@
     stage.addEventListener('touchend', onUp);
   }
 
-  // â”€â”€ Vista 3: detalle del plan (tipo TrainHeroic) â”€â”€
+  // ── Vista 3: detalle del plan (tipo TrainHeroic) ──
   function renderDetalleHTML() {
     const v = planesVista;
     let titulo, modalidad, img, detalle, incluye, precioMes, total3m, nombrePago, cta, esNivel;
@@ -2583,16 +2579,16 @@
       const a = PLANES_AREAS.find(x => x.id === v.areaId);
       const n = PLANES_NIVELES.find(x => x.id === v.nivelId);
       const gen = v.genero ? a.generos.find(x => x.id === v.genero) : null;
-      titulo = a.nombre + ' Â· ' + n.nombre;
-      modalidad = a.modalidad + (gen ? ' Â· ' + gen.nombre : '');
+      titulo = a.nombre + ' · ' + n.nombre;
+      modalidad = a.modalidad + (gen ? ' · ' + gen.nombre : '');
       img = gen ? gen.img : a.img;
       detalle = n.detalle; incluye = n.incluye; precioMes = n.precio; total3m = n.total3m;
-      nombrePago = a.nombre + (gen ? ' ' + gen.nombre : '') + ' Â· ' + n.nombre;
+      nombrePago = a.nombre + (gen ? ' ' + gen.nombre : '') + ' · ' + n.nombre;
       cta = 'Comenzar';
       esNivel = true;
     }
 
-    // Panel de precio: niveles â†’ total 3 meses primero + mes a mes; plan Ãºnico â†’ mensual
+    // Panel de precio: niveles → total 3 meses primero + mes a mes; plan único → mensual
     let precioPanel, pagoArg;
     if (esNivel) {
       precioPanel = `
@@ -2600,10 +2596,10 @@
         <div class="detalle-precio">${precioMes}</div>
         <div class="detalle-precio-sub">CLP / mes</div>
         <div class="detalle-precio-completo">
-          <span class="dp-completo-label">Programa completo Â· 3 meses</span>
+          <span class="dp-completo-label">Programa completo · 3 meses</span>
           <span class="dp-completo-valor">${total3m}</span>
-          <span class="dp-completo-sub">CLP Â· ahorras 15%</span>
-          <span class="dp-completo-badge"><i class="fa-solid fa-unlock-keyhole"></i> ComplÃ©talo y <strong>repÃ­telo gratis 1 aÃ±o</strong></span>
+          <span class="dp-completo-sub">CLP · ahorras 15%</span>
+          <span class="dp-completo-badge"><i class="fa-solid fa-unlock-keyhole"></i> Complétalo y <strong>repítelo gratis 1 año</strong></span>
         </div>`;
       pagoArg = `${precioMes} CLP/mes`;
     } else {
@@ -2625,7 +2621,7 @@
       <div class="detalle-body">
         <div class="detalle-main">
           <p class="detalle-desc">${detalle}</p>
-          <div class="detalle-incluye-t">QuÃ© incluye</div>
+          <div class="detalle-incluye-t">Qué incluye</div>
           <ul class="detalle-incluye">
             ${incluye.map(i => `<li>${i}</li>`).join('')}
           </ul>
@@ -2633,13 +2629,13 @@
         <div class="detalle-side">
           ${precioPanel}
           <button class="btn-primary detalle-comprar" onclick="abrirModal('${nombrePago}', '${pagoArg}', '')">${cta}</button>
-          <div class="detalle-garantia">ðŸ”’ Pago 100% seguro</div>
+          <div class="detalle-garantia">🔒 Pago 100% seguro</div>
         </div>
       </div>
 
-      <!-- CaracterÃ­sticas (estilo TrainHeroic) -->
+      <!-- Características (estilo TrainHeroic) -->
       <div class="detalle-features">
-        <h3 class="detalle-features-t">CaracterÃ­sticas</h3>
+        <h3 class="detalle-features-t">Características</h3>
         <div class="detalle-features-grid">
           ${PLAN_CARACTERISTICAS.map((f, i) => `
             <div class="detalle-feat" style="animation-delay:${i * 0.07}s">
@@ -2654,7 +2650,7 @@
     `;
   }
 
-  // â”€â”€ Reaplica el efecto spotlight a las tarjetas dinÃ¡micas â”€â”€
+  // ── Reaplica el efecto spotlight a las tarjetas dinámicas ──
   function aplicarSpotlight(scope) {
     if (!matchMedia('(pointer: fine)').matches) return;
     scope.querySelectorAll('.plan-card, .area-card').forEach(card => {
@@ -2666,9 +2662,9 @@
     });
   }
 
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  //  DESBLOQUEO POST-PAGO (simulado) â€” expediente + briefing
-  // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  // ═══════════════════════════════════════════════════════════
+  //  DESBLOQUEO POST-PAGO (simulado) — expediente + briefing
+  // ═══════════════════════════════════════════════════════════
 
   // Links de YouTube por programa (embed). '' => muestra placeholder.
   // Reemplazar con los reales. Ej: 'https://www.youtube.com/embed/XXXXXXXX'
@@ -2683,8 +2679,8 @@
       if (v.areaId === 'personalizado') return 'ACCESO PRIORITARIO';
     }
     if (v.plan === 'nivel') {
-      if (v.nivelId === 'basico') return 'MISIÃ“N ASIGNADA';
-      return 'ASCENSO Â· OPERADOR'; // intermedio / avanzado
+      if (v.nivelId === 'basico') return 'MISIÓN ASIGNADA';
+      return 'ASCENSO · OPERADOR'; // intermedio / avanzado
     }
     return 'ACCESO CONCEDIDO';
   }
@@ -2704,16 +2700,16 @@
     ov.classList.remove('briefing');
     ov.innerHTML = `
       <div class="dsb-expediente">
-        <img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo Â· Rigor y Disciplina" class="dsb-logo">
+        <img src="Imagenes/img01.png" alt="Máximo Esfuerzo · Rigor y Disciplina" class="dsb-logo">
         <div class="dsb-sello-wrap">
           <span class="dsb-sello-clasif">CLASIFICADO</span>
           <span class="dsb-sello-ok">ACCESO CONCEDIDO</span>
         </div>
         <div class="dsb-acento">${acento}</div>
-        <button class="btn-primary dsb-continuar" onclick="irABriefing()">Continuar â†’</button>
+        <button class="btn-primary dsb-continuar" onclick="irABriefing()">Continuar →</button>
       </div>`;
     document.body.style.overflow = 'hidden';
-    void ov.offsetWidth; // reflow para reiniciar animaciÃ³n
+    void ov.offsetWidth; // reflow para reiniciar animación
     ov.classList.add('activo');
   }
 
@@ -2723,17 +2719,17 @@
     const vid = videoActual();
     const videoHTML = vid
       ? `<div class="dsb-video"><iframe src="${vid}" title="Bienvenida" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-      : `<div class="dsb-video dsb-video-vacio"><i class="fa-brands fa-youtube"></i><span>Video de bienvenida â€” prÃ³ximamente</span></div>`;
+      : `<div class="dsb-video dsb-video-vacio"><i class="fa-brands fa-youtube"></i><span>Video de bienvenida — próximamente</span></div>`;
     ov.innerHTML = `
       <div class="dsb-briefing">
-        <img src="Imagenes/img01.png" alt="MÃ¡ximo Esfuerzo" class="dsb-briefing-logo">
+        <img src="Imagenes/img01.png" alt="Máximo Esfuerzo" class="dsb-briefing-logo">
         <h2 class="dsb-briefing-t">Bienvenido al protocolo</h2>
-        <p class="dsb-briefing-sub">Tu acceso estÃ¡ activo. Sigue estos pasos para comenzar.</p>
+        <p class="dsb-briefing-sub">Tu acceso está activo. Sigue estos pasos para comenzar.</p>
         ${videoHTML}
         <ol class="dsb-pasos">
-          <li><strong>Revisa tu correo</strong> â€” tras el pago te llega una invitaciÃ³n para descargar la app TrainHeroic e ingresar tu cÃ³digo de acceso.</li>
+          <li><strong>Revisa tu correo</strong> — tras el pago te llega una invitación para descargar la app TrainHeroic e ingresar tu código de acceso.</li>
           <li><strong>Conecta Strava</strong> en tu panel para medir tu progreso real.</li>
-          <li><strong>Ejecuta tu primera sesiÃ³n</strong> â€” el protocolo ya estÃ¡ cargado.</li>
+          <li><strong>Ejecuta tu primera sesión</strong> — el protocolo ya está cargado.</li>
         </ol>
         <button class="btn-primary dsb-listo" onclick="cerrarDesbloqueo()">Entendido, comenzar</button>
       </div>`;
@@ -2749,7 +2745,7 @@
   }
 
   function abrirLogin() {
-    // Si ya hay sesiÃ³n activa verificada, ir directo al dashboard sin mostrar el modal
+    // Si ya hay sesión activa verificada, ir directo al dashboard sin mostrar el modal
     if (window._auth && window._auth.currentUser) {
       const u = window._auth.currentUser;
       const esGoogle = u.providerData.some(p => p.providerId === 'google.com');
@@ -2774,8 +2770,8 @@
   function mostrarMensaje(texto,tipo) { const m=document.getElementById('loginMsg'); m.textContent=texto; m.className='login-msg '+tipo; }
   function limpiarMensaje() { const m=document.getElementById('loginMsg'); m.className='login-msg'; m.textContent=''; }
   function traducirError(code) {
-    const e={ 'auth/user-not-found':'No existe una cuenta con ese correo.','auth/wrong-password':'ContraseÃ±a incorrecta.','auth/invalid-email':'El correo no es vÃ¡lido.','auth/email-already-in-use':'Ya existe una cuenta con ese correo.','auth/weak-password':'La contraseÃ±a debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Intenta mÃ¡s tarde.','auth/popup-closed-by-user':'Cerraste la ventana de Google sin completar.','auth/network-request-failed':'Error de red. Revisa tu conexiÃ³n.','auth/invalid-credential':'Correo o contraseÃ±a incorrectos.' };
-    return e[code]||'OcurriÃ³ un error. Intenta nuevamente.';
+    const e={ 'auth/user-not-found':'No existe una cuenta con ese correo.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-email':'El correo no es válido.','auth/email-already-in-use':'Ya existe una cuenta con ese correo.','auth/weak-password':'La contraseña debe tener al menos 6 caracteres.','auth/too-many-requests':'Demasiados intentos. Intenta más tarde.','auth/popup-closed-by-user':'Cerraste la ventana de Google sin completar.','auth/network-request-failed':'Error de red. Revisa tu conexión.','auth/invalid-credential':'Correo o contraseña incorrectos.' };
+    return e[code]||'Ocurrió un error. Intenta nuevamente.';
   }
   async function iniciarSesionEmail() {
     const email=document.getElementById('loginEmail').value.trim();
@@ -2789,7 +2785,7 @@
         await window._signOut(window._auth);
         return;
       }
-      mostrarMensaje('Â¡Bienvenido de vuelta!','success');
+      mostrarMensaje('¡Bienvenido de vuelta!','success');
       setTimeout(()=>{ cerrarLogin(); abrirDashboard(user.displayName || email.split('@')[0]); },800);
     }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
@@ -2799,18 +2795,18 @@
     const pass=document.getElementById('regPassword').value;
     const confirm=document.getElementById('regPasswordConfirm').value;
     if(!email||!pass||!confirm) return mostrarMensaje('Completa todos los campos.','error');
-    if(pass!==confirm) return mostrarMensaje('Las contraseÃ±as no coinciden.','error');
-    if(pass.length<6) return mostrarMensaje('La contraseÃ±a debe tener al menos 6 caracteres.','error');
+    if(pass!==confirm) return mostrarMensaje('Las contraseñas no coinciden.','error');
+    if(pass.length<6) return mostrarMensaje('La contraseña debe tener al menos 6 caracteres.','error');
     try {
       const result = await window._createUserWithEmailAndPassword(window._auth,email,pass);
       await window._sendEmailVerification(result.user);
       await window._signOut(window._auth);
-      mostrarMensaje(`Â¡Cuenta creada! Te enviamos un correo de verificaciÃ³n a ${email}. ConfÃ­rmalo para poder ingresar.`,'success');
+      mostrarMensaje(`¡Cuenta creada! Te enviamos un correo de verificación a ${email}. Confírmalo para poder ingresar.`,'success');
     }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function iniciarSesionGoogle() {
-    try { const result = await window._signInWithPopup(window._auth,window._googleProvider); mostrarMensaje('Â¡SesiÃ³n iniciada!','success'); setTimeout(()=>{ cerrarLogin(); const nombre = result.user.displayName || result.user.email.split('@')[0]; abrirDashboard(nombre); },800); }
+    try { const result = await window._signInWithPopup(window._auth,window._googleProvider); mostrarMensaje('¡Sesión iniciada!','success'); setTimeout(()=>{ cerrarLogin(); const nombre = result.user.displayName || result.user.email.split('@')[0]; abrirDashboard(nombre); },800); }
     catch(e) { mostrarMensaje(traducirError(e.code),'error'); }
   }
   async function cerrarSesion() { try { await window._signOut(window._auth); } catch(e) { console.error(e); } cerrarDash(); const btn = document.getElementById('btnIngresarText'); if(btn) btn.textContent = 'Atleta'; }
@@ -2818,13 +2814,13 @@
 </script>
 
 <script>
-// â”€â”€ AUTO-FORMATO HH:MM:SS EN INPUTS DE TIEMPO â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── AUTO-FORMATO HH:MM:SS EN INPUTS DE TIEMPO ───────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
   document.querySelectorAll('.manual-time-input').forEach(input => {
     input.addEventListener('input', function() {
       let raw = this.value.replace(/[^0-9]/g, '');
       if (raw.length === 0) { this.value = ''; return; }
-      // Auto-formato desde la derecha: SS â†’ MM:SS â†’ H:MM:SS
+      // Auto-formato desde la derecha: SS → MM:SS → H:MM:SS
       let formatted = '';
       if (raw.length <= 2) {
         formatted = raw;
@@ -2848,12 +2844,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (el && savedDates[d]) el.value = savedDates[d];
   });
 
-  // Ocultar CSV upload zone â€” datos TH reales van directo
+  // Ocultar CSV upload zone — datos TH reales van directo
   const up = document.getElementById('csvUploadZone');
   if (up) up.style.display = 'none';
 });
 
-// Sobreescribir saveManualTimes para guardar tambiÃ©n las fechas
+// Sobreescribir saveManualTimes para guardar también las fechas
 const _origSave = window.saveManualTimes;
 window.saveManualTimes = function() {
   const dists = ['1km','2km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
@@ -2864,13 +2860,13 @@ window.saveManualTimes = function() {
     if (val) dates[d] = val;
   });
   localStorage.setItem('manualDates', JSON.stringify(dates));
-  // Llamar funciÃ³n original para guardar tiempos
+  // Llamar función original para guardar tiempos
   if (typeof _origSave === 'function') _origSave();
 };
 </script>
 
 <script>
-// Limpiar CSV corrupto al cargar (pesos que son aÃ±os indican mala detecciÃ³n de columna)
+// Limpiar CSV corrupto al cargar (pesos que son años indican mala detección de columna)
 (function() {
   try {
     const raw = localStorage.getItem('thCSVData');
@@ -2888,7 +2884,7 @@ window.saveManualTimes = function() {
 </script>
 
 <script>
-// â”€â”€ ACORDEÃ“N â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ACORDEÓN ────────────────────────────────────────────────────────────────
 function toggleAccord(btn) {
   const body = btn.nextElementSibling;
   const isOpen = body.classList.contains('is-open');
@@ -2909,11 +2905,11 @@ function selTestVel(dist, btn) {
   btn.style.color = '#C9A84C';
 }
 
-// Abre el panel de perfil y hace scroll hasta Ã©l (desde el link "completar perfil")
+// Abre el panel de perfil y hace scroll hasta él (desde el link "completar perfil")
 function abrirPerfilDesdeVel() {
   const panel = document.getElementById('miPerfilPanel');
   if (!panel) return;
-  // Abrir el panel si estÃ¡ cerrado
+  // Abrir el panel si está cerrado
   panel.style.display = 'block';
   // Scroll suave hasta el panel dentro del dashboard
   setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
@@ -2950,32 +2946,32 @@ function calcularPotencia() {
   document.getElementById('potenciaResultado').style.display = 'block';
 }
 
-// â”€â”€ ANIMACIONES DASHBOARD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── ANIMACIONES DASHBOARD ───────────────────────────────────────────────────
 
 function activarAnimaciones() {
   // Doble rAF: asegura que display:flex ya fue procesado antes de animar
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
 
-      // 1 Â· STAGGER FADE-UP en stat cells
+      // 1 · STAGGER FADE-UP en stat cells
       document.querySelectorAll('.dash-stats-row .dash-stat-cell').forEach((el, i) => {
         el.classList.remove('me-up','me-d1','me-d2','me-d3','me-d4');
         void el.offsetWidth; // reflow
         el.classList.add('me-up', `me-d${i+1}`);
       });
 
-      // 2 Â· BARRAS DE PROGRESO â€” guardar widths, poner a 0, animar al real
+      // 2 · BARRAS DE PROGRESO — guardar widths, poner a 0, animar al real
       document.querySelectorAll('.dash-zone-bar-fill, .dash-te-bar-fill').forEach(bar => {
         const realWidth = bar.style.width || getComputedStyle(bar).width;
         bar.classList.add('me-bar-animate');
-        // pequeÃ±o delay para que el browser procese width:0 antes de animar
+        // pequeño delay para que el browser procese width:0 antes de animar
         setTimeout(() => {
           bar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
           bar.style.width = realWidth;
         }, 80);
       });
 
-      // 3 Â· PULSE DOT en estado Strava
+      // 3 · PULSE DOT en estado Strava
       const stravaCard = document.getElementById('btnStrava');
       const stravaStatus = document.getElementById('stravaStatus');
       if (stravaStatus && !stravaStatus.querySelector('.me-dot')) {
@@ -3005,7 +3001,7 @@ function countUp(el, target, suffix, duration) {
 }
 
 function animarNumeros() {
-  // Count-up en mÃ©tricas del dashboard
+  // Count-up en métricas del dashboard
   const metricValues = document.querySelectorAll('.dash-metric-value, .dash-stat-value');
   metricValues.forEach(el => {
     const raw = parseFloat(el.dataset.value || el.textContent);
@@ -3029,7 +3025,7 @@ function agregarPulseDot() {
   }
 }
 
-// â”€â”€ COMPOSICIÃ“N CORPORAL Â· InBody + MyJump â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── COMPOSICIÓN CORPORAL · InBody + MyJump ──────────────────────────────────
 const MEDIA_WORKER = 'https://media.jaimea-gomezh.workers.dev';
 
 let fpsSeleccionado = 120;
@@ -3060,9 +3056,9 @@ async function handleInbodyImage(input) {
   if (!file) return;
   const status = document.getElementById('inbodyPDFStatus');
   const user = window._auth?.currentUser;
-  if (!user) { status.textContent = 'Debes iniciar sesiÃ³n'; return; }
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
 
-  status.innerHTML = 'ðŸ¤– Analizando imagen con IAâ€¦';
+  status.innerHTML = '🤖 Analizando imagen con IA…';
 
   try {
     const fd = new FormData();
@@ -3085,7 +3081,7 @@ async function handleInbodyImage(input) {
     // Mostrar formulario para que el atleta confirme
     document.getElementById('inbodyForm').style.display = 'block';
     document.getElementById('inbodyFormBtn').style.display = 'none';
-    status.textContent = 'âœ“ Datos extraÃ­dos â€” revisa y confirma';
+    status.textContent = '✓ Datos extraídos — revisa y confirma';
 
   } catch(e) {
     status.textContent = 'Error: ' + e.message;
@@ -3101,9 +3097,9 @@ async function handleInbodyPDF(input) {
   if (!file) return;
   const status = document.getElementById('inbodyPDFStatus');
   const user = window._auth?.currentUser;
-  if (!user) { status.textContent = 'Debes iniciar sesiÃ³n'; return; }
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
 
-  status.textContent = 'Subiendo PDF a Driveâ€¦';
+  status.textContent = 'Subiendo PDF a Drive…';
   const fecha = new Date().toISOString().split('T')[0];
   const nombre = user.displayName || user.email.split('@')[0];
 
@@ -3116,7 +3112,7 @@ async function handleInbodyPDF(input) {
     const r = await fetch(`${MEDIA_WORKER}/media/upload-pdf`, { method:'POST', body:fd });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || 'Error desconocido');
-    status.innerHTML = `âœ“ PDF guardado en Drive Â· <a href="${d.link}" target="_blank" style="color:#8B1A1A;">Ver</a>`;
+    status.innerHTML = `✓ PDF guardado en Drive · <a href="${d.link}" target="_blank" style="color:#8B1A1A;">Ver</a>`;
     // Mostrar formulario para ingresar los datos
     document.getElementById('inbodyForm').style.display = 'block';
     document.getElementById('inbodyFormBtn').style.display = 'none';
@@ -3131,9 +3127,9 @@ async function handleInbodyImage(input) {
   if (!file) return;
   const status = document.getElementById('inbodyPDFStatus');
   const user = window._auth?.currentUser;
-  if (!user) { status.textContent = 'Debes iniciar sesiÃ³n'; return; }
+  if (!user) { status.textContent = 'Debes iniciar sesión'; return; }
 
-  status.textContent = 'Subiendo imagen a Driveâ€¦';
+  status.textContent = 'Subiendo imagen a Drive…';
   const fecha = new Date().toISOString().split('T')[0];
   const nombre = user.displayName || user.email.split('@')[0];
 
@@ -3146,7 +3142,7 @@ async function handleInbodyImage(input) {
     const r = await fetch(`${MEDIA_WORKER}/media/upload-image`, { method:'POST', body:fd });
     const d = await r.json();
     if (!d.ok) throw new Error(d.error || 'Error desconocido');
-    status.innerHTML = `âœ“ Imagen guardada en Drive Â· <a href="${d.link}" target="_blank" style="color:#8B1A1A;">Ver</a>`;
+    status.innerHTML = `✓ Imagen guardada en Drive · <a href="${d.link}" target="_blank" style="color:#8B1A1A;">Ver</a>`;
     // Mostrar formulario para ingresar los datos manualmente
     document.getElementById('inbodyForm').style.display = 'block';
     document.getElementById('inbodyFormBtn').style.display = 'none';
@@ -3185,7 +3181,7 @@ async function guardarInbody() {
     if (!d.ok) throw new Error(d.error);
     document.getElementById('inbodyForm').style.display = 'none';
     document.getElementById('inbodyFormBtn').style.display = 'block';
-    document.getElementById('inbodyPDFStatus').textContent = 'âœ“ MediciÃ³n guardada';
+    document.getElementById('inbodyPDFStatus').textContent = '✓ Medición guardada';
     await cargarInbodyHistorial();
     // Empujar tendencias al cloud para que el coach las vea en la tarjeta
     const cacheKey = 'inbodyHistorial_' + user.uid;
@@ -3227,11 +3223,11 @@ async function cargarInbodyHistorial() {
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/inbody/${user.uid}`);
     const lista = await r.json();
-    // Guardar en cachÃ© local para uso offline/fallback
+    // Guardar en caché local para uso offline/fallback
     if (Array.isArray(lista)) localStorage.setItem(cacheKey, JSON.stringify(lista));
     if (!lista.length) return;
 
-    // GrÃ¡fico de Ã¡reas apiladas
+    // Gráfico de áreas apiladas
     document.getElementById('inbodyChartWrap').style.display = 'block';
     document.getElementById('inbodyHistorial').style.display = 'block';
 
@@ -3278,7 +3274,7 @@ async function cargarInbodyHistorial() {
           yComp: {
             type: 'linear', position: 'left',
             stacked: true,
-            title:{ display:true, text:'ComposiciÃ³n (kg)', color:'#cfc9c1', font:{size:9,family:'Barlow Condensed'} },
+            title:{ display:true, text:'Composición (kg)', color:'#cfc9c1', font:{size:9,family:'Barlow Condensed'} },
             ticks:{ color:'#f1ece4', font:{size:9,family:'Barlow Condensed'} },
             grid:{ color:'rgba(255,255,255,0.12)', borderDash:[4,4] }
           }
@@ -3307,7 +3303,7 @@ async function cargarInbodyHistorial() {
       if (isNaN(actual) || isNaN(base)) return '';
       const d = parseFloat((actual - base).toFixed(1));
       if (d === 0) return '';
-      const color = d > 0 ? '#2ecc71' : '#e74c3c'; // subir mÃºsculo = bueno
+      const color = d > 0 ? '#2ecc71' : '#e74c3c'; // subir músculo = bueno
       return `<span style="font-size:11px;color:${color};margin-left:4px;">${d > 0 ? '+' : ''}${d} kg</span>`;
     }
     function imcCategoria(imc) {
@@ -3330,22 +3326,22 @@ async function cargarInbodyHistorial() {
       const p = listaCompleta[0], u = listaCompleta[listaCompleta.length-1];
       cards.innerHTML =
         miniCard('Peso',    `${u.peso} kg`,    (listaCompleta.length > 1 ? 'vs inicio' : 'actual') + deltaStr(u.peso, p.peso, ' kg')) +
-        miniCard('IMC',     isNaN(u.imc) ? 'â€”' : u.imc, imcCategoria(u.imc)) +
-        miniCard('MÃºsculo', `${u.musculo} kg`, (listaCompleta.length > 1 ? 'vs inicio' : 'actual') + deltaStrMusc(u.musculo, p.musculo));
+        miniCard('IMC',     isNaN(u.imc) ? '—' : u.imc, imcCategoria(u.imc)) +
+        miniCard('Músculo', `${u.musculo} kg`, (listaCompleta.length > 1 ? 'vs inicio' : 'actual') + deltaStrMusc(u.musculo, p.musculo));
     }
 
-    // Cachear historial completo de pesos con fechas para cÃ¡lculos de rucking
+    // Cachear historial completo de pesos con fechas para cálculos de rucking
     const bmHistorial = lista.map(m => ({ fecha: m.fecha, peso: m.peso }))
                              .filter(m => m.peso && !isNaN(m.peso))
                              .sort((a,b) => a.fecha.localeCompare(b.fecha));
     localStorage.setItem('atletaBMHistorial', JSON.stringify(bmHistorial));
-    // TambiÃ©n mantener el Ãºltimo para compatibilidad
+    // También mantener el último para compatibilidad
     if (bmHistorial.length) localStorage.setItem('atletaBM', bmHistorial[bmHistorial.length-1].peso);
 
     // Historial lista
     renderInbodyLista(lista);
   } catch(e) {
-    console.warn('Error cargando InBody desde servidor, usando cachÃ© local:', e);
+    console.warn('Error cargando InBody desde servidor, usando caché local:', e);
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
     if (cached.length) renderInbodyLista(cached);
   }
@@ -3360,7 +3356,7 @@ function renderInbodyLista(lista) {
     const esPerfilOnly = m.source === 'perfil' && !m.musculo && !m.grasa_kg;
     const detalle = esPerfilOnly
       ? `<span style="color:#bbb;margin-left:8px;font-style:italic;">solo peso registrado</span>`
-      : `<span style="color:#aaa;margin-left:8px;">${m.musculo} kg musc Â· ${m.grasa_pct}% grasa</span>`;
+      : `<span style="color:#aaa;margin-left:8px;">${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>`;
     return `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
       <div>
@@ -3370,7 +3366,7 @@ function renderInbodyLista(lista) {
       </div>
       <button onclick="eliminarInbody('${m.fecha}')"
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
-        title="Eliminar mediciÃ³n">ðŸ—‘</button>
+        title="Eliminar medición">🗑</button>
     </div>`;
   }).join('');
 }
@@ -3379,14 +3375,14 @@ async function handleVideoUpload(input) {
   const file = input.files[0];
   if (!file) return;
   const user = window._auth?.currentUser;
-  if (!user) { alert('Debes iniciar sesiÃ³n'); return; }
+  if (!user) { alert('Debes iniciar sesión'); return; }
 
   const status = document.getElementById('videoStatus');
   const progressWrap = document.getElementById('videoProgressWrap');
   const bar = document.getElementById('videoBar');
   const pct = document.getElementById('videoPct');
 
-  status.textContent = 'Preparando subidaâ€¦';
+  status.textContent = 'Preparando subida…';
   progressWrap.style.display = 'block';
 
   const fecha = new Date().toISOString().split('T')[0];
@@ -3423,7 +3419,7 @@ async function handleVideoUpload(input) {
     });
 
     progressWrap.style.display = 'none';
-    status.textContent = `âœ“ Video (${fpsSeleccionado} fps) guardado en Drive`;
+    status.textContent = `✓ Video (${fpsSeleccionado} fps) guardado en Drive`;
   } catch(e) {
     progressWrap.style.display = 'none';
     status.textContent = 'Error: ' + e.message;
@@ -3432,7 +3428,7 @@ async function handleVideoUpload(input) {
 }
 
 async function eliminarInbody(fecha) {
-  if (!confirm(`Â¿Eliminar la mediciÃ³n del ${fecha}?`)) return;
+  if (!confirm(`¿Eliminar la medición del ${fecha}?`)) return;
   const user = window._auth?.currentUser;
   if (!user) return;
   const cacheKey = 'inbodyHistorial_' + user.uid;
@@ -3473,17 +3469,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- â•â•â• MOTOR DE ANIMACIONES â€” MÃXIMO ESFUERZO UPGRADE â•â•â• -->
+<!-- ═══ MOTOR DE ANIMACIONES — MÁXIMO ESFUERZO UPGRADE ═══ -->
 <script>
 (function() {
   'use strict';
 
-  /* â”€â”€ 1. SCROLL REVEAL â”€â”€ */
+  /* ── 1. SCROLL REVEAL ── */
   const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
-        // Activar subrayado de tÃ­tulos
+        // Activar subrayado de títulos
         const title = entry.target.querySelector('.section-title');
         if (title) title.classList.add('line-visible');
         revealObserver.unobserve(entry.target);
@@ -3510,7 +3506,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
 
-    // FilosofÃ­a: izquierda y derecha
+    // Filosofía: izquierda y derecha
     const pilares = document.querySelectorAll('.pilar');
     pilares.forEach((p, i) => {
       p.classList.remove('reveal');
@@ -3529,7 +3525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* â”€â”€ 2. CONTADOR ANIMADO â€” stats del hero â”€â”€ */
+  /* ── 2. CONTADOR ANIMADO — stats del hero ── */
   function animarStatsHero() {
     const stats = [
       { id: null, el: null, target: 400, suffix: '+', prefix: '+' },
@@ -3568,7 +3564,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* â”€â”€ 3. NAV scroll effect â”€â”€ */
+  /* ── 3. NAV scroll effect ── */
   function initNavScroll() {
     const nav = document.querySelector('nav');
     if (!nav) return;
@@ -3577,11 +3573,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  /* â”€â”€ 4. BOTÃ“N SCROLL TO TOP â”€â”€ */
+  /* ── 4. BOTÓN SCROLL TO TOP ── */
   function initScrollTop() {
     const btn = document.createElement('button');
     btn.id = 'scrollTopBtn';
-    btn.innerHTML = 'â†‘';
+    btn.innerHTML = '↑';
     btn.title = 'Volver arriba';
     btn.onclick = () => window.scrollTo({ top: 0, behavior: 'smooth' });
     document.body.appendChild(btn);
@@ -3591,7 +3587,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
   }
 
-  /* â”€â”€ 5. MOUSE SPOTLIGHT en cards â”€â”€ */
+  /* ── 5. MOUSE SPOTLIGHT en cards ── */
   function initMouseSpotlight() {
     if (!matchMedia('(pointer: fine)').matches) return;
     document.querySelectorAll('.plan-card, .resena-card, .tracker-card, .pilar').forEach(card => {
@@ -3605,7 +3601,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* â”€â”€ 6. SECCIÃ“N TITLE reveal â”€â”€ */
+  /* ── 6. SECCIÓN TITLE reveal ── */
   const titleObserver = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (e.isIntersecting) {
@@ -3619,7 +3615,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.section-title').forEach(t => titleObserver.observe(t));
   }
 
-  /* â”€â”€ INICIALIZAR TODO â”€â”€ */
+  /* ── INICIALIZAR TODO ── */
   document.addEventListener('DOMContentLoaded', () => {
     initReveal();
     animarStatsHero();
@@ -3632,14 +3628,14 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
-<!-- â•â•â• ANIMACIÃ“N TELÃ‰FONOS SHOWCASE â•â•â• -->
+<!-- ═══ ANIMACIÓN TELÉFONOS SHOWCASE ═══ -->
 <script>
 (function() {
-  // IntersectionObserver para disparar la animaciÃ³n al hacer scroll
+  // IntersectionObserver para disparar la animación al hacer scroll
   const phoneObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        // Activar los 3 telÃ©fonos con stagger
+        // Activar los 3 teléfonos con stagger
         ['ph1','ph2','ph3'].forEach(id => {
           const el = document.getElementById(id);
           if (el) el.classList.add('phone-in');
@@ -3657,25 +3653,25 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <script>
-// â”€â”€ REFRESH RESUMEN MENSUAL â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── REFRESH RESUMEN MENSUAL ────────────────────────────────────────────
 async function refreshResumenMensual() {
   const btn = document.getElementById('btnRefreshResumen');
   const token  = localStorage.getItem('strava_token');
   const expiry = localStorage.getItem('strava_expiry');
 
   if (!token || !expiry || Date.now() / 1000 > parseInt(expiry)) {
-    if (btn) { btn.textContent = 'âœ— Sin token'; setTimeout(() => btn.textContent = 'â†» Actualizar', 2000); }
+    if (btn) { btn.textContent = '✗ Sin token'; setTimeout(() => btn.textContent = '↻ Actualizar', 2000); }
     return;
   }
 
-  if (btn) { btn.textContent = 'âŸ³ Cargandoâ€¦'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⟳ Cargando…'; btn.disabled = true; }
 
   try {
-    // Borrar cachÃ© para forzar recarga completa
+    // Borrar caché para forzar recarga completa
     localStorage.removeItem('stravaActsCache');
     localStorage.removeItem('stravaActsCacheTs');
 
-    // Llamar cargarDatosStrava si estÃ¡ disponible (definida en scripts.js)
+    // Llamar cargarDatosStrava si está disponible (definida en scripts.js)
     if (typeof cargarDatosStrava === 'function') {
       await cargarDatosStrava(token);
     }
@@ -3683,14 +3679,14 @@ async function refreshResumenMensual() {
     // Renderizar resumen mensual
     if (typeof renderResumenMensual === 'function') renderResumenMensual();
 
-    if (btn) { btn.textContent = 'âœ“ Actualizado'; btn.disabled = false; setTimeout(() => btn.textContent = 'â†» Actualizar', 2500); }
+    if (btn) { btn.textContent = '✓ Actualizado'; btn.disabled = false; setTimeout(() => btn.textContent = '↻ Actualizar', 2500); }
   } catch(e) {
-    if (btn) { btn.textContent = 'âœ— Error'; btn.disabled = false; setTimeout(() => btn.textContent = 'â†» Actualizar', 2000); }
+    if (btn) { btn.textContent = '✗ Error'; btn.disabled = false; setTimeout(() => btn.textContent = '↻ Actualizar', 2000); }
     console.warn('[Refresh] Error al actualizar:', e);
   }
 }
 
-// Auto-refresco: si el cachÃ© tiene mÃ¡s de 6h y hay token vÃ¡lido â†’ refrescar solo
+// Auto-refresco: si el caché tiene más de 6h y hay token válido → refrescar solo
 (function autoRefreshCache() {
   const ts     = parseInt(localStorage.getItem('stravaActsCacheTs') || '0');
   const token  = localStorage.getItem('strava_token');
@@ -3718,7 +3714,7 @@ async function refreshResumenMensual() {
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
 
-  // Linterna + Aurora: siguen cursor (desktop) y touch (mÃ³vil) en el CTA final
+  // Linterna + Aurora: siguen cursor (desktop) y touch (móvil) en el CTA final
   var ctaSec  = document.getElementById('cta-final');
   var aura    = document.getElementById('ctaAurora');
   var lint    = document.getElementById('ctaLinterna');
@@ -3738,7 +3734,7 @@ async function refreshResumenMensual() {
     }, { passive: true });
   }
 
-  // Linterna autÃ³noma en mÃ³vil (Lissajous suave: sin interacciÃ³n, la luz patrulla sola)
+  // Linterna autónoma en móvil (Lissajous suave: sin interacción, la luz patrulla sola)
   if (ctaSec && window.matchMedia('(pointer:coarse)').matches) {
     var _lt = 0, _lraf = null;
     function _lTick() {
@@ -3750,12 +3746,12 @@ async function refreshResumenMensual() {
       );
       _lraf = requestAnimationFrame(_lTick);
     }
-    // Solo anima cuando la secciÃ³n es visible (ahorra baterÃ­a)
+    // Solo anima cuando la sección es visible (ahorra batería)
     new IntersectionObserver(function(ents) {
       if (ents[0].isIntersecting) { if (!_lraf) _lTick(); }
       else { cancelAnimationFrame(_lraf); _lraf = null; }
     }, { threshold: 0.25 }).observe(ctaSec);
-    // Touch del usuario toma el control; retoma la patrulla 2s despuÃ©s de soltar
+    // Touch del usuario toma el control; retoma la patrulla 2s después de soltar
     var _lResume;
     ctaSec.addEventListener('touchstart', function() {
       cancelAnimationFrame(_lraf); _lraf = null;
@@ -3766,7 +3762,7 @@ async function refreshResumenMensual() {
     }, { passive: true });
   }
 
-  // Tilt 3D delegado (funciona tambiÃ©n en tarjetas creadas por JS)
+  // Tilt 3D delegado (funciona también en tarjetas creadas por JS)
   var cur = null;
   function reset(c){ c.classList.remove('tilting'); c.style.transform = ''; }
   document.addEventListener('mousemove', function(e){
@@ -3785,4 +3781,3 @@ async function refreshResumenMensual() {
 
 </body>
 </html>
-
