@@ -102,7 +102,6 @@
     { frase: "Ganar es una decisión consciente; perder es una decisión inconsciente.", autor: "— Anónimo" },
     { frase: "Vives a la altura de tus creencias; aquello en lo que crees, en eso te conviertes.", autor: "— Anónimo" },
     { frase: "La incredulidad nos frena y es aliada de la mediocridad.", autor: "— Anónimo" },
-    { frase: "Es la repetición de afirmaciones lo que lleva a la creencia; y una vez que la creencia se convierte en convicción profunda, las cosas comienzan a suceder.", autor: "— Muhammad Ali" },
     { frase: "Vacía tu copa para que pueda ser llenada; quédate sin nada para ganar la totalidad.", autor: "— Bruce Lee" },
     { frase: "La vida es tu maestra y tú estás en un estado de aprendizaje constante.", autor: "— Bruce Lee" },
     // MIEDO Y VALENTÍA
@@ -111,7 +110,6 @@
     { frase: "No tengas miedo al miedo; ten miedo a la cobardía, a no atreverte.", autor: "— Anónimo" },
     { frase: "Miedo no afrontado, miedo que engorda; miedo afrontado, miedo que mengua.", autor: "— Anónimo" },
     { frase: "Elimina la palabra imposible de tu vocabulario.", autor: "— Anónimo" },
-    { frase: "Imposible no es un hecho. Es una opinión. Imposible no es una declaración. Es un desafío.", autor: "— Muhammad Ali" },
     { frase: "No reces por una vida sencilla; reza por la fortaleza de resistir una vida difícil.", autor: "— Bruce Lee" },
     { frase: "Pocas palabras hay tan importantes como la confianza, porque cuanto mayor es la confianza, menor es el miedo.", autor: "— Jorge Valdano" },
     // DISCIPLINA Y HÁBITOS
@@ -168,7 +166,6 @@
     { frase: "La vida no es justa, y cuanto antes lo descubras, mejor te irá.", autor: "— William H. McRaven" },
     { frase: "Si quieres cambiar el mundo, deslízate de cabeza por el obstáculo.", autor: "— William H. McRaven" },
     { frase: "Si quieres cambiar el mundo, nunca, pero nunca, toques esa campana.", autor: "— William H. McRaven" },
-    { frase: "Sólo un hombre que sabe lo que se siente al ser derrotado puede llegar al fondo de su alma y sacar lo que le queda de energía para ganar un combate que está igualado.", autor: "— Muhammad Ali" },
     { frase: "La lucha de Rafael ha estado siempre en la idea de superarse a sí mismo.", autor: "— Toni Nadal" },
     { frase: "Si crees que no puedes mejorar, no sabes nada de la vida.", autor: "— Rafa Nadal" },
     { frase: "No te establezcas en una forma; adáptala, constrúyela y déjala crecer. Sé como el agua.", autor: "— Bruce Lee" },
@@ -183,9 +180,6 @@
     { frase: "Quien no sabe lo que quiere acaba donde no quiere estar.", autor: "— Anónimo" },
     { frase: "No cuestiones si algo es o no posible; solo preocúpate de cómo conseguirlo.", autor: "— Anónimo" },
     { frase: "Haz lo que amas para que otros amen lo que haces.", autor: "— Anónimo" },
-    { frase: "Soy el más grande. Me lo dije incluso a mí mismo cuando no sabía que lo era.", autor: "— Muhammad Ali" },
-    { frase: "La pelea se gana o se pierde lejos de testigos, tras las cortinas, en el gimnasio y en la carretera, mucho antes de bailar bajo las luces del ring.", autor: "— Muhammad Ali" },
-    { frase: "Los campeones no están hechos en el gimnasio. Los campeones están hechos de algo que tienen en su interior: un deseo, un sueño, una visión.", autor: "— Muhammad Ali" },
     { frase: "El talento siempre ha necesitado de energía, y no existe mejor energético que la pasión.", autor: "— Jorge Valdano" },
     { frase: "El talento necesita exigencia, porque los seres humanos crecemos al nivel de las dificultades que vamos encontrando.", autor: "— Jorge Valdano" },
     { frase: "Para mí hay un principio fundamental: el control. De la situación, de la pelota, de cada cosa que hago.", autor: "— Rafa Nadal" },
@@ -194,7 +188,6 @@
     { frase: "Elige lo positivo. Tienes la elección; eres el maestro de tu actitud.", autor: "— Bruce Lee" },
     { frase: "La vida es amplia, sin límites. No hay bordes, no hay fronteras.", autor: "— Bruce Lee" },
     { frase: "No naciste siendo un ganador, de igual modo que no naciste siendo un perdedor. Tú eres lo que haces de ti mismo.", autor: "— Lou Holtz" },
-    { frase: "Si se puede hacer penicilina del moho, seguro que se puede hacer algo provechoso de ti.", autor: "— Muhammad Ali" },
     // LIDERAZGO Y RESPONSABILIDAD
     { frase: "La autorresponsabilidad es el primer requisito del autoliderazgo.", autor: "— Anónimo" },
     { frase: "O eres víctima o eres protagonista; o gobiernas tu vida o te la gobiernan otros.", autor: "— Anónimo" },
@@ -211,7 +204,6 @@
     { frase: "Un equipo no está completo si el líder solo cuenta con los cracks. Sin los humildes no se llega a ninguna parte.", autor: "— Manel Estiarte" },
     { frase: "Conseguir buenos jugadores es fácil. Conseguir que jueguen juntos es la parte más difícil.", autor: "— Casey Stengel" },
     { frase: "Si solo piensas en ti mismo y no en los demás, nunca alcanzas objetivos.", autor: "— Paolo Maldini" },
-    { frase: "Cuando tienes razón, nadie lo recuerda; cuando estás equivocado, nadie lo olvida.", autor: "— Muhammad Ali" },
   ];
 
   function getFraseDelDia() {

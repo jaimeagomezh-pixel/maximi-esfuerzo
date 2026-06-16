@@ -4669,12 +4669,12 @@ body.plan-activo .plan-lock  { display: none; }
     font-style: normal !important;
     font-size: 13px !important;
     line-height: 1.5 !important;
-    color: rgba(10, 5, 0, 0.93) !important;
+    color: rgba(255, 245, 195, 0.97) !important;
     text-shadow:
-      0 -1.5px 0   rgba(255, 252, 215, 0.90),
-      0  1px   1px rgba(0, 0, 0, 0.72),
-      0  2.5px 4px rgba(0, 0, 0, 0.48),
-      0  4px   8px rgba(0, 0, 0, 0.24) !important;
+      0  1px  2px rgba(0, 0, 0, 0.95),
+      0  2px  5px rgba(0, 0, 0, 0.70),
+      0  5px 12px rgba(0, 0, 0, 0.35),
+      0 -0.5px 0  rgba(0, 0, 0, 0.45) !important;
     padding-left: 0 !important;
     margin-bottom: 7px !important;
   }
@@ -4692,11 +4692,11 @@ body.plan-activo .plan-lock  { display: none; }
     font-weight: 700 !important;
     font-size: 9px !important;
     text-align: center !important;
-    color: rgba(10, 5, 0, 0.86) !important;
+    color: rgba(255, 245, 195, 0.90) !important;
     text-shadow:
-      0 -1.5px 0   rgba(255, 252, 215, 0.85),
-      0  1px   1px rgba(0, 0, 0, 0.65),
-      0  2.5px 4px rgba(0, 0, 0, 0.38) !important;
+      0  1px  2px rgba(0, 0, 0, 0.92),
+      0  2px  5px rgba(0, 0, 0, 0.65),
+      0 -0.5px 0  rgba(0, 0, 0, 0.40) !important;
     margin-top: 0 !important;
   }
 
@@ -4758,12 +4758,12 @@ body.plan-activo .plan-lock  { display: none; }
     font-style: normal;
     font-size: 14px;
     line-height: 1.5;
-    color: rgba(10, 5, 0, 0.93);
+    color: rgba(255, 245, 195, 0.97);
     text-shadow:
-      0 -1.5px 0   rgba(255, 252, 215, 0.90),
-      0  1px   1px rgba(0, 0, 0, 0.72),
-      0  2.5px 4px rgba(0, 0, 0, 0.48),
-      0  4px   8px rgba(0, 0, 0, 0.24);
+      0  1px  2px rgba(0, 0, 0, 0.95),
+      0  2px  5px rgba(0, 0, 0, 0.70),
+      0  5px 12px rgba(0, 0, 0, 0.35),
+      0 -0.5px 0  rgba(0, 0, 0, 0.45);
     margin-bottom: 8px;
   }
   .fop-divider {
@@ -4779,11 +4779,11 @@ body.plan-activo .plan-lock  { display: none; }
     letter-spacing: 3px;
     font-weight: 700;
     text-transform: uppercase;
-    color: rgba(10, 5, 0, 0.86);
+    color: rgba(255, 245, 195, 0.90);
     text-shadow:
-      0 -1.5px 0   rgba(255, 252, 215, 0.85),
-      0  1px   1px rgba(0, 0, 0, 0.65),
-      0  2.5px 4px rgba(0, 0, 0, 0.40);
+      0  1px  2px rgba(0, 0, 0, 0.92),
+      0  2px  5px rgba(0, 0, 0, 0.65),
+      0 -0.5px 0  rgba(0, 0, 0, 0.40);
   }
   .fop-hint {
     margin-top: 28px;
