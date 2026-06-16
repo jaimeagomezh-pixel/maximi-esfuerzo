@@ -4714,7 +4714,7 @@ body.plan-activo .plan-lock  { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 28px 20px;
+    padding: 12px 16px;
     background: rgba(0,0,0,0);
     animation: fovEntra 0.55s ease both;
   }
@@ -4727,8 +4727,8 @@ body.plan-activo .plan-lock  { display: none; }
 
   /* ── Placa DOG-TAG: SVG fotográfico con transparencia real ── */
   .fop-placa {
-    max-width: 480px;
-    width: 100%;
+    /* Ocupa el máximo posible: limitado por ancho O por alto de pantalla */
+    width: min(100%, calc((100vh - 100px) * 1408 / 768));
     position: relative;
     background: none;
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
