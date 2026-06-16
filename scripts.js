@@ -339,10 +339,12 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<span class="fop-hole" aria-hidden="true"></span>' +
-      '<div class="fop-texto">' + d.texto + '</div>' +
-      '<div class="fop-divider" aria-hidden="true"></div>' +
-      '<div class="fop-autor">' + d.autor + '</div>';
+      '<img src="Imagenes/placa.svg" class="fop-img" alt="" aria-hidden="true">' +
+      '<div class="fop-content">' +
+        '<div class="fop-texto">' + d.texto + '</div>' +
+        '<div class="fop-divider" aria-hidden="true"></div>' +
+        '<div class="fop-autor">' + d.autor + '</div>' +
+      '</div>';
     var hint = document.createElement('div');
     hint.className = 'fop-hint';
     hint.textContent = 'toca para continuar';
