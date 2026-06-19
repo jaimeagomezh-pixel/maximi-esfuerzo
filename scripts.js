@@ -2112,18 +2112,7 @@
         ${sub ? `<div style="font-size:11px;color:#888;margin-top:2px;">${sub}</div>` : ''}
       </div>`;
 
-    let html = '<div style="display:flex;gap:8px;">';
-    if (p.peso)  html += card('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
-    if (p.talla) html += card('Talla', p.talla + ' cm', '');
-    if (edad)    html += card('Edad', edad + ' años', '');
-    html += '</div>';
-
-    // Actualizar panel principal (oculto, pero mantenido para compatibilidad)
-    const cardsEl = document.getElementById('dashPerfilCards');
-    if (cardsEl) {
-      if (!tieneData) { cardsEl.style.display = 'none'; }
-      else { cardsEl.innerHTML = html; cardsEl.style.display = 'block'; }
-    }
+    // Sin actualización de UI — datos ya están en Mi Perfil
   }
 
 

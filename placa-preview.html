@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Placa Dorada - Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #222;
+      padding: 60px 20px;
+      font-family: 'Barlow', sans-serif;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 24px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #d4a843;
+      margin-bottom: 60px;
+      text-align: center;
+    }
+    .placa-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 80px;
+    }
+    .placa-item {
+      text-align: center;
+    }
+    .placa-item-label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 25px;
+    }
+    .placa-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background-image: url('Imagenes/placa-dorada.png');
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      transform: rotate(180deg);
+    }
+    .placa-text {
+      text-align: center;
+      max-width: 75%;
+      z-index: 10;
+    }
+    .placa-text-main {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: #1a1a1a;
+      line-height: 1.5;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .placa-text-author {
+      font-family: 'Barlow', sans-serif;
+      font-size: 10px;
+      color: #2a2a2a;
+      font-style: italic;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0.5px 1px rgba(0,0,0,0.2);
+    }
+    /* Variantes de tamaño */
+    .placa-lg .placa-text-main {
+      font-size: 14px;
+    }
+    .placa-md .placa-text-main {
+      font-size: 12px;
+    }
+    .placa-sm .placa-text-main {
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PLACA DORADA - FRASES DE MOTIVACIÓN</h1>
+
+    <div class="placa-wrapper">
+      <!-- Frase 1 -->
+      <div class="placa-item">
+        <div class="placa-item-label">Frase corta</div>
+        <div class="placa-container placa-lg">
+          <div class="placa-text">
+            <div class="placa-text-main">Sé tan bueno que los demás no puedan ignorarte</div>
+            <div class="placa-text-author">Anónimo</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frase 2 -->
+      <div class="placa-item">
+        <div class="placa-item-label">Frase mediana</div>
+        <div class="placa-container placa-md">
+          <div class="placa-text">
+            <div class="placa-text-main">La calidad de tu vida depende de la calidad de tus pensamientos</div>
+            <div class="placa-text-author">Marco Aurelio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frase 3 -->
+      <div class="placa-item">
+        <div class="placa-item-label">Frase larga</div>
+        <div class="placa-container placa-sm">
+          <div class="placa-text">
+            <div class="placa-text-main">Tú tienes el poder sobre tu mente, no los eventos externos; entiende esto, y encontrarás tu fuerza</div>
+            <div class="placa-text-author">Marco Aurelio</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Frase 4 -->
+      <div class="placa-item">
+        <div class="placa-item-label">Frase de acción</div>
+        <div class="placa-container placa-md">
+          <div class="placa-text">
+            <div class="placa-text-main">El secreto de avanzar es comenzar</div>
+            <div class="placa-text-author">Anónimo</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
