@@ -4637,8 +4637,8 @@ body.plan-activo .plan-lock  { display: none; }
     border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 4px 8px 6px 8px !important;
-    width: calc(100% - 16px) !important;
+    margin: 2px 4px 4px 4px !important;
+    width: calc(100% - 8px) !important;
     aspect-ratio: 4 / 3 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -4679,11 +4679,15 @@ body.plan-activo .plan-lock  { display: none; }
       0 -1.5px 0 rgba(255,240,110,0.80),
       0  1px   2px rgba(0,0,0,0.70),
       0  2px   5px rgba(0,0,0,0.40) !important;
-    padding: 0 8% 0 22% !important;
-    margin-bottom: 4px !important;
+    padding: 0 10% 0 20% !important;
+    margin-bottom: 0 !important;
     text-align: center !important;
     width: 100% !important;
     box-sizing: border-box !important;
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   #dashboardAtleta.open .dash-frase-autor {
     position: absolute !important;
@@ -4731,7 +4735,7 @@ body.plan-activo .plan-lock  { display: none; }
   /* ── Overlay cinema: placa dog-tag imagen real ── */
   .fop-placa {
     position: relative;
-    width: min(96vw, 560px);
+    width: min(98vw, 600px);
     aspect-ratio: 4 / 3;
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
   }
@@ -4751,7 +4755,7 @@ body.plan-activo .plan-lock  { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 8% 8% 8% 20%;
+    padding: 8% 10% 8% 20%;
     box-sizing: border-box;
   }
   .fop-texto {
@@ -4766,21 +4770,21 @@ body.plan-activo .plan-lock  { display: none; }
       0 -1.5px 0   rgba(255, 242, 115, 0.85),
       0  1px   2px rgba(0, 0, 0, 0.72),
       0  2.5px 5px rgba(0, 0, 0, 0.45);
-    margin-bottom: 6px;
+    margin-bottom: 0;
     text-align: center;
     width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
   .fop-divider {
-    height: 1px;
-    width: 50%;
-    margin: 0 auto 8px;
-    background: linear-gradient(90deg, transparent, rgba(50,28,0,0.45), transparent);
-    box-shadow: 0 1px 0 rgba(255,242,115,0.42);
+    display: none;
   }
   .fop-autor {
-    position: absolute !important;
-    bottom: 6% !important;
-    right: 8% !important;
+    position: absolute;
+    bottom: 8%;
+    right: 10%;
     font-family: 'Courier New', monospace;
     font-size: clamp(9px, 1.2vw, 11px);
     letter-spacing: 2px;
@@ -4790,8 +4794,8 @@ body.plan-activo .plan-lock  { display: none; }
     text-shadow:
       0 -1px 0   rgba(255, 242, 115,0.72),
       0  1px 1px rgba(0, 0, 0, 0.60);
-    margin: 0 !important;
-    text-align: right !important;
+    margin: 0;
+    text-align: right;
   }
   .fop-hint {
     margin-top: 28px;

@@ -336,7 +336,6 @@
       '<img src="Imagenes/placa-dorada.png" class="fop-img" alt="" aria-hidden="true">' +
       '<div class="fop-content">' +
         '<div class="fop-texto">' + d.texto + '</div>' +
-        '<div class="fop-divider" aria-hidden="true"></div>' +
         '<div class="fop-autor">' + d.autor + '</div>' +
       '</div>';
     var hint = document.createElement('div');
