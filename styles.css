@@ -4685,20 +4685,21 @@ body.plan-activo .plan-lock  { display: none; }
     box-sizing: border-box !important;
   }
   #dashboardAtleta.open .dash-frase-autor {
+    position: absolute !important;
+    bottom: 8% !important;
+    right: 10% !important;
     font-family: 'Courier New', monospace !important;
-    font-size: clamp(9px, 2.2vw, 11px) !important;
+    font-size: clamp(8px, 2vw, 10px) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-    letter-spacing: 2px !important;
+    letter-spacing: 1.5px !important;
     color: rgba(30, 15, 0, 0.78) !important;
     text-shadow:
       0 -1px 0 rgba(255,240,110,0.65),
       0  1px 1px rgba(0,0,0,0.55) !important;
-    margin-top: 0 !important;
-    padding: 0 8% 0 22% !important;
-    text-align: center !important;
-    width: 100% !important;
-    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: right !important;
   }
 
   @keyframes placaEntra {
@@ -4776,15 +4777,20 @@ body.plan-activo .plan-lock  { display: none; }
     box-shadow: 0 1px 0 rgba(255,242,115,0.42);
   }
   .fop-autor {
+    position: absolute !important;
+    bottom: 6% !important;
+    right: 8% !important;
     font-family: 'Courier New', monospace;
-    font-size: clamp(9px, 1.2vw, 13px);
-    letter-spacing: 3px;
+    font-size: clamp(9px, 1.2vw, 11px);
+    letter-spacing: 2px;
     font-weight: 700;
     text-transform: uppercase;
     color: rgba(30, 15, 0, 0.78);
     text-shadow:
       0 -1px 0   rgba(255, 242, 115,0.72),
       0  1px 1px rgba(0, 0, 0, 0.60);
+    margin: 0 !important;
+    text-align: right !important;
   }
   .fop-hint {
     margin-top: 28px;
