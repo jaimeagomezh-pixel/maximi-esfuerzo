@@ -4640,9 +4640,10 @@ body.plan-activo .plan-lock  { display: none; }
     margin: 12px 16px !important;
     aspect-ratio: 4 / 3 !important;
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     animation: placaEntra 0.55s cubic-bezier(.22,.84,.34,1) 0.15s both !important;
   }
   #dashboardAtleta.open .dash-frase-wrap::before {
@@ -4666,35 +4667,38 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta.open .dash-frase-wrap > * { position: relative !important; z-index: 2 !important; }
   #dashboardAtleta.open .dash-frase {
     font-family: 'Courier New', monospace !important;
-    font-size: clamp(12px, 3.8vw, 17px) !important;
+    font-size: clamp(11px, 3.5vw, 16px) !important;
     font-weight: 700 !important;
     font-style: normal !important;
     text-transform: uppercase !important;
-    letter-spacing: 0.8px !important;
-    line-height: 1.6 !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.45 !important;
     color: rgba(30, 15, 0, 0.92) !important;
     text-shadow:
       0 -1.5px 0 rgba(255,240,110,0.80),
       0  1px   2px rgba(0,0,0,0.70),
       0  2px   5px rgba(0,0,0,0.40) !important;
-    padding: 0 10% 0 26% !important;
-    margin-bottom: 6px !important;
+    padding: 0 8% 0 22% !important;
+    margin-bottom: 4px !important;
     text-align: center !important;
-    word-break: break-word !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   #dashboardAtleta.open .dash-frase-autor {
     font-family: 'Courier New', monospace !important;
-    font-size: clamp(9px, 2.2vw, 12px) !important;
+    font-size: clamp(9px, 2.2vw, 11px) !important;
     font-weight: 700 !important;
     text-transform: uppercase !important;
-    letter-spacing: 2.5px !important;
+    letter-spacing: 2px !important;
     color: rgba(30, 15, 0, 0.78) !important;
     text-shadow:
       0 -1px 0 rgba(255,240,110,0.65),
       0  1px 1px rgba(0,0,0,0.55) !important;
     margin-top: 0 !important;
-    padding: 0 10% 0 26% !important;
+    padding: 0 8% 0 22% !important;
     text-align: center !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   @keyframes placaEntra {
@@ -4725,7 +4729,7 @@ body.plan-activo .plan-lock  { display: none; }
   /* ── Overlay cinema: placa dog-tag imagen real ── */
   .fop-placa {
     position: relative;
-    width: min(92vw, calc(72vh * 1.33));
+    width: min(96vw, 560px);
     aspect-ratio: 4 / 3;
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
   }
@@ -4745,17 +4749,16 @@ body.plan-activo .plan-lock  { display: none; }
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 6% 8% 6% 22%;
-    max-width: 100%;
-    overflow: hidden;
+    padding: 8% 8% 8% 20%;
+    box-sizing: border-box;
   }
   .fop-texto {
     font-family: 'Courier New', monospace;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     font-weight: 700;
-    font-size: clamp(12px, 2.2vw, 18px);
-    line-height: 1.4;
+    font-size: clamp(11px, 3.5vw, 17px);
+    line-height: 1.45;
     color: rgba(30, 15, 0, 0.92);
     text-shadow:
       0 -1.5px 0   rgba(255, 242, 115, 0.85),
@@ -4763,9 +4766,7 @@ body.plan-activo .plan-lock  { display: none; }
       0  2.5px 5px rgba(0, 0, 0, 0.45);
     margin-bottom: 6px;
     text-align: center;
-    word-break: break-word;
     width: 100%;
-    max-width: 90%;
   }
   .fop-divider {
     height: 1px;
