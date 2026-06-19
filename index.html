@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260619k">
+<link rel="stylesheet" href="styles.css?v=20260619l">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -690,40 +690,6 @@
 
     <!-- Menú móvil del dashboard -->
     <div id="dashMobileMenu" class="dash-mobile-menu">
-      <!-- MIS DATOS: Peso, Talla, Edad -->
-      <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:10px;">📊 Tus Datos</div>
-        <div id="dashMenuPerfilCards" style="display:none;"></div>
-        <div id="dashMenuSinDatos" style="font-size:13px;color:#888;">Completa tu perfil para ver tus datos</div>
-      </div>
-
-      <!-- DISPOSITIVOS CONECTADOS -->
-      <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:10px;">🔗 Conectados</div>
-        <!-- Strava -->
-        <div class="dash-connect-card-menu" onclick="conectarStrava()" id="btnStravaMenu" style="margin-bottom:10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(252,76,2,0.05);border:1px solid rgba(252,76,2,0.2);">
-          <div class="dash-app-logo" style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-            <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
-          </div>
-          <div style="flex:1;">
-            <div class="dash-connect-name" style="font-size:14px;font-weight:700;color:#fff;">Strava</div>
-            <div class="dash-connect-status" id="stravaStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
-          </div>
-        </div>
-        <!-- Fat Secret -->
-        <div class="dash-connect-card-menu" onclick="conectarFatSecret()" id="btnFatSecretMenu" style="border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2);">
-          <div class="dash-app-logo" style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L15 8H21L16.5 12L18 19L12 15L6 19L7.5 12L3 8H9L12 2Z"/>
-            </svg>
-          </div>
-          <div style="flex:1;">
-            <div class="dash-connect-name" style="font-size:14px;font-weight:700;color:#fff;">Fat Secret</div>
-            <div class="dash-connect-status" id="fsStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Mis Planes (acordeón) -->
       <button class="dash-menu-link" onclick="toggleMiPlanesMobile()" id="btnMiPlanesMobile"
         style="color:#d4a843 !important;display:flex;align-items:center;justify-content:space-between;width:100%;">
@@ -747,6 +713,42 @@
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
           <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
         </svg>Mi Perfil</button>
+
+      <!-- MIS CONEXIONES (acordeón) -->
+      <button class="dash-menu-link" onclick="toggleMisConexionesMobile()" id="btnMisConexionesMobile"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <span style="display:inline-flex;align-items:center;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>Mis Conexiones</span>
+        <span id="iconMisConexionesMobile" style="font-size:10px;transition:transform 0.25s;">▼</span>
+      </button>
+      <div id="misConexionesWrap" style="display:none;padding:0 16px 14px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <!-- Strava -->
+        <div onclick="conectarStrava()" id="btnStravaMenu" style="margin-bottom:10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(252,76,2,0.05);border:1px solid rgba(252,76,2,0.2);">
+          <div style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:#fff;">Strava</div>
+            <div id="stravaStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
+          </div>
+        </div>
+        <!-- Fat Secret -->
+        <div onclick="conectarFatSecret()" id="btnFatSecretMenu" style="border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2);">
+          <div style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15 8H21L16.5 12L18 19L12 15L6 19L7.5 12L3 8H9L12 2Z"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:700;color:#fff;">Fat Secret</div>
+            <div id="fsStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
+          </div>
+        </div>
+      </div>
+
       <button onclick="cerrarDash();setTimeout(()=>{document.getElementById('blog')?.scrollIntoView({behavior:'smooth'})},300)" class="dash-menu-link" style="display:flex;align-items:center;">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
           <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>

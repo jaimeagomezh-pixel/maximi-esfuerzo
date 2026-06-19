@@ -2118,31 +2118,11 @@
     if (edad)    html += card('Edad', edad + ' años', '');
     html += '</div>';
 
-    let htmlMenu = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
-    if (p.peso)  htmlMenu += cardMenu('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
-    if (p.talla) htmlMenu += cardMenu('Talla', p.talla + ' cm', '');
-    if (edad)    htmlMenu += cardMenu('Edad', edad + ' años', '');
-    htmlMenu += '</div>';
-
-    // Actualizar panel principal (hidden)
+    // Actualizar panel principal (oculto, pero mantenido para compatibilidad)
     const cardsEl = document.getElementById('dashPerfilCards');
     if (cardsEl) {
       if (!tieneData) { cardsEl.style.display = 'none'; }
       else { cardsEl.innerHTML = html; cardsEl.style.display = 'block'; }
-    }
-
-    // Actualizar menú móvil
-    const menuCards = document.getElementById('dashMenuPerfilCards');
-    const menuSinDatos = document.getElementById('dashMenuSinDatos');
-    if (menuCards && menuSinDatos) {
-      if (!tieneData) {
-        menuCards.style.display = 'none';
-        menuSinDatos.style.display = 'block';
-      } else {
-        menuCards.innerHTML = htmlMenu;
-        menuCards.style.display = 'block';
-        menuSinDatos.style.display = 'none';
-      }
     }
   }
 
@@ -5467,12 +5447,18 @@
       }
     }
     if (!_dashMenuAbierto) {
-    // Al cerrar el menú, colapsar también el acordeón de planes
-    const wrap = document.getElementById('miPlanContentMobileWrap');
-    const icon = document.getElementById('iconMiPlanesMobile');
-    if (wrap) wrap.style.display = 'none';
-    if (icon) { icon.textContent = '▼'; icon.style.transform = ''; }
+    // Al cerrar el menú, colapsar también los acordeones
+    const wrapPlanes = document.getElementById('miPlanContentMobileWrap');
+    const iconPlanes = document.getElementById('iconMiPlanesMobile');
+    if (wrapPlanes) wrapPlanes.style.display = 'none';
+    if (iconPlanes) { iconPlanes.textContent = '▼'; iconPlanes.style.transform = ''; }
     _miPlanesMobileAbierto = false;
+
+    const wrapConex = document.getElementById('misConexionesWrap');
+    const iconConex = document.getElementById('iconMisConexionesMobile');
+    if (wrapConex) wrapConex.style.display = 'none';
+    if (iconConex) { iconConex.textContent = '▼'; iconConex.style.transform = ''; }
+    _misConexionesMobileAbierto = false;
   }
   }
 
@@ -5486,6 +5472,16 @@
     if (_miPlanesMobileAbierto) cargarMiPlan();
   }
   window.toggleMiPlanesMobile = toggleMiPlanesMobile;
+
+  let _misConexionesMobileAbierto = false;
+  function toggleMisConexionesMobile() {
+    _misConexionesMobileAbierto = !_misConexionesMobileAbierto;
+    const wrap = document.getElementById('misConexionesWrap');
+    const icon = document.getElementById('iconMisConexionesMobile');
+    if (wrap) wrap.style.display = _misConexionesMobileAbierto ? 'block' : 'none';
+    if (icon) { icon.style.transform = _misConexionesMobileAbierto ? 'rotate(180deg)' : ''; }
+  }
+  window.toggleMisConexionesMobile = toggleMisConexionesMobile;
 
   async function cargarMiPlan() {
     const user = window._auth?.currentUser;
