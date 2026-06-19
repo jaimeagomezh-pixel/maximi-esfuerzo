@@ -289,6 +289,8 @@
             if (typeof animarNumeros === 'function') animarNumeros();
             if (typeof agregarPulseDot === 'function') agregarPulseDot();
           }, 400);
+          // Desconectar Strava si lleva 30+ días inactivo (libera cupo de API)
+          checkStravaInactividad();
           // Cargar datos Strava con auto-refresh si el token venció
           checkStravaToken();
           // Re-sincronizar peso/talla/fechaNac a la nube (auto-recuperación
@@ -480,6 +482,39 @@
   let _stravaYaCargado   = false;          // se resetea en cada carga de página
   let _stravaSyncEnCurso = false;          // evita disparos concurrentes (doble llamada)
   const STRAVA_FRESH_MS  = 10 * 60 * 1000; // 10 min: no re-llamar a Strava si está fresco
+
+  // Desconecta Strava automáticamente si el atleta lleva más de 30 días sin sincronizar.
+  // Libera el cupo de API para atletas activos.
+  function checkStravaInactividad() {
+    const token    = localStorage.getItem('strava_token');
+    const refresh  = localStorage.getItem('strava_refresh');
+    if (!token && !refresh) return; // ya desconectado
+    const lastSync = parseInt(localStorage.getItem('strava_last_sync') || '0');
+    if (!lastSync) return; // nunca sincronizó → no penalizar
+    const diasInactivo = (Date.now() - lastSync) / (1000 * 60 * 60 * 24);
+    if (diasInactivo < 30) return;
+
+    // Limpiar tokens locales
+    ['strava_token','strava_refresh','strava_last_sync','strava_expires_at'].forEach(k => localStorage.removeItem(k));
+    // Avisar al atleta
+    const msg = `Tu conexión con Strava fue pausada por ${Math.round(diasInactivo)} días de inactividad. Reconéctala cuando retomes el entrenamiento.`;
+    if (typeof prShowToast === 'function') {
+      prShowToast('⚠ ' + msg);
+    } else {
+      const t = document.createElement('div');
+      t.textContent = '⚠ ' + msg;
+      Object.assign(t.style, { position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+        background:'#333', color:'#fff', padding:'10px 18px', borderRadius:'8px', fontSize:'13px',
+        zIndex:'9999', maxWidth:'340px', textAlign:'center', lineHeight:'1.4' });
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 6000);
+    }
+    // Actualizar UI de conexión
+    const card = document.getElementById('btnStrava');
+    if (card) card.classList.remove('conectado');
+    const st = document.getElementById('stravaStatus');
+    if (st) st.textContent = 'Pausada por inactividad';
+  }
 
   function _marcarStravaConectado() {
     const card = document.getElementById('btnStrava');
@@ -1068,7 +1103,8 @@
         hr:    a.average_heartrate ? Math.round(a.average_heartrate) : null,
         type:  a.type,
         sport: a.sport_type || a.type,              // distingue Carrera de montaña
-        name:  a.name || ''                         // para excluir "Lastre" del pool endurance
+        name:  a.name || '',                        // para excluir "Lastre" del pool endurance
+        kj:    a.kilojoules ? Math.round(a.kilojoules) : 0
       }));
     localStorage.setItem('stravaActsCache', JSON.stringify(compact));
   }
@@ -1102,6 +1138,13 @@
       const inp = document.getElementById('inputFcMax');
       if (inp && (!inp.value || parseInt(inp.value) < fcMaxStrava)) {
         inp.value = fcMaxStrava;
+      }
+      // Sync a zonaParams para que calcularZonasCarrera la use
+      const zp = JSON.parse(localStorage.getItem('zonaParams') || '{}');
+      if (!zp.fcmax || fcMaxStrava > zp.fcmax) {
+        zp.fcmax = fcMaxStrava;
+        localStorage.setItem('zonaParams', JSON.stringify(zp));
+        if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
       }
 
       // Toast informativo (reutiliza infra de PR si existe)
@@ -1523,14 +1566,30 @@
 
     document.getElementById('nutriIngeridas').textContent = kcal.toLocaleString('es-CL');
 
-    // Gasto del día desde Garmin (informativo, línea inferior)
+    // Gasto del día desde Garmin (actividad base / pasos)
     const exer = exerDays.find(d => Number(d.date_int) === diaInt);
-    const gasto = exer ? Math.round(Number(exer.calories) || 0) : null;
+    const gastoGarmin = exer ? Math.round(Number(exer.calories) || 0) : null;
+
+    // Calorías de entrenamiento del día (Strava cache: kJ → kcal)
+    const hoyStr = new Date().toISOString().slice(0, 10);
+    const stravaCache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const stravaKcalHoy = Math.round(
+      stravaCache.filter(a => a.date === hoyStr && a.kj > 0)
+                 .reduce((s, a) => s + a.kj / 4.184, 0)
+    );
+
+    // Gasto total = Garmin (base) + Strava (entrenamiento)
+    const gasto = (gastoGarmin || 0) + stravaKcalHoy > 0
+      ? (gastoGarmin || 0) + stravaKcalHoy
+      : null;
+
     const gEl = document.getElementById('nutriGastadas');
     const gFuente = document.getElementById('nutriGastoFuente');
     if (gasto) {
       gEl.textContent = gasto.toLocaleString('es-CL') + ' kcal';
-      gFuente.textContent = 'Garmin';
+      let fuenteLabel = gastoGarmin ? 'Garmin' : '';
+      if (stravaKcalHoy > 0) fuenteLabel += (fuenteLabel ? ' + ' : '') + 'Strava (' + stravaKcalHoy.toLocaleString('es-CL') + ' kcal entren.)';
+      gFuente.textContent = fuenteLabel || 'calculado';
       gFuente.style.color = '#27ae60';
       gFuente.style.cursor = ''; gFuente.style.textDecoration = ''; gFuente.onclick = null;
     } else {
@@ -1540,7 +1599,7 @@
       gFuente.style.cursor = 'pointer'; gFuente.style.textDecoration = 'underline'; gFuente.onclick = abrirGuiaReloj;
     }
 
-    // Objetivo del día (gasto + ajuste del coach, o estimado si no hay Garmin)
+    // Objetivo del día (gasto total + ajuste del coach, o estimado si no hay datos)
     const obj = _fsObjetivo(gasto);
     const objEl = document.getElementById('nutriObjetivo');
     const objFuenteEl = document.getElementById('nutriObjFuente');
@@ -5040,6 +5099,10 @@
     const vamKmh = prof.endurance && prof.endurance.vamMs
       ? parseFloat((prof.endurance.vamMs * 3.6).toFixed(1)) : null;
 
+    // FC Máx desde perfil del atleta como fuente de verdad
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const perfilFcMax = (perfil.fcMax && perfil.fcMax > 0) ? perfil.fcMax : null;
+
     const saved = JSON.parse(localStorage.getItem('zonaParams') || 'null');
     if (saved) {
       // Compatibilidad con datos viejos en modo '5min' → derivar VAM (dist×12)
@@ -5052,10 +5115,24 @@
         saved.vpico = vamKmh;
         localStorage.setItem('zonaParams', JSON.stringify(saved));
       }
+      // Si no hay fcmax pero el perfil lo tiene, sincronizar
+      if (!saved.fcmax && perfilFcMax) {
+        saved.fcmax = perfilFcMax;
+        localStorage.setItem('zonaParams', JSON.stringify(saved));
+        const inp = document.getElementById('inputFcMax');
+        if (inp && !inp.value) inp.value = perfilFcMax;
+      }
       calcularZonasCarrera();
     } else if (vamKmh) {
       // Sin params guardados pero hay Test de Campo → generar zonas desde la VAM
-      localStorage.setItem('zonaParams', JSON.stringify({ vpico: vamKmh, fcmax: null, mode: 'directo', dist5min: null }));
+      localStorage.setItem('zonaParams', JSON.stringify({ vpico: vamKmh, fcmax: perfilFcMax, mode: 'directo', dist5min: null }));
+      if (perfilFcMax) { const inp = document.getElementById('inputFcMax'); if (inp && !inp.value) inp.value = perfilFcMax; }
+      calcularZonasCarrera();
+    } else if (perfilFcMax) {
+      // Solo FC máx disponible → mostrar zonas FC aunque no haya test de velocidad
+      localStorage.setItem('zonaParams', JSON.stringify({ vpico: null, fcmax: perfilFcMax, mode: 'directo', dist5min: null }));
+      const inp = document.getElementById('inputFcMax');
+      if (inp && !inp.value) inp.value = perfilFcMax;
       calcularZonasCarrera();
     }
     // Restaurar banners de Strava pendientes de sesión anterior
@@ -5128,7 +5205,9 @@
         zona: z.zona, ref: z.ref, nombre: z.nombre,
         vLow, vHigh,
         speed: `${vLow} – ${vHigh} km/h`,
-        pace, heartRate, rpe: z.rpe
+        pace, heartRate, rpe: z.rpe,
+        vo2pctLo: Math.round(z.vLo * 100),
+        vo2pctHi: Math.round(z.vHi * 100)
       };
     });
 
@@ -5199,6 +5278,7 @@
         const speedStr = z.speed;
         const paceStr  = `${z.pace} /km`;
         const fcStr    = z.heartRate !== 'N/A' ? `${z.heartRate} ppm` : '';
+        const vo2Str   = `${z.vo2pctLo}–${z.vo2pctHi}% VO₂máx`;
         const rowBg = i % 2 === 0 ? 'rgba(0,0,0,0.018)' : 'transparent';
         const sep   = i < resultado.zonas.length - 1 ? 'border-bottom:1px solid rgba(0,0,0,0.05);' : '';
 
@@ -5210,6 +5290,7 @@
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:600;letter-spacing:0.3px;color:#1a1a1a;">${z.nombre}</div>
             <div style="font-family:'Barlow',sans-serif;font-size:13px;color:#999;margin-top:2px;">RPE ${z.rpe}</div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:${color};opacity:0.8;margin-top:2px;">${vo2Str}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:#333;">${speedStr}</div>
