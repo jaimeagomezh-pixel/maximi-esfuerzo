@@ -207,15 +207,17 @@
   ];
 
   function getFraseDelDia() {
-    const hoy = new Date().toDateString();
+    const ahora = new Date();
+    const turno = ahora.getHours() < 12 ? 'AM' : 'PM';
+    const clave = ahora.toDateString() + '-' + turno;
     const stored = localStorage.getItem('fraseDelDia');
-    const storedDate = localStorage.getItem('fraseFecha');
-    if (stored && storedDate === hoy) {
+    const storedClave = localStorage.getItem('fraseFecha');
+    if (stored && storedClave === clave) {
       return JSON.parse(stored);
     }
     const idx = Math.floor(Math.random() * frases.length);
     localStorage.setItem('fraseDelDia', JSON.stringify(frases[idx]));
-    localStorage.setItem('fraseFecha', hoy);
+    localStorage.setItem('fraseFecha', clave);
     return frases[idx];
   }
 
@@ -331,9 +333,12 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<div class="fop-texto">' + d.texto + '</div>' +
-      '<div class="fop-divider" aria-hidden="true"></div>' +
-      '<div class="fop-autor">' + d.autor + '</div>';
+      '<img src="Imagenes/placa-dorada.png" class="fop-img" alt="" aria-hidden="true">' +
+      '<div class="fop-content">' +
+        '<div class="fop-texto">' + d.texto + '</div>' +
+        '<div class="fop-divider" aria-hidden="true"></div>' +
+        '<div class="fop-autor">' + d.autor + '</div>' +
+      '</div>';
     var hint = document.createElement('div');
     hint.className = 'fop-hint';
     hint.textContent = 'toca para continuar';
@@ -350,7 +355,7 @@
 
     ov.addEventListener('click', cerrar);
     ov.addEventListener('touchend', function(e) { e.preventDefault(); cerrar(); }, { passive: false });
-    setTimeout(cerrar, 5000); // auto-cierra a los 5s (o al tocar cualquier parte)
+    setTimeout(cerrar, 7000); // auto-cierra a los 7s (o al tocar cualquier parte)
   }
 
   function cerrarDashClick(e) {
