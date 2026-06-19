@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260619i">
+<link rel="stylesheet" href="styles.css?v=20260619k">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -690,6 +690,40 @@
 
     <!-- Menú móvil del dashboard -->
     <div id="dashMobileMenu" class="dash-mobile-menu">
+      <!-- MIS DATOS: Peso, Talla, Edad -->
+      <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:10px;">📊 Tus Datos</div>
+        <div id="dashMenuPerfilCards" style="display:none;"></div>
+        <div id="dashMenuSinDatos" style="font-size:13px;color:#888;">Completa tu perfil para ver tus datos</div>
+      </div>
+
+      <!-- DISPOSITIVOS CONECTADOS -->
+      <div style="padding:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#d4a843;text-transform:uppercase;margin-bottom:10px;">🔗 Conectados</div>
+        <!-- Strava -->
+        <div class="dash-connect-card-menu" onclick="conectarStrava()" id="btnStravaMenu" style="margin-bottom:10px;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(252,76,2,0.05);border:1px solid rgba(252,76,2,0.2);">
+          <div class="dash-app-logo" style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>
+          </div>
+          <div style="flex:1;">
+            <div class="dash-connect-name" style="font-size:14px;font-weight:700;color:#fff;">Strava</div>
+            <div class="dash-connect-status" id="stravaStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
+          </div>
+        </div>
+        <!-- Fat Secret -->
+        <div class="dash-connect-card-menu" onclick="conectarFatSecret()" id="btnFatSecretMenu" style="border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px;background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2);">
+          <div class="dash-app-logo" style="width:32px;height:32px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L15 8H21L16.5 12L18 19L12 15L6 19L7.5 12L3 8H9L12 2Z"/>
+            </svg>
+          </div>
+          <div style="flex:1;">
+            <div class="dash-connect-name" style="font-size:14px;font-weight:700;color:#fff;">Fat Secret</div>
+            <div class="dash-connect-status" id="fsStatusMenu" style="font-size:12px;color:#999;">Conectar</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Mis Planes (acordeón) -->
       <button class="dash-menu-link" onclick="toggleMiPlanesMobile()" id="btnMiPlanesMobile"
         style="color:#d4a843 !important;display:flex;align-items:center;justify-content:space-between;width:100%;">
@@ -801,8 +835,8 @@
       </div>
     </div>
 
-    <!-- STRAVA CONNECT — al inicio -->
-    <div style="padding:0 16px;margin-bottom:4px;">
+    <!-- STRAVA CONNECT — movido al menú, mantener elementos para JS pero ocultos -->
+    <div style="padding:0 16px;margin-bottom:4px;display:none;">
       <div class="dash-connect-card" onclick="conectarStrava()" id="btnStrava" style="border-radius:8px;">
         <div class="dash-app-logo">
           <svg viewBox="0 0 24 24" width="28" height="28"><path fill="#FC4C02" d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/></svg>

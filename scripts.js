@@ -486,6 +486,37 @@
     if (card) card.classList.add('conectado');
     const st = document.getElementById('stravaStatus');
     if (st) st.textContent = '✓ Conectado';
+    // Actualizar menú
+    const cardMenu = document.getElementById('btnStravaMenu');
+    if (cardMenu) cardMenu.style.borderColor = 'rgba(0,200,212,0.3)';
+    const stMenu = document.getElementById('stravaStatusMenu');
+    if (stMenu) stMenu.textContent = '✓ Conectado';
+  }
+
+  function _actualizarStravaStatus(texto) {
+    const st = document.getElementById('stravaStatus');
+    if (st) st.textContent = texto;
+    const stMenu = document.getElementById('stravaStatusMenu');
+    if (stMenu) stMenu.textContent = texto;
+  }
+
+  function _marcarFatSecretConectado() {
+    const card = document.getElementById('btnFatSecret');
+    if (card) card.classList.add('conectado');
+    const st = document.getElementById('fsStatus');
+    if (st) st.textContent = '✓ Conectado';
+    // Actualizar menú
+    const cardMenu = document.getElementById('btnFatSecretMenu');
+    if (cardMenu) cardMenu.style.borderColor = 'rgba(0,200,212,0.3)';
+    const stMenu = document.getElementById('fsStatusMenu');
+    if (stMenu) stMenu.textContent = '✓ Conectado';
+  }
+
+  function _actualizarFatSecretStatus(texto) {
+    const st = document.getElementById('fsStatus');
+    if (st) st.textContent = texto;
+    const stMenu = document.getElementById('fsStatusMenu');
+    if (stMenu) stMenu.textContent = texto;
   }
 
   async function cargarDatosStrava(accessToken, force = false) {
@@ -617,8 +648,7 @@
   function mostrarEstadoRateLimit() {
     const bloqueoHasta = parseInt(localStorage.getItem('stravaBlockedUntil') || '0');
     const min = Math.max(1, Math.ceil((bloqueoHasta - Date.now()) / 60000));
-    const stravaStatus = document.getElementById('stravaStatus');
-    if (stravaStatus) stravaStatus.textContent = `Strava ocupado · reintenta en ~${min} min`;
+    _actualizarStravaStatus(`Strava ocupado · reintenta en ~${min} min`);
     const card = document.getElementById('btnStrava');
     if (card) card.classList.remove('sincronizando');
   }
@@ -868,9 +898,8 @@
     try {
       // Indicador de sincronización
       const stravaCard   = document.getElementById('btnStrava');
-      const stravaStatus = document.getElementById('stravaStatus');
       if (stravaCard)   stravaCard.classList.add('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = 'Sincronizando historial…';
+      _actualizarStravaStatus('Sincronizando historial…');
 
       // Reusa el historial pasado por cargarDatosStrava; solo refetcha si no vino
       const allActs = (preActs && preActs.length) ? preActs : await fetchTodasLasCarreras(token);
@@ -878,7 +907,7 @@
       const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null);
 
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = `✓ ${runs.length} carreras cargadas`;
+      _actualizarStravaStatus(`✓ ${runs.length} carreras cargadas`);
 
       if (runs.length === 0) return;
 
@@ -1248,9 +1277,8 @@
     const refreshToken = localStorage.getItem('strava_refresh');
     if (refreshToken) {
       const stravaCard   = document.getElementById('btnStrava');
-      const stravaStatus = document.getElementById('stravaStatus');
       if (stravaCard)   stravaCard.classList.add('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = 'Reconectando…';
+      _actualizarStravaStatus('Reconectando…');
 
       const nuevoToken = await refreshStravaToken();
       if (nuevoToken) {
@@ -1259,7 +1287,7 @@
       }
       // Refresh fallido: limpiar estado cargando pero no mostrar error crítico
       if (stravaCard)   stravaCard.classList.remove('sincronizando');
-      if (stravaStatus) stravaStatus.textContent = 'Conectar';
+      _actualizarStravaStatus('Conectar');
     }
 
     return false;
@@ -2066,24 +2094,56 @@
 
   function actualizarResumenPerfil(p) {
     const edad = calcularEdad(p.fechaNac) || p.edad || null;
-    const cardsEl = document.getElementById('dashPerfilCards');
-    if (!cardsEl) return;
     const tieneData = p.peso || p.talla || edad;
-    if (!tieneData) { cardsEl.style.display = 'none'; return; }
     const imc = (p.peso && p.talla) ? Math.round((p.peso / Math.pow(p.talla/100, 2)) * 10) / 10 : null;
+
+    // Generar HTML de tarjetas
     const card = (label, val, sub) =>
       `<div style="flex:1;background:rgba(0,0,0,0.04);border:1px solid rgba(0,0,0,0.08);border-radius:8px;padding:10px 10px 8px;min-width:0;text-align:center;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:4px;">${label}</div>
         <div style="font-size:17px;font-weight:700;color:#222;line-height:1;">${val}</div>
         ${sub ? `<div style="font-size:10px;color:#aaa;margin-top:3px;">${sub}</div>` : ''}
       </div>`;
+
+    const cardMenu = (label, val, sub) =>
+      `<div style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px;min-width:0;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1px;color:#999;text-transform:uppercase;margin-bottom:3px;">${label}</div>
+        <div style="font-size:16px;font-weight:700;color:#fff;line-height:1;">${val}</div>
+        ${sub ? `<div style="font-size:11px;color:#888;margin-top:2px;">${sub}</div>` : ''}
+      </div>`;
+
     let html = '<div style="display:flex;gap:8px;">';
     if (p.peso)  html += card('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
     if (p.talla) html += card('Talla', p.talla + ' cm', '');
     if (edad)    html += card('Edad', edad + ' años', '');
     html += '</div>';
-    cardsEl.innerHTML = html;
-    cardsEl.style.display = 'block';
+
+    let htmlMenu = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">';
+    if (p.peso)  htmlMenu += cardMenu('Peso', p.peso + ' kg', imc ? 'IMC ' + imc : '');
+    if (p.talla) htmlMenu += cardMenu('Talla', p.talla + ' cm', '');
+    if (edad)    htmlMenu += cardMenu('Edad', edad + ' años', '');
+    htmlMenu += '</div>';
+
+    // Actualizar panel principal (hidden)
+    const cardsEl = document.getElementById('dashPerfilCards');
+    if (cardsEl) {
+      if (!tieneData) { cardsEl.style.display = 'none'; }
+      else { cardsEl.innerHTML = html; cardsEl.style.display = 'block'; }
+    }
+
+    // Actualizar menú móvil
+    const menuCards = document.getElementById('dashMenuPerfilCards');
+    const menuSinDatos = document.getElementById('dashMenuSinDatos');
+    if (menuCards && menuSinDatos) {
+      if (!tieneData) {
+        menuCards.style.display = 'none';
+        menuSinDatos.style.display = 'block';
+      } else {
+        menuCards.innerHTML = htmlMenu;
+        menuCards.style.display = 'block';
+        menuSinDatos.style.display = 'none';
+      }
+    }
   }
 
 
