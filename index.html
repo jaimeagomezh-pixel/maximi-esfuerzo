@@ -1921,45 +1921,6 @@
               <input type="number" id="ib_bmr" step="1" placeholder="ej. 1750"
                 style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
             </div>
-            <!-- Perímetros musculares (opcionales) -->
-            <div style="grid-column:1/-1;border-top:1px solid rgba(0,0,0,0.07);padding-top:10px;margin-top:4px;">
-              <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#999;text-transform:uppercase;font-weight:700;margin-bottom:8px;">Perímetros musculares (cm) · opcional</div>
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Brazo relajado</label>
-              <input type="number" id="ib_brazo_relax" step="0.1" placeholder="ej. 33.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Brazo contraído</label>
-              <input type="number" id="ib_brazo_contra" step="0.1" placeholder="ej. 36.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Torso (pecho)</label>
-              <input type="number" id="ib_torso" step="0.1" placeholder="ej. 98.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Cintura</label>
-              <input type="number" id="ib_cintura" step="0.1" placeholder="ej. 82.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Cadera</label>
-              <input type="number" id="ib_cadera" step="0.1" placeholder="ej. 95.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div>
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Glúteo</label>
-              <input type="number" id="ib_gluteo" step="0.1" placeholder="ej. 97.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
-            <div style="grid-column:1/-1;">
-              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Muslo</label>
-              <input type="number" id="ib_muslo" step="0.1" placeholder="ej. 58.0"
-                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
-            </div>
           </div>
           <div style="display:flex;gap:8px;">
             <button onclick="guardarInbody()"
@@ -1983,6 +1944,61 @@
                  font-size:13px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;padding:4px 0;font-weight:600;">
           + Ingresar datos manualmente
         </button>
+      </div>
+
+      <!-- Perímetros musculares (cinta métrica) — sección propia, siempre visible -->
+      <div style="padding:0 14px 14px;border-top:1px solid rgba(0,0,0,0.06);margin-top:4px;padding-top:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;cursor:pointer;" onclick="togglePerimetrosForm()">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:2px;color:#666;text-transform:uppercase;font-weight:600;">Perímetros musculares</div>
+          <span id="perimetrosCaret" style="color:#999;font-size:14px;">▾</span>
+        </div>
+        <div style="font-family:'Barlow',sans-serif;font-size:11px;color:#999;margin-bottom:10px;">Medidos con cinta métrica (cm). Se guardan con la fecha de hoy.</div>
+        <div id="perimetrosForm" style="display:none;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Brazo relajado</label>
+              <input type="number" id="pm_brazo_relax" step="0.1" placeholder="ej. 33.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Brazo contraído</label>
+              <input type="number" id="pm_brazo_contra" step="0.1" placeholder="ej. 36.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Torso (pecho)</label>
+              <input type="number" id="pm_torso" step="0.1" placeholder="ej. 98.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Cintura</label>
+              <input type="number" id="pm_cintura" step="0.1" placeholder="ej. 82.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Cadera</label>
+              <input type="number" id="pm_cadera" step="0.1" placeholder="ej. 95.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div>
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Glúteo</label>
+              <input type="number" id="pm_gluteo" step="0.1" placeholder="ej. 97.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+            <div style="grid-column:1/-1;">
+              <label style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;color:#666;text-transform:uppercase;font-weight:600;">Muslo</label>
+              <input type="number" id="pm_muslo" step="0.1" placeholder="ej. 58.0"
+                style="width:100%;padding:7px 8px;border:1px solid rgba(0,0,0,0.12);border-radius:5px;font-size:13px;box-sizing:border-box;">
+            </div>
+          </div>
+          <button onclick="guardarPerimetros()"
+            style="width:100%;background:#007a85;color:#fff;font-family:'Barlow Condensed',sans-serif;
+                   font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;
+                   border:none;border-radius:5px;cursor:pointer;">
+            Guardar perímetros
+          </button>
+          <div id="perimetrosStatus" style="font-size:11px;color:#007a85;margin-top:8px;text-align:center;"></div>
+        </div>
       </div>
 
       <!-- Radar chart -->
@@ -2355,7 +2371,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260619e"></script>
+<script src="scripts.js?v=20260619f"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -3246,12 +3262,10 @@ async function guardarInbody() {
   if (camposReq.some(k => isNaN(vals[k]))) {
     alert('Completa todos los campos obligatorios'); return;
   }
-  // Perímetros musculares (opcionales — solo se guardan si tienen valor)
-  const perimetros = ['brazo_relax','brazo_contra','torso','cintura','cadera','gluteo','muslo'];
-  perimetros.forEach(k => {
-    const v = parseFloat(document.getElementById('ib_' + k)?.value);
-    if (!isNaN(v) && v > 0) vals['p_' + k] = v;
-  });
+  // Merge: preservar perímetros (p_*) ya guardados hoy para no pisarlos al guardar el InBody.
+  const cacheKey0 = 'inbodyHistorial_' + user.uid;
+  const hoyPrev = (JSON.parse(localStorage.getItem(cacheKey0) || '[]')).find(m => m.fecha === vals.fecha) || {};
+  Object.keys(hoyPrev).forEach(k => { if (k.startsWith('p_') && vals[k] == null) vals[k] = hoyPrev[k]; });
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/save-inbody`, {
       method:'POST',
@@ -3270,6 +3284,69 @@ async function guardarInbody() {
     empujarTendenciasInbody(listaActual);
   } catch(e) {
     alert('Error guardando: ' + e.message);
+  }
+}
+
+// ── PERÍMETROS MUSCULARES (cinta métrica) ───────────────────────────────────
+const PERIMETROS_CAMPOS = ['brazo_relax','brazo_contra','torso','cintura','cadera','gluteo','muslo'];
+
+function togglePerimetrosForm() {
+  const f = document.getElementById('perimetrosForm');
+  const caret = document.getElementById('perimetrosCaret');
+  if (!f) return;
+  const abrir = f.style.display === 'none';
+  f.style.display = abrir ? 'block' : 'none';
+  if (caret) caret.textContent = abrir ? '▴' : '▾';
+  if (abrir) prefillPerimetros();
+}
+
+// Prellena el formulario con la última medición de perímetros disponible
+function prefillPerimetros() {
+  const user = window._auth?.currentUser;
+  if (!user) return;
+  const lista = JSON.parse(localStorage.getItem('inbodyHistorial_' + user.uid) || '[]')
+    .filter(m => PERIMETROS_CAMPOS.some(k => m['p_' + k] != null))
+    .sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)));
+  if (!lista.length) return;
+  const ult = lista[lista.length - 1];
+  PERIMETROS_CAMPOS.forEach(k => {
+    const el = document.getElementById('pm_' + k);
+    if (el && ult['p_' + k] != null && !el.value) el.value = ult['p_' + k];
+  });
+}
+
+async function guardarPerimetros() {
+  const user = window._auth?.currentUser;
+  if (!user) { alert('Inicia sesión'); return; }
+  const fecha = new Date().toISOString().split('T')[0];
+  // Recolectar solo los campos con valor
+  const p = {};
+  PERIMETROS_CAMPOS.forEach(k => {
+    const v = parseFloat(document.getElementById('pm_' + k)?.value);
+    if (!isNaN(v) && v > 0) p['p_' + k] = v;
+  });
+  if (!Object.keys(p).length) { alert('Ingresa al menos un perímetro'); return; }
+
+  // Merge sobre la medición de hoy (no pisar peso/composición ya registrados)
+  const cacheKey = 'inbodyHistorial_' + user.uid;
+  const lista = JSON.parse(localStorage.getItem(cacheKey) || '[]');
+  const hoyPrev = lista.find(m => m.fecha === fecha) || { fecha };
+  const medicion = { ...hoyPrev, ...p, fecha };
+
+  const status = document.getElementById('perimetrosStatus');
+  if (status) status.textContent = 'Guardando…';
+  try {
+    const r = await fetch(`${MEDIA_WORKER}/media/save-inbody`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ uid: user.uid, email: user.email, medicion })
+    });
+    const d = await r.json();
+    if (!d.ok) throw new Error(d.error);
+    if (status) status.textContent = '✓ Perímetros guardados';
+    await cargarInbodyHistorial();
+  } catch(e) {
+    if (status) status.textContent = 'Error: ' + e.message;
   }
 }
 
@@ -3433,17 +3510,30 @@ function renderInbodyLista(lista) {
   if (!el) return;
   if (!lista.length) { el.innerHTML = ''; return; }
   document.getElementById('inbodyHistorial').style.display = 'block';
+  const PERIM = ['brazo_relax','brazo_contra','torso','cintura','cadera','gluteo','muslo'];
   el.innerHTML = lista.slice().reverse().map(m => {
-    const esPerfilOnly = m.source === 'perfil' && !m.musculo && !m.grasa_kg;
-    const detalle = esPerfilOnly
-      ? `<span style="color:#bbb;margin-left:8px;font-style:italic;">solo peso registrado</span>`
-      : `<span style="color:#aaa;margin-left:8px;">${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>`;
+    const tienePerim = PERIM.some(k => m['p_' + k] != null);
+    const tieneComp  = m.musculo || m.grasa_kg;
+    const tienePeso  = m.peso != null && !isNaN(m.peso);
+    let detalle;
+    if (tieneComp) {
+      detalle = `<span style="color:#aaa;margin-left:8px;">${m.musculo} kg musc · ${m.grasa_pct}% grasa</span>`;
+    } else if (tienePeso) {
+      detalle = `<span style="color:#bbb;margin-left:8px;font-style:italic;">solo peso registrado</span>`;
+    } else {
+      detalle = `<span style="color:#bbb;margin-left:8px;font-style:italic;">solo perímetros</span>`;
+    }
+    const perimBadge = tienePerim
+      ? `<span style="color:#007a85;margin-left:8px;">📏 ${PERIM.filter(k => m['p_'+k]!=null).length} perím.</span>`
+      : '';
+    const claro = !tieneComp;
+    const pesoStr = tienePeso ? `${m.peso} kg` : '—';
     return `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);font-size:12px;">
       <div>
-        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:${esPerfilOnly ? '#aaa' : '#555'};">${m.fecha}</span>
-        <strong style="margin-left:8px;color:${esPerfilOnly ? '#999' : '#222'};">${m.peso} kg</strong>
-        ${detalle}
+        <span style="font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:${claro ? '#aaa' : '#555'};">${m.fecha}</span>
+        <strong style="margin-left:8px;color:${claro ? '#999' : '#222'};">${pesoStr}</strong>
+        ${detalle}${perimBadge}
       </div>
       <button onclick="eliminarInbody('${m.fecha}')"
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"

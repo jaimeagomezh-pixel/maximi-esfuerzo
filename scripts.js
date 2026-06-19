@@ -1043,6 +1043,8 @@
       if (typeof renderResumenMensual === 'function') renderResumenMensual();
       // Recalcular carga rTSS con las actividades recién sincronizadas
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+      // Enriquecer con tiempo-real-en-zona FC (en segundo plano, acotado por rate-limit)
+      enriquecerZonasFC(token).catch(() => {});
 
     } catch(e) {
       if (e && e.rateLimited) { mostrarEstadoRateLimit(); return; }
@@ -1094,9 +1096,15 @@
 
   // Guarda un cache compacto de actividades para el resumen mensual
   function cachearActividades(allActs) {
+    // Preservar el tiempo-real-en-zona (zsec) ya calculado en sincronizaciones previas
+    const prev = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const zsecPrev = {};
+    prev.forEach(a => { if (a.id && a.zsec) zsecPrev[a.id] = a.zsec; });
+
     const compact = allActs
       .filter(a => a.distance > 0 && a.start_date_local)
       .map(a => ({
+        id:    a.id,                                 // id Strava (para enriquecer zonas FC reales)
         date:  a.start_date_local.slice(0, 10),     // YYYY-MM-DD
         km:    +(a.distance / 1000).toFixed(2),
         sec:   a.moving_time || 0,
@@ -1104,9 +1112,75 @@
         type:  a.type,
         sport: a.sport_type || a.type,              // distingue Carrera de montaña
         name:  a.name || '',                        // para excluir "Lastre" del pool endurance
-        kj:    a.kilojoules ? Math.round(a.kilojoules) : 0
+        kj:    a.kilojoules ? Math.round(a.kilojoules) : 0,
+        zsec:  (a.id && zsecPrev[a.id]) ? zsecPrev[a.id] : null  // [Z1..Z5] segundos reales
       }));
     localStorage.setItem('stravaActsCache', JSON.stringify(compact));
+  }
+
+  // Clasifica un %FCmáx en zona 0-4 (Cerezuela-Espejo: Z1<71% Z2 71-82% Z3 82-89% Z4 89-94% Z5≥94%)
+  function _zonaDesdePctFC(pct) {
+    if (pct < 0.71) return 0;
+    if (pct < 0.82) return 1;
+    if (pct < 0.89) return 2;
+    if (pct < 0.94) return 3;
+    return 4;
+  }
+
+  // Convierte los distribution_buckets de Strava en [Z1..Z5] segundos según NUESTRO modelo.
+  // Reclasifica cada bucket por su FC media (min+max)/2 ÷ FCmáx para mantener coherencia
+  // con las zonas de carrera del resto de la app.
+  function _zsecDesdeBuckets(buckets, fcMax) {
+    const zsec = [0, 0, 0, 0, 0];
+    if (!Array.isArray(buckets) || !buckets.length) return null;
+    // Si tenemos FCmáx, reclasificar por punto medio; si no, mapear índice→zona (asume 5 zonas)
+    buckets.forEach((b, i) => {
+      const seg = b.time || 0;
+      let z;
+      if (fcMax && b.min != null && b.max != null) {
+        const mid = (b.min + (b.max > b.min ? b.max : b.min + 10)) / 2;
+        z = _zonaDesdePctFC(mid / fcMax);
+      } else {
+        z = Math.min(4, i); // fallback: bucket index ≈ zona
+      }
+      zsec[z] += seg;
+    });
+    return zsec.some(v => v > 0) ? zsec : null;
+  }
+
+  // Enriquece el cache con el tiempo REAL en cada zona FC (endpoint /zones de Strava).
+  // Solo consulta actividades con FC que aún no tienen zsec; acotado para respetar el rate-limit.
+  async function enriquecerZonasFC(token, maxFetch = 12) {
+    const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const fcMax = perfil.fcMax || null;
+    // Pendientes: tienen FC media y aún no tienen tiempo-en-zona real. Más recientes primero.
+    const pendientes = cache
+      .filter(a => a.id && a.hr && !a.zsec)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, maxFetch);
+    if (!pendientes.length) return;
+
+    let cambios = false;
+    for (const act of pendientes) {
+      try {
+        const res = await stravaFetch(
+          `https://www.strava.com/api/v3/activities/${act.id}/zones`, token
+        );
+        const zonas = await res.json();
+        const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
+        const zsec = hrZone ? _zsecDesdeBuckets(hrZone.distribution_buckets, fcMax) : null;
+        // Marcar como procesada aunque no tenga zonas (evita reintentar infinito)
+        const idx = cache.findIndex(c => c.id === act.id);
+        if (idx >= 0) { cache[idx].zsec = zsec || []; cambios = true; }
+      } catch (e) {
+        if (e && e.rateLimited) break; // detener al tocar el rate-limit; se reintenta el próximo sync
+      }
+    }
+    if (cambios) {
+      localStorage.setItem('stravaActsCache', JSON.stringify(cache));
+      if (typeof renderResumenMensual === 'function') renderResumenMensual();
+    }
   }
 
   // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
@@ -1224,19 +1298,17 @@
     }
     if (sinFcEl) sinFcEl.style.display = 'none';
 
-    // Clasificar tiempo de cada actividad por zona (según FC promedio)
-    // Umbrales Cerezuela-Espejo: Z1<71% Z2 71-82% Z3 82-89% Z4 89-94% Z5≥94%
+    // Distribución por zonas FC. Preferimos el tiempo-real-en-zona (zsec, vía /zones de
+    // Strava); solo si una actividad aún no lo tiene caemos al método aproximado por FC media.
     const zonaSec = [0, 0, 0, 0, 0]; // Z1..Z5
+    let algunaReal = false;
     acts.forEach(a => {
-      if (!a.hr || !a.sec) return;
-      const pct = a.hr / fcMax;
-      let z;
-      if      (pct < 0.71) z = 0;
-      else if (pct < 0.82) z = 1;
-      else if (pct < 0.89) z = 2;
-      else if (pct < 0.94) z = 3;
-      else                 z = 4;
-      zonaSec[z] += a.sec;
+      if (Array.isArray(a.zsec) && a.zsec.length === 5 && a.zsec.some(v => v > 0)) {
+        for (let i = 0; i < 5; i++) zonaSec[i] += a.zsec[i];
+        algunaReal = true;
+      } else if (a.hr && a.sec) {
+        zonaSec[_zonaDesdePctFC(a.hr / fcMax)] += a.sec;
+      }
     });
     const totalZ = zonaSec.reduce((s, v) => s + v, 0) || 1;
 
@@ -1265,6 +1337,8 @@
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${Z[i].color};min-width:32px;text-align:right;">${pct}%</div>
         </div>`;
       }).join('');
+      // Nota de exactitud: real (tiempo en zona de Strava) vs aproximado (por FC media)
+      zonasEl.innerHTML += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:0.5px;color:rgba(255,255,255,0.3);margin-top:6px;text-align:right;">${algunaReal ? 'tiempo real en zona · Strava' : 'aprox. por FC media — se afina al sincronizar'}</div>`;
     }
   }
 
@@ -2077,8 +2151,10 @@
     localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
     if (peso || talla || fechaNac) pushRuckProfileToCloud(ruckProfile);
 
-    // Registrar peso en historial InBody si se ingresó un peso
-    if (peso) registrarPesoEnHistorial(peso);
+    // Registrar peso en historial SOLO si CAMBIÓ respecto al anterior.
+    // (Guardar el perfil por cualquier otro motivo —FC máx, fecha, etc.— no debe
+    //  generar un punto de peso fantasma cada vez.)
+    if (peso && Number(prev.peso) !== peso) registrarPesoEnHistorial(peso);
 
     // Feedback
     const btn = document.querySelector('[onclick="guardarMiPerfil()"]');
