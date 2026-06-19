@@ -4637,8 +4637,8 @@ body.plan-activo .plan-lock  { display: none; }
     border-radius: 0 !important;
     box-shadow: none !important;
     padding: 0 !important;
-    margin: 2px 4px 4px 4px !important;
-    width: calc(100% - 8px) !important;
+    margin: 0 !important;
+    width: 100% !important;
     aspect-ratio: 4 / 3 !important;
     display: flex !important;
     flex-direction: column !important;
@@ -4691,8 +4691,8 @@ body.plan-activo .plan-lock  { display: none; }
   }
   #dashboardAtleta.open .dash-frase-autor {
     position: absolute !important;
-    bottom: 8% !important;
-    right: 10% !important;
+    bottom: 26% !important;
+    right: 15% !important;
     font-family: 'Courier New', monospace !important;
     font-size: clamp(8px, 2vw, 10px) !important;
     font-weight: 700 !important;
@@ -4735,7 +4735,7 @@ body.plan-activo .plan-lock  { display: none; }
   /* ── Overlay cinema: placa dog-tag imagen real ── */
   .fop-placa {
     position: relative;
-    width: min(98vw, 600px);
+    width: min(98vw, 660px);
     aspect-ratio: 4 / 3;
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
   }
@@ -4783,8 +4783,8 @@ body.plan-activo .plan-lock  { display: none; }
   }
   .fop-autor {
     position: absolute;
-    bottom: 8%;
-    right: 10%;
+    bottom: 26%;
+    right: 15%;
     font-family: 'Courier New', monospace;
     font-size: clamp(9px, 1.2vw, 11px);
     letter-spacing: 2px;
