@@ -851,6 +851,26 @@
   // título es el interruptor maestro: cualquier actividad a pie con lastre → rucking.
   const FOOT_RUCK_TYPES = new Set(['Walk','Hike','Run','TrailRun','VirtualRun','Treadmill']);
 
+  // Detecta el terreno desde una palabra clave en el título (asfalto/tierra/trail/arena
+  // y sinónimos comunes). Devuelve null si no encuentra ninguna.
+  function parseTerrenoTitulo(name) {
+    const t = (name || '').toLowerCase();
+    if (/\b(arena|sand|playa|duna|m[eé]dano)\b/.test(t))            return 'arena';
+    if (/\b(asfalto|asphalt|ruta|calle|pavimento|road|pista)\b/.test(t)) return 'asfalto';
+    if (/\b(tierra|dirt|camino|gravilla|ripio|grava)\b/.test(t))    return 'tierra';
+    if (/\b(trail|sendero|monta[ñn]a|cerro|bosque|barro|fango)\b/.test(t)) return 'trail';
+    return null;
+  }
+
+  // Terreno híbrido: 1º palabra clave del título; si no hay, se infiere del tipo de
+  // Strava (TrailRun/Hike → trail · Run/Walk/Treadmill/VirtualRun → asfalto).
+  function inferirTerrenoStrava(sportType, name) {
+    const porTitulo = parseTerrenoTitulo(name);
+    if (porTitulo) return porTitulo;
+    if (sportType === 'TrailRun' || sportType === 'Hike') return 'trail';
+    return 'asfalto';
+  }
+
   function detectarRuckingDesdeStrava(allActs) {
     const ruckActs = allActs.filter(a =>
       parseLastreKg(a.name) !== null && FOOT_RUCK_TYPES.has(a.sport_type || a.type)
@@ -889,7 +909,7 @@
         time:     tSec,
         elev:     elevM,
         notes:    a.name,
-        terrain:  'trail',
+        terrain:  inferirTerrenoStrava(a.sport_type || a.type, a.name),
         actType:  a.sport_type || a.type,
         source:   'strava'
       });
@@ -2050,6 +2070,7 @@
     if (p.talla)    { const el = document.getElementById('mpTalla');    if(el) el.value = p.talla; }
     if (p.fechaNac) { const el = document.getElementById('mpFechaNac'); if(el) el.value = p.fechaNac; }
     if (p.sexo)     { const el = document.getElementById('mpSexo');     if(el) el.value = p.sexo; }
+    { const el = document.getElementById('mpPerfilTactico'); if (el) el.value = p.perfilTactico || 'civil'; }
     // FC máx
     const fcEl = document.getElementById('mpFcMax');
     if (fcEl && p.fcMax) fcEl.value = p.fcMax;
@@ -2118,9 +2139,10 @@
     const fechaNac = document.getElementById('mpFechaNac')?.value || null;
     const edad     = calcularEdad(fechaNac);
     const sexo     = document.getElementById('mpSexo')?.value || '';
+    const perfilTactico = document.getElementById('mpPerfilTactico')?.value || 'civil';
     const fcManual = parseInt(document.getElementById('mpFcMax')?.value) || null;
     const prev = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
-    const p = { ...prev, peso, talla, fechaNac, edad, sexo, updatedAt: new Date().toISOString().slice(0,10) };
+    const p = { ...prev, peso, talla, fechaNac, edad, sexo, perfilTactico, updatedAt: new Date().toISOString().slice(0,10) };
 
     if (fcManual && fcManual >= 100 && fcManual <= 230) {
       if (fcManual !== prev.fcMax || prev.fcMaxFuente !== 'manual') {
@@ -2142,6 +2164,11 @@
     localStorage.setItem('atletaPerfil', JSON.stringify(p));
     actualizarResumenPerfil(p);
     if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
+    // El perfil táctico afecta el MO del rkTSS → recalcular carga y dashboard de rucking
+    if (perfilTactico !== prev.perfilTactico) {
+      if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+      if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
+    }
     document.getElementById('miPerfilPanel').style.display = 'none';
     // Sincronizar peso, talla y fechaNac al cloud (para que el coach los vea)
     const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -3620,6 +3647,8 @@
   //   Power(W) = (Masa × g × (μ·distancia_m + desnivel_m)) / tiempo_movimiento_s
   const G_RUCK = 9.81;
   const MU_TERRENO = { asfalto: 0.10, tierra: 0.15, trail: 0.20, arena: 0.28 };
+  // Coeficiente de terreno η de Pandolf (para el costo metabólico / rkTSS)
+  const ETA_TERRENO = { asfalto: 1.0, tierra: 1.1, trail: 1.2, arena: 2.1 };
 
   function calcPotenciaRucking(bodyWeight, packWeight, distanceM, elevationGain, movingTime, terrainType) {
     const warnings = [];
@@ -3650,6 +3679,25 @@
     const mu = MU_TERRENO[session.terrain] != null ? MU_TERRENO[session.terrain] : MU_TERRENO.trail;
     const trabajoJ = (bm + session.load) * G_RUCK * (mu * session.dist * 1000 + (session.elev || 0));
     return Math.round(trabajoJ / 1000); // kJ
+  }
+
+  // rkTSS de una sesión de rucking (Motor de Fatiga Híbrido). Requiere FTP (test 20 min)
+  // y peso corporal. Usa Pandolf + Multiplicador de Estrés Operativo según etiqueta de perfil.
+  function calcRkTSSRuck(session) {
+    if (typeof window.calcularRkTSS !== 'function') return null;
+    const bm = getBMForDate(session.date);
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const ftpMs = profile.endurance && profile.endurance.ftpMs;
+    if (!bm || !ftpMs || !session.time || !session.dist) return null;
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const eta = ETA_TERRENO[session.terrain] != null ? ETA_TERRENO[session.terrain] : ETA_TERRENO.trail;
+    const r = window.calcularRkTSS({
+      bodyKg: bm, loadKg: session.load || 0,
+      distM: session.dist * 1000, elevM: session.elev || 0,
+      movingSec: session.time, terrainEta: eta,
+      ftpMs, perfilTactico: perfil.perfilTactico || 'civil'
+    });
+    return r && r.ok ? r : null;
   }
 
   function fmtTimerRuck(sec) {
@@ -4380,7 +4428,23 @@
       .filter(a => RTSS_RUN_TYPES.has(a.type) && a.sec > 0 && a.km > 0 && parseLastreKg(a.name) === null)
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    if (!runs.length) {
+    // Carrera limpia → rTSS (Coggan). Velocidad media = km*1000 / sec
+    const conRTSS = runs.map(r => {
+      const avgMs = (r.km * 1000) / r.sec;
+      const res = window.calcularFatigaDiaria(ftp, r.sec, avgMs);
+      return { date: r.date, km: r.km, carga: res.ok ? res.rTSS : 0, iff: res.ok ? res.if : 0, tipo: 'run' };
+    });
+
+    // Marcha con peso → rkTSS (Pandolf + MO). Motor de Fatiga Híbrido.
+    const ruckSessions = JSON.parse(localStorage.getItem('ruckSessions') || '[]');
+    const conRkTSS = ruckSessions.map(s => {
+      const r = calcRkTSSRuck(s);
+      return r ? { date: s.date, km: s.dist, carga: r.rkTSS, iff: r.if, mo: r.mo, tipo: 'ruck' } : null;
+    }).filter(Boolean);
+
+    const sesiones = [...conRTSS, ...conRkTSS].sort((a, b) => a.date.localeCompare(b.date));
+
+    if (!sesiones.length) {
       sinFtp.style.display = 'block';
       sinFtp.querySelector('div').innerHTML = 'Sincroniza Strava para ver tu carga de entrenamiento';
       cont.style.display = 'none';
@@ -4391,27 +4455,21 @@
     sinFtp.style.display = 'none';
     cont.style.display = 'block';
 
-    // rTSS por carrera (velocidad media = km*1000 / sec)
-    const conRTSS = runs.map(r => {
-      const avgMs = (r.km * 1000) / r.sec;
-      const res = window.calcularFatigaDiaria(ftp, r.sec, avgMs);
-      return { date: r.date, km: r.km, rtss: res.ok ? res.rTSS : 0, iff: res.ok ? res.if : 0 };
-    });
-
-    // Última carrera
-    const ult = conRTSS[conRTSS.length - 1];
+    // Última sesión (carrera o rucking, la más reciente)
+    const ult = sesiones[sesiones.length - 1];
+    const esRuck = ult.tipo === 'ruck';
     const elVal = document.getElementById('rtssUltimaVal');
     const elIF  = document.getElementById('rtssUltimaIF');
     const elInfo= document.getElementById('rtssUltimaInfo');
-    if (elVal)  elVal.textContent  = ult.rtss;
-    if (elIF)   elIF.textContent   = 'rTSS · IF ' + ult.iff;
-    if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} · ${ult.km} km`; }
+    if (elVal)  elVal.textContent  = ult.carga;
+    if (elIF)   elIF.textContent   = (esRuck ? 'rkTSS' : 'rTSS') + ' · IF ' + ult.iff + (esRuck && ult.mo > 1 ? ' · MO×' + ult.mo : '');
+    if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} · ${ult.km} km${esRuck ? ' · con lastre' : ''}`; }
 
-    // Agrupar por semana (lunes)
+    // Agrupar por semana (lunes) — suma híbrida rTSS + rkTSS
     const porSemana = {};
-    conRTSS.forEach(r => {
+    sesiones.forEach(r => {
       const wk = _lunesDeSemana(r.date);
-      porSemana[wk] = (porSemana[wk] || 0) + r.rtss;
+      porSemana[wk] = (porSemana[wk] || 0) + r.carga;
     });
 
     // Últimas 10 semanas consecutivas (incluye semanas con 0)
@@ -4447,7 +4505,7 @@
     const previa = data[data.length - 2] || 0;
     const resumenEl = document.getElementById('rtssResumenSemanal');
     if (resumenEl) {
-      let txt = `Última semana: <strong>${ultima} rTSS</strong>`;
+      let txt = `Última semana: <strong>${ultima}</strong> de carga`;
       if (previa > 0) {
         const dif = Math.round((ultima - previa) / previa * 100);
         const sube = dif > 0;
@@ -4466,7 +4524,7 @@
         data: { labels, datasets: [{ data, backgroundColor: _colores, borderRadius: 4, maxBarThickness: 34 }] },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rTSS ' + c.parsed.y } } },
+          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'Carga ' + c.parsed.y } } },
           scales: {
             y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { color: 'rgba(255,255,255,0.1)' } },
             x: { ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { display: false } }
@@ -4479,7 +4537,7 @@
     // rTSS calculado con FTP crudo (mult=1); el coach lo reescala con su multiplicador.
     const resumen = {
       semanas: arr.map(w => ({ wk: w.key, val: w.val })),
-      ultima:  { date: ult.date, km: ult.km, rtss: ult.rtss, iff: ult.iff },
+      ultima:  { date: ult.date, km: ult.km, rtss: ult.carga, iff: ult.iff, tipo: ult.tipo },
       ftpMs:   ftp,
       actualizado: new Date().toISOString().slice(0, 10),
     };

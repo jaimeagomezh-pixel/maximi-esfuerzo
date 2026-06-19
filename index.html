@@ -112,7 +112,7 @@
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // Módulo de Endurance (fuente de verdad de los cálculos VAM/FTP/rTSS)
-  import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo } from "./endurance-module.js?v=20260608";
+  import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo, calcularPandolfWatts, calcularRkTSS } from "./endurance-module.js?v=20260619";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAXLORK86Zi4CSCm3Y2Wl6kgoozI36ZfoU",
@@ -140,6 +140,8 @@
   window.calcularPerfilEndurance = calcularPerfilEndurance;
   window.calcularFatigaDiaria    = calcularFatigaDiaria;
   window.msARitmo                = msARitmo;
+  window.calcularPandolfWatts    = calcularPandolfWatts;
+  window.calcularRkTSS           = calcularRkTSS;
 
   onAuthStateChanged(auth, (user) => {
     const btnNav   = document.getElementById('btn-nav-login');
@@ -812,6 +814,16 @@
           <input type="number" id="mpFcMax" placeholder="ej. 190" step="1" min="100" max="230"
             style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
           <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Ingresa manualmente · Se actualiza automáticamente desde Strava</div>
+        </div>
+        <!-- Perfil táctico — define el umbral de carga para el estrés operativo (rkTSS) -->
+        <div style="grid-column:1/-1;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:4px;">Perfil de carga (rucking)</div>
+          <select id="mpPerfilTactico"
+            style="width:100%;background:#f7f7f7;border:1px solid rgba(0,0,0,0.12);color:#222;padding:9px 10px;border-radius:5px;font-size:15px;outline:none;box-sizing:border-box;">
+            <option value="civil">Civil / Fitness</option>
+            <option value="militar">Militar / Táctico</option>
+          </select>
+          <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Define cuándo se aplica el estrés operativo (MO×1.25): lastre &gt;30% del peso (civil) o &gt;45% (militar)</div>
         </div>
       </div>
       <button onclick="guardarMiPerfil()"
@@ -2371,7 +2383,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260619f"></script>
+<script src="scripts.js?v=20260619g"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

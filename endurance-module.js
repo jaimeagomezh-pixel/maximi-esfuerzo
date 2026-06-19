@@ -199,3 +199,116 @@ export function calcularFatigaDiaria(ftpAtleta, movingTime, gapMs) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FUNCIÓN 3 · COSTO METABÓLICO DE MARCHA CON CARGA — PANDOLF et al. (1977)
+// ════════════════════════════════════════════════════════════════════════════
+// Multiplicador de Estrés Operativo y umbrales de carga (% del peso corporal)
+// según la etiqueta del perfil del atleta.
+export const MO_FACTOR        = 1.25;  // estrés operativo cuando se supera el umbral
+export const UMBRAL_CARGA_CIVIL   = 0.30;  // Civil/Fitness: MO si lastre > 30% del peso
+export const UMBRAL_CARGA_MILITAR = 0.45;  // Militar/Táctico: MO si lastre > 45% del peso
+
+// Coeficientes de terreno η de Pandolf (resistencia del suelo al desplazamiento).
+export const ETA_TERRENO = { asfalto: 1.0, tierra: 1.1, trail: 1.2, arena: 2.1 };
+
+/**
+ * Costo metabólico de caminar/marchar con carga — ecuación de Pandolf (1977):
+ *
+ *   M = 1.5·W + 2.0·(W+L)·(L/W)² + η·(W+L)·(1.5·V² + 0.35·V·G)
+ *
+ * @param {Object} p
+ * @param {number} p.bodyKg       - Peso corporal W (kg, > 0).
+ * @param {number} [p.loadKg=0]   - Carga externa L (kg, lastre).
+ * @param {number} p.speedMs      - Velocidad de marcha V (m/s, >= 0).
+ * @param {number} [p.gradePct=0] - Pendiente media G (%, >= 0).
+ * @param {number} [p.terrainEta=1.0] - Coeficiente de terreno η.
+ * @returns {{ok:boolean, watts?:number, error?:string}} M en Watts.
+ */
+export function calcularPandolfWatts({ bodyKg, loadKg = 0, speedMs, gradePct = 0, terrainEta = 1.0 }) {
+  const W = Number(bodyKg);
+  const V = Number(speedMs);
+  if (!Number.isFinite(W) || W <= 0) return { ok: false, error: 'peso corporal inválido' };
+  if (!Number.isFinite(V) || V < 0)  return { ok: false, error: 'velocidad inválida' };
+
+  const L   = (Number.isFinite(Number(loadKg))   && loadKg   > 0) ? Number(loadKg)   : 0;
+  const G   =  Number.isFinite(Number(gradePct))                  ? Number(gradePct) : 0;
+  const eta = (Number.isFinite(Number(terrainEta)) && terrainEta > 0) ? Number(terrainEta) : 1.0;
+
+  const term1 = 1.5 * W;                                       // mantener el cuerpo en pie
+  const term2 = 2.0 * (W + L) * Math.pow(L / W, 2);            // sobrecosto de portar el lastre
+  const term3 = eta * (W + L) * (1.5 * V * V + 0.35 * V * G);  // desplazamiento + terreno + pendiente
+  const M = term1 + term2 + term3;
+
+  return { ok: true, watts: Number(M.toFixed(1)) };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FUNCIÓN 4 · rkTSS — ÍNDICE DE ESTRÉS PROPIETARIO PARA RUCKING
+// ════════════════════════════════════════════════════════════════════════════
+/**
+ * Calcula el rkTSS de una sesión de marcha con peso.
+ *
+ *   IF_metab = M_sesión / M_umbral
+ *      M_sesión = Pandolf con carga, terreno y desnivel reales de la sesión
+ *      M_umbral = Pandolf SIN carga, terreno llano (η=1.0), al ritmo FTP del atleta
+ *                 → costo metabólico de locomoción en umbral (análogo al FTP de Coggan)
+ *   MO = 1.25  si  (L/W) supera el umbral del perfil (30% civil · 45% militar); si no 1.0
+ *   rkTSS = (tiempo_s · IF_metab² / 3600) · 100 · MO
+ *
+ * @param {Object} p
+ * @param {number} p.bodyKg        - Peso corporal (kg, > 0).
+ * @param {number} p.loadKg        - Lastre (kg).
+ * @param {number} p.distM         - Distancia (m, > 0).
+ * @param {number} [p.elevM=0]     - Desnivel positivo acumulado (m).
+ * @param {number} p.movingSec     - Tiempo neto en movimiento (s, > 0).
+ * @param {number} [p.terrainEta=1.2] - Coeficiente de terreno η de la sesión.
+ * @param {number} p.ftpMs         - FTP del atleta (m/s, > 0) — define el umbral metabólico.
+ * @param {string} [p.perfilTactico='civil'] - 'civil' | 'militar'.
+ * @returns {{ok:boolean, rkTSS?:number, watts?:number, if?:number, mo?:number, loadPct?:number, gradePct?:number, error?:string}}
+ */
+export function calcularRkTSS({ bodyKg, loadKg, distM, elevM = 0, movingSec, terrainEta = ETA_TERRENO.trail, ftpMs, perfilTactico = 'civil' }) {
+  const W   = Number(bodyKg);
+  const t   = Number(movingSec);
+  const d   = Number(distM);
+  const ftp = Number(ftpMs);
+
+  if (!Number.isFinite(W)  || W  <= 0) return { ok: false, error: 'peso corporal inválido' };
+  if (!Number.isFinite(t)  || t  <= 0) return { ok: false, error: 'tiempo en movimiento inválido' };
+  if (!Number.isFinite(d)  || d  <= 0) return { ok: false, error: 'distancia inválida' };
+  if (!Number.isFinite(ftp)|| ftp<= 0) return { ok: false, error: 'FTP requerido para rkTSS' };
+
+  const V = d / t;                                  // velocidad media (m/s)
+  const elev = (Number.isFinite(Number(elevM)) && elevM > 0) ? Number(elevM) : 0;
+  let G = (elev / d) * 100;                          // pendiente media (%)
+  if (!Number.isFinite(G) || G < 0) G = 0;
+  if (G > 45) G = 45;                                // cota de seguridad
+
+  const sesion = calcularPandolfWatts({ bodyKg: W, loadKg, speedMs: V,   gradePct: G, terrainEta });
+  const umbral = calcularPandolfWatts({ bodyKg: W, loadKg: 0, speedMs: ftp, gradePct: 0, terrainEta: 1.0 });
+  if (!sesion.ok || !umbral.ok || umbral.watts <= 0) {
+    return { ok: false, error: 'no se pudo calcular el costo metabólico' };
+  }
+
+  const IF = sesion.watts / umbral.watts;
+
+  // Multiplicador de Estrés Operativo según etiqueta de perfil y % de carga
+  const L = (Number.isFinite(Number(loadKg)) && loadKg > 0) ? Number(loadKg) : 0;
+  const loadPct = L / W;
+  const esMilitar = String(perfilTactico).toLowerCase().startsWith('mil');
+  const umbralCarga = esMilitar ? UMBRAL_CARGA_MILITAR : UMBRAL_CARGA_CIVIL;
+  const MO = loadPct > umbralCarga ? MO_FACTOR : 1.0;
+
+  const rkTSS = (t * IF * IF / 3600) * 100 * MO;
+
+  return {
+    ok: true,
+    rkTSS: Math.round(rkTSS),
+    watts: sesion.watts,            // M metabólico de la sesión (Pandolf)
+    umbralWatts: umbral.watts,
+    if: Number(IF.toFixed(2)),
+    mo: MO,
+    loadPct: Number((loadPct * 100).toFixed(1)),
+    gradePct: Number(G.toFixed(1)),
+  };
+}
