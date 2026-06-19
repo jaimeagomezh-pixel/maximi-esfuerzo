@@ -4639,7 +4639,7 @@ body.plan-activo .plan-lock  { display: none; }
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
-    aspect-ratio: 4 / 3 !important;
+    aspect-ratio: 1929 / 1047 !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
@@ -4668,12 +4668,12 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta.open .dash-frase-wrap > * { position: relative !important; z-index: 2 !important; }
   #dashboardAtleta.open .dash-frase {
     font-family: 'Courier New', monospace !important;
-    font-size: clamp(11px, 3.5vw, 16px) !important;
+    font-size: clamp(13px, 4vw, 18px) !important;
     font-weight: 700 !important;
     font-style: normal !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    line-height: 1.45 !important;
+    line-height: 1.65 !important;
     color: rgba(30, 15, 0, 0.92) !important;
     text-shadow:
       0 -1.5px 0 rgba(255,240,110,0.80),
@@ -4736,7 +4736,7 @@ body.plan-activo .plan-lock  { display: none; }
   .fop-placa {
     position: relative;
     width: min(98vw, 660px);
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1929 / 1047;
     animation: placaEntra 0.75s cubic-bezier(.16,.84,.34,1) 0.35s both;
   }
   .fop-img {
@@ -4763,8 +4763,8 @@ body.plan-activo .plan-lock  { display: none; }
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 700;
-    font-size: clamp(11px, 3.5vw, 17px);
-    line-height: 1.45;
+    font-size: clamp(13px, 4vw, 19px);
+    line-height: 1.65;
     color: rgba(30, 15, 0, 0.92);
     text-shadow:
       0 -1.5px 0   rgba(255, 242, 115, 0.85),
