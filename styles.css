@@ -4651,7 +4651,7 @@ body.plan-activo .plan-lock  { display: none; }
     content: '' !important;
     position: absolute !important;
     inset: 0 !important;
-    background-image: url('Imagenes/placa-dorada.png') !important;
+    background-image: url('Imagenes/placa-dorada.png?v=2') !important;
     background-size: contain !important;
     background-repeat: no-repeat !important;
     background-position: center !important;

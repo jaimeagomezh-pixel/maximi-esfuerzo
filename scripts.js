@@ -333,7 +333,7 @@
     var placa = document.createElement('div');
     placa.className = 'fop-placa';
     placa.innerHTML =
-      '<img src="Imagenes/placa-dorada.png" class="fop-img" alt="" aria-hidden="true">' +
+      '<img src="Imagenes/placa-dorada.png?v=2" class="fop-img" alt="" aria-hidden="true">' +
       '<div class="fop-content">' +
         '<div class="fop-texto">' + d.texto + '</div>' +
         '<div class="fop-autor">' + d.autor + '</div>' +
