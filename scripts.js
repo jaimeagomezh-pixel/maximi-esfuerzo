@@ -3687,15 +3687,16 @@
     if (typeof window.calcularRkTSS !== 'function') return null;
     const bm = getBMForDate(session.date);
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-    const ftpMs = profile.endurance && profile.endurance.ftpMs;
-    if (!bm || !ftpMs || !session.time || !session.dist) return null;
+    const rkFtpWatts = profile.endurance && profile.endurance.rkFtpWatts;   // umbral medido (Test de Ruck)
+    const ftpMs      = profile.endurance && profile.endurance.ftpMs;        // fallback: FTP de carrera
+    if (!bm || (!rkFtpWatts && !ftpMs) || !session.time || !session.dist) return null;
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const eta = ETA_TERRENO[session.terrain] != null ? ETA_TERRENO[session.terrain] : ETA_TERRENO.trail;
     const r = window.calcularRkTSS({
       bodyKg: bm, loadKg: session.load || 0,
       distM: session.dist * 1000, elevM: session.elev || 0,
       movingSec: session.time, terrainEta: eta,
-      ftpMs, perfilTactico: perfil.perfilTactico || 'civil'
+      rkFtpWatts, ftpMs, perfilTactico: perfil.perfilTactico || 'civil'
     });
     return r && r.ok ? r : null;
   }
@@ -4242,6 +4243,75 @@
     pushRuckProfileToCloud(profile);
   }
 
+  // Test de Umbral de Rucking (4.8 km / 3 mi) → rkFTP (Watts), base del rkTSS.
+  function guardarTestRuck() {
+    const resEl = document.getElementById('ruckFtpResultado');
+    const bandaEl = document.getElementById('ruckFtpBanda');
+    const msgEl = document.getElementById('ruckFtpMensaje');
+    const _err = (txt) => {
+      if (resEl) { resEl.style.display = 'block'; resEl.style.background = 'rgba(139,26,26,0.06)'; }
+      if (bandaEl) { bandaEl.textContent = 'Revisa los datos'; bandaEl.style.color = '#8B1A1A'; }
+      if (msgEl) msgEl.textContent = txt;
+    };
+
+    if (typeof window.calcularRkFTP !== 'function') { _err('Módulo de cálculo no disponible. Recarga la página.'); return; }
+
+    const hoy   = new Date().toISOString().slice(0, 10);
+    const bm    = getBMForDate(hoy);
+    if (!bm) { _err('Falta tu peso corporal. Complétalo en "Mi Perfil" para calcular el umbral.'); return; }
+
+    const load  = parseFloat(document.getElementById('ruckFtpLoad')?.value);
+    if (!load || load <= 0) { _err('Ingresa el lastre del test (kg).'); return; }
+
+    const tStr  = document.getElementById('ruckFtpTime')?.value?.trim();
+    const parts = (tStr || '').split(':').map(Number);
+    const tSec  = parts.length === 3 ? parts[0]*3600 + parts[1]*60 + parts[2]
+                : parts.length === 2 ? parts[0]*60 + parts[1]
+                : NaN;
+    if (!tSec || isNaN(tSec) || tSec <= 0) { _err('Formato de tiempo inválido. Usa M:SS o H:MM:SS (ej. 42:30).'); return; }
+
+    const terrain = document.getElementById('ruckFtpTerrain')?.value || 'asfalto';
+    const elev    = parseFloat(document.getElementById('ruckFtpElev')?.value) || 0;
+    const eta     = ETA_TERRENO[terrain] != null ? ETA_TERRENO[terrain] : ETA_TERRENO.asfalto;
+    const gradePct = (elev / 4800) * 100;
+
+    const r = window.calcularRkFTP({ bodyKg: bm, loadKg: load, distM: 4800, movingSec: tSec, terrainEta: eta, gradePct });
+    if (!r || !r.ok) { _err(r && r.error ? r.error : 'No se pudo calcular el umbral.'); return; }
+
+    // Persistir en ruckProfile.endurance (mismo objeto que ve el coach)
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    if (!profile.endurance) profile.endurance = {};
+    profile.endurance.rkFtpWatts   = r.rkFtpWatts;
+    profile.endurance.rkFtpDate    = hoy;
+    profile.endurance.rkFtpTime    = tSec;
+    profile.endurance.rkFtpLoad    = load;
+    profile.endurance.rkFtpTerrain = terrain;
+    profile.endurance.rkFtpNivel   = r.nivel;
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+
+    // Mostrar resultado con semáforo por nivel
+    const COL = { 'Élite': '#C9A84C', 'Apto': '#27ae60', 'En desarrollo': '#e07b00', 'Base': '#8B1A1A' };
+    const col = COL[r.nivel] || '#8B1A1A';
+    const paceM = Math.floor(r.paceSecKm / 60), paceS = r.paceSecKm % 60;
+    const paceStr = `${paceM}:${String(paceS).padStart(2,'0')} /km`;
+    if (resEl)   { resEl.style.display = 'block'; resEl.style.background = col + '14'; }
+    if (bandaEl) { bandaEl.textContent = `${r.nivel} · ${r.minutos} min`; bandaEl.style.color = col; }
+    if (msgEl)   msgEl.innerHTML = `Umbral <strong>rkFTP ${r.rkFtpWatts} W</strong> · ritmo ${paceStr} · ${load} kg en ${terrain}. Es la base de tu rkTSS.`;
+
+    // Feedback en el botón
+    const btn = document.querySelector('[onclick="guardarTestRuck()"]');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ UMBRAL GUARDADO'; btn.style.background = '#27ae60';
+      setTimeout(() => { btn.textContent = orig; btn.style.background = '#8B1A1A'; }, 1800);
+    }
+
+    // Recalcular carga (rkTSS ahora usa el umbral medido) y dashboard
+    if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+    if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
+    pushRuckProfileToCloud(profile);
+  }
+
   async function pushRuckProfileToCloud(profile) {
     const nombre = localStorage.getItem('atletaNombre')
                 || window._auth?.currentUser?.displayName
@@ -4412,12 +4482,14 @@
     if (!sinFtp || !cont) return;
 
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-    const ftp = profile.endurance && profile.endurance.ftpMs;
+    const ftp   = profile.endurance && profile.endurance.ftpMs;        // FTP de carrera → rTSS
+    const rkFtp = profile.endurance && profile.endurance.rkFtpWatts;   // rkFTP del Test de Ruck → rkTSS
 
-    // Gate: necesita FTP (test 20 min) y el módulo cargado
-    if (!ftp || ftp <= 0 || typeof window.calcularFatigaDiaria !== 'function') {
+    // Gate: necesita al menos un umbral (FTP de carrera o rkFTP de ruck) y el módulo cargado
+    const tieneUmbral = (ftp && ftp > 0) || (rkFtp && rkFtp > 0);
+    if (!tieneUmbral || typeof window.calcularFatigaDiaria !== 'function') {
       sinFtp.style.display = 'block';
-      sinFtp.querySelector('div').innerHTML = 'Haz tu test de 20 min (arriba) para activar<br>el cálculo de carga rTSS';
+      sinFtp.querySelector('div').innerHTML = 'Haz tu test de 20 min (carrera) o el Test de Ruck<br>para activar el cálculo de carga';
       cont.style.display = 'none';
       if (_chartRTSS) { _chartRTSS.destroy(); _chartRTSS = null; }
       return;
@@ -4428,12 +4500,12 @@
       .filter(a => RTSS_RUN_TYPES.has(a.type) && a.sec > 0 && a.km > 0 && parseLastreKg(a.name) === null)
       .sort((a, b) => a.date.localeCompare(b.date));
 
-    // Carrera limpia → rTSS (Coggan). Velocidad media = km*1000 / sec
-    const conRTSS = runs.map(r => {
+    // Carrera limpia → rTSS (Coggan). Solo si hay FTP de carrera. Velocidad media = km*1000 / sec
+    const conRTSS = (ftp && ftp > 0) ? runs.map(r => {
       const avgMs = (r.km * 1000) / r.sec;
       const res = window.calcularFatigaDiaria(ftp, r.sec, avgMs);
       return { date: r.date, km: r.km, carga: res.ok ? res.rTSS : 0, iff: res.ok ? res.if : 0, tipo: 'run' };
-    });
+    }) : [];
 
     // Marcha con peso → rkTSS (Pandolf + MO). Motor de Fatiga Híbrido.
     const ruckSessions = JSON.parse(localStorage.getItem('ruckSessions') || '[]');
@@ -4564,6 +4636,27 @@
       mostrarSEResultado(profile.se);
     }
     renderSEHistorial(profile);
+    prefillTestRuck(profile);
+  }
+
+  // Precarga el último Test de Ruck guardado (inputs + resultado)
+  function prefillTestRuck(profile) {
+    const e = profile && profile.endurance;
+    if (!e || !e.rkFtpWatts) return;
+    const loadEl = document.getElementById('ruckFtpLoad');
+    const terrEl = document.getElementById('ruckFtpTerrain');
+    const timeEl = document.getElementById('ruckFtpTime');
+    if (loadEl && e.rkFtpLoad)    loadEl.value = e.rkFtpLoad;
+    if (terrEl && e.rkFtpTerrain) terrEl.value = e.rkFtpTerrain;
+    if (timeEl && e.rkFtpTime)    timeEl.value = fmtTimerRuck(e.rkFtpTime);
+    const resEl = document.getElementById('ruckFtpResultado');
+    const bandaEl = document.getElementById('ruckFtpBanda');
+    const msgEl = document.getElementById('ruckFtpMensaje');
+    const COL = { 'Élite': '#C9A84C', 'Apto': '#27ae60', 'En desarrollo': '#e07b00', 'Base': '#8B1A1A' };
+    const col = COL[e.rkFtpNivel] || '#8B1A1A';
+    if (resEl)   { resEl.style.display = 'block'; resEl.style.background = col + '14'; }
+    if (bandaEl) { bandaEl.textContent = `${e.rkFtpNivel || ''} · ${e.rkFtpDate || ''}`; bandaEl.style.color = col; }
+    if (msgEl)   msgEl.innerHTML = `Umbral actual <strong>rkFTP ${e.rkFtpWatts} W</strong> · ${e.rkFtpLoad || '—'} kg en ${e.rkFtpTerrain || '—'}.`;
   }
 
   function renderSEHistorial(profile) {

@@ -251,8 +251,10 @@ export function calcularPandolfWatts({ bodyKg, loadKg = 0, speedMs, gradePct = 0
  *
  *   IF_metab = M_sesión / M_umbral
  *      M_sesión = Pandolf con carga, terreno y desnivel reales de la sesión
- *      M_umbral = Pandolf SIN carga, terreno llano (η=1.0), al ritmo FTP del atleta
- *                 → costo metabólico de locomoción en umbral (análogo al FTP de Coggan)
+ *      M_umbral = umbral metabólico de rucking (rkFTP en Watts). Fuente preferida:
+ *                 el Test de Ruck de 4.8 km (ver calcularRkFTP). Si el atleta aún no
+ *                 lo hizo, se ESTIMA con Pandolf SIN carga, terreno llano (η=1.0) al
+ *                 ritmo FTP de carrera — menos preciso, marcado con umbralFuente:'carrera'.
  *   MO = 1.25  si  (L/W) supera el umbral del perfil (30% civil · 45% militar); si no 1.0
  *   rkTSS = (tiempo_s · IF_metab² / 3600) · 100 · MO
  *
@@ -263,20 +265,19 @@ export function calcularPandolfWatts({ bodyKg, loadKg = 0, speedMs, gradePct = 0
  * @param {number} [p.elevM=0]     - Desnivel positivo acumulado (m).
  * @param {number} p.movingSec     - Tiempo neto en movimiento (s, > 0).
  * @param {number} [p.terrainEta=1.2] - Coeficiente de terreno η de la sesión.
- * @param {number} p.ftpMs         - FTP del atleta (m/s, > 0) — define el umbral metabólico.
+ * @param {number} [p.rkFtpWatts]  - Umbral metabólico de rucking medido (Watts) — fuente preferida.
+ * @param {number} [p.ftpMs]       - FTP de carrera (m/s) — fallback si no hay rkFTP.
  * @param {string} [p.perfilTactico='civil'] - 'civil' | 'militar'.
- * @returns {{ok:boolean, rkTSS?:number, watts?:number, if?:number, mo?:number, loadPct?:number, gradePct?:number, error?:string}}
+ * @returns {{ok:boolean, rkTSS?:number, watts?:number, umbralWatts?:number, umbralFuente?:string, if?:number, mo?:number, loadPct?:number, gradePct?:number, error?:string}}
  */
-export function calcularRkTSS({ bodyKg, loadKg, distM, elevM = 0, movingSec, terrainEta = ETA_TERRENO.trail, ftpMs, perfilTactico = 'civil' }) {
+export function calcularRkTSS({ bodyKg, loadKg, distM, elevM = 0, movingSec, terrainEta = ETA_TERRENO.trail, rkFtpWatts, ftpMs, perfilTactico = 'civil' }) {
   const W   = Number(bodyKg);
   const t   = Number(movingSec);
   const d   = Number(distM);
-  const ftp = Number(ftpMs);
 
   if (!Number.isFinite(W)  || W  <= 0) return { ok: false, error: 'peso corporal inválido' };
   if (!Number.isFinite(t)  || t  <= 0) return { ok: false, error: 'tiempo en movimiento inválido' };
   if (!Number.isFinite(d)  || d  <= 0) return { ok: false, error: 'distancia inválida' };
-  if (!Number.isFinite(ftp)|| ftp<= 0) return { ok: false, error: 'FTP requerido para rkTSS' };
 
   const V = d / t;                                  // velocidad media (m/s)
   const elev = (Number.isFinite(Number(elevM)) && elevM > 0) ? Number(elevM) : 0;
@@ -284,13 +285,22 @@ export function calcularRkTSS({ bodyKg, loadKg, distM, elevM = 0, movingSec, ter
   if (!Number.isFinite(G) || G < 0) G = 0;
   if (G > 45) G = 45;                                // cota de seguridad
 
-  const sesion = calcularPandolfWatts({ bodyKg: W, loadKg, speedMs: V,   gradePct: G, terrainEta });
-  const umbral = calcularPandolfWatts({ bodyKg: W, loadKg: 0, speedMs: ftp, gradePct: 0, terrainEta: 1.0 });
-  if (!sesion.ok || !umbral.ok || umbral.watts <= 0) {
-    return { ok: false, error: 'no se pudo calcular el costo metabólico' };
+  // Umbral metabólico: 1º el rkFTP medido en el Test de Ruck; si no, estimar desde el FTP de carrera.
+  let umbralWatts, umbralFuente;
+  if (Number.isFinite(Number(rkFtpWatts)) && rkFtpWatts > 0) {
+    umbralWatts = Number(rkFtpWatts); umbralFuente = 'ruck';
+  } else if (Number.isFinite(Number(ftpMs)) && ftpMs > 0) {
+    const u = calcularPandolfWatts({ bodyKg: W, loadKg: 0, speedMs: Number(ftpMs), gradePct: 0, terrainEta: 1.0 });
+    if (!u.ok || u.watts <= 0) return { ok: false, error: 'no se pudo estimar el umbral metabólico' };
+    umbralWatts = u.watts; umbralFuente = 'carrera';
+  } else {
+    return { ok: false, error: 'falta umbral: haz el Test de Ruck (rkFTP) o el FTP de carrera' };
   }
 
-  const IF = sesion.watts / umbral.watts;
+  const sesion = calcularPandolfWatts({ bodyKg: W, loadKg, speedMs: V, gradePct: G, terrainEta });
+  if (!sesion.ok) return { ok: false, error: 'no se pudo calcular el costo metabólico' };
+
+  const IF = sesion.watts / umbralWatts;
 
   // Multiplicador de Estrés Operativo según etiqueta de perfil y % de carga
   const L = (Number.isFinite(Number(loadKg)) && loadKg > 0) ? Number(loadKg) : 0;
@@ -305,10 +315,66 @@ export function calcularRkTSS({ bodyKg, loadKg, distM, elevM = 0, movingSec, ter
     ok: true,
     rkTSS: Math.round(rkTSS),
     watts: sesion.watts,            // M metabólico de la sesión (Pandolf)
-    umbralWatts: umbral.watts,
+    umbralWatts: Number(umbralWatts.toFixed ? umbralWatts.toFixed(1) : umbralWatts),
+    umbralFuente,                   // 'ruck' (test medido) | 'carrera' (estimado del FTP)
     if: Number(IF.toFixed(2)),
     mo: MO,
     loadPct: Number((loadPct * 100).toFixed(1)),
     gradePct: Number(G.toFixed(1)),
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  FUNCIÓN 5 · TEST DE UMBRAL DE RUCKING → rkFTP (Watts)
+// ════════════════════════════════════════════════════════════════════════════
+// Estándar militar (USMC / Ranger / SFAS): marcha de 3 millas (4.8 km) con 20 kg
+// (45 lb). El esfuerzo máximo sostenido ~35-45 min equivale al umbral funcional:
+// el costo metabólico (Pandolf) que el atleta sostiene en el test ES su rkFTP.
+export const RUCK_TEST_DIST_M = 4800;   // 3 millas
+export const RUCK_TEST_LOAD_KG = 20;    // 45 lb
+
+/**
+ * Calcula el umbral metabólico de rucking (rkFTP, Watts) desde el Test de Ruck.
+ *
+ * @param {Object} p
+ * @param {number} p.bodyKg          - Peso corporal (kg, > 0).
+ * @param {number} [p.loadKg=20]     - Lastre del test (kg).
+ * @param {number} [p.distM=4800]    - Distancia del test (m).
+ * @param {number} p.movingSec       - Tiempo del test (s, > 0).
+ * @param {number} [p.terrainEta=1.0]- Coeficiente de terreno η del test (default asfalto).
+ * @param {number} [p.gradePct=0]    - Pendiente media del test (%).
+ * @returns {{ok:boolean, rkFtpWatts?:number, speedMs?:number, paceSecKm?:number, minutos?:number, nivel?:string, error?:string}}
+ */
+export function calcularRkFTP({ bodyKg, loadKg = RUCK_TEST_LOAD_KG, distM = RUCK_TEST_DIST_M, movingSec, terrainEta = ETA_TERRENO.asfalto, gradePct = 0 }) {
+  const W = Number(bodyKg);
+  const t = Number(movingSec);
+  const d = Number(distM);
+  if (!Number.isFinite(W) || W <= 0) return { ok: false, error: 'peso corporal inválido' };
+  if (!Number.isFinite(t) || t <= 0) return { ok: false, error: 'tiempo del test inválido' };
+  if (!Number.isFinite(d) || d <= 0) return { ok: false, error: 'distancia inválida' };
+
+  const V = d / t;                                   // velocidad media del test (m/s)
+  let G = Number(gradePct);
+  if (!Number.isFinite(G) || G < 0) G = 0;
+  if (G > 45) G = 45;
+
+  const m = calcularPandolfWatts({ bodyKg: W, loadKg, speedMs: V, gradePct: G, terrainEta });
+  if (!m.ok) return { ok: false, error: m.error };
+
+  // Clasificación por tiempo (estándar 3 millas / 45 lb): élite ≈ 35 min · apto = 45 min
+  const minutos = t / 60;
+  let nivel;
+  if      (minutos <= 36) nivel = 'Élite';
+  else if (minutos <= 45) nivel = 'Apto';          // estándar militar "fit"
+  else if (minutos <= 55) nivel = 'En desarrollo';
+  else                    nivel = 'Base';
+
+  return {
+    ok: true,
+    rkFtpWatts: m.watts,                             // umbral metabólico de rucking
+    speedMs: Number(V.toFixed(3)),
+    paceSecKm: Math.round(1000 / V),                 // ritmo en s/km
+    minutos: Number(minutos.toFixed(1)),
+    nivel,
   };
 }

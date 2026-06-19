@@ -112,7 +112,7 @@
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
   // Módulo de Endurance (fuente de verdad de los cálculos VAM/FTP/rTSS)
-  import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo, calcularPandolfWatts, calcularRkTSS } from "./endurance-module.js?v=20260619";
+  import { calcularPerfilEndurance, calcularFatigaDiaria, msARitmo, calcularPandolfWatts, calcularRkTSS, calcularRkFTP } from "./endurance-module.js?v=20260619b";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAXLORK86Zi4CSCm3Y2Wl6kgoozI36ZfoU",
@@ -142,6 +142,7 @@
   window.msARitmo                = msARitmo;
   window.calcularPandolfWatts    = calcularPandolfWatts;
   window.calcularRkTSS           = calcularRkTSS;
+  window.calcularRkFTP           = calcularRkFTP;
 
   onAuthStateChanged(auth, (user) => {
     const btnNav   = document.getElementById('btn-nav-login');
@@ -1809,6 +1810,46 @@
         <div id="ruckSEHistorial"></div>
       </div>
 
+      <!-- Test de Umbral de Rucking (rkFTP) -->
+      <div style="margin-top:12px;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.18);border-radius:8px;padding:12px 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(139,26,26,0.75);text-transform:uppercase;margin-bottom:4px;">Test de Umbral · Ruck 4.8 km (3 millas)</div>
+        <div style="font-size:11.5px;line-height:1.5;color:#888;margin-bottom:10px;">
+          Marcha máxima sostenida de <strong>4.8 km</strong> con <strong>20 kg</strong> (estándar militar USMC/Ranger). Define tu umbral metabólico (<strong>rkFTP</strong>) — la base del rkTSS. Tiempo de corte "apto": 45 min · élite ≈ 35 min.
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Lastre (kg)</div>
+            <input type="number" id="ruckFtpLoad" value="20" min="5" max="60" step="0.5"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Tiempo (M:SS)</div>
+            <input type="text" id="ruckFtpTime" placeholder="ej. 42:30" maxlength="8"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;box-sizing:border-box;">
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Terreno</div>
+            <select id="ruckFtpTerrain"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;box-sizing:border-box;">
+              <option value="asfalto">Asfalto / pista</option>
+              <option value="tierra">Tierra / camino</option>
+              <option value="trail">Trail / sendero</option>
+              <option value="arena">Arena</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Desnivel (m)</div>
+            <input type="number" id="ruckFtpElev" placeholder="0 si plano" min="0" step="1"
+              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;box-sizing:border-box;">
+          </div>
+        </div>
+        <button onclick="guardarTestRuck()" style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">Calcular umbral (rkFTP)</button>
+        <div id="ruckFtpResultado" style="display:none;margin-top:10px;border-radius:7px;padding:11px 14px;background:rgba(139,26,26,0.06);">
+          <div id="ruckFtpBanda" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:3px;"></div>
+          <div id="ruckFtpMensaje" style="font-size:12px;line-height:1.5;color:#555;"></div>
+        </div>
+      </div>
+
       <!-- Nota Strava -->
       <div style="margin-top:12px;background:rgba(252,76,2,0.07);border:1px solid rgba(252,76,2,0.28);border-radius:12px;padding:14px 15px;display:flex;gap:12px;align-items:flex-start;">
         <div style="width:32px;height:32px;border-radius:9px;background:#FC4C02;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -2383,7 +2424,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260619g"></script>
+<script src="scripts.js?v=20260619h"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
