@@ -4691,8 +4691,8 @@ body.plan-activo .plan-lock  { display: none; }
   }
   #dashboardAtleta.open .dash-frase-autor {
     position: absolute !important;
-    bottom: 26% !important;
-    right: 15% !important;
+    bottom: 10% !important;
+    right: 12% !important;
     font-family: 'Courier New', monospace !important;
     font-size: clamp(8px, 2vw, 10px) !important;
     font-weight: 700 !important;
@@ -4783,8 +4783,8 @@ body.plan-activo .plan-lock  { display: none; }
   }
   .fop-autor {
     position: absolute;
-    bottom: 26%;
-    right: 15%;
+    bottom: 10%;
+    right: 12%;
     font-family: 'Courier New', monospace;
     font-size: clamp(9px, 1.2vw, 11px);
     letter-spacing: 2px;
