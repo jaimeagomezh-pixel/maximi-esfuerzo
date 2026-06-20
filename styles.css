@@ -5241,6 +5241,8 @@ body.plan-activo .plan-lock  { display: none; }
      (clase .sec-flat en el .me-accord-body de la sección)
   ══════════════════════════════════════════════════════════ */
   #dashboardAtleta .sec-flat .th-chart-container,
+  #dashboardAtleta .sec-flat .dash-chart-card,
+  #dashboardAtleta .sec-flat .dash-zones-card,
   #dashboardAtleta .sec-flat .flat-box {
     background: transparent !important;
     border: none !important;
@@ -5250,7 +5252,25 @@ body.plan-activo .plan-lock  { display: none; }
     padding: 0 8px !important;
     margin: 4px 8px 20px !important;
   }
-  #dashboardAtleta .sec-flat .th-chart-container::before { display: none !important; }
+  #dashboardAtleta .sec-flat .th-chart-container::before,
+  #dashboardAtleta .sec-flat .dash-chart-card::before,
+  #dashboardAtleta .sec-flat .dash-zones-card::before { display: none !important; }
+
+  /* Catch-all: cualquier DIV-contenedor con esquinas redondeadas inline pierde
+     su "cartón" (fondo/borde/sombra/halo). Solo div → inputs, selects y botones
+     conservan su caja. El sello de resultado (.rkr) no usa border-radius inline. */
+  #dashboardAtleta .sec-flat div[style*="border-radius:8px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius:10px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius:12px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius:14px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius: 8px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius: 10px"],
+  #dashboardAtleta .sec-flat div[style*="border-radius: 12px"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
   /* El título interno de cada bloque actúa como subtítulo (igual look que dash-section-title) */
   #dashboardAtleta .sec-flat .th-chart-title {
     font-family:'Barlow Condensed',sans-serif !important; font-size:12px !important;
