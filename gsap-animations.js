@@ -461,6 +461,17 @@ function watchDashboard() {
   });
 
   observer.observe(dash, { attributes: true, attributeFilter: ['class'] });
+
+  // Cerrar menú hamburguesa automáticamente al hacer scroll dentro del dashboard
+  const box = dash.querySelector('.dashboard-box');
+  if (box && !box._scrollListenerAdded) {
+    box._scrollListenerAdded = true;
+    box.addEventListener('scroll', () => {
+      if (typeof cerrarDashMenuSilencioso === 'function') {
+        cerrarDashMenuSilencioso();
+      }
+    });
+  }
 }
 
 // ─────────────────────────────────────────────────────────────

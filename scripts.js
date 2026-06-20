@@ -5970,6 +5970,29 @@
   // ── MENÚ MÓVIL DEL DASHBOARD ─────────────────────────────────
   let _dashMenuAbierto = false;
 
+  function cerrarDashMenuSilencioso() {
+    if (!_dashMenuAbierto) return;
+    _dashMenuAbierto = false;
+    const menu = document.getElementById('dashMobileMenu');
+    const hbLines = document.querySelectorAll('.dash-hamburger span');
+    if (menu) menu.classList.remove('open');
+    if (hbLines.length === 3) {
+      hbLines[0].style.transform = '';
+      hbLines[1].style.opacity   = '1';
+      hbLines[2].style.transform = '';
+    }
+    const wrapPlanes = document.getElementById('miPlanContentMobileWrap');
+    const iconPlanes = document.getElementById('iconMiPlanesMobile');
+    if (wrapPlanes) wrapPlanes.style.display = 'none';
+    if (iconPlanes) { iconPlanes.textContent = '▼'; iconPlanes.style.transform = ''; }
+    _miPlanesMobileAbierto = false;
+    const wrapConex = document.getElementById('misConexionesWrap');
+    const iconConex = document.getElementById('iconMisConexionesMobile');
+    if (wrapConex) wrapConex.style.display = 'none';
+    if (iconConex) { iconConex.textContent = '▼'; iconConex.style.transform = ''; }
+    _misConexionesMobileAbierto = false;
+  }
+
   function toggleDashMenu() {
     _dashMenuAbierto = !_dashMenuAbierto;
     const menu = document.getElementById('dashMobileMenu');
