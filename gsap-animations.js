@@ -1,535 +1,346 @@
 // ═══════════════════════════════════════════════════════════════
-// GSAP ANIMATIONS · MáximoEsfuerzo.cl
-// Optimización completa: scroll triggers, hover, modales, gráficos
+// GSAP ANIMATIONS · MáximoEsfuerzo.cl  v2
 // ═══════════════════════════════════════════════════════════════
 
 gsap.registerPlugin(ScrollTrigger);
 
-// ─ UTILIDAD: Delay aleatorio entre elementos ─
-const staggerDelay = (i) => i * 0.08;
-
-// ═══════════════════════════════════════════════════════════════
-// 1. HERO & HERO SLIDER
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 1. HERO fade-in
+// ─────────────────────────────────────────────────────────────
 function animateHero() {
-  // Fade-in del hero texto + imagen
   const heroElements = document.querySelectorAll('#hero .hero-txt, #hero .hero-img-wrap');
-  if (heroElements.length > 0) {
-    gsap.fromTo(
-      heroElements,
+  if (heroElements.length) {
+    gsap.fromTo(heroElements,
       { opacity: 0, y: 40 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power2.out',
-        delay: 0.2
-      }
-    );
-  }
-
-  // Slider fades
-  const slides = document.querySelectorAll('#heroSlider .slide');
-  if (slides.length > 0) {
-    gsap.fromTo(
-      slides,
-      { opacity: 0 },
-      {
-        opacity: 1,
-        duration: 1,
-        delay: 0.5
-      }
+      { opacity: 1, y: 0, duration: 0.8, stagger: 0.15, ease: 'power2.out', delay: 0.2 }
     );
   }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 2. SECCIONES - Scroll Reveal
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 2. SCROLL REVEAL para secciones públicas (fuera del dashboard)
+// ─────────────────────────────────────────────────────────────
 function animateSections() {
-  // Cada sección fade-in + slide up al entrar en viewport
-  document.querySelectorAll('section, .psec').forEach((section) => {
-    gsap.fromTo(
-      section,
-      { opacity: 0, y: 60 },
+  document.querySelectorAll('body > section').forEach(section => {
+    gsap.fromTo(section,
+      { opacity: 0, y: 50 },
       {
-        opacity: 1,
-        y: 0,
-        duration: 0.7,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 80%',
-          end: 'top 20%',
-          toggleActions: 'play none none none'
-        }
+        opacity: 1, y: 0, duration: 0.7, ease: 'power2.out',
+        scrollTrigger: { trigger: section, start: 'top 82%', toggleActions: 'play none none none' }
       }
     );
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 3. CARDS & LISTAS - Stagger
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 3. CARDS stagger
+// ─────────────────────────────────────────────────────────────
 function animateCards() {
-  // Tarjetas de planes
   document.querySelectorAll('.plan-card, .pcard').forEach((card, i) => {
-    gsap.fromTo(
-      card,
+    gsap.fromTo(card,
       { opacity: 0, y: 30 },
       {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        delay: staggerDelay(i),
-        ease: 'back.out(1.2)',
-        scrollTrigger: {
-          trigger: card,
-          start: 'top 90%',
-          toggleActions: 'play none none none'
-        }
-      }
-    );
-  });
-
-  // Cards atletas (panel coach)
-  document.querySelectorAll('.acard').forEach((card, i) => {
-    gsap.fromTo(
-      card,
-      { opacity: 0, x: -20 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 0.5,
-        delay: staggerDelay(i),
-        ease: 'power2.out'
-      }
-    );
-  });
-
-  // Stats boxes
-  document.querySelectorAll('.sbox').forEach((box, i) => {
-    gsap.fromTo(
-      box,
-      { opacity: 0, scale: 0.92 },
-      {
-        opacity: 1,
-        scale: 1,
-        duration: 0.6,
-        delay: staggerDelay(i),
-        ease: 'back.out(1.3)',
-        scrollTrigger: {
-          trigger: box,
-          start: 'top 85%',
-          toggleActions: 'play none none none'
-        }
+        opacity: 1, y: 0, duration: 0.6, delay: i * 0.08, ease: 'back.out(1.2)',
+        scrollTrigger: { trigger: card, start: 'top 90%', toggleActions: 'play none none none' }
       }
     );
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 4. BOTONES - Hover Effects
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 4. HOVER en botones públicos
+// ─────────────────────────────────────────────────────────────
 function addButtonHovers() {
-  // Botones principales
-  document.querySelectorAll('button:not(.me-accord-btn), .btn-ingresar, .nav-cta, .login-btn-primary').forEach((btn) => {
-    btn.addEventListener('mouseenter', function() {
-      gsap.to(this, {
-        scale: 1.02,
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    });
-
-    btn.addEventListener('mouseleave', function() {
-      gsap.to(this, {
-        scale: 1,
-        duration: 0.3,
-        ease: 'power2.out'
-      });
-    });
-  });
-
-  // Botones filtro
-  document.querySelectorAll('.f-btn').forEach((btn) => {
-    btn.addEventListener('mouseenter', function() {
-      gsap.to(this, {
-        y: -2,
-        duration: 0.25,
-        ease: 'power2.out'
-      });
-    });
-
-    btn.addEventListener('mouseleave', function() {
-      gsap.to(this, {
-        y: 0,
-        duration: 0.25,
-        ease: 'power2.out'
-      });
-    });
+  document.querySelectorAll('.plan-card button, .nav-cta, .login-btn-primary, .f-btn').forEach(btn => {
+    if (btn.dataset.gsapHover) return;
+    btn.dataset.gsapHover = '1';
+    btn.addEventListener('mouseenter', () => gsap.to(btn, { scale: 1.03, duration: 0.25, ease: 'power2.out' }));
+    btn.addEventListener('mouseleave', () => gsap.to(btn, { scale: 1, duration: 0.25, ease: 'power2.out' }));
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 5. MODALES - Open/Close Animations
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 5. MODAL de pago: fade + scale
+// ─────────────────────────────────────────────────────────────
 function animateModals() {
-  // Interceptar abrirModal
   const originalAbrirModal = window.abrirModal;
+  if (!originalAbrirModal) return;
   window.abrirModal = function(nombre, precio, desc) {
     originalAbrirModal.call(this, nombre, precio, desc);
-
-    const overlay = document.getElementById('modalOverlay');
-    const modal = overlay?.querySelector('.modal-content, .login-modal');
-
-    if (overlay && modal) {
-      gsap.fromTo(
-        overlay,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3, ease: 'power1.inOut' }
-      );
-
-      gsap.fromTo(
-        modal,
-        { opacity: 0, scale: 0.95, y: 40 },
-        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.5)' }
-      );
-    }
+    const ov = document.getElementById('modalOverlay');
+    if (!ov) return;
+    gsap.fromTo(ov, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: 'power1.inOut' });
+    const modal = ov.querySelector('.login-modal, .modal-content, [class*="modal"]');
+    if (modal) gsap.fromTo(modal, { opacity: 0, scale: 0.94, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.5)' });
   };
-
-  // Cerrar modal con animación
-  const originalCerrarModal = window.cerrarModal;
-  if (originalCerrarModal) {
-    window.cerrarModal = function() {
-      const overlay = document.getElementById('modalOverlay');
-      if (overlay) {
-        gsap.to(overlay, {
-          opacity: 0,
-          duration: 0.25,
-          ease: 'power1.inOut',
-          onComplete: () => {
-            originalCerrarModal.call(this);
-          }
-        });
-      }
-    };
-  }
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 6. LOGIN OVERLAY
-// ═══════════════════════════════════════════════════════════════
-
+// ─────────────────────────────────────────────────────────────
+// 6. LOGIN overlay
+// ─────────────────────────────────────────────────────────────
 function animateLoginOverlay() {
   const originalAbrirLogin = window.abrirLogin;
-  if (originalAbrirLogin) {
-    window.abrirLogin = function() {
-      const overlay = document.getElementById('loginOverlay');
-      originalAbrirLogin.call(this);
-
-      if (overlay) {
-        const modal = overlay.querySelector('.login-modal');
-        gsap.fromTo(
-          overlay,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.3, ease: 'power1.inOut' }
-        );
-
-        if (modal) {
-          gsap.fromTo(
-            modal,
-            { opacity: 0, scale: 0.92, y: 50 },
-            { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.4)' }
-          );
-        }
-      }
-    };
-  }
-
-  const originalCerrarLogin = window.cerrarLogin;
-  if (originalCerrarLogin) {
-    window.cerrarLogin = function() {
-      const overlay = document.getElementById('loginOverlay');
-      if (overlay) {
-        gsap.to(overlay, {
-          opacity: 0,
-          duration: 0.25,
-          ease: 'power1.inOut',
-          onComplete: () => {
-            originalCerrarLogin.call(this);
-          }
-        });
-      }
-    };
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 7. MOBILE MENU
-// ═══════════════════════════════════════════════════════════════
-
-function animateMenuMobile() {
-  const menu = document.getElementById('mobileMenu');
-  if (menu) {
-    const originalToggleMenu = window.toggleMenu;
-    window.toggleMenu = function() {
-      const isOpen = menu.classList.contains('open');
-
-      if (isOpen) {
-        // Cerrar
-        gsap.to(menu, {
-          opacity: 0,
-          y: -20,
-          duration: 0.3,
-          ease: 'power2.inOut',
-          onComplete: () => {
-            originalToggleMenu.call(this);
-          }
-        });
-      } else {
-        // Abrir
-        originalToggleMenu.call(this);
-        gsap.fromTo(
-          menu,
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
-        );
-      }
-    };
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// 8. GRÁFICOS - Animación de barras Chart.js + Scroll Trigger
-// ═══════════════════════════════════════════════════════════════
-
-function animateCharts() {
-  // Animar todos los canvas de gráficos con scroll trigger
-  document.querySelectorAll('canvas').forEach((canvas) => {
-    const container = canvas.closest('.th-chart-wrap') || canvas.parentElement;
-
-    gsap.fromTo(
-      canvas,
-      { opacity: 0, y: 20 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: container,
-          start: 'top 85%',
-          end: 'top 50%',
-          toggleActions: 'play none none none'
-        }
-      }
-    );
-  });
-
-  // Re-animar charts cuando se carguen nuevos datos
-  const originalFetch = window.fetch;
-  window.fetch = function(...args) {
-    return originalFetch.apply(this, args).then((response) => {
-      // Después de 500ms, volver a animar charts
-      setTimeout(() => {
-        document.querySelectorAll('canvas').forEach((canvas) => {
-          if (!canvas.dataset.animatedGsap) {
-            canvas.dataset.animatedGsap = true;
-            gsap.fromTo(
-              canvas,
-              { opacity: 0 },
-              { opacity: 1, duration: 0.5 }
-            );
-          }
-        });
-      }, 500);
-      return response;
-    });
+  if (!originalAbrirLogin) return;
+  window.abrirLogin = function() {
+    originalAbrirLogin.call(this);
+    const ov = document.getElementById('loginOverlay');
+    if (!ov) return;
+    gsap.fromTo(ov, { opacity: 0 }, { opacity: 1, duration: 0.3 });
+    const modal = ov.querySelector('.login-modal');
+    if (modal) gsap.fromTo(modal, { opacity: 0, scale: 0.92, y: 50 }, { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.4)' });
   };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 9. ACORDEÓN - Smooth expand/collapse
-// ═══════════════════════════════════════════════════════════════
-
-function animateAccordion() {
-  document.querySelectorAll('.me-accord-btn').forEach((btn) => {
-    btn.addEventListener('click', function() {
-      const body = this.nextElementSibling;
-      const arrow = this.querySelector('.me-accord-arrow');
-
-      if (this.classList.contains('is-open')) {
-        // Cerrar
-        gsap.to(body, {
-          maxHeight: 0,
-          duration: 0.35,
-          ease: 'power2.inOut'
-        });
-
-        gsap.to(arrow, {
-          rotation: 0,
-          duration: 0.35
-        });
-      } else {
-        // Abrir
-        gsap.to(body, {
-          maxHeight: 6000,
-          duration: 0.35,
-          ease: 'power2.inOut'
-        });
-
-        gsap.to(arrow, {
-          rotation: 180,
-          duration: 0.35
-        });
-      }
-    });
-  });
+// ─────────────────────────────────────────────────────────────
+// 7. MOBILE MENU hamburguesa pública
+// ─────────────────────────────────────────────────────────────
+function animateMenuMobile() {
+  const menu = document.getElementById('mobileMenu');
+  if (!menu) return;
+  const originalToggle = window.toggleMenu;
+  if (!originalToggle) return;
+  window.toggleMenu = function() {
+    const isOpen = menu.classList.contains('open');
+    if (isOpen) {
+      gsap.to(menu, { opacity: 0, y: -16, duration: 0.25, ease: 'power2.inOut', onComplete: () => originalToggle.call(this) });
+    } else {
+      originalToggle.call(this);
+      gsap.fromTo(menu, { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.28, ease: 'power2.out' });
+    }
+  };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 10. SCROLL ANIMATIONS - Parallax suave (opcional)
-// ═══════════════════════════════════════════════════════════════
-
-function addParallaxEffect() {
-  document.querySelectorAll('.hero-slider .slide img').forEach((img) => {
-    gsap.to(img, {
-      y: (i, target) => -window.innerHeight * 0.15,
-      ease: 'none',
-      scrollTrigger: {
-        trigger: target,
-        start: 'top top',
-        scrub: 1,
-        markers: false
-      }
+// ─────────────────────────────────────────────────────────────
+// 8. CHARTS — fade-in de canvas (no interfiere con el width)
+// ─────────────────────────────────────────────────────────────
+function animateNewCharts() {
+  const seen = new WeakSet();
+  const observer = new MutationObserver(() => {
+    document.querySelectorAll('canvas').forEach(canvas => {
+      if (seen.has(canvas)) return;
+      seen.add(canvas);
+      gsap.fromTo(canvas, { opacity: 0 }, { opacity: 1, duration: 0.7, delay: 0.1, ease: 'power1.inOut' });
     });
   });
+  observer.observe(document.body, { childList: true, subtree: true });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 10a. ANIMACIÓN DE BARRAS DE ZONAS FC
-// ═══════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────
+// 9. FIX HEADER STICKY del dashboard atleta
+//    Mueve .dash-header fuera de .dashboard-box para que nunca
+//    scrollee — queda fijo en la cima del contenedor fixed.
+// ─────────────────────────────────────────────────────────────
+function fixDashboardHeader() {
+  const dash = document.getElementById('dashboardAtleta');
+  if (!dash || dash.dataset.headerFixed) return;
 
-function animateFCZones() {
-  // Observar el contenedor de zonas FC
-  const zonasContainer = document.getElementById('resZonasFC');
-  if (!zonasContainer) return;
+  const header = dash.querySelector('.dash-header');
+  const box    = dash.querySelector('.dashboard-box');
+  if (!header || !box) return;
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        // Animar todas las barras dentro
-        const bars = zonasContainer.querySelectorAll('div[style*="background"]');
-        bars.forEach((bar, i) => {
-          const innerBar = bar.querySelector('div[style*="width"]');
-          if (innerBar && !innerBar.dataset.animated) {
-            innerBar.dataset.animated = true;
-            const width = innerBar.style.width;
-            innerBar.style.width = '0';
+  dash.dataset.headerFixed = '1';
 
-            gsap.to(innerBar, {
-              width: width,
-              duration: 0.9,
-              delay: i * 0.1,
-              ease: 'power2.out'
-            });
-          }
-        });
+  // Insertar el header como hermano ANTES de .dashboard-box
+  dash.insertBefore(header, box);
 
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
+  // #dashboardAtleta pasa a columna + sin scroll propio
+  dash.style.flexDirection  = 'column';
+  dash.style.overflow       = 'hidden';
+  dash.style.alignItems     = 'stretch';
 
-  observer.observe(zonasContainer);
+  // Header: no scrollea, siempre visible
+  header.style.flexShrink   = '0';
+  header.style.position     = 'relative';
+  header.style.zIndex       = '200';
+  header.style.width        = '100%';
 
-  // Re-observar cuando el contenido cambia
-  const mutationObserver = new MutationObserver(() => {
-    observer.observe(zonasContainer);
-  });
+  // .dashboard-box es el área scrolleable
+  box.style.flex                    = '1';
+  box.style.overflowY               = 'auto';
+  box.style.webkitOverflowScrolling = 'touch';
+  box.style.minHeight               = '0';
+  box.style.overflowX               = 'hidden';
 
-  mutationObserver.observe(zonasContainer, {
-    childList: true,
-    subtree: true
-  });
+  // Entrada animada del header
+  gsap.fromTo(header,
+    { opacity: 0, y: -20 },
+    { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }
+  );
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 10b. NAVEGACIÓN ENTRE SECCIONES DEL DASHBOARD
-// ═══════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────
+// 10. NAVEGACIÓN ENTRE SECCIONES (al final de cada sección)
+//     Se agrega después de que buildCardNav() asigna IDs dashSec0…N
+// ─────────────────────────────────────────────────────────────
+function buildSectionFooterNav() {
+  const dash = document.getElementById('dashboardAtleta');
+  if (!dash) return;
 
-function createSectionNavigation() {
-  const secciones = [
-    { id: 'tab-atletas', label: 'Atletas', icon: '👥' },
-    { id: 'tab-resumen', label: 'Resumen', icon: '📊' },
-    { id: 'tab-nutricion', label: 'Nutrición', icon: '🥗' },
-    { id: 'tab-rucking', label: 'Rucking', icon: '🎒' },
-    { id: 'tab-entrenamiento', label: 'Entrenamiento', icon: '💪' }
-  ];
+  const accords = [...dash.querySelectorAll('.me-accord')];
+  if (!accords.length || !accords[0].id) return; // buildCardNav no corrió aún
 
-  // Función para insertar navegación al final de cada sección
-  function insertNavigation() {
-    secciones.forEach((sec, idx) => {
-      const secEl = document.getElementById(sec.id);
-      if (!secEl || secEl.querySelector('.gsap-section-nav')) return;
+  accords.forEach((acc, idx) => {
+    const body = acc.querySelector('.me-accord-body');
+    if (!body || body.querySelector('.gsap-footer-nav')) return;
 
-      const navHtml = `
-        <div class="gsap-section-nav" style="margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-          ${secciones.map((s, i) => `
-            <button onclick="document.getElementById('${s.id}').scrollIntoView({behavior:'smooth'}); this.classList.add('active');"
-              style="padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:${s.id === sec.id ? 'rgba(212,168,67,0.2)' : 'transparent'};color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;transition:all 0.3s;${s.id === sec.id ? 'border-color:#d4a843;' : ''}"
-              onmouseover="this.style.borderColor='#d4a843';this.style.background='rgba(212,168,67,0.15)';"
-              onmouseout="this.style.borderColor='${s.id === sec.id ? '#d4a843' : 'rgba(255,255,255,0.2)'}';this.style.background='${s.id === sec.id ? 'rgba(212,168,67,0.2)' : 'transparent'}';"
-            >${s.icon} ${s.label}</button>
-          `).join('')}
-        </div>
+    // Construir lista de otras secciones
+    const otros = accords.filter((_, i) => i !== idx);
+    if (!otros.length) return;
+
+    const nav = document.createElement('div');
+    nav.className = 'gsap-footer-nav';
+    nav.style.cssText = `
+      margin-top:32px; padding:20px 16px 8px;
+      border-top:1px solid rgba(0,229,240,0.15);
+    `;
+
+    const titulo = document.createElement('div');
+    titulo.style.cssText = `
+      font-family:'Barlow Condensed',sans-serif; font-size:10px; letter-spacing:3px;
+      color:rgba(255,255,255,0.35); text-transform:uppercase; margin-bottom:12px;
+    `;
+    titulo.textContent = 'IR A';
+    nav.appendChild(titulo);
+
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px;';
+
+    otros.forEach(otroAcc => {
+      const lbl = otroAcc.querySelector('.me-accord-label');
+      const iconEl = otroAcc.querySelector('.me-accord-icon');
+      if (!lbl) return;
+
+      const btn = document.createElement('button');
+      const accent = {
+        'endurance':'#00e5f0','fuerza':'#d4a843','potencia':'#e07b00',
+        'rucking':'#00e5f0','composición':'#00e5f0','composicion':'#00e5f0',
+        'nutrición':'#27ae60','nutricion':'#27ae60'
+      }[lbl.textContent.trim().toLowerCase()] || '#00e5f0';
+
+      btn.style.cssText = `
+        display:flex; align-items:center; gap:7px;
+        padding:9px 14px; border-radius:8px;
+        border:1px solid rgba(255,255,255,0.12);
+        background:rgba(255,255,255,0.04);
+        color:#e0ddd8; cursor:pointer;
+        font-family:'Barlow Condensed',sans-serif;
+        font-size:13px; letter-spacing:1.5px; text-transform:uppercase;
+        transition: border-color .2s, background .2s, color .2s;
       `;
 
-      const navEl = document.createElement('div');
-      navEl.innerHTML = navHtml;
-      secEl.appendChild(navEl.firstElementChild);
+      // Icono pequeño (clona SVG del accordion)
+      if (iconEl) {
+        const svg = iconEl.querySelector('svg');
+        if (svg) {
+          const s = svg.cloneNode(true);
+          s.setAttribute('width', '16'); s.setAttribute('height', '16');
+          s.style.flexShrink = '0';
+          s.style.stroke = accent;
+          btn.appendChild(s);
+        }
+      }
+
+      const span = document.createElement('span');
+      span.textContent = lbl.textContent.trim();
+      btn.appendChild(span);
+
+      btn.addEventListener('mouseenter', () => {
+        btn.style.borderColor = accent;
+        btn.style.background  = `rgba(0,0,0,0.15)`;
+        btn.style.color       = accent;
+        gsap.to(btn, { scale: 1.03, duration: 0.2 });
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.borderColor = 'rgba(255,255,255,0.12)';
+        btn.style.background  = 'rgba(255,255,255,0.04)';
+        btn.style.color       = '#e0ddd8';
+        gsap.to(btn, { scale: 1, duration: 0.2 });
+      });
+
+      btn.addEventListener('click', () => {
+        if (typeof window.openDashSection === 'function') {
+          window.openDashSection(otroAcc.id);
+        }
+      });
+
+      grid.appendChild(btn);
     });
-  }
 
-  // Insertar al cargar
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', insertNavigation);
-  } else {
-    insertNavigation();
-  }
-
-  // Reinsertar cuando el contenido cambia
-  const observer = new MutationObserver(() => {
-    setTimeout(insertNavigation, 100);
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: false
+    nav.appendChild(grid);
+    body.appendChild(nav);
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// 11. INIT - Ejecutar todas las animaciones
-// ═══════════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────
+// 11. BARRAS FC (Tiempos en zona) — animar al abrir la sección
+//     NO usa IntersectionObserver (no funciona dentro de fixed)
+//     Se engancha a openDashSection para disparar post-render
+// ─────────────────────────────────────────────────────────────
+function animateFCBarsOnOpen() {
+  const originalOpen = window.openDashSection;
+  if (!originalOpen || window._gsapOpenWrapped) return;
+  window._gsapOpenWrapped = true;
 
+  window.openDashSection = function(id) {
+    originalOpen.call(this, id);
+
+    // Pequeño delay para que el DOM termine de renderizar
+    setTimeout(() => {
+      const zonasEl = document.getElementById('resZonasFC');
+      if (!zonasEl) return;
+
+      // Animar barras coloreadas (los div con width% en inline style)
+      const innerBars = zonasEl.querySelectorAll('div[style*="height:100%"]');
+      innerBars.forEach((bar, i) => {
+        const targetWidth = bar.style.width || '0%';
+        if (!targetWidth || targetWidth === '0%') return;
+        bar.style.width = '0%';
+        gsap.to(bar, {
+          width: targetWidth,
+          duration: 0.85,
+          delay: i * 0.1,
+          ease: 'power2.out'
+        });
+      });
+
+      // Animar filas completas (stagger fade-in)
+      const rows = zonasEl.querySelectorAll('div[style*="display:flex"]');
+      gsap.fromTo(rows,
+        { opacity: 0, x: -12 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, ease: 'power2.out' }
+      );
+    }, 200);
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// 12. WATCH DASHBOARD — ejecuta fixes cuando el dashboard abre
+// ─────────────────────────────────────────────────────────────
+function watchDashboard() {
+  const dash = document.getElementById('dashboardAtleta');
+  if (!dash) return;
+
+  const observer = new MutationObserver(() => {
+    if (!dash.classList.contains('open')) return;
+
+    // Fix header sticky (solo una vez)
+    fixDashboardHeader();
+
+    // Esperar a que buildCardNav asigne IDs (ocurre justo después)
+    setTimeout(() => {
+      buildSectionFooterNav();
+      animateFCBarsOnOpen();
+    }, 300);
+  });
+
+  observer.observe(dash, { attributes: true, attributeFilter: ['class'] });
+}
+
+// ─────────────────────────────────────────────────────────────
+// 13. INIT
+// ─────────────────────────────────────────────────────────────
 function initGSAPAnimations() {
-  // Esperar a que el DOM esté listo
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
-
-  function init() {
+  function run() {
     animateHero();
     animateSections();
     animateCards();
@@ -537,29 +348,20 @@ function initGSAPAnimations() {
     animateModals();
     animateLoginOverlay();
     animateMenuMobile();
-    animateCharts();
-    animateFCZones();
-    animateAccordion();
-    addParallaxEffect();
-    createSectionNavigation();
+    animateNewCharts();
+    watchDashboard();
 
-    // Re-iniciar animaciones cuando el contenido cambia dinámicamente
-    const observer = new MutationObserver(() => {
-      // Pequeño delay para que se renderice el DOM
-      setTimeout(() => {
-        addButtonHovers();
-        animateAccordion();
-        animateCharts();
-      }, 100);
-    });
+    // Re-aplicar hovers cuando el DOM cambia
+    new MutationObserver(() => {
+      addButtonHovers();
+    }).observe(document.body, { childList: true, subtree: true });
+  }
 
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: false
-    });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
   }
 }
 
-// Ejecutar automáticamente
 initGSAPAnimations();
