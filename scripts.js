@@ -556,7 +556,22 @@
     if (stMenu) stMenu.textContent = texto;
   }
 
+  // Migración v2: borra zsec calculados con midpoint (fórmula anterior incorrecta).
+  // Se ejecuta una sola vez; marca el cache como migrado para no repetir.
+  function _migrarZsecCacheV2() {
+    if (localStorage.getItem('zsecCacheV') === '2') return; // ya migrado
+    try {
+      const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+      if (!cache.length) { localStorage.setItem('zsecCacheV', '2'); return; }
+      // Borrar zsec de todas las entradas para que se recalculen con la fórmula proporcional
+      const reseteado = cache.map(a => ({ ...a, zsec: null }));
+      localStorage.setItem('stravaActsCache', JSON.stringify(reseteado));
+      localStorage.setItem('zsecCacheV', '2');
+    } catch(e) { /* silencioso */ }
+  }
+
   async function cargarDatosStrava(accessToken, force = false) {
+    _migrarZsecCacheV2(); // limpia zsec con fórmula antigua antes de sincronizar
     // Anti doble disparo: si ya hay una sincronización en curso, no lances otra
     if (_stravaSyncEnCurso) return;
     // Frescura: si ya cargamos en esta sesión y los datos son recientes, no re-llamamos
@@ -1158,23 +1173,50 @@
   }
 
   // Convierte los distribution_buckets de Strava en [Z1..Z5] segundos según NUESTRO modelo.
-  // Reclasifica cada bucket por su FC media (min+max)/2 ÷ FCmáx para mantener coherencia
-  // con las zonas de carrera del resto de la app.
+  // Usa reparto proporcional por solapamiento de rango, no midpoint, para evitar que
+  // el bucket Z4 de Strava (p.ej. 171-190 bpm, mid=180=95%) caiga todo en Z5 y deje Z4 vacío.
   function _zsecDesdeBuckets(buckets, fcMax) {
     const zsec = [0, 0, 0, 0, 0];
     if (!Array.isArray(buckets) || !buckets.length) return null;
-    // Si tenemos FCmáx, reclasificar por punto medio; si no, mapear índice→zona (asume 5 zonas)
-    buckets.forEach((b, i) => {
+
+    if (!fcMax) {
+      // Sin FCmáx: mapear bucket index directamente (0→Z1 … 4→Z5)
+      buckets.forEach((b, i) => { zsec[Math.min(4, i)] += b.time || 0; });
+      return zsec.some(v => v > 0) ? zsec : null;
+    }
+
+    // Límites absolutos de nuestras 5 zonas (Cerezuela-Espejo) en bpm
+    const limites = [
+      [0,              fcMax * 0.71],  // Z1: <71%
+      [fcMax * 0.71,   fcMax * 0.82],  // Z2: 71-82%
+      [fcMax * 0.82,   fcMax * 0.89],  // Z3: 82-89%
+      [fcMax * 0.89,   fcMax * 0.94],  // Z4: 89-94%
+      [fcMax * 0.94,   fcMax * 2.0 ],  // Z5: ≥94%
+    ];
+
+    buckets.forEach(b => {
       const seg = b.time || 0;
-      let z;
-      if (fcMax && b.min != null && b.max != null) {
-        const mid = (b.min + (b.max > b.min ? b.max : b.min + 10)) / 2;
-        z = _zonaDesdePctFC(mid / fcMax);
-      } else {
-        z = Math.min(4, i); // fallback: bucket index ≈ zona
+      if (!seg) return;
+
+      const bMin = (b.min != null && b.min >= 0) ? b.min : 0;
+      // Strava Z5 (max=0) usa min como piso; añadimos 20 bpm de margen
+      const bMax = (b.max != null && b.max > bMin) ? b.max : bMin + 20;
+      const bRange = bMax - bMin;
+
+      if (bRange <= 0) {
+        zsec[_zonaDesdePctFC(bMin / fcMax)] += seg;
+        return;
       }
-      zsec[z] += seg;
+
+      // Repartir proporcionalmente según solapamiento con cada zona
+      limites.forEach(([zMin, zMax], zi) => {
+        const overlap = Math.max(0, Math.min(bMax, zMax) - Math.max(bMin, zMin));
+        if (overlap > 0) zsec[zi] += seg * (overlap / bRange);
+      });
     });
+
+    // Redondear a enteros
+    for (let i = 0; i < 5; i++) zsec[i] = Math.round(zsec[i]);
     return zsec.some(v => v > 0) ? zsec : null;
   }
 
