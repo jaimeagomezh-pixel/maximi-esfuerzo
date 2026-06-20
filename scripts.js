@@ -771,7 +771,15 @@
         const elBar  = document.getElementById('zBar' + z);
         if (elTime) elTime.textContent = timeStr;
         if (elPct)  elPct.textContent  = pct + '%';
-        if (elBar)  elBar.style.width  = pct + '%';
+        if (elBar) {
+          elBar.style.transition = 'none';
+          elBar.style.width = '0%';
+          void elBar.offsetWidth;
+          requestAnimationFrame(() => {
+            elBar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
+            elBar.style.width = pct + '%';
+          });
+        }
       });
     } catch(e) { console.error('Zonas error:', e); }
   }
@@ -4294,7 +4302,17 @@
     const col = COL[r.nivel] || '#8B1A1A';
     const paceM = Math.floor(r.paceSecKm / 60), paceS = r.paceSecKm % 60;
     const paceStr = `${paceM}:${String(paceS).padStart(2,'0')} /km`;
-    if (resEl)   { resEl.style.display = 'block'; resEl.style.background = col + '14'; }
+    if (resEl) {
+      resEl.style.display = 'block';
+      resEl.style.background = col + '14';
+      resEl.style.borderColor = col + '40';
+      resEl.style.border = '1px solid ' + col + '40';
+      // Stamp-in en la banda de nivel
+      if (bandaEl) { bandaEl.classList.remove('me-stamp-in'); void bandaEl.offsetWidth; bandaEl.classList.add('me-stamp-in'); }
+      // Sweep solo en Élite
+      const shineEl = document.getElementById('ruckFtpShine');
+      if (shineEl) shineEl.style.display = r.nivel === 'Élite' ? 'block' : 'none';
+    }
     if (bandaEl) { bandaEl.textContent = `${r.nivel} · ${r.minutos} min`; bandaEl.style.color = col; }
     if (msgEl)   msgEl.innerHTML = `Umbral <strong>rkFTP ${r.rkFtpWatts} W</strong> · ritmo ${paceStr} · ${load} kg en ${terrain}. Es la base de tu rkTSS.`;
 
@@ -4533,7 +4551,10 @@
     const elVal = document.getElementById('rtssUltimaVal');
     const elIF  = document.getElementById('rtssUltimaIF');
     const elInfo= document.getElementById('rtssUltimaInfo');
-    if (elVal)  elVal.textContent  = ult.carga;
+    if (elVal) {
+      if (typeof countUp === 'function') countUp(elVal, Number(ult.carga), '', 900);
+      else elVal.textContent = ult.carga;
+    }
     if (elIF)   elIF.textContent   = (esRuck ? 'rkTSS' : 'rTSS') + ' · IF ' + ult.iff + (esRuck && ult.mo > 1 ? ' · MO×' + ult.mo : '');
     if (elInfo) { const p = ult.date.split('-'); elInfo.textContent = `${p[2]}/${p[1]} · ${ult.km} km${esRuck ? ' · con lastre' : ''}`; }
 
@@ -4560,6 +4581,22 @@
       labels.push(d.getDate() + '/' + (d.getMonth() + 1));
       data.push(w.val);
     });
+
+    // ── Delta carga: semana actual vs semana anterior con actividad ──
+    const elDelta = document.getElementById('rtssDelta');
+    if (elDelta) {
+      const rev = data.slice().reverse();
+      const curr = rev.find(v => v > 0) || 0;
+      const prev = rev.slice(1).find(v => v > 0) || 0;
+      if (curr > 0 && prev > 0) {
+        const pct = Math.round((curr - prev) / prev * 100);
+        elDelta.textContent = (pct >= 0 ? '↑ ' : '↓ ') + Math.abs(pct) + '% sem.';
+        elDelta.className = 'me-delta ' + (pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat');
+        elDelta.style.display = 'inline-block';
+      } else {
+        elDelta.style.display = 'none';
+      }
+    }
 
     // Interpretabilidad: colorear semanas según su carga vs el promedio del atleta.
     // Verde = suave · rojo = habitual · naranja = carga alta (pico, ojo recuperación)
