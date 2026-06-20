@@ -1819,7 +1819,8 @@
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Tiempo (M:SS)</div>
-            <input type="text" id="ruckFtpTime" placeholder="ej. 42:30" maxlength="8"
+            <input type="text" id="ruckFtpTime" placeholder="42:30" maxlength="5"
+              inputmode="numeric" oninput="fmtRuckFtpTime(this)"
               style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;box-sizing:border-box;">
           </div>
           <div>
@@ -2445,7 +2446,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260620h"></script>
+<script src="scripts.js?v=20260620i"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

@@ -4457,6 +4457,14 @@
     rkCountUp(document.getElementById('rkrWatts'), Number(d.rkFtpWatts), 900, 700);
   }
 
+  function fmtRuckFtpTime(inp) {
+    let v = inp.value.replace(/\D/g, '');
+    if (v.length > 4) v = v.slice(0, 4);
+    if (v.length > 2) v = v.slice(0, 2) + ':' + v.slice(2);
+    inp.value = v;
+  }
+  window.fmtRuckFtpTime = fmtRuckFtpTime;
+
   function guardarTestRuck() {
     const mount = document.getElementById('ruckFtpResultado');
     const _err = (txt) => {
