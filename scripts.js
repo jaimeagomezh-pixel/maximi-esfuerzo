@@ -789,13 +789,12 @@
         if (elTime) elTime.textContent = timeStr;
         if (elPct)  elPct.textContent  = pct + '%';
         if (elBar) {
-          elBar.style.transition = 'none';
-          elBar.style.width = '0%';
-          void elBar.offsetWidth;
-          requestAnimationFrame(() => {
-            elBar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
-            elBar.style.width = pct + '%';
-          });
+          // Fuente única de verdad: dataset.w guarda el target. Fijamos el width
+          // directamente (red de seguridad: la barra SIEMPRE se ve, animación GSAP
+          // aparte). Evita la condición de carrera del requestAnimationFrame previo.
+          elBar.dataset.w = pct + '%';
+          elBar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
+          elBar.style.width = pct + '%';
         }
       });
     } catch(e) { console.error('Zonas error:', e); }

@@ -280,66 +280,70 @@ function setupSectionScrollAnimations(secEl) {
   const scroller = document.querySelector('#dashboardAtleta .dashboard-box');
   if (!scroller || !secEl) return;
 
-  const srBottom = scroller.getBoundingClientRect().bottom;
+  // IntersectionObserver con root = scroller: confiable dentro de contenedores
+  // position:fixed (ScrollTrigger con scroller custom era frágil y dejaba el
+  // contenido en opacity:0). Cada elemento se anima al entrar al área visible;
+  // los ya visibles al abrir disparan de inmediato.
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      io.unobserve(el);
+      gsap.to(el, el._animTo);
+    });
+  }, { root: scroller, threshold: 0.06, rootMargin: '0px 0px -4% 0px' });
 
-  // Elementos ya visibles → animación directa con stagger de posición
-  // Elementos debajo del fold → ScrollTrigger cuando entran al viewport
-  let visibleIdx = 0;
-  function animate(el, fromV, toV) {
+  function reg(el, fromV, toV) {
     if (el.dataset.gsapAnim) return;
     el.dataset.gsapAnim = '1';
-    const rect = el.getBoundingClientRect();
-    if (rect.top < srBottom) {
-      // Ya visible: animar con delay escalonado por orden de aparición
-      gsap.fromTo(el, fromV, { ...toV, delay: visibleIdx * 0.07 });
-      visibleIdx++;
-    } else {
-      // Bajo el fold: ScrollTrigger
-      gsap.fromTo(el, fromV, {
-        ...toV,
-        scrollTrigger: {
-          trigger: el, scroller,
-          start: 'top 95%',
-          toggleActions: 'play none none none'
-        }
-      });
-    }
+    el._animTo = toV;
+    gsap.set(el, fromV);   // estado inicial oculto
+    io.observe(el);
   }
 
   // Títulos: desliz desde izquierda
   secEl.querySelectorAll('.dash-section-title').forEach(el =>
-    animate(el, { opacity: 0, x: -22 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' })
+    reg(el, { opacity: 0, x: -22 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' })
   );
-
   // Stat cells: fade-up
   secEl.querySelectorAll('.dash-stat-cell').forEach(el =>
-    animate(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
+    reg(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
   );
-
   // Encabezados de métricas
   secEl.querySelectorAll('.th-working-max').forEach(el =>
-    animate(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
+    reg(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
   );
-
   // Gráficos: fade + scale
   secEl.querySelectorAll('.dash-chart-card, .th-chart-container').forEach(el =>
-    animate(el, { opacity: 0, y: 24, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' })
+    reg(el, { opacity: 0, y: 24, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' })
   );
-
   // Filas de zonas FC (última actividad): cascade izquierda
   secEl.querySelectorAll('.dash-zone-row').forEach(el =>
-    animate(el, { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.38, ease: 'power2.out' })
+    reg(el, { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.38, ease: 'power2.out' })
   );
-
   // Cards resultado test: entrada con rebote
   secEl.querySelectorAll('.rkr, .flat-box').forEach(el =>
-    animate(el, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.2)' })
+    reg(el, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.2)' })
   );
-
   // Elementos varios: fade-up simple
   secEl.querySelectorAll('.dash-connect-card, .me-live-badge').forEach(el =>
-    animate(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
+    reg(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
   );
+
+  // RED DE SEGURIDAD: a los 2.5s, forzar visible cualquier elemento ya
+  // dentro del área del scroller que el observer no haya revelado (evita
+  // contenido atascado en opacity:0 pase lo que pase).
+  setTimeout(() => {
+    const srRect = scroller.getBoundingClientRect();
+    secEl.querySelectorAll('[data-gsap-anim="1"]').forEach(el => {
+      const r = el.getBoundingClientRect();
+      const dentro = r.top < srRect.bottom && r.bottom > srRect.top;
+      if (dentro && parseFloat(getComputedStyle(el).opacity) < 0.95) {
+        io.unobserve(el);
+        gsap.to(el, el._animTo);
+      }
+    });
+  }, 2500);
 
   // Barras mensuales (resZonasFC): observar cuando se renderizan y animar width
   secEl.querySelectorAll('#resZonasFC').forEach(el => {
@@ -349,21 +353,21 @@ function setupSectionScrollAnimations(secEl) {
       el.querySelectorAll('div[style*="height:100%"]').forEach((bar, i) => {
         const tw = bar.style.width || '0%';
         if (tw === '0%') return;
-        bar.style.width = '0%';
-        gsap.to(bar, { width: tw, duration: 0.9, delay: i * 0.08, ease: 'power2.out' });
+        gsap.fromTo(bar, { width: '0%' },
+          { width: tw, duration: 0.9, delay: i * 0.08, ease: 'power2.out', overwrite: true });
       });
     };
     if (el.children.length) doAnim();
     else new MutationObserver((_, ob) => { if (el.children.length) { ob.disconnect(); doAnim(); } })
       .observe(el, { childList: true });
   });
-
-  ScrollTrigger.refresh();
 }
 
 // Anima las barras de zonas FC de la ÚLTIMA ACTIVIDAD (#zBar1-#zBar5).
-// cargarZonasActividad pone style.transition CSS en los bars; hay que
-// limpiarlo antes de que GSAP tome el control o ambos se anulan entre sí.
+// Lee el target desde dataset.w (fijado por cargarZonasActividad), que es
+// estable y no compite con el inline width. overwrite:true mata cualquier
+// tween previo. Red de seguridad: si GSAP falla, cargarZonasActividad ya
+// dejó el width final fijado, así que la barra se ve igual.
 function animarBarrasZonaFC() {
   const barIds = ['zBar5', 'zBar4', 'zBar3', 'zBar2', 'zBar1'];
   const bars = barIds.map(id => document.getElementById(id)).filter(Boolean);
@@ -371,36 +375,43 @@ function animarBarrasZonaFC() {
 
   function doGrow() {
     bars.forEach((bar, i) => {
-      const tw = bar.style.width;
+      const tw = bar.dataset.w;
       if (!tw || tw === '0%') return;
-      bar.style.transition = 'none'; // matar transición CSS para que no interfiera
-      bar.style.width = '0%';
-      void bar.offsetWidth; // forzar reflow
-      gsap.to(bar, {
-        width: tw,
-        duration: 0.88,
-        delay: i * 0.1,
-        ease: 'power2.out',
-        onComplete: () => { bar.style.transition = ''; }
-      });
+      bar.style.transition = 'none'; // GSAP controla, sin transición CSS
+      gsap.fromTo(bar,
+        { width: '0%' },
+        { width: tw, duration: 0.88, delay: i * 0.1, ease: 'power2.out',
+          overwrite: true, onComplete: () => { bar.style.transition = ''; } }
+      );
     });
   }
 
-  const hasData = bars.some(b => b.style.width && b.style.width !== '0%');
+  const hasData = bars.some(b => b.dataset.w && b.dataset.w !== '0%');
   if (hasData) { doGrow(); return; }
 
-  // Si los datos aún no llegaron de Strava, esperar con MutationObserver
+  // Datos aún no llegaron de Strava → esperar a que se fije dataset.w
   let done = false;
   const obs = new MutationObserver(() => {
     if (done) return;
-    if (bars.some(b => b.style.width && b.style.width !== '0%')) {
+    if (bars.some(b => b.dataset.w && b.dataset.w !== '0%')) {
       done = true;
       obs.disconnect();
       setTimeout(doGrow, 80);
     }
   });
-  bars.forEach(bar => obs.observe(bar, { attributes: true, attributeFilter: ['style'] }));
+  bars.forEach(bar => obs.observe(bar, { attributes: true, attributeFilter: ['data-w', 'style'] }));
   setTimeout(() => { if (!done) obs.disconnect(); }, 8000);
+}
+
+// Redimensiona los charts de Chart.js que se crearon mientras su contenedor
+// estaba oculto (display:none). Sin esto el canvas queda en 300x150 default
+// y el gráfico no se ve al abrir la sección.
+function resizeChartsEnSeccion(secEl) {
+  if (typeof Chart === 'undefined' || typeof Chart.getChart !== 'function') return;
+  secEl.querySelectorAll('canvas').forEach(cv => {
+    const ch = Chart.getChart(cv);
+    if (ch) { try { ch.resize(); ch.update('none'); } catch(e) {} }
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -421,6 +432,7 @@ function animateFCBarsOnOpen() {
     setTimeout(() => {
       const secEl = document.getElementById(id);
       if (secEl) {
+        resizeChartsEnSeccion(secEl); // charts creados ocultos → redimensionar
         setupSectionScrollAnimations(secEl);
         animarBarrasZonaFC(); // barras coloreadas de la última actividad
       }
