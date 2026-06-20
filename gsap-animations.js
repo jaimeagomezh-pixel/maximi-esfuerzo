@@ -272,9 +272,120 @@ function buildSectionFooterNav() {
 }
 
 // ─────────────────────────────────────────────────────────────
-// 11. BARRAS FC (Tiempos en zona) — animar al abrir la sección
-//     NO usa IntersectionObserver (no funciona dentro de fixed)
-//     Se engancha a openDashSection para disparar post-render
+// 11. ANIMACIONES DE SCROLL dentro de cada sección del dashboard
+//     ScrollTrigger usa .dashboard-box como scroller (no window)
+// ─────────────────────────────────────────────────────────────
+
+function setupSectionScrollAnimations(secEl) {
+  const scroller = document.querySelector('#dashboardAtleta .dashboard-box');
+  if (!scroller || !secEl) return;
+
+  const opts = { scroller, start: 'top 88%', toggleActions: 'play none none none' };
+
+  // Títulos de sub-sección: línea que entra desde la izquierda
+  secEl.querySelectorAll('.dash-section-title').forEach(el => {
+    if (el.dataset.gsapAnim) return;
+    el.dataset.gsapAnim = '1';
+    gsap.fromTo(el,
+      { opacity: 0, x: -24 },
+      { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out',
+        scrollTrigger: { trigger: el, ...opts } }
+    );
+  });
+
+  // Celdas de stats: stagger fade-up en grupo
+  secEl.querySelectorAll('.dash-stats-row, .th-working-max').forEach(row => {
+    if (row.dataset.gsapAnim) return;
+    row.dataset.gsapAnim = '1';
+    const cells = row.querySelectorAll('.dash-stat-cell, .th-wm-value, .th-wm-label');
+    if (cells.length) {
+      gsap.fromTo(cells,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'power2.out',
+          scrollTrigger: { trigger: row, ...opts } }
+      );
+    } else {
+      gsap.fromTo(row,
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
+          scrollTrigger: { trigger: row, ...opts } }
+      );
+    }
+  });
+
+  // Gráficos: fade-up + ligero scale
+  secEl.querySelectorAll('.dash-chart-card, .th-chart-container, .th-chart-wrap').forEach(el => {
+    if (el.dataset.gsapAnim) return;
+    el.dataset.gsapAnim = '1';
+    gsap.fromTo(el,
+      { opacity: 0, y: 28, scale: 0.98 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'power2.out',
+        scrollTrigger: { trigger: el, ...opts } }
+    );
+  });
+
+  // Filas de zonas FC (última actividad): stagger desde izquierda
+  secEl.querySelectorAll('.dash-zone-row').forEach((row, i) => {
+    if (row.dataset.gsapAnim) return;
+    row.dataset.gsapAnim = '1';
+    gsap.fromTo(row,
+      { opacity: 0, x: -16 },
+      { opacity: 1, x: 0, duration: 0.4, delay: i * 0.06, ease: 'power2.out',
+        scrollTrigger: { trigger: row, ...opts } }
+    );
+  });
+
+  // Barras del resumen mensual (resZonasFC): fade + grow
+  secEl.querySelectorAll('#resZonasFC').forEach(el => {
+    if (el.dataset.gsapAnim) return;
+    el.dataset.gsapAnim = '1';
+    const animarBarrasMensual = () => {
+      const rows2 = el.querySelectorAll('div[style*="display:flex"]');
+      gsap.fromTo(rows2,
+        { opacity: 0, x: -12 },
+        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, ease: 'power2.out' }
+      );
+      // Barras de color: animar width
+      el.querySelectorAll('div[style*="height:100%"]').forEach((bar, i) => {
+        const tw = bar.style.width || '0%';
+        if (tw === '0%') return;
+        bar.style.width = '0%';
+        gsap.to(bar, { width: tw, duration: 0.85, delay: i * 0.08, ease: 'power2.out' });
+      });
+    };
+    // Observar cuando el contenido se renderiza
+    new MutationObserver(() => { if (el.children.length) { animarBarrasMensual(); } })
+      .observe(el, { childList: true });
+  });
+
+  // Cards rkFTP y resultado de tests: entrada dramática
+  secEl.querySelectorAll('.rkr').forEach(el => {
+    if (el.dataset.gsapAnim) return;
+    el.dataset.gsapAnim = '1';
+    gsap.fromTo(el,
+      { opacity: 0, y: 30, scale: 0.97 },
+      { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: 'back.out(1.3)',
+        scrollTrigger: { trigger: el, ...opts } }
+    );
+  });
+
+  // Elementos genéricos con padding/margin visibles (subsecciones planas)
+  secEl.querySelectorAll('.dash-connect-card, .me-live-badge').forEach((el, i) => {
+    if (el.dataset.gsapAnim) return;
+    el.dataset.gsapAnim = '1';
+    gsap.fromTo(el,
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0, duration: 0.45, delay: i * 0.05, ease: 'power2.out',
+        scrollTrigger: { trigger: el, ...opts } }
+    );
+  });
+
+  // Refresh ScrollTrigger para que detecte las nuevas alturas
+  ScrollTrigger.refresh();
+}
+
+// ─────────────────────────────────────────────────────────────
+// 12. BARRAS FC + scroll animations al abrir sección
 // ─────────────────────────────────────────────────────────────
 function animateFCBarsOnOpen() {
   const originalOpen = window.openDashSection;
@@ -284,32 +395,10 @@ function animateFCBarsOnOpen() {
   window.openDashSection = function(id) {
     originalOpen.call(this, id);
 
-    // Pequeño delay para que el DOM termine de renderizar
     setTimeout(() => {
-      const zonasEl = document.getElementById('resZonasFC');
-      if (!zonasEl) return;
-
-      // Animar barras coloreadas (los div con width% en inline style)
-      const innerBars = zonasEl.querySelectorAll('div[style*="height:100%"]');
-      innerBars.forEach((bar, i) => {
-        const targetWidth = bar.style.width || '0%';
-        if (!targetWidth || targetWidth === '0%') return;
-        bar.style.width = '0%';
-        gsap.to(bar, {
-          width: targetWidth,
-          duration: 0.85,
-          delay: i * 0.1,
-          ease: 'power2.out'
-        });
-      });
-
-      // Animar filas completas (stagger fade-in)
-      const rows = zonasEl.querySelectorAll('div[style*="display:flex"]');
-      gsap.fromTo(rows,
-        { opacity: 0, x: -12 },
-        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, ease: 'power2.out' }
-      );
-    }, 200);
+      const secEl = document.getElementById(id);
+      if (secEl) setupSectionScrollAnimations(secEl);
+    }, 120);
   };
 }
 
