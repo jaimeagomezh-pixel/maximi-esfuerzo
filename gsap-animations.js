@@ -361,23 +361,46 @@ function setupSectionScrollAnimations(secEl) {
   ScrollTrigger.refresh();
 }
 
-// Anima las barras de zonas FC de la ÚLTIMA ACTIVIDAD (#zBar1-#zBar5)
-// al entrar en la sección Endurance
+// Anima las barras de zonas FC de la ÚLTIMA ACTIVIDAD (#zBar1-#zBar5).
+// cargarZonasActividad pone style.transition CSS en los bars; hay que
+// limpiarlo antes de que GSAP tome el control o ambos se anulan entre sí.
 function animarBarrasZonaFC() {
-  const bars = [
-    document.getElementById('zBar5'),
-    document.getElementById('zBar4'),
-    document.getElementById('zBar3'),
-    document.getElementById('zBar2'),
-    document.getElementById('zBar1'),
-  ].filter(Boolean);
+  const barIds = ['zBar5', 'zBar4', 'zBar3', 'zBar2', 'zBar1'];
+  const bars = barIds.map(id => document.getElementById(id)).filter(Boolean);
   if (!bars.length) return;
-  bars.forEach((bar, i) => {
-    const tw = bar.style.width;
-    if (!tw || tw === '0%' || tw === '0') return;
-    bar.style.width = '0%';
-    gsap.to(bar, { width: tw, duration: 0.85, delay: 0.15 + i * 0.1, ease: 'power2.out' });
+
+  function doGrow() {
+    bars.forEach((bar, i) => {
+      const tw = bar.style.width;
+      if (!tw || tw === '0%') return;
+      bar.style.transition = 'none'; // matar transición CSS para que no interfiera
+      bar.style.width = '0%';
+      void bar.offsetWidth; // forzar reflow
+      gsap.to(bar, {
+        width: tw,
+        duration: 0.88,
+        delay: i * 0.1,
+        ease: 'power2.out',
+        onComplete: () => { bar.style.transition = ''; }
+      });
+    });
+  }
+
+  const hasData = bars.some(b => b.style.width && b.style.width !== '0%');
+  if (hasData) { doGrow(); return; }
+
+  // Si los datos aún no llegaron de Strava, esperar con MutationObserver
+  let done = false;
+  const obs = new MutationObserver(() => {
+    if (done) return;
+    if (bars.some(b => b.style.width && b.style.width !== '0%')) {
+      done = true;
+      obs.disconnect();
+      setTimeout(doGrow, 80);
+    }
   });
+  bars.forEach(bar => obs.observe(bar, { attributes: true, attributeFilter: ['style'] }));
+  setTimeout(() => { if (!done) obs.disconnect(); }, 8000);
 }
 
 // ─────────────────────────────────────────────────────────────
