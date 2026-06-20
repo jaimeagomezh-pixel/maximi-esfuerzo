@@ -307,33 +307,52 @@ function animateMenuMobile() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// 8. GRÁFICOS - Animación de barras Chart.js
+// 8. GRÁFICOS - Animación de barras Chart.js + Scroll Trigger
 // ═══════════════════════════════════════════════════════════════
 
 function animateCharts() {
-  // Interceptar creación de charts
-  const originalChart = window.Chart;
-  let chartCount = 0;
+  // Animar todos los canvas de gráficos con scroll trigger
+  document.querySelectorAll('canvas').forEach((canvas) => {
+    const container = canvas.closest('.th-chart-wrap') || canvas.parentElement;
 
-  window.ChartAnimationWrapper = function(ctx, config) {
-    const chart = new originalChart(ctx, config);
-
-    // Fade-in del canvas
     gsap.fromTo(
-      ctx.canvas,
-      { opacity: 0 },
+      canvas,
+      { opacity: 0, y: 20 },
       {
         opacity: 1,
+        y: 0,
         duration: 0.8,
-        ease: 'power1.inOut'
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: container,
+          start: 'top 85%',
+          end: 'top 50%',
+          toggleActions: 'play none none none'
+        }
       }
     );
+  });
 
-    return chart;
+  // Re-animar charts cuando se carguen nuevos datos
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) {
+    return originalFetch.apply(this, args).then((response) => {
+      // Después de 500ms, volver a animar charts
+      setTimeout(() => {
+        document.querySelectorAll('canvas').forEach((canvas) => {
+          if (!canvas.dataset.animatedGsap) {
+            canvas.dataset.animatedGsap = true;
+            gsap.fromTo(
+              canvas,
+              { opacity: 0 },
+              { opacity: 1, duration: 0.5 }
+            );
+          }
+        });
+      }, 500);
+      return response;
+    });
   };
-
-  // Copiar propiedades estáticas
-  Object.assign(window.ChartAnimationWrapper, originalChart);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -395,6 +414,110 @@ function addParallaxEffect() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// 10a. ANIMACIÓN DE BARRAS DE ZONAS FC
+// ═══════════════════════════════════════════════════════════════
+
+function animateFCZones() {
+  // Observar el contenedor de zonas FC
+  const zonasContainer = document.getElementById('resZonasFC');
+  if (!zonasContainer) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Animar todas las barras dentro
+        const bars = zonasContainer.querySelectorAll('div[style*="background"]');
+        bars.forEach((bar, i) => {
+          const innerBar = bar.querySelector('div[style*="width"]');
+          if (innerBar && !innerBar.dataset.animated) {
+            innerBar.dataset.animated = true;
+            const width = innerBar.style.width;
+            innerBar.style.width = '0';
+
+            gsap.to(innerBar, {
+              width: width,
+              duration: 0.9,
+              delay: i * 0.1,
+              ease: 'power2.out'
+            });
+          }
+        });
+
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  observer.observe(zonasContainer);
+
+  // Re-observar cuando el contenido cambia
+  const mutationObserver = new MutationObserver(() => {
+    observer.observe(zonasContainer);
+  });
+
+  mutationObserver.observe(zonasContainer, {
+    childList: true,
+    subtree: true
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 10b. NAVEGACIÓN ENTRE SECCIONES DEL DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+
+function createSectionNavigation() {
+  const secciones = [
+    { id: 'tab-atletas', label: 'Atletas', icon: '👥' },
+    { id: 'tab-resumen', label: 'Resumen', icon: '📊' },
+    { id: 'tab-nutricion', label: 'Nutrición', icon: '🥗' },
+    { id: 'tab-rucking', label: 'Rucking', icon: '🎒' },
+    { id: 'tab-entrenamiento', label: 'Entrenamiento', icon: '💪' }
+  ];
+
+  // Función para insertar navegación al final de cada sección
+  function insertNavigation() {
+    secciones.forEach((sec, idx) => {
+      const secEl = document.getElementById(sec.id);
+      if (!secEl || secEl.querySelector('.gsap-section-nav')) return;
+
+      const navHtml = `
+        <div class="gsap-section-nav" style="margin-top:40px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.1);display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          ${secciones.map((s, i) => `
+            <button onclick="document.getElementById('${s.id}').scrollIntoView({behavior:'smooth'}); this.classList.add('active');"
+              style="padding:10px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:${s.id === sec.id ? 'rgba(212,168,67,0.2)' : 'transparent'};color:#fff;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;text-transform:uppercase;transition:all 0.3s;${s.id === sec.id ? 'border-color:#d4a843;' : ''}"
+              onmouseover="this.style.borderColor='#d4a843';this.style.background='rgba(212,168,67,0.15)';"
+              onmouseout="this.style.borderColor='${s.id === sec.id ? '#d4a843' : 'rgba(255,255,255,0.2)'}';this.style.background='${s.id === sec.id ? 'rgba(212,168,67,0.2)' : 'transparent'}';"
+            >${s.icon} ${s.label}</button>
+          `).join('')}
+        </div>
+      `;
+
+      const navEl = document.createElement('div');
+      navEl.innerHTML = navHtml;
+      secEl.appendChild(navEl.firstElementChild);
+    });
+  }
+
+  // Insertar al cargar
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', insertNavigation);
+  } else {
+    insertNavigation();
+  }
+
+  // Reinsertar cuando el contenido cambia
+  const observer = new MutationObserver(() => {
+    setTimeout(insertNavigation, 100);
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: false
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 // 11. INIT - Ejecutar todas las animaciones
 // ═══════════════════════════════════════════════════════════════
 
@@ -415,8 +538,10 @@ function initGSAPAnimations() {
     animateLoginOverlay();
     animateMenuMobile();
     animateCharts();
+    animateFCZones();
     animateAccordion();
     addParallaxEffect();
+    createSectionNavigation();
 
     // Re-iniciar animaciones cuando el contenido cambia dinámicamente
     const observer = new MutationObserver(() => {
@@ -424,6 +549,7 @@ function initGSAPAnimations() {
       setTimeout(() => {
         addButtonHovers();
         animateAccordion();
+        animateCharts();
       }, 100);
     });
 
