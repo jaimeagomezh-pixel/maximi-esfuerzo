@@ -761,7 +761,7 @@
         </div>
       </div>
 
-      <button onclick="cerrarDash();setTimeout(()=>{document.getElementById('blog')?.scrollIntoView({behavior:'smooth'})},300)" class="dash-menu-link" style="display:flex;align-items:center;">
+      <button onclick="cerrarDash();window.location.hash='';window.location.hash='blog';" class="dash-menu-link" style="display:flex;align-items:center;">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="margin-right:10px;flex-shrink:0;">
           <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>
         </svg>Blog</button>
@@ -3581,9 +3581,13 @@ async function cargarInbodyHistorial() {
   const cacheKey = 'inbodyHistorial_' + user.uid;
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/inbody/${user.uid}`);
-    const lista = await r.json();
-    // Guardar en caché local para uso offline/fallback
-    if (Array.isArray(lista)) localStorage.setItem(cacheKey, JSON.stringify(lista));
+    let lista = await r.json();
+    // Filtrar entradas eliminadas localmente (evita que el servidor las restaure)
+    if (Array.isArray(lista)) {
+      const deleted = JSON.parse(localStorage.getItem('inbodyDeleted_' + user.uid) || '[]');
+      if (deleted.length) lista = lista.filter(m => !deleted.includes(m.fecha));
+      localStorage.setItem(cacheKey, JSON.stringify(lista));
+    }
     if (!lista.length) return;
 
     // Gráfico de áreas apiladas
@@ -3712,7 +3716,11 @@ function renderInbodyLista(lista) {
   if (!lista.length) { el.innerHTML = ''; return; }
   document.getElementById('inbodyHistorial').style.display = 'block';
   const PERIM = ['brazo_relax','brazo_contra','torso','cintura','cadera','gluteo','muslo'];
-  el.innerHTML = lista.slice().reverse().map(m => {
+  const MAX = 20;
+  const ordenada = lista.slice().reverse();
+  const visible  = ordenada.slice(0, MAX);
+  const resto    = ordenada.length - MAX;
+  el.innerHTML = visible.map(m => {
     const tienePerim = PERIM.some(k => m['p_' + k] != null);
     const tieneComp  = m.musculo || m.grasa_kg;
     const tienePeso  = m.peso != null && !isNaN(m.peso);
@@ -3740,7 +3748,9 @@ function renderInbodyLista(lista) {
         style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:14px;padding:2px 6px;opacity:0.6;"
         title="Eliminar medición">🗑</button>
     </div>`;
-  }).join('');
+  }).join('') + (resto > 0
+    ? `<div style="text-align:center;padding:8px 0;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#888;text-transform:uppercase;">+ ${resto} registro${resto>1?'s':''} anteriores</div>`
+    : '');
 }
 
 async function handleVideoUpload(input) {
@@ -3803,9 +3813,17 @@ async function eliminarInbody(fecha) {
   if (!confirm(`¿Eliminar la medición del ${fecha}?`)) return;
   const user = window._auth?.currentUser;
   if (!user) return;
-  const cacheKey = 'inbodyHistorial_' + user.uid;
+  const cacheKey   = 'inbodyHistorial_' + user.uid;
+  const deletedKey = 'inbodyDeleted_'   + user.uid;
 
-  // 1. Eliminar del cache local y renderizar inmediatamente
+  // 1. Marcar como eliminado para que cargarInbodyHistorial no lo restaure desde servidor
+  try {
+    const deleted = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+    if (!deleted.includes(fecha)) deleted.push(fecha);
+    localStorage.setItem(deletedKey, JSON.stringify(deleted));
+  } catch(_) {}
+
+  // 2. Eliminar del cache local y renderizar inmediatamente
   let listaActual = [];
   try {
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
@@ -3814,9 +3832,9 @@ async function eliminarInbody(fecha) {
     const bmHist = JSON.parse(localStorage.getItem('atletaBMHistorial') || '[]');
     localStorage.setItem('atletaBMHistorial', JSON.stringify(bmHist.filter(b => b.fecha !== fecha)));
   } catch(_) {}
-  renderInbodyLista(listaActual); // render inmediato sin esperar servidor
+  renderInbodyLista(listaActual);
 
-  // 2. Intentar eliminar en servidor (best-effort, no refetch)
+  // 3. Eliminar en servidor
   try {
     const r = await fetch(`${MEDIA_WORKER}/media/delete-inbody`, {
       method: 'POST',
