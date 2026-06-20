@@ -4434,11 +4434,27 @@
           <div class="rkr-ico">${t.ico}</div>
           <div class="rkr-stamp">${d.nivel}</div>
         </div>
-        <div class="rkr-tag" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--rkr-accent,#C9A84C);text-align:center;margin:6px 0 4px;">${t.tag}</div>
+        <div class="rkr-time">${timeStr} <small>MIN · ${d.loadKg} KG · ${terrLbl.toUpperCase()}</small></div>
+        <div class="rkr-tl">
+          <div class="rkr-tlbar">
+            <div class="rkr-tlseg" style="width:18.75%;background:#C9A84C;"></div>
+            <div class="rkr-tlseg" style="width:28.12%;background:#27ae60;"></div>
+            <div class="rkr-tlseg" style="width:31.25%;background:#e07b00;"></div>
+            <div class="rkr-tlseg" style="flex:1;background:#8B1A1A;"></div>
+            <div class="rkr-mk" id="rkrMk" style="left:0%;"></div>
+          </div>
+          <div class="rkr-tllabels"><span>Élite</span><span>Apto</span><span>Desarrollo</span><span>Base</span></div>
+        </div>
+        <div class="rkr-metrics">
+          <div class="rkr-metric"><div class="rkr-mv"><span id="rkrWatts">0</span> <small>W</small></div><div class="rkr-mk-label">Umbral rkFTP</div></div>
+          <div class="rkr-metric"><div class="rkr-mv">${paceStr} <small>/KM</small></div><div class="rkr-mk-label">Ritmo umbral</div></div>
+        </div>
       </div>`;
     const card = mount.querySelector('.rkr');
     void card.offsetWidth;
     card.classList.add('show');
+    setTimeout(() => { const mk = document.getElementById('rkrMk'); if (mk) mk.style.left = rkMarkerPct(min) + '%'; }, 750);
+    rkCountUp(document.getElementById('rkrWatts'), Number(d.rkFtpWatts), 900, 700);
   }
 
   function guardarTestRuck() {
