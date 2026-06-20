@@ -283,6 +283,8 @@
           if (typeof _fsInit               === 'function') _fsInit(); // nutrición: solo verifica conexión (sincroniza con botón)
           if (typeof precargarPesoVelocidad === 'function') precargarPesoVelocidad();
           if (typeof lucide !== 'undefined') lucide.createIcons();
+          // Navegación por tarjetas (reemplaza el acordeón) — construir una vez
+          if (typeof buildCardNav === 'function') buildCardNav();
           // Animaciones de entrada
           if (typeof activarAnimaciones === 'function') activarAnimaciones();
           setTimeout(() => {

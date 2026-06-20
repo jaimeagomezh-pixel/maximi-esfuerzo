@@ -5129,6 +5129,62 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta .dash-zone-bar-fill { border-radius: 4px !important; }
 
   /* ══════════════════════════════════════════════════════════
+     DASHBOARD DE TARJETAS · reemplaza el acordeón
+     Home = grid de accesos; tocar entra a la sección con back bar
+  ══════════════════════════════════════════════════════════ */
+  /* Grid de tarjetas de acceso */
+  #dashboardAtleta .dash-cardnav { display:grid; grid-template-columns:1fr 1fr; gap:11px; padding:14px 16px 8px; }
+  #dashboardAtleta .dash-navcard {
+    background:#0d0d0d; border:1px solid rgba(212,168,67,0.3); border-radius:14px;
+    padding:15px 14px 13px; cursor:pointer; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; gap:9px; min-height:120px;
+    transition:transform .18s cubic-bezier(.22,1,.36,1), border-color .2s, box-shadow .2s;
+    animation: me-cardIn .42s cubic-bezier(.22,1,.36,1) both;
+  }
+  #dashboardAtleta .dash-navcard::before { content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--nav-accent, #00e5f0), transparent 72%); }
+  #dashboardAtleta .dash-navcard:hover { transform:translateY(-3px); border-color:rgba(0,229,240,0.55);
+    box-shadow:0 8px 22px rgba(0,229,240,0.12); }
+  #dashboardAtleta .dash-navcard:active { transform:scale(.98); }
+  #dashboardAtleta .dash-navcard-icon { width:40px; height:40px; display:flex; align-items:center; justify-content:center;
+    border-radius:10px; background:rgba(255,255,255,0.04); }
+  #dashboardAtleta .dash-navcard-icon svg { width:25px; height:25px; }
+  #dashboardAtleta .dash-navcard-label { font-family:'Barlow Condensed',sans-serif; font-size:15px; letter-spacing:2px;
+    text-transform:uppercase; color:#f0ede4; font-weight:700; line-height:1; }
+  #dashboardAtleta .dash-navcard-metric { font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:1px;
+    text-transform:uppercase; color:#9a948a; margin-top:auto; line-height:1.2; }
+  #dashboardAtleta .dash-navcard-metric b { color:#00e5f0; font-weight:700; }
+  #dashboardAtleta .dash-navcard:nth-child(1){ animation-delay:.02s; }
+  #dashboardAtleta .dash-navcard:nth-child(2){ animation-delay:.06s; }
+  #dashboardAtleta .dash-navcard:nth-child(3){ animation-delay:.10s; }
+  #dashboardAtleta .dash-navcard:nth-child(4){ animation-delay:.14s; }
+  #dashboardAtleta .dash-navcard:nth-child(5){ animation-delay:.18s; }
+  #dashboardAtleta .dash-navcard:nth-child(6){ animation-delay:.22s; }
+
+  /* Modo tarjetas: ocultar headers de acordeón y colapsar secciones */
+  #dashboardAtleta.nav-cards .me-accord-btn { display:none !important; }
+  #dashboardAtleta.nav-cards .me-accord { display:none; }
+  #dashboardAtleta.nav-cards .me-accord.is-active { display:block; animation: me-cardIn .4s cubic-bezier(.22,1,.36,1) both; }
+  #dashboardAtleta.nav-cards .me-accord.is-active .me-accord-body { max-height:none !important; overflow:visible; }
+
+  /* Back bar */
+  #dashboardAtleta .dash-backbar { display:none; align-items:center; gap:13px; padding:13px 16px;
+    position:sticky; top:0; z-index:30; background:rgba(5,5,5,0.96); backdrop-filter:blur(10px);
+    border-bottom:1px solid rgba(212,168,67,0.22); }
+  #dashboardAtleta.sec-open .dash-backbar { display:flex; }
+  #dashboardAtleta .dash-backbtn { width:34px; height:34px; flex-shrink:0; border-radius:9px; cursor:pointer;
+    background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#f0ede4;
+    display:flex; align-items:center; justify-content:center; transition:all .18s; }
+  #dashboardAtleta .dash-backbtn:hover { background:rgba(0,229,240,0.1); border-color:rgba(0,229,240,0.4); color:#00e5f0; }
+  #dashboardAtleta .dash-backtitle { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:2px; color:#f0ede4; line-height:1; }
+  /* En vista de sección: ocultar grid, banner y chrome del home (foco en la sección) */
+  #dashboardAtleta.sec-open .dash-cardnav { display:none; }
+  #dashboardAtleta.sec-open #dashSinPlanBanner { display:none !important; }
+  #dashboardAtleta.sec-open .dash-frase-wrap { display:none !important; }
+  #dashboardAtleta.sec-open .dash-profile { display:none !important; }
+  #dashboardAtleta.sec-open .dash-connect-card { display:none !important; }
+
+  /* ══════════════════════════════════════════════════════════
      TARJETA DE RESULTADO rkFTP · Reveal dramático
      (el momento "salta en pantalla" — sello + línea de niveles
       + conteo de watts + métricas + mensaje)
