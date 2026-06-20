@@ -3596,6 +3596,7 @@
   // ── RUCKING: dashboard del atleta ────────────────────────────
   const RUCK_LOAD_CATS = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
   let chartRucking = null;
+  let chartRuckLoad = null;
   let ruckAtletaDist = null;
   let ruckAtletaLoad = null;
   let ruckMetrica = 'potencia'; // 'tiempo' | 'potencia' — default: potencia
@@ -3709,6 +3710,90 @@
     return r && r.ok ? r : null;
   }
 
+  // ── Gráfico de carga rkTSS de Rucking (propio, independiente del plan) ──
+  function renderRuckLoadChart() {
+    const card = document.getElementById('ruckLoadCard');
+    if (!card) return;
+    const gate    = document.getElementById('ruckLoadGate');
+    const empty   = document.getElementById('ruckLoadEmpty');
+    const wrap    = document.getElementById('ruckLoadChartWrap');
+    const note    = document.getElementById('ruckLoadNote');
+    const ultEl   = document.getElementById('ruckLoadUltimo');
+    const deltaEl = document.getElementById('ruckLoadDelta');
+    const _set = (el, show) => { if (el) el.style.display = show ? (el === wrap || el === note ? 'block' : 'block') : 'none'; };
+    const _gate = (which) => {
+      _set(gate,  which === 'gate');
+      _set(empty, which === 'empty');
+      _set(wrap, false); _set(note, false);
+      if (ultEl) ultEl.textContent = '—';
+      if (deltaEl) deltaEl.style.display = 'none';
+      if (chartRuckLoad) { chartRuckLoad.destroy(); chartRuckLoad = null; }
+    };
+
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const rkFtp = profile.endurance && profile.endurance.rkFtpWatts;
+    const ftp   = profile.endurance && profile.endurance.ftpMs;
+    if ((!rkFtp || rkFtp <= 0) && (!ftp || ftp <= 0)) { _gate('gate'); return; }
+
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions') || '[]');
+    const conRkTSS = sessions.map(s => {
+      const r = calcRkTSSRuck(s);
+      return r ? { date: s.date, carga: r.rkTSS } : null;
+    }).filter(Boolean).sort((a, b) => a.date.localeCompare(b.date));
+    if (!conRkTSS.length) { _gate('empty'); return; }
+
+    _set(gate, false); _set(empty, false);
+    _set(wrap, true);  _set(note, true);
+
+    // Último valor (sesión más reciente)
+    if (ultEl) ultEl.textContent = Math.round(conRkTSS[conRkTSS.length - 1].carga);
+
+    // Agrupar por semana (últimas 10, incluye semanas en 0)
+    const porSemana = {};
+    conRkTSS.forEach(r => { const wk = _lunesDeSemana(r.date); porSemana[wk] = (porSemana[wk] || 0) + r.carga; });
+    const semanas = Object.keys(porSemana).sort();
+    const cursor = new Date(semanas[semanas.length - 1] + 'T12:00:00');
+    const arr = [];
+    for (let i = 0; i < 10; i++) { const key = cursor.toISOString().slice(0, 10); arr.unshift({ key, val: porSemana[key] || 0 }); cursor.setDate(cursor.getDate() - 7); }
+    const labels = arr.map(w => { const d = new Date(w.key + 'T12:00:00'); return d.getDate() + '/' + (d.getMonth() + 1); });
+    const data = arr.map(w => Math.round(w.val));
+
+    // Delta: semana con carga más reciente vs la anterior con carga
+    if (deltaEl) {
+      const rev = data.slice().reverse();
+      const curr = rev.find(v => v > 0) || 0;
+      const prev = rev.slice(1).find(v => v > 0) || 0;
+      if (curr > 0 && prev > 0) {
+        const pct = Math.round((curr - prev) / prev * 100);
+        deltaEl.textContent = (pct >= 0 ? '↑ ' : '↓ ') + Math.abs(pct) + '% sem.';
+        deltaEl.className = 'me-delta ' + (pct > 5 ? 'up' : pct < -5 ? 'down' : 'flat');
+        deltaEl.style.display = 'inline-block';
+      } else deltaEl.style.display = 'none';
+    }
+
+    // Color por carga vs promedio: verde suave · dorado habitual · naranja alta
+    const nz = data.filter(v => v > 0);
+    const prom = nz.length ? nz.reduce((s, v) => s + v, 0) / nz.length : 0;
+    const colores = data.map(v => v === 0 ? 'rgba(255,255,255,0.06)'
+      : v > prom * 1.3 ? '#e07b00' : v < prom * 0.7 ? '#27ae60' : '#C9A84C');
+
+    const ctx = document.getElementById('chartRuckLoad');
+    if (!ctx) return;
+    if (chartRuckLoad) { chartRuckLoad.destroy(); chartRuckLoad = null; }
+    chartRuckLoad = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: colores, borderRadius: 4, maxBarThickness: 26 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rkTSS ' + c.parsed.y } } },
+        scales: {
+          y: { beginAtZero: true, ticks: { color: '#f1ece4', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.1)' } },
+          x: { ticks: { color: '#f1ece4', font: { size: 10 }, maxTicksLimit: 6 }, grid: { display: false } }
+        }
+      }
+    });
+  }
+
   function fmtTimerRuck(sec) {
     if (!sec || sec <= 0) return '—';
     const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
@@ -3724,6 +3809,8 @@
 
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
+    // Carga rkTSS — siempre se evalúa (muestra gate/empty/gráfico según estado)
+    renderRuckLoadChart();
     // Auto-formato H:MM:SS en input de tiempo manual
     const ruckTimeInp = document.getElementById('ruckATime');
     if (ruckTimeInp && !ruckTimeInp._fmtBound) {
@@ -4389,6 +4476,7 @@
 
     // Recalcular carga (rkTSS ahora usa el umbral medido) y dashboard
     if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+    if (typeof renderRuckLoadChart === 'function') renderRuckLoadChart();
     if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
     pushRuckProfileToCloud(profile);
   }
