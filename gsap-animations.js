@@ -280,108 +280,104 @@ function setupSectionScrollAnimations(secEl) {
   const scroller = document.querySelector('#dashboardAtleta .dashboard-box');
   if (!scroller || !secEl) return;
 
-  const opts = { scroller, start: 'top 88%', toggleActions: 'play none none none' };
+  const srBottom = scroller.getBoundingClientRect().bottom;
 
-  // Títulos de sub-sección: línea que entra desde la izquierda
-  secEl.querySelectorAll('.dash-section-title').forEach(el => {
+  // Elementos ya visibles → animación directa con stagger de posición
+  // Elementos debajo del fold → ScrollTrigger cuando entran al viewport
+  let visibleIdx = 0;
+  function animate(el, fromV, toV) {
     if (el.dataset.gsapAnim) return;
     el.dataset.gsapAnim = '1';
-    gsap.fromTo(el,
-      { opacity: 0, x: -24 },
-      { opacity: 1, x: 0, duration: 0.45, ease: 'power2.out',
-        scrollTrigger: { trigger: el, ...opts } }
-    );
-  });
-
-  // Celdas de stats: stagger fade-up en grupo
-  secEl.querySelectorAll('.dash-stats-row, .th-working-max').forEach(row => {
-    if (row.dataset.gsapAnim) return;
-    row.dataset.gsapAnim = '1';
-    const cells = row.querySelectorAll('.dash-stat-cell, .th-wm-value, .th-wm-label');
-    if (cells.length) {
-      gsap.fromTo(cells,
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'power2.out',
-          scrollTrigger: { trigger: row, ...opts } }
-      );
+    const rect = el.getBoundingClientRect();
+    if (rect.top < srBottom) {
+      // Ya visible: animar con delay escalonado por orden de aparición
+      gsap.fromTo(el, fromV, { ...toV, delay: visibleIdx * 0.07 });
+      visibleIdx++;
     } else {
-      gsap.fromTo(row,
-        { opacity: 0, y: 18 },
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out',
-          scrollTrigger: { trigger: row, ...opts } }
-      );
+      // Bajo el fold: ScrollTrigger
+      gsap.fromTo(el, fromV, {
+        ...toV,
+        scrollTrigger: {
+          trigger: el, scroller,
+          start: 'top 95%',
+          toggleActions: 'play none none none'
+        }
+      });
     }
-  });
+  }
 
-  // Gráficos: fade-up + ligero scale
-  secEl.querySelectorAll('.dash-chart-card, .th-chart-container, .th-chart-wrap').forEach(el => {
-    if (el.dataset.gsapAnim) return;
-    el.dataset.gsapAnim = '1';
-    gsap.fromTo(el,
-      { opacity: 0, y: 28, scale: 0.98 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.6, ease: 'power2.out',
-        scrollTrigger: { trigger: el, ...opts } }
-    );
-  });
+  // Títulos: desliz desde izquierda
+  secEl.querySelectorAll('.dash-section-title').forEach(el =>
+    animate(el, { opacity: 0, x: -22 }, { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' })
+  );
 
-  // Filas de zonas FC (última actividad): stagger desde izquierda
-  secEl.querySelectorAll('.dash-zone-row').forEach((row, i) => {
-    if (row.dataset.gsapAnim) return;
-    row.dataset.gsapAnim = '1';
-    gsap.fromTo(row,
-      { opacity: 0, x: -16 },
-      { opacity: 1, x: 0, duration: 0.4, delay: i * 0.06, ease: 'power2.out',
-        scrollTrigger: { trigger: row, ...opts } }
-    );
-  });
+  // Stat cells: fade-up
+  secEl.querySelectorAll('.dash-stat-cell').forEach(el =>
+    animate(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
+  );
 
-  // Barras del resumen mensual (resZonasFC): fade + grow
+  // Encabezados de métricas
+  secEl.querySelectorAll('.th-working-max').forEach(el =>
+    animate(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
+  );
+
+  // Gráficos: fade + scale
+  secEl.querySelectorAll('.dash-chart-card, .th-chart-container').forEach(el =>
+    animate(el, { opacity: 0, y: 24, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' })
+  );
+
+  // Filas de zonas FC (última actividad): cascade izquierda
+  secEl.querySelectorAll('.dash-zone-row').forEach(el =>
+    animate(el, { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.38, ease: 'power2.out' })
+  );
+
+  // Cards resultado test: entrada con rebote
+  secEl.querySelectorAll('.rkr, .flat-box').forEach(el =>
+    animate(el, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.55, ease: 'back.out(1.2)' })
+  );
+
+  // Elementos varios: fade-up simple
+  secEl.querySelectorAll('.dash-connect-card, .me-live-badge').forEach(el =>
+    animate(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
+  );
+
+  // Barras mensuales (resZonasFC): observar cuando se renderizan y animar width
   secEl.querySelectorAll('#resZonasFC').forEach(el => {
     if (el.dataset.gsapAnim) return;
     el.dataset.gsapAnim = '1';
-    const animarBarrasMensual = () => {
-      const rows2 = el.querySelectorAll('div[style*="display:flex"]');
-      gsap.fromTo(rows2,
-        { opacity: 0, x: -12 },
-        { opacity: 1, x: 0, duration: 0.4, stagger: 0.07, ease: 'power2.out' }
-      );
-      // Barras de color: animar width
+    const doAnim = () => {
       el.querySelectorAll('div[style*="height:100%"]').forEach((bar, i) => {
         const tw = bar.style.width || '0%';
         if (tw === '0%') return;
         bar.style.width = '0%';
-        gsap.to(bar, { width: tw, duration: 0.85, delay: i * 0.08, ease: 'power2.out' });
+        gsap.to(bar, { width: tw, duration: 0.9, delay: i * 0.08, ease: 'power2.out' });
       });
     };
-    // Observar cuando el contenido se renderiza
-    new MutationObserver(() => { if (el.children.length) { animarBarrasMensual(); } })
+    if (el.children.length) doAnim();
+    else new MutationObserver((_, ob) => { if (el.children.length) { ob.disconnect(); doAnim(); } })
       .observe(el, { childList: true });
   });
 
-  // Cards rkFTP y resultado de tests: entrada dramática
-  secEl.querySelectorAll('.rkr').forEach(el => {
-    if (el.dataset.gsapAnim) return;
-    el.dataset.gsapAnim = '1';
-    gsap.fromTo(el,
-      { opacity: 0, y: 30, scale: 0.97 },
-      { opacity: 1, y: 0, scale: 1, duration: 0.65, ease: 'back.out(1.3)',
-        scrollTrigger: { trigger: el, ...opts } }
-    );
-  });
-
-  // Elementos genéricos con padding/margin visibles (subsecciones planas)
-  secEl.querySelectorAll('.dash-connect-card, .me-live-badge').forEach((el, i) => {
-    if (el.dataset.gsapAnim) return;
-    el.dataset.gsapAnim = '1';
-    gsap.fromTo(el,
-      { opacity: 0, y: 14 },
-      { opacity: 1, y: 0, duration: 0.45, delay: i * 0.05, ease: 'power2.out',
-        scrollTrigger: { trigger: el, ...opts } }
-    );
-  });
-
-  // Refresh ScrollTrigger para que detecte las nuevas alturas
   ScrollTrigger.refresh();
+}
+
+// Anima las barras de zonas FC de la ÚLTIMA ACTIVIDAD (#zBar1-#zBar5)
+// al entrar en la sección Endurance
+function animarBarrasZonaFC() {
+  const bars = [
+    document.getElementById('zBar5'),
+    document.getElementById('zBar4'),
+    document.getElementById('zBar3'),
+    document.getElementById('zBar2'),
+    document.getElementById('zBar1'),
+  ].filter(Boolean);
+  if (!bars.length) return;
+  bars.forEach((bar, i) => {
+    const tw = bar.style.width;
+    if (!tw || tw === '0%' || tw === '0') return;
+    bar.style.width = '0%';
+    gsap.to(bar, { width: tw, duration: 0.85, delay: 0.15 + i * 0.1, ease: 'power2.out' });
+  });
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -395,10 +391,17 @@ function animateFCBarsOnOpen() {
   window.openDashSection = function(id) {
     originalOpen.call(this, id);
 
+    // Scroll al tope de la sección al navegar entre secciones
+    const box = document.querySelector('#dashboardAtleta .dashboard-box');
+    if (box) box.scrollTop = 0;
+
     setTimeout(() => {
       const secEl = document.getElementById(id);
-      if (secEl) setupSectionScrollAnimations(secEl);
-    }, 120);
+      if (secEl) {
+        setupSectionScrollAnimations(secEl);
+        animarBarrasZonaFC(); // barras coloreadas de la última actividad
+      }
+    }, 150);
   };
 }
 

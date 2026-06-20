@@ -4386,12 +4386,16 @@
   // ── Tarjeta de resultado dramática del Test de Ruck (rkFTP) ──
   const RK_TIERS = {
     'Élite':         { accent:'#C9A84C', glow:'rgba(201,168,76,0.32)', soft:'rgba(201,168,76,0.45)', ico:'★', cls:'elite',
+      tag:'Resistencia de Élite',
       msg:'Nivel de <strong>fuerza-resistencia de élite</strong>. Igualas el estándar de operadores tácticos. Tu rkFTP es la base de un rkTSS preciso.' },
     'Apto':          { accent:'#27ae60', glow:'rgba(39,174,96,0.24)', soft:'rgba(39,174,96,0.40)', ico:'✓', cls:'apto',
+      tag:'Estándar Militar Apto',
       msg:'Cumples el <strong>estándar militar "apto"</strong> (corte 45 min). Base sólida de marcha con carga. Tu rkFTP queda registrado para calibrar el rkTSS.' },
     'En desarrollo': { accent:'#e07b00', glow:'rgba(224,123,0,0.22)', soft:'rgba(224,123,0,0.38)', ico:'▲', cls:'dev',
+      tag:'En Camino · Sigue Avanzando',
       msg:'Vas <strong>en camino</strong>. Con bloques de marcha progresiva bajarás del corte de 45 min. El rkTSS te mostrará cómo sube tu umbral.' },
     'Base':          { accent:'#8B1A1A', glow:'rgba(139,26,26,0.24)', soft:'rgba(139,26,26,0.42)', ico:'●', cls:'base',
+      tag:'Punto de Partida Registrado',
       msg:'Punto de <strong>partida registrado</strong>. Todo gran ruck empieza aquí. Construye volumen con carga ligera y repite el test en 4–6 semanas.' }
   };
   const RK_TERR_LBL = { asfalto:'Asfalto', tierra:'Tierra', trail:'Trail', arena:'Arena' };
@@ -4430,28 +4434,11 @@
           <div class="rkr-ico">${t.ico}</div>
           <div class="rkr-stamp">${d.nivel}</div>
         </div>
-        <div class="rkr-time">${timeStr} <small>MIN · ${d.loadKg} KG · ${terrLbl.toUpperCase()}</small></div>
-        <div class="rkr-tl">
-          <div class="rkr-tlbar">
-            <div class="rkr-tlseg" style="width:18.75%;background:#C9A84C;"></div>
-            <div class="rkr-tlseg" style="width:28.12%;background:#27ae60;"></div>
-            <div class="rkr-tlseg" style="width:31.25%;background:#e07b00;"></div>
-            <div class="rkr-tlseg" style="flex:1;background:#8B1A1A;"></div>
-            <div class="rkr-mk" id="rkrMk" style="left:0%;"></div>
-          </div>
-          <div class="rkr-tllabels"><span>Élite</span><span>Apto</span><span>Desarrollo</span><span>Base</span></div>
-        </div>
-        <div class="rkr-metrics">
-          <div class="rkr-metric"><div class="rkr-mv"><span id="rkrWatts">0</span> <small>W</small></div><div class="rkr-mk-label">Umbral rkFTP</div></div>
-          <div class="rkr-metric"><div class="rkr-mv">${paceStr} <small>/KM</small></div><div class="rkr-mk-label">Ritmo umbral</div></div>
-        </div>
-        <div class="rkr-msg">${t.msg}</div>
+        <div class="rkr-tag" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--rkr-accent,#C9A84C);text-align:center;margin:6px 0 4px;">${t.tag}</div>
       </div>`;
     const card = mount.querySelector('.rkr');
     void card.offsetWidth;
     card.classList.add('show');
-    setTimeout(() => { const mk = document.getElementById('rkrMk'); if (mk) mk.style.left = rkMarkerPct(min) + '%'; }, 750);
-    rkCountUp(document.getElementById('rkrWatts'), Number(d.rkFtpWatts), 900, 700);
   }
 
   function guardarTestRuck() {
