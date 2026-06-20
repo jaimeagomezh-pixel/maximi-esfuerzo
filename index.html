@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260619o">
+<link rel="stylesheet" href="styles.css?v=20260619p">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -1845,11 +1845,8 @@
           </div>
         </div>
         <button onclick="guardarTestRuck()" style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">Calcular umbral (rkFTP)</button>
-        <div id="ruckFtpResultado" class="me-sweep-wrap" style="display:none;margin-top:10px;border-radius:7px;padding:11px 14px;background:rgba(139,26,26,0.06);">
-          <div class="me-shine" id="ruckFtpShine" style="display:none;"></div>
-          <div id="ruckFtpBanda" style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;margin-bottom:3px;"></div>
-          <div id="ruckFtpMensaje" style="font-size:12px;line-height:1.5;color:#555;"></div>
-        </div>
+        <!-- Tarjeta de resultado dramática (inyectada por renderRkResultCard) -->
+        <div id="ruckFtpResultado" style="display:none;"></div>
       </div>
 
       <!-- Nota Strava -->
@@ -2426,7 +2423,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260619i"></script>
+<script src="scripts.js?v=20260619j"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

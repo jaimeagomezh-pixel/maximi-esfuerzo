@@ -4252,14 +4252,85 @@
   }
 
   // Test de Umbral de Rucking (4.8 km / 3 mi) → rkFTP (Watts), base del rkTSS.
+  // ── Tarjeta de resultado dramática del Test de Ruck (rkFTP) ──
+  const RK_TIERS = {
+    'Élite':         { accent:'#C9A84C', glow:'rgba(201,168,76,0.32)', soft:'rgba(201,168,76,0.45)', ico:'★', cls:'elite',
+      msg:'Nivel de <strong>fuerza-resistencia de élite</strong>. Igualas el estándar de operadores tácticos. Tu rkFTP es la base de un rkTSS preciso.' },
+    'Apto':          { accent:'#27ae60', glow:'rgba(39,174,96,0.24)', soft:'rgba(39,174,96,0.40)', ico:'✓', cls:'apto',
+      msg:'Cumples el <strong>estándar militar "apto"</strong> (corte 45 min). Base sólida de marcha con carga. Tu rkFTP queda registrado para calibrar el rkTSS.' },
+    'En desarrollo': { accent:'#e07b00', glow:'rgba(224,123,0,0.22)', soft:'rgba(224,123,0,0.38)', ico:'▲', cls:'dev',
+      msg:'Vas <strong>en camino</strong>. Con bloques de marcha progresiva bajarás del corte de 45 min. El rkTSS te mostrará cómo sube tu umbral.' },
+    'Base':          { accent:'#8B1A1A', glow:'rgba(139,26,26,0.24)', soft:'rgba(139,26,26,0.42)', ico:'●', cls:'base',
+      msg:'Punto de <strong>partida registrado</strong>. Todo gran ruck empieza aquí. Construye volumen con carga ligera y repite el test en 4–6 semanas.' }
+  };
+  const RK_TERR_LBL = { asfalto:'Asfalto', tierra:'Tierra', trail:'Trail', arena:'Arena' };
+  function rkMarkerPct(min) { const lo=30, hi=62; return Math.max(0, Math.min(100, (min - lo) / (hi - lo) * 100)); }
+  function rkCountUp(el, target, dur, delay) {
+    if (!el) return;
+    setTimeout(() => {
+      const t0 = performance.now(); let done = false;
+      const step = (now) => {
+        const p = Math.min(1, (now - t0) / dur);
+        el.textContent = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) requestAnimationFrame(step);
+        else { el.textContent = Math.round(target); done = true; }
+      };
+      requestAnimationFrame(step);
+      setTimeout(() => { if (!done) el.textContent = Math.round(target); }, dur + 250);
+    }, delay);
+  }
+  // d: { nivel, secTime, rkFtpWatts, paceSecKm, loadKg, terrain, fecha? }
+  function renderRkResultCard(d) {
+    const mount = document.getElementById('ruckFtpResultado');
+    if (!mount) return;
+    const t = RK_TIERS[d.nivel] || RK_TIERS['Base'];
+    const min = d.secTime / 60;
+    const mm = Math.floor(d.secTime / 60), ss = Math.round(d.secTime % 60);
+    const timeStr = mm + ':' + String(ss).padStart(2, '0');
+    const paceStr = Math.floor(d.paceSecKm / 60) + ':' + String(d.paceSecKm % 60).padStart(2, '0');
+    const terrLbl = RK_TERR_LBL[d.terrain] || d.terrain || '—';
+    const topTxt = d.fecha ? `Tu umbral actual · ${d.fecha}` : 'Resultado del test · 4.8 km';
+    mount.style.display = 'block';
+    mount.innerHTML = `
+      <div class="rkr ${t.cls}" style="--rkr-accent:${t.accent};--rkr-glow:${t.glow};--rkr-soft:${t.soft};">
+        <div class="rkr-shine"></div>
+        <div class="rkr-top">${topTxt}</div>
+        <div class="rkr-badge">
+          <div class="rkr-ico">${t.ico}</div>
+          <div class="rkr-stamp">${d.nivel}</div>
+        </div>
+        <div class="rkr-time">${timeStr} <small>MIN · ${d.loadKg} KG · ${terrLbl.toUpperCase()}</small></div>
+        <div class="rkr-tl">
+          <div class="rkr-tlbar">
+            <div class="rkr-tlseg" style="width:18.75%;background:#C9A84C;"></div>
+            <div class="rkr-tlseg" style="width:28.12%;background:#27ae60;"></div>
+            <div class="rkr-tlseg" style="width:31.25%;background:#e07b00;"></div>
+            <div class="rkr-tlseg" style="flex:1;background:#8B1A1A;"></div>
+            <div class="rkr-mk" id="rkrMk" style="left:0%;"></div>
+          </div>
+          <div class="rkr-tllabels"><span>Élite</span><span>Apto</span><span>Desarrollo</span><span>Base</span></div>
+        </div>
+        <div class="rkr-metrics">
+          <div class="rkr-metric"><div class="rkr-mv"><span id="rkrWatts">0</span> <small>W</small></div><div class="rkr-mk-label">Umbral rkFTP</div></div>
+          <div class="rkr-metric"><div class="rkr-mv">${paceStr} <small>/KM</small></div><div class="rkr-mk-label">Ritmo umbral</div></div>
+        </div>
+        <div class="rkr-msg">${t.msg}</div>
+      </div>`;
+    const card = mount.querySelector('.rkr');
+    void card.offsetWidth;
+    card.classList.add('show');
+    setTimeout(() => { const mk = document.getElementById('rkrMk'); if (mk) mk.style.left = rkMarkerPct(min) + '%'; }, 750);
+    rkCountUp(document.getElementById('rkrWatts'), Number(d.rkFtpWatts), 900, 700);
+  }
+
   function guardarTestRuck() {
-    const resEl = document.getElementById('ruckFtpResultado');
-    const bandaEl = document.getElementById('ruckFtpBanda');
-    const msgEl = document.getElementById('ruckFtpMensaje');
+    const mount = document.getElementById('ruckFtpResultado');
     const _err = (txt) => {
-      if (resEl) { resEl.style.display = 'block'; resEl.style.background = 'rgba(139,26,26,0.06)'; }
-      if (bandaEl) { bandaEl.textContent = 'Revisa los datos'; bandaEl.style.color = '#8B1A1A'; }
-      if (msgEl) msgEl.textContent = txt;
+      if (!mount) return;
+      mount.style.display = 'block';
+      mount.innerHTML = `<div style="margin-top:10px;border-radius:8px;padding:12px 14px;background:rgba(139,26,26,0.1);border:1px solid rgba(139,26,26,0.35);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;color:#e74c3c;margin-bottom:3px;">Revisa los datos</div>
+        <div style="font-size:12px;line-height:1.5;color:#c9c3b9;">${txt}</div></div>`;
     };
 
     if (typeof window.calcularRkFTP !== 'function') { _err('Módulo de cálculo no disponible. Recarga la página.'); return; }
@@ -4297,24 +4368,16 @@
     profile.endurance.rkFtpNivel   = r.nivel;
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
 
-    // Mostrar resultado con semáforo por nivel
-    const COL = { 'Élite': '#C9A84C', 'Apto': '#27ae60', 'En desarrollo': '#e07b00', 'Base': '#8B1A1A' };
-    const col = COL[r.nivel] || '#8B1A1A';
-    const paceM = Math.floor(r.paceSecKm / 60), paceS = r.paceSecKm % 60;
-    const paceStr = `${paceM}:${String(paceS).padStart(2,'0')} /km`;
-    if (resEl) {
-      resEl.style.display = 'block';
-      resEl.style.background = col + '14';
-      resEl.style.borderColor = col + '40';
-      resEl.style.border = '1px solid ' + col + '40';
-      // Stamp-in en la banda de nivel
-      if (bandaEl) { bandaEl.classList.remove('me-stamp-in'); void bandaEl.offsetWidth; bandaEl.classList.add('me-stamp-in'); }
-      // Sweep solo en Élite
-      const shineEl = document.getElementById('ruckFtpShine');
-      if (shineEl) shineEl.style.display = r.nivel === 'Élite' ? 'block' : 'none';
-    }
-    if (bandaEl) { bandaEl.textContent = `${r.nivel} · ${r.minutos} min`; bandaEl.style.color = col; }
-    if (msgEl)   msgEl.innerHTML = `Umbral <strong>rkFTP ${r.rkFtpWatts} W</strong> · ritmo ${paceStr} · ${load} kg en ${terrain}. Es la base de tu rkTSS.`;
+    // Mostrar resultado con la tarjeta dramática (sello + línea de niveles + conteo de watts)
+    renderRkResultCard({
+      nivel: r.nivel, secTime: tSec, rkFtpWatts: r.rkFtpWatts,
+      paceSecKm: r.paceSecKm, loadKg: load, terrain
+    });
+    // Llevar la vista a la tarjeta para que el atleta vea el reveal completo
+    setTimeout(() => {
+      const m = document.getElementById('ruckFtpResultado');
+      if (m) m.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 120);
 
     // Feedback en el botón
     const btn = document.querySelector('[onclick="guardarTestRuck()"]');
@@ -4686,14 +4749,16 @@
     if (loadEl && e.rkFtpLoad)    loadEl.value = e.rkFtpLoad;
     if (terrEl && e.rkFtpTerrain) terrEl.value = e.rkFtpTerrain;
     if (timeEl && e.rkFtpTime)    timeEl.value = fmtTimerRuck(e.rkFtpTime);
-    const resEl = document.getElementById('ruckFtpResultado');
-    const bandaEl = document.getElementById('ruckFtpBanda');
-    const msgEl = document.getElementById('ruckFtpMensaje');
-    const COL = { 'Élite': '#C9A84C', 'Apto': '#27ae60', 'En desarrollo': '#e07b00', 'Base': '#8B1A1A' };
-    const col = COL[e.rkFtpNivel] || '#8B1A1A';
-    if (resEl)   { resEl.style.display = 'block'; resEl.style.background = col + '14'; }
-    if (bandaEl) { bandaEl.textContent = `${e.rkFtpNivel || ''} · ${e.rkFtpDate || ''}`; bandaEl.style.color = col; }
-    if (msgEl)   msgEl.innerHTML = `Umbral actual <strong>rkFTP ${e.rkFtpWatts} W</strong> · ${e.rkFtpLoad || '—'} kg en ${e.rkFtpTerrain || '—'}.`;
+    // Recalcular ritmo/nivel a partir de los datos guardados para la tarjeta
+    const secTime = Number(e.rkFtpTime) || 0;
+    if (secTime > 0) {
+      const paceSecKm = Math.round(secTime / 4.8);
+      const nivel = e.rkFtpNivel || (secTime/60 <= 36 ? 'Élite' : secTime/60 <= 45 ? 'Apto' : secTime/60 <= 55 ? 'En desarrollo' : 'Base');
+      renderRkResultCard({
+        nivel, secTime, rkFtpWatts: e.rkFtpWatts, paceSecKm,
+        loadKg: e.rkFtpLoad || '—', terrain: e.rkFtpTerrain, fecha: e.rkFtpDate
+      });
+    }
   }
 
   function renderSEHistorial(profile) {
