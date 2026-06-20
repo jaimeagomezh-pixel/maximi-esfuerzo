@@ -5177,10 +5177,14 @@ body.plan-activo .plan-lock  { display: none; }
     display:flex; align-items:center; justify-content:center; transition:all .18s; }
   #dashboardAtleta .dash-backbtn:hover { background:rgba(0,229,240,0.1); border-color:rgba(0,229,240,0.4); color:#00e5f0; }
   #dashboardAtleta .dash-backtitle { font-family:'Bebas Neue',sans-serif; font-size:1.5rem; letter-spacing:2px; color:#f0ede4; line-height:1; }
+  /* La placa motivacional vive SOLO en el overlay de bienvenida al iniciar
+     sesión (mostrarFraseCinema), no en el muro del atleta.
+     Se iguala la especificidad de #dashboardAtleta.open .dash-frase-wrap. */
+  #dashboardAtleta.open .dash-frase-wrap { display:none !important; }
+
   /* En vista de sección: ocultar grid, banner y chrome del home (foco en la sección) */
   #dashboardAtleta.sec-open .dash-cardnav { display:none; }
   #dashboardAtleta.sec-open #dashSinPlanBanner { display:none !important; }
-  #dashboardAtleta.sec-open .dash-frase-wrap { display:none !important; }
   #dashboardAtleta.sec-open .dash-profile { display:none !important; }
   #dashboardAtleta.sec-open .dash-connect-card { display:none !important; }
 
