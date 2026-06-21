@@ -1829,7 +1829,7 @@
   .dash-mobile-menu {
     display: none;
     position: sticky;
-    top: 65px;
+    top: 0;
     z-index: 9;
     background: #111;
     border-bottom: 1px solid rgba(212,168,67,0.2);

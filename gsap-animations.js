@@ -425,6 +425,9 @@ function animateFCBarsOnOpen() {
   window.openDashSection = function(id) {
     originalOpen.call(this, id);
 
+    // Cerrar menú hamburguesa si estaba abierto
+    if (typeof cerrarDashMenuSilencioso === 'function') cerrarDashMenuSilencioso();
+
     // Scroll al tope de la sección al navegar entre secciones
     const box = document.querySelector('#dashboardAtleta .dashboard-box');
     if (box) box.scrollTop = 0;
