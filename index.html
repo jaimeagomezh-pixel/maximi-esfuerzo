@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260621c">
+<link rel="stylesheet" href="styles.css?v=20260621d">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -1888,6 +1888,49 @@
         </div>
       </div>
 
+      <!-- Capacidad de Rendimiento (motor aeróbico vs chasis de fuerza) -->
+      <div class="flat-box" id="ruckPerfBox" style="margin-top:4px;background:rgba(212,168,67,0.04);border:1px solid rgba(212,168,67,0.18);border-radius:8px;padding:12px 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(212,168,67,0.8);text-transform:uppercase;margin-bottom:3px;">Capacidad de Rendimiento</div>
+        <div style="font-size:11px;color:#8a857c;line-height:1.5;margin-bottom:12px;">Tu <strong style="color:#cfc9c1;">motor</strong> (aeróbico) frente a tu <strong style="color:#cfc9c1;">chasis</strong> (fuerza). El rucking lo limita el más débil.</div>
+
+        <div id="ruckPerfGate" class="me-tol-gate" style="display:none;"></div>
+
+        <div id="ruckPerfContent" style="display:none;">
+          <div class="me-ring-row">
+            <div class="me-ring-card">
+              <div class="me-ring-lbl">Motor</div>
+              <svg class="me-ring-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+                <circle id="ringMotorFill" cx="50" cy="50" r="38" fill="none" stroke="#7cc043" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)"/>
+                <text id="ringMotorVal" x="50" y="52" fill="#f1ece4" font-size="26" font-weight="700" text-anchor="middle">—</text>
+                <text x="50" y="66" fill="#7a756c" font-size="9" text-anchor="middle">/ 100</text>
+              </svg>
+              <div class="me-ring-sub" id="ringMotorSub">Aeróbico</div>
+            </div>
+            <div class="me-ring-card">
+              <div class="me-ring-lbl">Chasis</div>
+              <svg class="me-ring-svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
+                <circle id="ringChasisFill" cx="50" cy="50" r="38" fill="none" stroke="#7cc043" stroke-width="9"
+                  stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)"/>
+                <text id="ringChasisVal" x="50" y="52" fill="#f1ece4" font-size="26" font-weight="700" text-anchor="middle">—</text>
+                <text x="50" y="66" fill="#7a756c" font-size="9" text-anchor="middle">/ 100</text>
+              </svg>
+              <div class="me-ring-sub" id="ringChasisSub">Fuerza</div>
+            </div>
+          </div>
+
+          <div class="me-perf-verdict" id="ruckPerfVerdict">
+            <div class="me-perf-vhead" id="ruckPerfVHead"></div>
+            <div class="me-perf-vbody" id="ruckPerfVBody"></div>
+          </div>
+
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#7a756c;text-transform:uppercase;margin:14px 0 8px;">Detalle vs. estándar avanzado</div>
+          <div id="ruckPerfBullets"></div>
+        </div>
+      </div>
+
       <!-- Strava (subsección aparte) -->
       <div class="dash-section-title" style="margin-top:8px;">Strava</div>
       <!-- Nota Strava -->
@@ -2463,7 +2506,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260621b"></script>
+<script src="scripts.js?v=20260621d"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

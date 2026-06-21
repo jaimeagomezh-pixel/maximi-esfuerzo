@@ -2222,9 +2222,10 @@
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
       if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
     }
-    // El peso o el perfil táctico cambian la tolerancia a la carga → recalcular
+    // El peso o el perfil táctico cambian tolerancia y rendimiento (1RM relativo) → recalcular
     if (peso !== prev.peso || perfilTactico !== prev.perfilTactico) {
       if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+      if (typeof renderRendimiento === 'function') renderRendimiento();
     }
     document.getElementById('miPerfilPanel').style.display = 'none';
     // Sincronizar peso, talla y fechaNac al cloud (para que el coach los vea)
@@ -4095,13 +4096,170 @@
     renderTolReco();
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  //  CAPACIDAD DE RENDIMIENTO · motor (aeróbico) vs chasis (fuerza)
+  // ══════════════════════════════════════════════════════════════════════
+  // Baremos de normalización 0-100 (AJUSTABLES; futura recalibración con
+  // percentiles reales de la base de usuarios — ver profile.rendimiento).
+  const PERF_BAREMOS = {
+    vamKmh:   { p0: 12,   p100: 20  },  // VAM en km/h
+    rkftpMin: { p0: 60,   p100: 30  },  // Test 4.8km en minutos (menos = mejor → invertido)
+    oneRMx:   { p0: 0.75, p100: 2.0 },  // 1RM sentadilla / peso corporal
+    seReps:   { p0: 10,   p100: 50  },  // Squat Endurance (reps)
+  };
+  const PERF_W = { motor: { vam: 0.35, rkftp: 0.65 }, chasis: { oneRM: 0.65, se: 0.35 } };
+  const PERF_TARGET = 75; // línea de "estándar avanzado" en los bullets
+
+  function _normScore(v, p0, p100) {
+    if (v == null || isNaN(v)) return null;
+    const s = (v - p0) / (p100 - p0) * 100;
+    return Math.max(0, Math.min(100, Math.round(s)));
+  }
+
+  function calcPerfilRendimiento() {
+    const perfil  = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const e = profile.endurance || {};
+    const hoy = new Date().toISOString().slice(0,10);
+    const W = getBMForDate(hoy) || parseFloat(perfil.peso) || null;
+
+    const vamScore = e.vamMs ? _normScore(e.vamMs * 3.6, PERF_BAREMOS.vamKmh.p0, PERF_BAREMOS.vamKmh.p100) : null;
+    const rkMin    = e.rkFtpTime ? e.rkFtpTime / 60 : null;
+    const rkScore  = rkMin != null ? _normScore(rkMin, PERF_BAREMOS.rkftpMin.p0, PERF_BAREMOS.rkftpMin.p100) : null;
+    const oneRM    = profile.squat1RM ? Number(profile.squat1RM) : null;
+    const oneRMx   = (oneRM && W) ? oneRM / W : null;
+    const rmScore  = oneRMx != null ? _normScore(oneRMx, PERF_BAREMOS.oneRMx.p0, PERF_BAREMOS.oneRMx.p100) : null;
+    const seScore  = profile.se != null ? _normScore(Number(profile.se), PERF_BAREMOS.seReps.p0, PERF_BAREMOS.seReps.p100) : null;
+
+    // Score de eje (pondera; si falta una métrica, la otra toma el peso completo)
+    function eje(a, wa, b, wb) {
+      const items = [];
+      if (a != null) items.push([a, wa]);
+      if (b != null) items.push([b, wb]);
+      if (!items.length) return null;
+      const sw = items.reduce((s,x) => s + x[1], 0);
+      return Math.round(items.reduce((s,x) => s + x[0]*x[1], 0) / sw);
+    }
+    const motor  = eje(vamScore, PERF_W.motor.vam, rkScore, PERF_W.motor.rkftp);
+    const chasis = eje(rmScore, PERF_W.chasis.oneRM, seScore, PERF_W.chasis.se);
+
+    if (!W) return { ok: false, reason: 'peso' };
+    if (motor == null && chasis == null) return { ok: false, reason: 'tests' };
+
+    return { ok: true, motor, chasis, sub: { vam: vamScore, rkftp: rkScore, oneRM: rmScore, se: seScore } };
+  }
+
+  function _perfTipo(motor, chasis) {
+    const U = 50;
+    if (motor != null && chasis != null) {
+      const m = motor >= U, c = chasis >= U;
+      if (m && c)  return { tipo:'Atleta completo', estado:'bien',  msg:'Motor y chasis altos y equilibrados. Estás listo para cargas y distancias exigentes.' };
+      if (!m && c) return { tipo:'Fuerte sin fondo', estado:'medio', msg:'Tienes la fuerza para la carga, pero tu motor aeróbico te limitará: te fatigarás y tu ritmo caerá en marchas largas. Prioriza volumen aeróbico.' };
+      if (m && !c) return { tipo:'Motor sin chasis', estado:'medio', msg:'Buen fondo, pero tu fuerza es el cuello de botella: bajo cargas pesadas tu rendimiento cae y sube el riesgo. Prioriza fuerza de sentadilla.' };
+      return { tipo:'Base', estado:'bajo', msg:'Ambos ejes en desarrollo. Construye base aeróbica y fuerza en paralelo con cargas ligeras.' };
+    }
+    // Falta un eje (no se hizo ese test)
+    if (motor != null) return { tipo: motor >= U ? 'Motor sólido' : 'Motor en desarrollo', estado: motor>=U?'bien':'medio', msg:'Falta tu chasis: registra tu 1RM de sentadilla o el Squat Endurance para completar el perfil.' };
+    return { tipo: chasis >= U ? 'Chasis sólido' : 'Chasis en desarrollo', estado: chasis>=U?'bien':'medio', msg:'Falta tu motor: haz el Test de 4.8 km o el test VAM/FTP para completar el perfil.' };
+  }
+
+  const PERF_VCOL = {
+    bien:  { bg:'rgba(124,192,67,0.12)', bd:'rgba(124,192,67,0.5)', tx:'#8fd14a' },
+    medio: { bg:'rgba(232,144,42,0.10)', bd:'rgba(232,144,42,0.4)', tx:'#f0a850' },
+    bajo:  { bg:'rgba(229,84,79,0.10)',  bd:'rgba(229,84,79,0.4)',  tx:'#f0726d' }
+  };
+  function _ringColor(s) { return s == null ? '#6e6a63' : s >= 67 ? '#7cc043' : s >= 34 ? '#e8902a' : '#e5544f'; }
+  function _scoreLbl(s, base) { return s == null ? base + ' · sin dato' : base + (s >= 67 ? ' · sólido' : s >= 34 ? ' · medio' : ' · débil'); }
+
+  function _setRing(fillId, valId, subId, score, subLbl) {
+    const C = 238.76;
+    const fill = document.getElementById(fillId);
+    const val  = document.getElementById(valId);
+    const sub  = document.getElementById(subId);
+    if (val) val.textContent = score != null ? score : '—';
+    if (fill) { fill.style.strokeDashoffset = score != null ? C * (1 - score/100) : C; fill.style.stroke = _ringColor(score); }
+    if (sub) sub.textContent = subLbl;
+  }
+
+  const PERF_BULLET_DEFS = [
+    { key:'vam',   lbl:'VAM · motor' },
+    { key:'rkftp', lbl:'rkFTP · motor' },
+    { key:'oneRM', lbl:'1RM · chasis' },
+    { key:'se',    lbl:'Squat End. · chasis' }
+  ];
+  function renderPerfBullets(sub) {
+    const el = document.getElementById('ruckPerfBullets');
+    if (!el) return;
+    el.innerHTML = PERF_BULLET_DEFS.map(d => {
+      const v = sub[d.key];
+      if (v == null) {
+        return `<div class="me-blt"><div class="me-blt-top"><span>${d.lbl}</span><span class="me-blt-val" style="color:#6e6a63;">sin dato</span></div><div class="me-blt-bar"></div></div>`;
+      }
+      const col = _ringColor(v);
+      return `<div class="me-blt"><div class="me-blt-top"><span>${d.lbl}</span><span class="me-blt-val" style="color:${col};">${v}</span></div>` +
+        `<div class="me-blt-bar"><div class="me-blt-fill" style="width:${v}%;background:${col};"></div><div class="me-blt-target" style="left:${PERF_TARGET}%;"></div></div></div>`;
+    }).join('');
+  }
+
+  // Persistir el perfil de rendimiento en la nube (coach + futura agregación poblacional)
+  function guardarPerfilRendimientoCloud(r) {
+    try {
+      const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      const resumen = { motor: r.motor, chasis: r.chasis, sub: r.sub, fecha: new Date().toISOString().slice(0,10) };
+      if (JSON.stringify(profile.rendimiento) !== JSON.stringify(resumen)) {
+        profile.rendimiento = resumen;
+        localStorage.setItem('ruckProfile', JSON.stringify(profile));
+        if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+      }
+    } catch(e) { /* silencioso */ }
+  }
+
+  function renderRendimiento() {
+    const box = document.getElementById('ruckPerfBox');
+    if (!box) return;
+    const gate    = document.getElementById('ruckPerfGate');
+    const content = document.getElementById('ruckPerfContent');
+    const r = calcPerfilRendimiento();
+    if (!r.ok) {
+      if (content) content.style.display = 'none';
+      if (gate) {
+        gate.style.display = 'block';
+        gate.innerHTML = r.reason === 'peso'
+          ? 'Ingresa tu <strong style="color:#cfc9c1;">peso</strong> en Mi Perfil para calcular tu rendimiento.'
+          : 'Completa al menos un test (4.8 km, VAM/FTP, 1RM o Squat Endurance) para ver tu perfil de rendimiento.';
+      }
+      return;
+    }
+    if (gate) gate.style.display = 'none';
+    if (content) content.style.display = 'block';
+
+    _setRing('ringMotorFill',  'ringMotorVal',  'ringMotorSub',  r.motor,  _scoreLbl(r.motor, 'Aeróbico'));
+    _setRing('ringChasisFill', 'ringChasisVal', 'ringChasisSub', r.chasis, _scoreLbl(r.chasis, 'Fuerza'));
+
+    const t = _perfTipo(r.motor, r.chasis);
+    const c = PERF_VCOL[t.estado] || PERF_VCOL.medio;
+    const vd = document.getElementById('ruckPerfVerdict');
+    if (vd) { vd.style.background = c.bg; vd.style.borderColor = c.bd; }
+    const vh = document.getElementById('ruckPerfVHead');
+    if (vh) vh.innerHTML = `<span style="color:${c.tx}">● ${t.tipo}</span>`;
+    const vb = document.getElementById('ruckPerfVBody');
+    if (vb) {
+      let extra = (r.motor != null && r.chasis != null) ? ` Motor y chasis difieren en ${Math.abs(r.motor - r.chasis)} puntos.` : '';
+      vb.textContent = t.msg + extra;
+      vb.style.color = c.tx;
+    }
+    renderPerfBullets(r.sub);
+    guardarPerfilRendimientoCloud(r);
+  }
+
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
     cargarRuck1RMGuardado();
     // Carga rkTSS — siempre se evalúa (muestra gate/empty/gráfico según estado)
     renderRuckLoadChart();
-    // Tolerancia a la carga (predictor personalizado)
+    // Tolerancia a la carga (riesgo) y capacidad de rendimiento (motor vs chasis)
     renderToleranciaCarga();
+    renderRendimiento();
     // Auto-formato H:MM:SS en input de tiempo manual
     const ruckTimeInp = document.getElementById('ruckATime');
     if (ruckTimeInp && !ruckTimeInp._fmtBound) {
@@ -4627,8 +4785,9 @@
     }
     // Resultado semáforo
     mostrarSEResultado(val);
-    // Recalcular tolerancia a la carga (el SE es uno de sus insumos)
+    // Recalcular tolerancia (riesgo) y rendimiento (chasis): el SE alimenta ambos
     if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    if (typeof renderRendimiento === 'function') renderRendimiento();
     // Feedback visual en el botón
     const btn = document.querySelector('[onclick="guardarRuckSE()"]');
     if (btn) {
@@ -4692,6 +4851,7 @@
     if (statusEl) { statusEl.textContent = `✓ 1RM guardado: ${val} kg · ${profile.squat1RMDate}`; statusEl.style.color = '#27ae60'; }
     const autoEl = document.getElementById('ruck1RMAuto'); if (autoEl) autoEl.style.display = 'none';
     if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    if (typeof renderRendimiento === 'function') renderRendimiento();
     const btn = document.querySelector('[onclick="guardarRuck1RM()"]');
     if (btn) { const o = btn.textContent; btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
       setTimeout(() => { btn.textContent = o; btn.style.background = ''; }, 1600); }
@@ -4855,8 +5015,9 @@
     profile.endurance.rkFtpNivel   = r.nivel;
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
 
-    // Recalcular tolerancia a la carga (el nivel del Test 4.8 km es uno de sus insumos)
+    // Recalcular tolerancia (riesgo) y rendimiento: el Test 4.8 km alimenta ambos (motor)
     if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    if (typeof renderRendimiento === 'function') renderRendimiento();
 
     // Mostrar resultado con la tarjeta dramática (sello + línea de niveles + conteo de watts)
     renderRkResultCard({
@@ -5007,6 +5168,9 @@
     if (typeof calcularZonasCarrera === 'function') calcularZonasCarrera();
     // 4) Si cambió el FTP, refrescar la carga rTSS
     if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+    // 5) VAM/FTP alimentan el motor del perfil de rendimiento y el fallback de tolerancia
+    if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    if (typeof renderRendimiento === 'function') renderRendimiento();
   }
 
   function bindEnduranceTest() {
