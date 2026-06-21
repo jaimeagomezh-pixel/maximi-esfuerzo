@@ -3063,8 +3063,8 @@
       chartStrength.data.datasets[0].tension            = 0.3;
       chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
       chartStrength.data.datasets[0].pointBackgroundColor = '#00c8d4';
-      chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
-      chartStrength.options.scales.y.max = best + margin;
+      chartStrength.options.scales.y.min = Math.max(0, Math.floor((Math.min(...weights) - margin) / 5) * 5);
+      chartStrength.options.scales.y.max = Math.ceil((best + margin) / 5) * 5;
       chartStrength.update();
     }
 
@@ -3546,8 +3546,8 @@
       chartStrength.data.datasets[0].pointRadius        = sessions.length <= 20 ? 3 : 0;
       chartStrength.data.datasets[0].pointBackgroundColor = '#00c8d4';
       chartStrength.data.datasets[0].pointBorderColor   = '#00c8d4';
-      chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
-      chartStrength.options.scales.y.max = best + margin;
+      chartStrength.options.scales.y.min = Math.max(0, Math.floor((Math.min(...weights) - margin) / 5) * 5);
+      chartStrength.options.scales.y.max = Math.ceil((best + margin) / 5) * 5;
       chartStrength.update();
     }
 
@@ -5054,8 +5054,8 @@
       chartStrength.data.datasets[0].pointRadius         = sessions.length <= 25 ? 3 : 0;
       chartStrength.data.datasets[0].pointBorderColor    = sessions.length <= 25 ? '#00c8d4' : 'transparent';
       chartStrength.data.datasets[0].tension             = 0.3;
-      chartStrength.options.scales.y.min = Math.max(0, Math.min(...weights) - margin);
-      chartStrength.options.scales.y.max = best + margin;
+      chartStrength.options.scales.y.min = Math.max(0, Math.floor((Math.min(...weights) - margin) / 5) * 5);
+      chartStrength.options.scales.y.max = Math.ceil((best + margin) / 5) * 5;
       chartStrength.update();
     }
 
@@ -5139,7 +5139,7 @@
             grid:{color:'rgba(255,255,255,0.1)'}, border:{color:'transparent'}
           },
           y: {
-            ticks:{color:'#f1ece4',font:{size:9},callback:v=>v+' kg'},
+            ticks:{color:'#f1ece4',font:{size:9},callback:v=>Math.round(v)+' kg'},
             grid:{color:'rgba(255,255,255,0.1)',drawDashedLine:true},
             border:{color:'transparent'}
           }

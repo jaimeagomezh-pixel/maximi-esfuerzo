@@ -309,10 +309,9 @@ function setupSectionScrollAnimations(secEl) {
   secEl.querySelectorAll('.dash-stat-cell').forEach(el =>
     reg(el, { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
   );
-  // Encabezados de métricas
-  secEl.querySelectorAll('.th-working-max').forEach(el =>
-    reg(el, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power2.out' })
-  );
+  // NOTA: .th-working-max NO se anima aquí. Tiene su propia animación CSS
+  // (flipEl/pr-stats-flip) sin fill:forwards; si gsap le deja opacity:0 inline,
+  // el flip lo muestra 0.32s y vuelve a opacity:0 → quedaba invisible.
   // Gráficos: fade + scale
   secEl.querySelectorAll('.dash-chart-card, .th-chart-container').forEach(el =>
     reg(el, { opacity: 0, y: 24, scale: 0.98 }, { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'power2.out' })
@@ -330,20 +329,19 @@ function setupSectionScrollAnimations(secEl) {
     reg(el, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' })
   );
 
-  // RED DE SEGURIDAD: a los 2.5s, forzar visible cualquier elemento ya
-  // dentro del área del scroller que el observer no haya revelado (evita
-  // contenido atascado en opacity:0 pase lo que pase).
+  // RED DE SEGURIDAD: a los 1.2s, forzar visible CUALQUIER elemento registrado
+  // que siga oculto — esté o no en pantalla. Antes solo revelaba los visibles,
+  // así que los que estaban bajo el fold y el IO no alcanzaba a disparar (dentro
+  // de position:fixed) quedaban pegados en opacity:0 (ej. Working Max). La
+  // garantía de visibilidad pesa más que el reveal-on-scroll perfecto.
   setTimeout(() => {
-    const srRect = scroller.getBoundingClientRect();
     secEl.querySelectorAll('[data-gsap-anim="1"]').forEach(el => {
-      const r = el.getBoundingClientRect();
-      const dentro = r.top < srRect.bottom && r.bottom > srRect.top;
-      if (dentro && parseFloat(getComputedStyle(el).opacity) < 0.95) {
+      if (parseFloat(getComputedStyle(el).opacity) < 0.95) {
         io.unobserve(el);
         gsap.to(el, el._animTo);
       }
     });
-  }, 2500);
+  }, 1200);
 
   // Barras mensuales (resZonasFC): observar cuando se renderizan y animar width
   secEl.querySelectorAll('#resZonasFC').forEach(el => {
