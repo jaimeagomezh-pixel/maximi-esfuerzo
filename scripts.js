@@ -6684,15 +6684,16 @@
   function abrirMiPerfil() {
     const panel = document.getElementById('miPerfilPanel');
     if (panel) panel.style.display = 'block';
-    // Esperar a que el menú hamburguesa cierre y el layout se estabilice,
-    // luego scrollear el contenedor del dashboard (no la ventana)
+    // fixDashboardHeader() convierte .dashboard-box en el scroll container
+    // (#dashboardAtleta queda overflow:hidden — no scrollea)
     setTimeout(() => {
-      const dash = document.getElementById('dashboardAtleta');
-      if (dash && panel) {
-        const panelTop = panel.getBoundingClientRect().top - dash.getBoundingClientRect().top + dash.scrollTop;
-        dash.scrollTo({ top: panelTop - 70, behavior: 'smooth' });
+      const box = document.querySelector('#dashboardAtleta .dashboard-box')
+                  || document.getElementById('dashboardAtleta');
+      if (box && panel) {
+        const panelTop = panel.getBoundingClientRect().top - box.getBoundingClientRect().top + box.scrollTop;
+        box.scrollTo({ top: panelTop - 70, behavior: 'smooth' });
       }
-    }, 320);
+    }, 100);
     // Cerrar dropdown desktop
     const dd = document.getElementById('miCuentaDropdown');
     const ch = document.getElementById('miCuentaChevron');
