@@ -2222,6 +2222,10 @@
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
       if (typeof updateRuckingDashboard === 'function') updateRuckingDashboard();
     }
+    // El peso o el perfil táctico cambian la tolerancia a la carga → recalcular
+    if (peso !== prev.peso || perfilTactico !== prev.perfilTactico) {
+      if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    }
     document.getElementById('miPerfilPanel').style.display = 'none';
     // Sincronizar peso, talla y fechaNac al cloud (para que el coach los vea)
     const ruckProfile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -3855,10 +3859,216 @@
     return d.getDate()+' '+['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()]+' '+d.getFullYear();
   }
 
+  // ══════════════════════════════════════════════════════════════════════
+  //  RUEDA SELECTORA (picker estilo iOS) — reemplaza los <select> largos
+  // ══════════════════════════════════════════════════════════════════════
+  const RUCK_DIST_VALS = [5,8,10,12,15,18,20,25,30,32,35,40];
+  const RUCK_LOAD_VALS = [4,5,8,10,12,15,18,20,25,28,30,32,35,37,39,40,42,44,46,48,50];
+  const ME_WHEEL_ITEM_H = 38;
+
+  function _meWheelClamp(i, n) { return Math.max(0, Math.min(n-1, i)); }
+
+  function _meWheelApply(wheelEl, idx) {
+    const values = wheelEl._values;
+    wheelEl._scroll.querySelectorAll('.me-wheel-item').forEach(it => {
+      it.classList.toggle('active', +it.dataset.i === idx);
+    });
+    const val = values[idx];
+    const targetId = wheelEl.dataset.target;
+    if (targetId) { const h = document.getElementById(targetId); if (h) h.value = val; }
+    wheelEl._idx = idx;
+    if (typeof wheelEl._onChange === 'function') wheelEl._onChange(val, idx);
+  }
+
+  function _meWheelScrollTo(scroll, idx, smooth) {
+    scroll.scrollTo({ top: idx * ME_WHEEL_ITEM_H, behavior: smooth ? 'smooth' : 'auto' });
+  }
+
+  function buildMeWheel(wheelEl, values, onChange) {
+    if (!wheelEl) return;
+    const unit = wheelEl.dataset.unit || '';
+    wheelEl.innerHTML = '';
+    const scroll = document.createElement('div');
+    scroll.className = 'me-wheel-scroll';
+    const padT = document.createElement('div'); padT.style.height = ME_WHEEL_ITEM_H+'px'; scroll.appendChild(padT);
+    values.forEach((v, i) => {
+      const it = document.createElement('div');
+      it.className = 'me-wheel-item'; it.dataset.i = i; it.textContent = v;
+      it.addEventListener('click', () => _meWheelScrollTo(scroll, i, true));
+      scroll.appendChild(it);
+    });
+    const padB = document.createElement('div'); padB.style.height = ME_WHEEL_ITEM_H+'px'; scroll.appendChild(padB);
+    wheelEl.appendChild(scroll);
+    const center = document.createElement('div'); center.className = 'me-wheel-center'; wheelEl.appendChild(center);
+    if (unit) { const u = document.createElement('div'); u.className = 'me-wheel-unit'; u.textContent = unit; wheelEl.appendChild(u); }
+
+    wheelEl._values   = values;
+    wheelEl._scroll   = scroll;
+    wheelEl._onChange = onChange;
+
+    let raf;
+    scroll.addEventListener('scroll', () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const idx = _meWheelClamp(Math.round(scroll.scrollTop / ME_WHEEL_ITEM_H), values.length);
+        _meWheelApply(wheelEl, idx);
+      });
+    });
+    return wheelEl;
+  }
+
+  function setMeWheelValue(wheelEl, value, locked) {
+    if (!wheelEl || !wheelEl._values) return;
+    const values = wheelEl._values;
+    let idx = values.indexOf(Number(value));
+    if (idx < 0) {
+      let best = 0, bd = Infinity;
+      values.forEach((v, i) => { const d = Math.abs(v - Number(value)); if (d < bd) { bd = d; best = i; } });
+      idx = best;
+    }
+    _meWheelApply(wheelEl, idx);
+    requestAnimationFrame(() => _meWheelScrollTo(wheelEl._scroll, idx, false));
+    wheelEl.classList.toggle('me-wheel--locked', !!locked);
+  }
+
+  // Monta (una vez) las ruedas de distancia/lastre del formulario manual
+  function ensureRuckFormWheels() {
+    const dw = document.getElementById('ruckADistWheel');
+    const lw = document.getElementById('ruckALoadWheel');
+    if (dw && !dw._values) buildMeWheel(dw, RUCK_DIST_VALS);
+    if (lw && !lw._values) buildMeWheel(lw, RUCK_LOAD_VALS);
+    return { dw, lw };
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  PREDICTOR · TOLERANCIA A LA CARGA (Test 4.8 km + Squat Endurance)
+  // ══════════════════════════════════════════════════════════════════════
+  // Calibración inicial (ajustable): bono que suma/resta al umbral base de carga.
+  const RK_NIVEL_BONO = { 'Élite': 0.05, 'Apto': 0.00, 'En desarrollo': -0.05, 'Base': -0.05 };
+
+  function _seBono(reps) {
+    if (reps == null || isNaN(reps)) return { bono: 0, zona: null };
+    if (reps >= 40) return { bono: 0.08, zona: 'óptima' };
+    if (reps >= 25) return { bono: 0.00, zona: 'media' };
+    return { bono: -0.08, zona: 'crítica' };
+  }
+
+  function calcToleranciaCarga(loadKg) {
+    const hoy = new Date().toISOString().slice(0,10);
+    const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+    const W = getBMForDate(hoy) || parseFloat(perfil.peso) || null;
+    if (!W) return { ok: false, reason: 'peso' };
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const se      = profile.se != null ? Number(profile.se) : null;
+    const rkNivel = profile.endurance && profile.endurance.rkFtpNivel;
+    const tieneSE = se != null && !isNaN(se);
+    const tieneRk = !!rkNivel;
+    if (!tieneSE && !tieneRk) return { ok: false, reason: 'tests' };
+
+    const esMil      = String(perfil.perfilTactico || 'civil').toLowerCase().startsWith('mil');
+    const umbralBase = esMil ? 0.45 : 0.30;
+    const seInfo     = tieneSE ? _seBono(se) : { bono: 0, zona: null };
+    const rkBono     = tieneRk ? (RK_NIVEL_BONO[rkNivel] != null ? RK_NIVEL_BONO[rkNivel] : 0) : 0;
+    let capPct = umbralBase + seInfo.bono + rkBono;
+    if (capPct < 0.15) capPct = 0.15;
+    const capKg = W * capPct;
+
+    const L = Number(loadKg);
+    const loadPct = L / W;
+    let state;
+    if      (loadPct <= umbralBase)      state = 'comodo';
+    else if (loadPct <= capPct)          state = 'fuerte';
+    else if (loadPct <= capPct + 0.08)   state = 'limite';
+    else                                 state = 'riesgo';
+
+    return { ok: true, state, W, L, loadPct, umbralBase, capPct, capKg,
+      seZona: seInfo.zona, rkNivel: tieneRk ? rkNivel : null };
+  }
+
+  const ME_TOL_COLORS = {
+    comodo: { bg:'rgba(29,158,117,0.12)', bd:'rgba(29,158,117,0.45)', tx:'#27c79a', fill:'#1d9e75' },
+    fuerte: { bg:'rgba(124,192,67,0.12)', bd:'rgba(124,192,67,0.5)',  tx:'#8fd14a', fill:'#7cc043' },
+    limite: { bg:'rgba(232,144,42,0.12)', bd:'rgba(232,144,42,0.5)',  tx:'#f0a850', fill:'#e8902a' },
+    riesgo: { bg:'rgba(229,84,79,0.12)',  bd:'rgba(229,84,79,0.5)',   tx:'#f0726d', fill:'#e5544f' }
+  };
+
+  function _tolRespaldo(r) {
+    const partes = [];
+    if (r.seZona === 'óptima')                       partes.push('tu Squat Endurance óptimo');
+    if (r.rkNivel === 'Élite' || r.rkNivel === 'Apto') partes.push('tu nivel ' + r.rkNivel);
+    return partes.length ? partes.join(' y ') : 'tu perfil de fuerza-resistencia';
+  }
+
+  function renderTolReco() {
+    const hidden = document.getElementById('ruckTolLoad');
+    const L = parseFloat(hidden && hidden.value) || 20;
+    const r = calcToleranciaCarga(L);
+    if (!r.ok) return;
+    const c = ME_TOL_COLORS[r.state];
+    const capR     = Math.round(r.capKg);
+    const umbralKg = Math.round(r.W * r.umbralBase);
+    let head, body;
+    if (r.state === 'comodo') {
+      head = 'Carga cómoda';
+      body = `A ${r.L} kg estás bajo tu umbral operativo (${Math.round(r.umbralBase*100)}% = ${umbralKg} kg). Trabajo de base, sin penalización de fatiga.`;
+    } else if (r.state === 'fuerte') {
+      head = 'Fortaleza demostrada';
+      body = `Superas el umbral genérico (${Math.round(r.umbralBase*100)}%), pero ${_tolRespaldo(r)} respaldan esta carga. Tienes condición para sostenerla.`;
+    } else if (r.state === 'limite') {
+      head = 'En tu límite';
+      body = `A ${r.L} kg entras en el borde de tu tolerancia demostrada (~${capR} kg). Útil en picos puntuales, no como volumen habitual.`;
+    } else {
+      head = 'Riesgo elevado para ti';
+      body = `A ${r.L} kg superas tu capacidad demostrada (~${capR} kg). Mejora tu Squat Endurance y repite el Test de 4.8 km antes de cargar esto.`;
+    }
+    const reco = document.getElementById('ruckTolReco');
+    if (reco) { reco.style.background = c.bg; reco.style.borderColor = c.bd; }
+    const headEl = document.getElementById('ruckTolHead');
+    if (headEl) headEl.innerHTML = `<span style="color:${c.tx}">● ${head}</span>`;
+    const bd = document.getElementById('ruckTolBody');
+    if (bd) { bd.textContent = body; bd.style.color = c.tx; }
+    const fill = document.getElementById('ruckTolFill');
+    if (fill) { fill.style.width = Math.min(100, Math.round(r.loadPct/0.65*100)) + '%'; fill.style.background = c.fill; }
+    const pctEl = document.getElementById('ruckTolPct');
+    if (pctEl) pctEl.textContent = `${r.L} kg · ${Math.round(r.loadPct*100)}% del peso`;
+    const capEl = document.getElementById('ruckTolCap');
+    if (capEl) capEl.textContent = `tu tope ~${capR} kg`;
+  }
+
+  function renderToleranciaCarga() {
+    const box = document.getElementById('ruckTolBox');
+    if (!box) return;
+    const gate    = document.getElementById('ruckTolGate');
+    const content = document.getElementById('ruckTolContent');
+    const probe = calcToleranciaCarga(20);
+    if (!probe.ok) {
+      if (content) content.style.display = 'none';
+      if (gate) {
+        gate.style.display = 'block';
+        gate.innerHTML = probe.reason === 'peso'
+          ? 'Ingresa tu <strong style="color:#cfc9c1;">peso</strong> en Mi Perfil para calcular tu tolerancia.'
+          : 'Haz el <strong style="color:#cfc9c1;">Test de 4.8 km</strong> o el <strong style="color:#cfc9c1;">Test de Squat Endurance</strong> (arriba) para personalizar tu tolerancia.';
+      }
+      return;
+    }
+    if (gate) gate.style.display = 'none';
+    if (content) content.style.display = 'block';
+    const tw = document.getElementById('ruckTolWheel');
+    if (tw && !tw._values) {
+      buildMeWheel(tw, RUCK_LOAD_VALS, () => renderTolReco());
+      const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      const def = (profile.endurance && profile.endurance.rkFtpLoad) || 20;
+      setMeWheelValue(tw, def);
+    }
+    renderTolReco();
+  }
+
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
     // Carga rkTSS — siempre se evalúa (muestra gate/empty/gráfico según estado)
     renderRuckLoadChart();
+    // Tolerancia a la carga (predictor personalizado)
+    renderToleranciaCarga();
     // Auto-formato H:MM:SS en input de tiempo manual
     const ruckTimeInp = document.getElementById('ruckATime');
     if (ruckTimeInp && !ruckTimeInp._fmtBound) {
@@ -4217,6 +4427,12 @@
       if (dateInp && !dateInp.value) {
         dateInp.value = new Date().toISOString().slice(0, 10);
       }
+      // Montar ruedas y, en modo agregar, posicionarlas en un default razonable
+      const { dw, lw } = ensureRuckFormWheels();
+      if (!_ruckEditId) {
+        if (dw) setMeWheelValue(dw, 10, false);
+        if (lw) setMeWheelValue(lw, 20, false);
+      }
       // Limpiar tiempo y resetear buffer de dígitos
       const timeInp = document.getElementById('ruckATime');
       if (timeInp) { timeInp.value = ''; timeInp._digits = ''; timeInp.focus(); }
@@ -4243,8 +4459,12 @@
     const timeInp = document.getElementById('ruckATime');
 
     if (dateInp) { dateInp.value = s.date; dateInp.disabled = s.source==='strava'; }
-    if (distInp) { distInp.value = s.dist; distInp.disabled = s.source==='strava'; }
-    if (loadInp) { loadInp.value = s.load; loadInp.disabled = s.source==='strava'; }
+    if (distInp) distInp.value = s.dist;
+    if (loadInp) loadInp.value = s.load;
+    // Sincronizar las ruedas con los valores de la sesión (bloqueadas si es Strava)
+    const { dw, lw } = ensureRuckFormWheels();
+    if (dw) setMeWheelValue(dw, s.dist, s.source==='strava');
+    if (lw) setMeWheelValue(lw, s.load, s.source==='strava');
 
     // Desnivel, terreno y notas (terreno editable también para sesiones Strava)
     const elevInp = document.getElementById('ruckAElev');
@@ -4288,6 +4508,11 @@
     ['ruckADate','ruckADist','ruckALoad'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.disabled = false;
+    });
+    // Desbloquear ruedas (pudieron quedar locked tras editar una sesión Strava)
+    ['ruckADistWheel','ruckALoadWheel'].forEach(id => {
+      const w = document.getElementById(id);
+      if (w) w.classList.remove('me-wheel--locked');
     });
   }
 
@@ -4369,6 +4594,8 @@
     }
     // Resultado semáforo
     mostrarSEResultado(val);
+    // Recalcular tolerancia a la carga (el SE es uno de sus insumos)
+    if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
     // Feedback visual en el botón
     const btn = document.querySelector('[onclick="guardarRuckSE()"]');
     if (btn) {
@@ -4513,6 +4740,9 @@
     profile.endurance.rkFtpTerrain = terrain;
     profile.endurance.rkFtpNivel   = r.nivel;
     localStorage.setItem('ruckProfile', JSON.stringify(profile));
+
+    // Recalcular tolerancia a la carga (el nivel del Test 4.8 km es uno de sus insumos)
+    if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
 
     // Mostrar resultado con la tarjeta dramática (sello + línea de niveles + conteo de watts)
     renderRkResultCard({

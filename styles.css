@@ -5355,3 +5355,31 @@ body.plan-activo .plan-lock  { display: none; }
     #dashboardAtleta .rkr-top, #dashboardAtleta .rkr-time, #dashboardAtleta .rkr-tl,
     #dashboardAtleta .rkr-metrics, #dashboardAtleta .rkr-msg, #dashboardAtleta .rkr-ico { opacity:1 !important; }
   }
+
+  /* ── RUEDA SELECTORA (picker estilo iOS) — lastre / distancia ── */
+  #dashboardAtleta .me-wheel { position:relative; height:114px; border-radius:8px;
+    background:#fff !important; border:1px solid rgba(0,0,0,0.12); overflow:hidden; }
+  #dashboardAtleta .me-wheel-scroll { height:100%; overflow-y:scroll; scroll-snap-type:y mandatory;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; text-align:center; }
+  #dashboardAtleta .me-wheel-scroll::-webkit-scrollbar { display:none; width:0; height:0; }
+  #dashboardAtleta .me-wheel-item { height:38px; line-height:38px; scroll-snap-align:center;
+    font-family:'Barlow Condensed',sans-serif; font-size:16px; letter-spacing:1px; color:#bdb7ad !important;
+    transition:color .15s, font-size .15s, font-weight .15s; cursor:pointer; }
+  #dashboardAtleta .me-wheel-item.active { color:#1a1a1a !important; font-size:21px; font-weight:700; }
+  #dashboardAtleta .me-wheel-center { position:absolute; left:6px; right:6px; top:38px; height:38px;
+    border-top:1px solid rgba(0,0,0,0.14); border-bottom:1px solid rgba(0,0,0,0.14); pointer-events:none; }
+  #dashboardAtleta .me-wheel-unit { position:absolute; right:14px; top:46px; font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; letter-spacing:1px; color:#999 !important; text-transform:uppercase; pointer-events:none; }
+  #dashboardAtleta .me-wheel--locked { opacity:0.45; }
+  #dashboardAtleta .me-wheel--locked .me-wheel-scroll { pointer-events:none; overflow:hidden; }
+
+  /* ── TARJETA TOLERANCIA A LA CARGA ── */
+  #dashboardAtleta .me-tol-reco { border-radius:10px; padding:13px 15px; border:1px solid; transition:background .25s, border-color .25s; }
+  #dashboardAtleta .me-tol-head { display:flex; align-items:center; gap:8px; font-family:'Barlow Condensed',sans-serif;
+    font-size:14px; font-weight:700; letter-spacing:1px; text-transform:uppercase; }
+  #dashboardAtleta .me-tol-body { font-size:12.5px; line-height:1.55; margin-top:7px; }
+  #dashboardAtleta .me-tol-bar { height:7px; border-radius:6px; background:rgba(0,0,0,0.08); margin-top:11px; overflow:hidden; }
+  #dashboardAtleta .me-tol-fill { height:100%; border-radius:6px; transition:width .3s, background .3s; }
+  #dashboardAtleta .me-tol-meta { display:flex; justify-content:space-between; font-family:'Barlow Condensed',sans-serif;
+    font-size:10px; letter-spacing:1px; color:#888 !important; text-transform:uppercase; margin-top:6px; }
+  #dashboardAtleta .me-tol-gate { font-size:12px; line-height:1.5; color:#999 !important; text-align:center; padding:6px 4px; }

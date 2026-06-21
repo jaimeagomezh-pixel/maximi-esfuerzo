@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260620c">
+<link rel="stylesheet" href="styles.css?v=20260621a">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -1678,26 +1678,13 @@
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Distancia (km)</div>
-            <select id="ruckADist" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
-              <option value="">Seleccionar</option>
-              <option value="5">5 km</option><option value="8">8 km</option><option value="10">10 km</option>
-              <option value="12">12 km</option><option value="15">15 km</option><option value="18">18 km</option>
-              <option value="20">20 km</option><option value="25">25 km</option><option value="30">30 km</option>
-              <option value="32">32 km</option><option value="35">35 km</option><option value="40">40 km</option>
-            </select>
+            <input type="hidden" id="ruckADist">
+            <div class="me-wheel" id="ruckADistWheel" data-target="ruckADist" data-unit="km"></div>
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Lastre (kg)</div>
-            <select id="ruckALoad" style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
-              <option value="">Seleccionar</option>
-              <option value="4">4 kg</option><option value="5">5 kg</option><option value="8">8 kg</option>
-              <option value="10">10 kg</option><option value="12">12 kg</option><option value="15">15 kg</option>
-              <option value="18">18 kg</option><option value="20">20 kg</option><option value="25">25 kg</option>
-              <option value="28">28 kg</option><option value="30">30 kg</option><option value="32">32 kg</option>
-              <option value="35">35 kg</option><option value="37">37 kg</option><option value="39">39 kg</option>
-              <option value="40">40 kg</option><option value="42">42 kg</option><option value="44">44 kg</option>
-              <option value="46">46 kg</option><option value="48">48 kg</option><option value="50">50 kg</option>
-            </select>
+            <input type="hidden" id="ruckALoad">
+            <div class="me-wheel" id="ruckALoadWheel" data-target="ruckALoad" data-unit="kg"></div>
           </div>
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Desnivel (m) — opcional</div>
@@ -1865,6 +1852,27 @@
         </div>
         <div id="ruckLoadNote" style="display:none;font-size:10px;color:#8a857c;margin-top:8px;line-height:1.5;">
           Verde = suave · dorado = habitual · naranja = carga alta
+        </div>
+      </div>
+
+      <!-- Tolerancia a la carga (predictor personalizado: Test 4.8km + Squat Endurance) -->
+      <div class="flat-box" id="ruckTolBox" style="margin-top:4px;background:rgba(0,122,133,0.04);border:1px solid rgba(0,122,133,0.15);border-radius:8px;padding:12px 14px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.7);text-transform:uppercase;margin-bottom:3px;">Tolerancia a la Carga</div>
+        <div style="font-size:11px;color:#8a857c;line-height:1.5;margin-bottom:10px;">Cuánto lastre sostienes según <strong style="color:#cfc9c1;">tu</strong> Test de 4.8 km y tu Squat Endurance — no un umbral genérico.</div>
+
+        <div id="ruckTolGate" class="me-tol-gate" style="display:none;"></div>
+
+        <div id="ruckTolContent" style="display:none;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Lastre a evaluar — desliza</div>
+          <input type="hidden" id="ruckTolLoad">
+          <div class="me-wheel" id="ruckTolWheel" data-target="ruckTolLoad" data-unit="kg" style="margin-bottom:12px;"></div>
+
+          <div class="me-tol-reco" id="ruckTolReco">
+            <div class="me-tol-head" id="ruckTolHead"></div>
+            <div class="me-tol-body" id="ruckTolBody"></div>
+            <div class="me-tol-bar"><div class="me-tol-fill" id="ruckTolFill"></div></div>
+            <div class="me-tol-meta"><span id="ruckTolPct"></span><span id="ruckTolCap"></span></div>
+          </div>
         </div>
       </div>
 
@@ -2443,7 +2451,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260620q"></script>
+<script src="scripts.js?v=20260621a"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
