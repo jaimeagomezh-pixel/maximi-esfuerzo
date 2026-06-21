@@ -5358,18 +5358,18 @@ body.plan-activo .plan-lock  { display: none; }
 
   /* ── RUEDA SELECTORA (picker estilo iOS) — lastre / distancia ── */
   #dashboardAtleta .me-wheel { position:relative; height:114px; border-radius:8px;
-    background:#fff !important; border:1px solid rgba(0,0,0,0.12); overflow:hidden; }
+    background:rgba(212,168,67,0.06) !important; border:1px solid rgba(212,168,67,0.2); overflow:hidden; }
   #dashboardAtleta .me-wheel-scroll { height:100%; overflow-y:scroll; scroll-snap-type:y mandatory;
     overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scrollbar-width:none; text-align:center; }
   #dashboardAtleta .me-wheel-scroll::-webkit-scrollbar { display:none; width:0; height:0; }
   #dashboardAtleta .me-wheel-item { height:38px; line-height:38px; scroll-snap-align:center;
-    font-family:'Barlow Condensed',sans-serif; font-size:16px; letter-spacing:1px; color:#bdb7ad !important;
+    font-family:'Barlow Condensed',sans-serif; font-size:16px; letter-spacing:1px; color:#7d745f !important;
     transition:color .15s, font-size .15s, font-weight .15s; cursor:pointer; }
-  #dashboardAtleta .me-wheel-item.active { color:#1a1a1a !important; font-size:21px; font-weight:700; }
+  #dashboardAtleta .me-wheel-item.active { color:#d4a843 !important; font-size:21px; font-weight:700; }
   #dashboardAtleta .me-wheel-center { position:absolute; left:6px; right:6px; top:38px; height:38px;
-    border-top:1px solid rgba(0,0,0,0.14); border-bottom:1px solid rgba(0,0,0,0.14); pointer-events:none; }
+    border-top:1px solid rgba(212,168,67,0.32); border-bottom:1px solid rgba(212,168,67,0.32); pointer-events:none; }
   #dashboardAtleta .me-wheel-unit { position:absolute; right:14px; top:46px; font-family:'Barlow Condensed',sans-serif;
-    font-size:11px; letter-spacing:1px; color:#999 !important; text-transform:uppercase; pointer-events:none; }
+    font-size:11px; letter-spacing:1px; color:#9a948a !important; text-transform:uppercase; pointer-events:none; }
   #dashboardAtleta .me-wheel--locked { opacity:0.45; }
   #dashboardAtleta .me-wheel--locked .me-wheel-scroll { pointer-events:none; overflow:hidden; }
 
