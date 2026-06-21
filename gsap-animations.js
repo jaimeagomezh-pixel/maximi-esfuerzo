@@ -377,12 +377,17 @@ function animarBarrasZonaFC() {
     bars.forEach((bar, i) => {
       const tw = bar.dataset.w;
       if (!tw || tw === '0%') return;
-      bar.style.transition = 'none'; // GSAP controla, sin transición CSS
-      gsap.fromTo(bar,
-        { width: '0%' },
-        { width: tw, duration: 0.88, delay: i * 0.1, ease: 'power2.out',
-          overwrite: true, onComplete: () => { bar.style.transition = ''; } }
-      );
+      // Animación con transición CSS pura (sin GSAP, que competía por el
+      // width). Quitamos me-bar-animate (width:0 !important) que dejaba la
+      // barra invisible. 0% → reflow → target, con stagger por setTimeout.
+      bar.classList.remove('me-bar-animate');
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      void bar.offsetWidth; // forzar reflow para que el 0% se aplique
+      setTimeout(() => {
+        bar.style.transition = 'width .88s cubic-bezier(.22,1,.36,1)';
+        bar.style.width = tw;
+      }, i * 90);
     });
   }
 

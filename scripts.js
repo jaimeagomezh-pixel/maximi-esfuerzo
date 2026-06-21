@@ -790,9 +790,11 @@
         if (elPct)  elPct.textContent  = pct + '%';
         if (elBar) {
           // Fuente única de verdad: dataset.w guarda el target. Fijamos el width
-          // directamente (red de seguridad: la barra SIEMPRE se ve, animación GSAP
-          // aparte). Evita la condición de carrera del requestAnimationFrame previo.
+          // directamente con una transición CSS (la barra SIEMPRE se ve).
+          // CLAVE: quitar 'me-bar-animate' que dejaba width:0 !important pegado
+          // y hacía invisible el relleno aunque el width inline fuera correcto.
           elBar.dataset.w = pct + '%';
+          elBar.classList.remove('me-bar-animate');
           elBar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
           elBar.style.width = pct + '%';
         }
