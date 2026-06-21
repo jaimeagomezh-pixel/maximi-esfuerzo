@@ -2443,7 +2443,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260620p"></script>
+<script src="scripts.js?v=20260620q"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -3588,7 +3588,13 @@ async function cargarInbodyHistorial() {
       if (deleted.length) lista = lista.filter(m => !deleted.includes(m.fecha));
       localStorage.setItem(cacheKey, JSON.stringify(lista));
     }
-    if (!lista.length) return;
+    if (!lista.length) {
+      document.getElementById('inbodyChartWrap').style.display = 'none';
+      document.getElementById('inbodyHistorial').style.display = 'none';
+      if (inbodyAreaChart) { inbodyAreaChart.destroy(); inbodyAreaChart = null; }
+      document.getElementById('inbodyHistorialList').innerHTML = '';
+      return;
+    }
 
     // Gráfico de áreas apiladas
     document.getElementById('inbodyChartWrap').style.display = 'block';
@@ -3713,9 +3719,20 @@ async function cargarInbodyHistorial() {
 function renderInbodyLista(lista) {
   const el = document.getElementById('inbodyHistorialList');
   if (!el) return;
-  if (!lista.length) { el.innerHTML = ''; return; }
-  document.getElementById('inbodyHistorial').style.display = 'block';
   const PERIM = ['brazo_relax','brazo_contra','torso','cintura','cadera','gluteo','muslo'];
+  // Solo mostrar entradas con datos InBody o perímetros — las entradas "solo peso"
+  // generadas automáticamente desde el perfil no se muestran en el historial.
+  lista = lista.filter(m =>
+    (m.musculo != null || m.grasa_kg != null) ||
+    PERIM.some(k => m['p_' + k] != null)
+  );
+  if (!lista.length) {
+    el.innerHTML = '';
+    const secEl = document.getElementById('inbodyHistorial');
+    if (secEl) secEl.style.display = 'none';
+    return;
+  }
+  document.getElementById('inbodyHistorial').style.display = 'block';
   const MAX = 20;
   const ordenada = lista.slice().reverse();
   const visible  = ordenada.slice(0, MAX);

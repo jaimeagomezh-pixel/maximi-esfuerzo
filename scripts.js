@@ -2267,6 +2267,9 @@
     const user = window._auth?.currentUser;
     if (!user) return;
     const hoy = new Date().toISOString().split('T')[0];
+    // No re-crear si el atleta borró explícitamente la entrada de hoy
+    const deleted = JSON.parse(localStorage.getItem('inbodyDeleted_' + user.uid) || '[]');
+    if (deleted.includes(hoy)) return;
     const cacheKey = 'inbodyHistorial_' + user.uid;
     const cached = JSON.parse(localStorage.getItem(cacheKey) || '[]');
 
