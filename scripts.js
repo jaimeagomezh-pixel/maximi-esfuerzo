@@ -3975,14 +3975,35 @@
 
     const L = Number(loadKg);
     const loadPct = L / W;
-    let state;
-    if      (loadPct <= umbralBase)      state = 'comodo';
-    else if (loadPct <= capPct)          state = 'fuerte';
-    else if (loadPct <= capPct + 0.08)   state = 'limite';
-    else                                 state = 'riesgo';
+    const SEV = { comodo:0, fuerte:1, limite:2, riesgo:3 };
 
-    return { ok: true, state, W, L, loadPct, umbralBase, capPct, capKg,
-      seZona: seInfo.zona, rkNivel: tieneRk ? rkNivel : null };
+    // Sistema METABÓLICO/operativo (modelo base: %peso + SE + rkFTP)
+    let stateMeta;
+    if      (loadPct <= umbralBase)      stateMeta = 'comodo';
+    else if (loadPct <= capPct)          stateMeta = 'fuerte';
+    else if (loadPct <= capPct + 0.08)   stateMeta = 'limite';
+    else                                 stateMeta = 'riesgo';
+
+    // Sistema ESTRUCTURAL (ratio Carga ÷ 1RM sentadilla — predictor de chasis)
+    const oneRM = profile.squat1RM ? Number(profile.squat1RM) : null;
+    let ratio = null, stateStruct = null;
+    if (oneRM && oneRM > 0) {
+      ratio = L / oneRM;
+      if      (ratio <= 0.25) stateStruct = 'comodo';   // chasis relajado
+      else if (ratio <= 0.40) stateStruct = 'fuerte';   // trabajo sostenible
+      else if (ratio <= 0.50) stateStruct = 'limite';   // estrés neural alto
+      else                    stateStruct = 'riesgo';   // al límite a cada paso
+    }
+
+    // Estado final = el más severo de ambos sistemas (cada uno manda en su dominio)
+    let state  = stateMeta;
+    let driver = 'metabolico';
+    if (stateStruct && SEV[stateStruct] > SEV[stateMeta]) { state = stateStruct; driver = 'estructural'; }
+    else if (stateStruct && SEV[stateStruct] === SEV[stateMeta] && SEV[stateStruct] >= 2) { driver = 'estructural'; }
+
+    return { ok: true, state, driver, W, L, loadPct, umbralBase, capPct, capKg,
+      seZona: seInfo.zona, rkNivel: tieneRk ? rkNivel : null,
+      oneRM, ratio, stateStruct, stateMeta };
   }
 
   const ME_TOL_COLORS = {
@@ -4007,6 +4028,7 @@
     const c = ME_TOL_COLORS[r.state];
     const capR     = Math.round(r.capKg);
     const umbralKg = Math.round(r.W * r.umbralBase);
+    const rPct = r.ratio != null ? Math.round(r.ratio * 100) : null;
     let head, body;
     if (r.state === 'comodo') {
       head = 'Carga cómoda';
@@ -4016,10 +4038,20 @@
       body = `Superas el umbral genérico (${Math.round(r.umbralBase*100)}%), pero ${_tolRespaldo(r)} respaldan esta carga. Tienes condición para sostenerla.`;
     } else if (r.state === 'limite') {
       head = 'En tu límite';
-      body = `A ${r.L} kg entras en el borde de tu tolerancia demostrada (~${capR} kg). Útil en picos puntuales, no como volumen habitual.`;
+      body = r.driver === 'estructural'
+        ? `La mochila es el ${rPct}% de tu sentadilla (1RM ${r.oneRM} kg). Tu chasis entra en estrés neural alto — útil en picos, no como volumen.`
+        : `A ${r.L} kg entras en el borde de tu tolerancia demostrada (~${capR} kg). Útil en picos puntuales, no como volumen habitual.`;
     } else {
       head = 'Riesgo elevado para ti';
-      body = `A ${r.L} kg superas tu capacidad demostrada (~${capR} kg). Mejora tu Squat Endurance y repite el Test de 4.8 km antes de cargar esto.`;
+      body = r.driver === 'estructural'
+        ? `La mochila es el ${rPct}% de tu fuerza máxima (1RM ${r.oneRM} kg). Tu chasis trabaja al límite a cada paso — alto riesgo articular. Sube tu sentadilla antes de cargar esto.`
+        : `A ${r.L} kg superas tu capacidad demostrada (~${capR} kg). Mejora tu Squat Endurance y repite el Test de 4.8 km antes de cargar esto.`;
+    }
+    // Línea de chasis (Carga ÷ 1RM) o invitación a capturarlo
+    if (r.oneRM && r.driver !== 'estructural') {
+      body += ` Chasis holgado: la mochila es ${rPct}% de tu sentadilla (1RM ${r.oneRM} kg).`;
+    } else if (!r.oneRM) {
+      body += ' Agrega tu 1RM de sentadilla (arriba) para el análisis de chasis (Carga ÷ Fuerza).';
     }
     const reco = document.getElementById('ruckTolReco');
     if (reco) { reco.style.background = c.bg; reco.style.borderColor = c.bd; }
@@ -4032,7 +4064,7 @@
     const pctEl = document.getElementById('ruckTolPct');
     if (pctEl) pctEl.textContent = `${r.L} kg · ${Math.round(r.loadPct*100)}% del peso`;
     const capEl = document.getElementById('ruckTolCap');
-    if (capEl) capEl.textContent = `tu tope ~${capR} kg`;
+    if (capEl) capEl.textContent = rPct != null ? `${rPct}% de tu 1RM` : `tu tope ~${capR} kg`;
   }
 
   function renderToleranciaCarga() {
@@ -4065,6 +4097,7 @@
 
   function initRuckingAtleta() {
     cargarRuckSEGuardado();
+    cargarRuck1RMGuardado();
     // Carga rkTSS — siempre se evalúa (muestra gate/empty/gráfico según estado)
     renderRuckLoadChart();
     // Tolerancia a la carga (predictor personalizado)
@@ -4611,6 +4644,87 @@
     }
     // Sincronizar con la nube
     pushRuckProfileToCloud(profile);
+  }
+
+  // ── 1RM de Sentadilla (eje del ratio Carga/Fuerza) ──────────────────────
+  // Autodetección desde los datos de la sección Fuerza (TrainHeroic / CSV).
+  function detectarSquat1RM() {
+    let data = null;
+    try { const csv = localStorage.getItem('thCSVData'); if (csv) data = JSON.parse(csv); } catch(e) {}
+    if ((!data || !Object.keys(data).length) && typeof thRealData === 'object') data = thRealData;
+    if (!data || !Object.keys(data).length) return null;
+    const f = 1 / 2.205; // TrainHeroic exporta en libras → kg
+    function bestForKeys(keys) {
+      let best = 0, foundName = null;
+      Object.keys(data).forEach(name => {
+        const low = name.toLowerCase();
+        const match = keys.some(k => low.includes(k));
+        const excl  = low.includes('búlgar') || low.includes('bulgar') || low.includes('split')
+                   || low.includes('unilateral') || low.includes('a una pierna');
+        if (match && !excl) {
+          (data[name] || []).forEach(s => {
+            const w = Number(s.w), r = Number(s.r);
+            if (w > 0 && r > 0 && r <= 15) {
+              const e1 = w * (1 + r / 30) * f; // 1RM Epley en kg
+              if (e1 > best) { best = e1; foundName = name; }
+            }
+          });
+        }
+      });
+      return best > 0 ? { kg: Math.round(best), name: foundName } : null;
+    }
+    // Prioriza sentadilla; si no hay, usa peso muerto
+    return bestForKeys(['sentadilla','squat']) || bestForKeys(['peso muerto','deadlift']);
+  }
+
+  function guardarRuck1RM() {
+    const val = parseFloat(document.getElementById('ruck1RMInput')?.value);
+    const statusEl = document.getElementById('ruck1RMStatus');
+    if (!val || val < 20 || val > 400) {
+      if (statusEl) { statusEl.textContent = 'Ingresa un 1RM válido (20–400 kg).'; statusEl.style.color = '#d32f2f'; }
+      return;
+    }
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    profile.squat1RM       = val;
+    profile.squat1RMDate   = new Date().toISOString().slice(0,10);
+    profile.squat1RMSource = 'manual';
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    if (statusEl) { statusEl.textContent = `✓ 1RM guardado: ${val} kg · ${profile.squat1RMDate}`; statusEl.style.color = '#27ae60'; }
+    const autoEl = document.getElementById('ruck1RMAuto'); if (autoEl) autoEl.style.display = 'none';
+    if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+    const btn = document.querySelector('[onclick="guardarRuck1RM()"]');
+    if (btn) { const o = btn.textContent; btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
+      setTimeout(() => { btn.textContent = o; btn.style.background = ''; }, 1600); }
+    pushRuckProfileToCloud(profile);
+  }
+
+  function usarSquat1RMAuto(kg) {
+    const inp = document.getElementById('ruck1RMInput');
+    if (inp) inp.value = kg;
+    guardarRuck1RM();
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    profile.squat1RMSource = 'auto';
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+  }
+
+  function cargarRuck1RMGuardado() {
+    const profile  = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const inp       = document.getElementById('ruck1RMInput');
+    const statusEl  = document.getElementById('ruck1RMStatus');
+    const autoEl    = document.getElementById('ruck1RMAuto');
+    if (profile.squat1RM && inp) {
+      inp.value = profile.squat1RM;
+      if (statusEl) { statusEl.textContent = `Último registro: ${profile.squat1RM} kg · ${profile.squat1RMDate || ''}`; statusEl.style.color = '#999'; }
+    }
+    // Sugerencia automática desde la sección Fuerza
+    const det = detectarSquat1RM();
+    if (det && autoEl && (!profile.squat1RM || Math.abs(profile.squat1RM - det.kg) > 2)) {
+      autoEl.style.display = 'block';
+      autoEl.innerHTML = `Detectado en tu sección Fuerza: <strong>${det.kg} kg</strong> (${det.name}). ` +
+        `<span onclick="usarSquat1RMAuto(${det.kg})" style="text-decoration:underline;cursor:pointer;">Usar este valor</span>`;
+    } else if (autoEl) {
+      autoEl.style.display = 'none';
+    }
   }
 
   // Test de Umbral de Rucking (4.8 km / 3 mi) → rkFTP (Watts), base del rkTSS.
@@ -6438,6 +6552,8 @@
     if (notes) notes.value = '';
   };
   window.addRuckManualSession = addRuckManualSession;
+  window.guardarRuck1RM       = guardarRuck1RM;
+  window.usarSquat1RMAuto     = usarSquat1RMAuto;
 
 
   if (typeof lucide !== "undefined") lucide.createIcons();

@@ -1791,6 +1791,18 @@
           <div id="ruckSEMensaje" style="font-size:12px;line-height:1.5;"></div>
         </div>
         <div id="ruckSEHistorial"></div>
+
+        <!-- Fuerza máxima de sentadilla (1RM) — eje del ratio Carga/Fuerza -->
+        <div style="border-top:1px solid rgba(0,0,0,0.06);margin-top:12px;padding-top:12px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(0,122,133,0.7);text-transform:uppercase;margin-bottom:8px;">Fuerza Máxima · Sentadilla (1RM)</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <input type="number" id="ruck1RMInput" placeholder="1RM sentadilla (kg)" min="20" max="400" step="0.5"
+              style="flex:1;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:13px;color:#333;outline:none;">
+            <button onclick="guardarRuck1RM()" style="background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:9px 14px;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;">Guardar</button>
+          </div>
+          <div id="ruck1RMStatus" style="font-size:11px;color:#999;margin-top:6px;"></div>
+          <div id="ruck1RMAuto" style="display:none;font-size:11px;color:#007a85;margin-top:6px;line-height:1.4;"></div>
+        </div>
       </div>
 
       <!-- Test de Umbral de Rucking (rkFTP) -->
@@ -2451,7 +2463,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260621a"></script>
+<script src="scripts.js?v=20260621b"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
