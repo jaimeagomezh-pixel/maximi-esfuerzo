@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260621d">
+<link rel="stylesheet" href="styles.css?v=20260621e">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -178,7 +178,7 @@
 <!-- GSAP · Animaciones de optimización -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-<script src="gsap-animations.js?v=20260620p"></script>
+<script src="gsap-animations.js?v=20260621e"></script>
 </head>
 <body>
 <!-- Confetti + Toast globales -->
@@ -1883,7 +1883,10 @@
             <div class="me-tol-head" id="ruckTolHead"></div>
             <div class="me-tol-body" id="ruckTolBody"></div>
             <div class="me-tol-bar"><div class="me-tol-fill" id="ruckTolFill"></div></div>
-            <div class="me-tol-meta"><span id="ruckTolPct"></span><span id="ruckTolCap"></span></div>
+            <div class="me-tol-meta">
+              <div><div id="ruckTolPct"></div><div class="me-tol-metalbl" id="ruckTolPctLbl">vs tu cuerpo</div></div>
+              <div style="text-align:right;"><div id="ruckTolCap"></div><div class="me-tol-metalbl" id="ruckTolCapLbl">vs tu fuerza</div></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1900,8 +1903,12 @@
             <div class="me-ring-card">
               <div class="me-ring-lbl">Motor</div>
               <svg class="me-ring-svg" viewBox="0 0 100 100">
+                <defs><linearGradient id="gradMotor" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" id="gradMotorA" stop-color="#5fa030"/>
+                  <stop offset="100%" id="gradMotorB" stop-color="#9fe06a"/>
+                </linearGradient></defs>
                 <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
-                <circle id="ringMotorFill" cx="50" cy="50" r="38" fill="none" stroke="#7cc043" stroke-width="9"
+                <circle id="ringMotorFill" cx="50" cy="50" r="38" fill="none" stroke="url(#gradMotor)" stroke-width="9"
                   stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)"/>
                 <text id="ringMotorVal" x="50" y="52" fill="#f1ece4" font-size="26" font-weight="700" text-anchor="middle">—</text>
                 <text x="50" y="66" fill="#7a756c" font-size="9" text-anchor="middle">/ 100</text>
@@ -1911,8 +1918,12 @@
             <div class="me-ring-card">
               <div class="me-ring-lbl">Chasis</div>
               <svg class="me-ring-svg" viewBox="0 0 100 100">
+                <defs><linearGradient id="gradChasis" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" id="gradChasisA" stop-color="#5fa030"/>
+                  <stop offset="100%" id="gradChasisB" stop-color="#9fe06a"/>
+                </linearGradient></defs>
                 <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="9"/>
-                <circle id="ringChasisFill" cx="50" cy="50" r="38" fill="none" stroke="#7cc043" stroke-width="9"
+                <circle id="ringChasisFill" cx="50" cy="50" r="38" fill="none" stroke="url(#gradChasis)" stroke-width="9"
                   stroke-linecap="round" stroke-dasharray="238.76" stroke-dashoffset="238.76" transform="rotate(-90 50 50)"/>
                 <text id="ringChasisVal" x="50" y="52" fill="#f1ece4" font-size="26" font-weight="700" text-anchor="middle">—</text>
                 <text x="50" y="66" fill="#7a756c" font-size="9" text-anchor="middle">/ 100</text>
@@ -2506,7 +2517,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260621d"></script>
+<script src="scripts.js?v=20260621e"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

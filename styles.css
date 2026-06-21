@@ -5380,8 +5380,9 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta .me-tol-body { font-size:12.5px; line-height:1.55; margin-top:7px; }
   #dashboardAtleta .me-tol-bar { height:7px; border-radius:6px; background:rgba(0,0,0,0.08); margin-top:11px; overflow:hidden; }
   #dashboardAtleta .me-tol-fill { height:100%; border-radius:6px; transition:width .3s, background .3s; }
-  #dashboardAtleta .me-tol-meta { display:flex; justify-content:space-between; font-family:'Barlow Condensed',sans-serif;
-    font-size:10px; letter-spacing:1px; color:#888 !important; text-transform:uppercase; margin-top:6px; }
+  #dashboardAtleta .me-tol-meta { display:flex; justify-content:space-between; align-items:flex-end; font-family:'Barlow Condensed',sans-serif;
+    font-size:11px; letter-spacing:1px; color:#cfc9c1 !important; text-transform:uppercase; margin-top:8px; font-weight:600; }
+  #dashboardAtleta .me-tol-metalbl { font-size:9px; letter-spacing:0.5px; color:#7a756c !important; font-weight:400; margin-top:1px; }
   #dashboardAtleta .me-tol-gate { font-size:12px; line-height:1.5; color:#999 !important; text-align:center; padding:6px 4px; }
 
   /* ── TARJETA CAPACIDAD DE RENDIMIENTO (anillos motor/chasis + bullets) ── */

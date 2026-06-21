@@ -161,6 +161,23 @@ function fixDashboardHeader() {
   box.style.minHeight               = '0';
   box.style.overflowX               = 'hidden';
 
+  // Mover el menú móvil FUERA del box (junto al header) y posicionarlo como
+  // dropdown absoluto bajo el header. Así se despliega sobre cualquier sección,
+  // no solo en el home (antes quedaba atrapado en el área scrolleable).
+  const mobileMenu = dash.querySelector('#dashMobileMenu');
+  if (mobileMenu) {
+    if (getComputedStyle(dash).position === 'static') dash.style.position = 'relative';
+    dash.insertBefore(mobileMenu, box);
+    const hH = header.offsetHeight || 64;
+    mobileMenu.style.position  = 'absolute';
+    mobileMenu.style.top       = hH + 'px';
+    mobileMenu.style.left      = '0';
+    mobileMenu.style.right     = '0';
+    mobileMenu.style.zIndex    = '180';  // bajo el header (200), sobre el contenido
+    mobileMenu.style.maxHeight = 'calc(100% - ' + hH + 'px)';
+    mobileMenu.style.overflowY = 'auto';
+  }
+
   // Entrada animada del header
   gsap.fromTo(header,
     { opacity: 0, y: -20 },

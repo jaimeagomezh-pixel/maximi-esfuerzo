@@ -3838,7 +3838,7 @@
       data: { labels, datasets: [{ data, backgroundColor: colores, borderRadius: 4, maxBarThickness: 26 }] },
       options: {
         responsive: true, maintainAspectRatio: false,
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'rkTSS ' + c.parsed.y } } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { title: items => 'Semana del ' + items[0].label, label: c => 'rkTSS ' + c.parsed.y } } },
         scales: {
           y: { beginAtZero: true, ticks: { color: '#f1ece4', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.1)' } },
           x: { ticks: { color: '#f1ece4', font: { size: 10 }, maxTicksLimit: 6 }, grid: { display: false } }
@@ -4063,9 +4063,13 @@
     const fill = document.getElementById('ruckTolFill');
     if (fill) { fill.style.width = Math.min(100, Math.round(r.loadPct/0.65*100)) + '%'; fill.style.background = c.fill; }
     const pctEl = document.getElementById('ruckTolPct');
-    if (pctEl) pctEl.textContent = `${r.L} kg · ${Math.round(r.loadPct*100)}% del peso`;
-    const capEl = document.getElementById('ruckTolCap');
-    if (capEl) capEl.textContent = rPct != null ? `${rPct}% de tu 1RM` : `tu tope ~${capR} kg`;
+    if (pctEl) pctEl.textContent = `${r.L} kg · ${Math.round(r.loadPct*100)}%`;
+    const capEl  = document.getElementById('ruckTolCap');
+    const capLbl = document.getElementById('ruckTolCapLbl');
+    if (capEl) {
+      if (rPct != null) { capEl.textContent = `${rPct}%`; if (capLbl) capLbl.textContent = 'vs tu fuerza (1RM)'; }
+      else              { capEl.textContent = `~${capR} kg`; if (capLbl) capLbl.textContent = 'tu tope estimado'; }
+    }
   }
 
   function renderToleranciaCarga() {
@@ -4169,6 +4173,13 @@
     bajo:  { bg:'rgba(229,84,79,0.10)',  bd:'rgba(229,84,79,0.4)',  tx:'#f0726d' }
   };
   function _ringColor(s) { return s == null ? '#6e6a63' : s >= 67 ? '#7cc043' : s >= 34 ? '#e8902a' : '#e5544f'; }
+  // Par de tonos (oscuro→claro) para el degradé del anillo según nivel
+  function _ringGrad(s) {
+    if (s == null) return ['#6e6a63', '#6e6a63'];
+    if (s >= 67)   return ['#4f8f26', '#a6e06a']; // verde
+    if (s >= 34)   return ['#c4730f', '#f5b35e']; // naranja
+    return ['#bf2f2a', '#f08a86'];                // rojo
+  }
   function _scoreLbl(s, base) { return s == null ? base + ' · sin dato' : base + (s >= 67 ? ' · sólido' : s >= 34 ? ' · medio' : ' · débil'); }
 
   function _setRing(fillId, valId, subId, score, subLbl) {
@@ -4177,7 +4188,14 @@
     const val  = document.getElementById(valId);
     const sub  = document.getElementById(subId);
     if (val) val.textContent = score != null ? score : '—';
-    if (fill) { fill.style.strokeDashoffset = score != null ? C * (1 - score/100) : C; fill.style.stroke = _ringColor(score); }
+    if (fill) fill.style.strokeDashoffset = score != null ? C * (1 - score/100) : C;
+    // Degradé: actualizar los dos stops del gradiente del anillo
+    const key = fillId === 'ringMotorFill' ? 'Motor' : 'Chasis';
+    const [c1, c2] = _ringGrad(score);
+    const sa = document.getElementById('grad' + key + 'A');
+    const sb = document.getElementById('grad' + key + 'B');
+    if (sa) sa.setAttribute('stop-color', c1);
+    if (sb) sb.setAttribute('stop-color', c2);
     if (sub) sub.textContent = subLbl;
   }
 
