@@ -6638,7 +6638,7 @@
     _misConexionesMobileAbierto = !_misConexionesMobileAbierto;
     const wrap = document.getElementById('misConexionesWrap');
     const icon = document.getElementById('iconMisConexionesMobile');
-    if (wrap) wrap.style.display = _misConexionesMobileAbierto ? 'block' : 'none';
+    if (wrap) wrap.style.display = _misConexionesMobileAbierto ? 'grid' : 'none';
     if (icon) { icon.style.transform = _misConexionesMobileAbierto ? 'rotate(180deg)' : ''; }
   }
   window.toggleMisConexionesMobile = toggleMisConexionesMobile;
