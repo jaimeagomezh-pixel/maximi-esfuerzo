@@ -143,7 +143,19 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 .act-btn.activar:hover{background:rgba(39,174,96,0.1);}
 
 /* ── PERFIL ATLETA ── */
-#perfilAtleta{display:none;position:fixed;inset:0;background:#f4f6f8;z-index:200;overflow-y:auto;}
+#perfilAtleta{display:none;}
+/* Sub-navegación de atleta dentro del sidebar */
+.psidebar--atleta .pnav-back{display:flex!important;}
+.psidebar--atleta .pnav-top{display:none!important;}
+.psidebar--atleta .pnav-sub{display:flex!important;}
+.pnav-back{display:none;align-items:center;gap:8px;font-family:var(--fc);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:#888;padding:9px 13px;background:none;border:none;border-radius:8px;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,0.07);padding-bottom:14px;}
+.pnav-back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;}
+.pnav-back:hover{color:#ccc;}
+.pnav-sub{display:none;align-items:center;gap:11px;font-family:var(--fc);font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#8a8a8a;padding:9px 13px;background:none;border:none;border-radius:8px;cursor:pointer;text-align:left;width:100%;transition:all .15s;font-weight:600;}
+.pnav-sub svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.pnav-sub:hover{color:#ddd;background:rgba(255,255,255,0.04);}
+.pnav-sub.active{color:var(--gold);background:rgba(212,168,67,0.12);}
+@media(max-width:768px){.pnav-back,.pnav-sub{width:auto;white-space:nowrap;}.pnav-sub svg{display:none;}}
 .perfil-hdr{position:sticky;top:0;background:rgba(17,17,17,0.98);backdrop-filter:blur(8px);border-bottom:1px solid rgba(212,168,67,0.18);padding:15px 20px;display:flex;align-items:center;gap:14px;z-index:10;}
 .p-back{background:none;border:1px solid rgba(255,255,255,0.15);color:#aaa;padding:8px 14px;border-radius:5px;cursor:pointer;font-family:var(--fc);font-size:12px;letter-spacing:2px;text-transform:uppercase;transition:all .2s;font-weight:600;}
 .p-back:hover{border-color:var(--gold);color:var(--gold);}
@@ -442,11 +454,22 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <button class="ph-out" onclick="salir()">Salir</button>
   </div>
   <nav class="psidebar" id="psidebar">
+    <!-- Nivel 1: menú principal -->
     <button class="pnav active" onclick="showTab('atletas',this)"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 5.5a3 3 0 0 1 0 6M21 20a6 6 0 0 0-5-5.9"/></svg>Atletas</button>
-    <button class="pnav" onclick="showTab('entrenamiento',this)"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Entrenamiento</button>
-    <button class="pnav" onclick="showTab('resumen',this)"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg>Resumen</button>
-    <button class="pnav" onclick="showTab('rucking',this)"><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M9 11h6"/></svg>Rucking</button>
-    <button class="pnav" onclick="showTab('nutricion',this)"><svg viewBox="0 0 24 24"><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 8c0-2-2-4-5-4 0 4 2 7 5 7s5-3 5-7"/><path d="M12 8v12"/></svg>Nutrición</button>
+    <button class="pnav pnav-top" onclick="showTab('entrenamiento',this)"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Entrenamiento</button>
+    <button class="pnav pnav-top" onclick="showTab('resumen',this)"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg>Resumen</button>
+    <button class="pnav pnav-top" onclick="showTab('rucking',this)"><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M9 11h6"/></svg>Rucking</button>
+    <button class="pnav pnav-top" onclick="showTab('nutricion',this)"><svg viewBox="0 0 24 24"><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 8c0-2-2-4-5-4 0 4 2 7 5 7s5-3 5-7"/><path d="M12 8v12"/></svg>Nutrición</button>
+    <!-- Nivel 2: sub-nav atleta (oculto hasta abrirPerfil) -->
+    <button class="pnav-back" onclick="cerrarPerfil()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Atletas</button>
+    <button class="pnav-sub active" onclick="showAtletaSec('pa-resumen',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Resumen</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-rucking',this)"><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M9 11h6"/></svg>Rucking</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-endurance',this)"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>Endurance</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-carga',this)"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg>Carga</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-fuerza',this)"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Fuerza · PRs</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-composicion',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l5 3"/></svg>Composición</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-nutricion',this)"><svg viewBox="0 0 24 24"><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 8c0-2-2-4-5-4 0 4 2 7 5 7s5-3 5-7"/><path d="M12 8v12"/></svg>Nutrición</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-notas',this)"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Config · Notas</button>
   </nav>
   <div class="pcont">
 
@@ -3149,8 +3172,19 @@ function abrirPerfil(id) {
 
   document.getElementById('pNombre').textContent = a.nombre;
   document.getElementById('pSub').textContent = a.plan + (a.vencimiento ? ' · Vence '+a.vencimiento : '');
+
+  // Mostrar vista atleta: ocultar tabs, mostrar perfil en pcont
+  document.querySelectorAll('.psec').forEach(s=>s.style.display='none');
   document.getElementById('perfilAtleta').style.display = 'block';
-  document.body.style.overflow = 'hidden';
+  document.getElementById('psidebar').classList.add('psidebar--atleta');
+  window.scrollTo({ top: 0 });
+
+  // Activar primera sub-sección (Resumen) en el sidebar
+  document.querySelectorAll('.pnav-sub').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.pnav-sub')?.classList.add('active');
+  document.querySelectorAll('[data-pa-sec]').forEach(s=>s.style.display='none');
+  const secResumen = document.getElementById('pa-resumen');
+  if (secResumen) secResumen.style.display = 'block';
 
   const hoy = new Date();
   const venceStr = a.vencimiento
@@ -3181,17 +3215,18 @@ function abrirPerfil(id) {
       <div class="dato"><div class="dato-v">${calcularEdadCoach(a.fechaNac)||a.edad||'—'}</div><div class="dato-l">Edad</div></div>
     </div>
 
-    <!-- Resumen de progresión / regresión (de un vistazo) -->
+    <!-- ── SECCIÓN: RESUMEN ── -->
+    <div id="pa-resumen" data-pa-sec style="display:block;">
     <div class="prog-grid">
       <div class="prog-card"><div class="prog-l">Composición · grasa</div><div class="prog-v" id="progGrasa">—</div><div class="prog-d flat" id="progGrasaD">sin datos</div></div>
       <div class="prog-card"><div class="prog-l">Fuerza · 1RM sentadilla</div><div class="prog-v" id="progFuerza">—</div><div class="prog-d flat" id="progFuerzaD">sin datos</div></div>
       <div class="prog-card"><div class="prog-l">Carga marcha · rkTSS</div><div class="prog-v" id="progRk">—</div><div class="prog-d flat" id="progRkD">sin datos</div></div>
       <div class="prog-card"><div class="prog-l">Endurance · rTSS</div><div class="prog-v" id="progRt">—</div><div class="prog-d flat" id="progRtD">sin datos</div></div>
     </div>
+    </div>
 
-    <div class="secs-2col">
-      <!-- Columna izquierda: Rucking + Strava + Tiempos + Peso -->
-      <div class="scol">
+    <!-- ── SECCIÓN: RUCKING ── -->
+    <div id="pa-rucking" data-pa-sec style="display:none;">
         <div class="sec" id="ruckCoachSec">
           <div class="sec-t">Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></div>
           <div id="ruckCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">
@@ -3217,6 +3252,10 @@ function abrirPerfil(id) {
             <div id="ruckCoachList" style="margin-top:12px;"></div>
           </div>
         </div>
+    </div><!-- /pa-rucking -->
+
+    <!-- ── SECCIÓN: ENDURANCE ── -->
+    <div id="pa-endurance" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Endurance · Strava</div>
           ${a.strava ? `
@@ -3273,6 +3312,10 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
+        </div><!-- /pa-endurance -->
+
+    <!-- ── SECCIÓN: CARGA ── -->
+    <div id="pa-carga" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Carga de Entrenamiento · rTSS</div>
           ${a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length ? `
@@ -3309,6 +3352,10 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
+    </div><!-- /pa-carga -->
+
+    <!-- ── SECCIÓN: FUERZA (continúa endurance, tiempos y peso en pa-composicion) ── -->
+    <div id="pa-fuerza" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Progresión de tiempos</div>
           ${prDists.length ? `
@@ -3341,10 +3388,6 @@ function abrirPerfil(id) {
           </div>
           <div class="chart-wrap" id="cPesoWrap" style="height:90px;display:none;"><canvas id="cPeso"></canvas></div>
         </div>
-      </div>
-
-      <!-- Columna derecha: Fuerza + Composición -->
-      <div class="scol">
         <div class="sec">
           <div class="sec-t">Fuerza · TrainHeroic</div>
           ${exFuerza.length ? `
@@ -3364,6 +3407,10 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
+    </div><!-- /pa-fuerza -->
+
+    <!-- ── SECCIÓN: COMPOSICIÓN ── -->
+    <div id="pa-composicion" data-pa-sec style="display:none;">
         <div class="sec" id="inbodyCoachSec">
           <div class="sec-t">Composición Corporal · InBody</div>
           <div id="inbodyCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">El atleta aún no ha subido ninguna medición InBody</div>
@@ -3379,6 +3426,18 @@ function abrirPerfil(id) {
           </div>
         </div>
 
+    </div><!-- /pa-composicion -->
+
+    <!-- ── SECCIÓN: NUTRICIÓN ── -->
+    <div id="pa-nutricion" data-pa-sec style="display:none;">
+    <div class="sec" id="nutriFichaSec">
+      <div class="sec-t">Nutrición · Seguimiento</div>
+      <div id="nutriFichaBody"><div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Cargando…</div></div>
+    </div>
+    </div><!-- /pa-nutricion -->
+
+    <!-- ── SECCIÓN: NOTAS ── -->
+    <div id="pa-notas" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Historial de pagos</div>
           ${a.pagos.length ? a.pagos.map(p=>`
@@ -3387,14 +3446,6 @@ function abrirPerfil(id) {
               <div style="text-align:right;"><div class="pago-monto">${p.monto}</div><span class="p-ok">Pagado</span></div>
             </div>`).join('') : '<div class="empty" style="padding:16px 0;"><div class="empty-t">Sin pagos</div></div>'}
         </div>
-      </div>
-    </div>
-
-    <div class="sec" id="nutriFichaSec">
-      <div class="sec-t">Nutrición · Seguimiento</div>
-      <div id="nutriFichaBody"><div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Cargando…</div></div>
-    </div>
-
     <div class="sec">
       <div class="sec-t">TrainHeroic · Subir CSV</div>
       <div id="coachCSVInfo" style="font-size:11px;color:#666;margin-bottom:10px;"></div>
@@ -3416,12 +3467,12 @@ function abrirPerfil(id) {
       </div>
       <div id="coachCSVStatus" style="margin-top:8px;font-size:11px;color:#C9A84C;"></div>
     </div>
-
     <div class="sec">
       <div class="sec-t">Notas privadas del coach</div>
       <textarea class="nota-ta" id="notaTA">${a.notas}</textarea>
       <button class="nota-sv" onclick="guardarNota(${a.id})">Guardar nota</button>
     </div>
+    </div><!-- /pa-notas -->
     <div style="height:40px;"></div>
   `;
 
@@ -4213,10 +4264,79 @@ function refreshCoachCSVStatus() {
 
 function cerrarPerfil() {
   document.getElementById('perfilAtleta').style.display = 'none';
-  document.body.style.overflow = '';
+  document.getElementById('psidebar').classList.remove('psidebar--atleta');
+  // Restaurar la sección Atletas
+  document.querySelectorAll('.psec').forEach(s=>s.style.display='');
+  showTab('atletas', document.querySelector('.pnav'));
   [chartPeso,chartStrava,chartFuerza,chartPR,chartCargaRTSS,chartRuckLoadCoach].forEach(c=>c?.destroy());
   chartPeso=chartStrava=chartFuerza=chartPR=chartCargaRTSS=chartRuckLoadCoach=null;
   window._atleta = null;
+}
+
+function showAtletaSec(secId, btn) {
+  document.querySelectorAll('[data-pa-sec]').forEach(s=>s.style.display='none');
+  document.querySelectorAll('.pnav-sub').forEach(b=>b.classList.remove('active'));
+  const sec = document.getElementById(secId);
+  if (sec) { sec.style.display = 'block'; }
+  if (btn) btn.classList.add('active');
+  window.scrollTo({ top: 0 });
+  // Re-inicializar charts cuando se muestra la sección por primera vez
+  if (secId === 'pa-fuerza' && window._atleta) {
+    // Fuerza chart (en pa-fuerza hay: Tiempos PRs + Peso + Fuerza TrainHeroic)
+    const cf = document.getElementById('cFuerza');
+    if (cf && !chartFuerza) {
+      chartFuerza = mkLineChart(cf, [], [], '#4a90d9', v=>Math.round(v)+' kg');
+      const exFuerza = Object.keys(window._atleta.fuerza || {});
+      if (exFuerza.length) selEx(exFuerza[0], document.querySelector('.ex-btn.active'));
+    }
+    // Peso chart
+    const a = window._atleta;
+    if (a.inbodyTrend?.series?.length) {
+      const cpWrap = document.getElementById('cPesoWrap');
+      const cpEmpty = document.getElementById('cPesoEmpty');
+      if (cpWrap && !chartPeso) {
+        const s = a.inbodyTrend.series;
+        chartPeso = mkLineChart(document.getElementById('cPeso'), s.map(x=>x.fecha), s.map(x=>x.peso), '#8B1A1A', v=>v+' kg');
+        if (cpEmpty) cpEmpty.style.display = 'none';
+        if (cpWrap) cpWrap.style.display = 'block';
+      }
+    }
+    // PR chart
+    const prDists = Object.keys(a.prTiempos || {});
+    if (prDists.length) {
+      const cp = document.getElementById('cPR');
+      if (cp && !chartPR) {
+        chartPR = mkLineChart(cp, [], [], '#1e8c3a', v=>v+' s');
+        selDist(prDists[0], document.querySelector('.d-btn.active'));
+      }
+    }
+  }
+  if (secId === 'pa-composicion' && window._atleta?.email) {
+    cargarInbodyCoach(window._atleta.email);
+  }
+  if (secId === 'pa-endurance' && window._atleta) {
+    const cs = document.getElementById('cCargaRTSS');
+    if (cs && !chartCargaRTSS) {
+      // Chart rTSS se inicializa si no existe
+      const a = window._atleta;
+      if (a.cargaRTSS && a.cargaRTSS.semanas) {
+        const mult = (a.endurance && a.endurance.ftpMultiplier) || 1;
+        const factor = 1 / (mult * mult);
+        const sems = a.cargaRTSS.semanas;
+        chartCargaRTSS = mkBarChart(cs, sems.map(w=>w.wk), sems.map(w=>Math.round((w.val||0)*factor)), '#4a90d9');
+      }
+    }
+  }
+  if (secId === 'pa-carga' && window._atleta) {
+    const cr = document.getElementById('cRuckLoad');
+    if (cr && !chartRuckLoadCoach) {
+      const a = window._atleta;
+      if (a.ruckLoad && a.ruckLoad.semanas) {
+        const sems = a.ruckLoad.semanas;
+        chartRuckLoadCoach = mkBarChart(cr, sems.map(w=>w.wk), sems.map(w=>w.val||0), '#d4a843');
+      }
+    }
+  }
 }
 </script>
 
