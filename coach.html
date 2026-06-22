@@ -164,6 +164,14 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 .dato{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);}
 .dato-v{font-family:var(--fd);font-size:2.3rem;color:var(--text);line-height:1;}
 .dato-l{font-family:var(--fc);font-size:13px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-top:6px;font-weight:600;}
+/* Tarjetas de progresión / regresión (vista atleta) */
+.prog-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+@media(max-width:700px){.prog-grid{grid-template-columns:repeat(2,1fr);}}
+.prog-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:13px 14px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
+.prog-l{font-family:var(--fc);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--text3);font-weight:600;margin-bottom:6px;}
+.prog-v{font-family:var(--fd);font-size:1.8rem;color:var(--text);line-height:1;}
+.prog-d{font-size:12px;font-weight:700;margin-top:5px;}
+.prog-d.up{color:var(--green);} .prog-d.warn{color:var(--orange);} .prog-d.down{color:var(--red);} .prog-d.flat{color:var(--text3);font-weight:400;}
 
 /* Sección */
 .sec{background:#fff;border:1px solid var(--border);border-radius:14px;padding:22px;margin-bottom:16px;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
@@ -3172,6 +3180,14 @@ function abrirPerfil(id) {
       <div class="dato"><div class="dato-v">${calcularEdadCoach(a.fechaNac)||a.edad||'—'}</div><div class="dato-l">Edad</div></div>
     </div>
 
+    <!-- Resumen de progresión / regresión (de un vistazo) -->
+    <div class="prog-grid">
+      <div class="prog-card"><div class="prog-l">Composición · grasa</div><div class="prog-v" id="progGrasa">—</div><div class="prog-d flat" id="progGrasaD">sin datos</div></div>
+      <div class="prog-card"><div class="prog-l">Fuerza · 1RM sentadilla</div><div class="prog-v" id="progFuerza">—</div><div class="prog-d flat" id="progFuerzaD">sin datos</div></div>
+      <div class="prog-card"><div class="prog-l">Carga marcha · rkTSS</div><div class="prog-v" id="progRk">—</div><div class="prog-d flat" id="progRkD">sin datos</div></div>
+      <div class="prog-card"><div class="prog-l">Endurance · rTSS</div><div class="prog-v" id="progRt">—</div><div class="prog-d flat" id="progRtD">sin datos</div></div>
+    </div>
+
     <div class="secs-2col">
       <!-- Columna izquierda: Rucking + Strava + Tiempos + Peso -->
       <div class="scol">
@@ -3410,6 +3426,7 @@ function abrirPerfil(id) {
 
   window._atleta = a;
   if (typeof cargarNutriFicha === 'function') cargarNutriFicha(a);
+  renderProgresion(a);
 
   setTimeout(() => {
     // La "Evolución de peso" se renderiza con datos reales del historial InBody
@@ -3510,6 +3527,62 @@ function abrirPerfil(id) {
   }, 150);
 }
 
+// ── RESUMEN PROGRESIÓN / REGRESIÓN (tarjetas de la vista atleta) ──────────
+function _progSet(idV, idD, value, deltaTxt, cls) {
+  const v = document.getElementById(idV), d = document.getElementById(idD);
+  if (v) v.textContent = value;
+  if (d) { d.textContent = deltaTxt; d.className = 'prog-d ' + cls; }
+}
+
+// Delta de una serie semanal (última con carga vs la previa con carga).
+// Para cargas: subida moderada = progreso (up), pico >15% = vigilar (warn),
+// bajada = descarga (down, no es malo pero lo marcamos como descenso).
+function _progDeltaCarga(idV, idD, semanas, factor) {
+  if (!semanas || !semanas.some(w => w.val > 0)) return;
+  const data = semanas.map(w => Math.round((w.val || 0) * (factor || 1)));
+  const rev = data.slice().reverse();
+  const curr = rev.find(v => v > 0) || 0;
+  const prev = rev.slice(rev.indexOf(curr) + 1).find(v => v > 0) || 0;
+  let txt = 'sin comparación', cls = 'flat';
+  if (curr > 0 && prev > 0) {
+    const pct = Math.round((curr - prev) / prev * 100);
+    txt = (pct >= 0 ? '▲ ' : '▼ ') + Math.abs(pct) + '% vs sem. previa';
+    cls = pct > 15 ? 'warn' : pct >= 0 ? 'up' : 'down';
+  }
+  _progSet(idV, idD, curr, txt, cls);
+}
+
+function renderProgresion(a) {
+  // Carga de marcha · rkTSS (sin reescalar)
+  if (a.ruckLoad && a.ruckLoad.semanas) {
+    _progDeltaCarga('progRk', 'progRkD', a.ruckLoad.semanas, 1);
+    if (a.ruckLoad.ultimo) { const el = document.getElementById('progRk'); if (el) el.textContent = a.ruckLoad.ultimo; }
+  }
+  // Endurance · rTSS (reescalado por el multiplicador del coach)
+  if (a.cargaRTSS && a.cargaRTSS.semanas) {
+    const mult = (a.endurance && a.endurance.ftpMultiplier) || 1;
+    _progDeltaCarga('progRt', 'progRtD', a.cargaRTSS.semanas, 1 / (mult * mult));
+  }
+  // Fuerza · 1RM sentadilla (mayor = mejor)
+  const sqKey = a.fuerza ? Object.keys(a.fuerza).find(k => /squat|sentadilla/i.test(k)) : null;
+  if (a.squat1RM || sqKey) {
+    let val = '—';
+    if (a.squat1RM) val = Math.round(a.squat1RM) + ' kg';
+    else if (sqKey) { const e = a.fuerza[sqKey].filter(x => x.e > 0); if (e.length) val = Math.max(...e.map(x => x.e)) + ' kg'; }
+    let txt = 'registro único', cls = 'flat';
+    if (sqKey && a.fuerza[sqKey].length >= 2) {
+      const s = a.fuerza[sqKey].filter(x => x.e > 0);
+      if (s.length >= 2) {
+        const diff = s[s.length - 1].e - s[0].e;
+        const pct = s[0].e ? Math.round(diff / s[0].e * 100) : 0;
+        txt = (diff >= 0 ? '▲ ' : '▼ ') + Math.abs(diff) + ' kg (' + Math.abs(pct) + '%)';
+        cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+      }
+    }
+    _progSet('progFuerza', 'progFuerzaD', val, txt, cls);
+  }
+}
+
 // ── COMPOSICIÓN CORPORAL COACH ─────────────────────────────────
 const MEDIA_WORKER_COACH = 'https://media.jaimea-gomezh.workers.dev';
 let inbodyCoachChart = null;
@@ -3580,6 +3653,22 @@ async function cargarInbodyCoach(email) {
     chartWrap.style.display = 'block';
     linksEl.style.display = 'block';
     const fechas = inbodyReal.map(m => m.fecha);
+
+    // Tarjeta de progresión · grasa (menor = mejor; baja = mejora/up)
+    if (typeof _progSet === 'function') {
+      const gSerie = inbodyReal.filter(m => m.grasa_pct != null).slice()
+        .sort((a,b) => String(a.fecha).localeCompare(String(b.fecha)));
+      if (gSerie.length) {
+        const gIni = gSerie[0].grasa_pct, gFin = gSerie[gSerie.length-1].grasa_pct;
+        const d = +(gFin - gIni).toFixed(1);
+        let txt = 'registro único', cls = 'flat';
+        if (gSerie.length >= 2 && d !== 0) {
+          txt = (d < 0 ? '▼ ' : '▲ ') + Math.abs(d) + ' pts' + (d < 0 ? ' (mejora)' : '');
+          cls = d < 0 ? 'up' : 'down';
+        }
+        _progSet('progGrasa', 'progGrasaD', gFin + '%', txt, cls);
+      }
+    }
 
     if (inbodyCoachChart) inbodyCoachChart.destroy();
     const ctx = document.getElementById('cInbodyRadar').getContext('2d');
