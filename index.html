@@ -749,10 +749,11 @@
         <div onclick="conectarFatSecret()" id="btnFatSecretMenu" style="border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px;background:rgba(39,174,96,0.05);border:1px solid rgba(39,174,96,0.2);">
           <div style="width:30px;height:30px;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
             <svg viewBox="0 0 100 100" width="28" height="28">
-              <circle cx="50" cy="50" r="48" fill="#27ae60"/>
-              <circle cx="50" cy="42" r="14" fill="none" stroke="#fff" stroke-width="8"/>
-              <rect x="34" y="50" width="32" height="24" rx="4" fill="#fff"/>
-              <rect x="44" y="58" width="12" height="10" rx="3" fill="#27ae60"/>
+              <!-- contorno blanco -->
+              <circle cx="50" cy="50" r="46" fill="none" stroke="#fff" stroke-width="6"/>
+              <!-- ojo de cerradura en verde: círculo arriba + triángulo abajo -->
+              <circle cx="50" cy="37" r="13" fill="#27ae60"/>
+              <path d="M38 47 L62 47 L57 71 L43 71 Z" fill="#27ae60"/>
             </svg>
           </div>
           <div style="flex:1;min-width:0;">
