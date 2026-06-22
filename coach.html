@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260621i -->
+<!-- v=20260622a -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -463,12 +463,8 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <!-- Nivel 2: sub-nav atleta (oculto hasta abrirPerfil) -->
     <button class="pnav-back" onclick="cerrarPerfil()"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Atletas</button>
     <button class="pnav-sub active" onclick="showAtletaSec('pa-resumen',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Resumen</button>
-    <button class="pnav-sub" onclick="showAtletaSec('pa-rucking',this)"><svg viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><rect x="5" y="7" width="14" height="14" rx="2"/><path d="M9 11h6"/></svg>Rucking</button>
-    <button class="pnav-sub" onclick="showAtletaSec('pa-endurance',this)"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>Endurance</button>
-    <button class="pnav-sub" onclick="showAtletaSec('pa-carga',this)"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg>Carga</button>
     <button class="pnav-sub" onclick="showAtletaSec('pa-fuerza',this)"><svg viewBox="0 0 24 24"><path d="M6.5 7v10M17.5 7v10M3.5 9.5v5M20.5 9.5v5M6.5 12h11"/></svg>Fuerza · PRs</button>
-    <button class="pnav-sub" onclick="showAtletaSec('pa-composicion',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l5 3"/></svg>Composición</button>
-    <button class="pnav-sub" onclick="showAtletaSec('pa-nutricion',this)"><svg viewBox="0 0 24 24"><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 8c0-2-2-4-5-4 0 4 2 7 5 7s5-3 5-7"/><path d="M12 8v12"/></svg>Nutrición</button>
+    <button class="pnav-sub" onclick="showAtletaSec('pa-nutricion',this)"><svg viewBox="0 0 24 24"><path d="M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 8c0-2-2-4-5-4 0 4 2 7 5 7s5-3 5-7"/><path d="M12 8v12"/></svg>Nutrición · Cuerpo</button>
     <button class="pnav-sub" onclick="showAtletaSec('pa-notas',this)"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Config · Notas</button>
   </nav>
   <div class="pcont">
@@ -3222,10 +3218,6 @@ function abrirPerfil(id) {
       <div class="prog-card"><div class="prog-l">Carga marcha · rkTSS</div><div class="prog-v" id="progRk">—</div><div class="prog-d flat" id="progRkD">sin datos</div></div>
       <div class="prog-card"><div class="prog-l">Endurance · rTSS</div><div class="prog-v" id="progRt">—</div><div class="prog-d flat" id="progRtD">sin datos</div></div>
     </div>
-    </div>
-
-    <!-- ── SECCIÓN: RUCKING ── -->
-    <div id="pa-rucking" data-pa-sec style="display:none;">
         <div class="sec" id="ruckCoachSec">
           <div class="sec-t">Rucking · Progresión <span id="ruckCoachNombreAtleta" style="color:var(--cian2);font-size:0.85em;"></span></div>
           <div id="ruckCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">
@@ -3251,10 +3243,6 @@ function abrirPerfil(id) {
             <div id="ruckCoachList" style="margin-top:12px;"></div>
           </div>
         </div>
-    </div><!-- /pa-rucking -->
-
-    <!-- ── SECCIÓN: ENDURANCE ── -->
-    <div id="pa-endurance" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Endurance · Strava</div>
           ${a.strava ? `
@@ -3311,10 +3299,6 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
-        </div><!-- /pa-endurance -->
-
-    <!-- ── SECCIÓN: CARGA ── -->
-    <div id="pa-carga" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Carga de Entrenamiento · rTSS</div>
           ${a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length ? `
@@ -3351,9 +3335,9 @@ function abrirPerfil(id) {
           </div>`}
         </div>
 
-    </div><!-- /pa-carga -->
+    </div><!-- /pa-resumen -->
 
-    <!-- ── SECCIÓN: FUERZA (continúa endurance, tiempos y peso en pa-composicion) ── -->
+    <!-- ── SECCIÓN: FUERZA ── -->
     <div id="pa-fuerza" data-pa-sec style="display:none;">
         <div class="sec">
           <div class="sec-t">Progresión de tiempos</div>
@@ -3408,8 +3392,8 @@ function abrirPerfil(id) {
 
     </div><!-- /pa-fuerza -->
 
-    <!-- ── SECCIÓN: COMPOSICIÓN ── -->
-    <div id="pa-composicion" data-pa-sec style="display:none;">
+    <!-- ── SECCIÓN: NUTRICIÓN · CUERPO (InBody + FatSecret) ── -->
+    <div id="pa-nutricion" data-pa-sec style="display:none;">
         <div class="sec" id="inbodyCoachSec">
           <div class="sec-t">Composición Corporal · InBody</div>
           <div id="inbodyCoachEmpty" style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">El atleta aún no ha subido ninguna medición InBody</div>
@@ -3424,13 +3408,8 @@ function abrirPerfil(id) {
             <a href="https://drive.google.com/drive/folders/1WUCe0foHsQp_RG22Odf9PpgOx61G47B1" target="_blank" style="font-size:12px;color:#8B1A1A;text-decoration:none;"><svg class="btn-ico" style="width:12px;height:12px;" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg> Abrir carpeta en Google Drive →</a>
           </div>
         </div>
-
-    </div><!-- /pa-composicion -->
-
-    <!-- ── SECCIÓN: NUTRICIÓN ── -->
-    <div id="pa-nutricion" data-pa-sec style="display:none;">
     <div class="sec" id="nutriFichaSec">
-      <div class="sec-t">Nutrición · Seguimiento</div>
+      <div class="sec-t">Nutrición · FatSecret</div>
       <div id="nutriFichaBody"><div style="text-align:center;padding:16px;color:var(--text3);font-size:12px;">Cargando…</div></div>
     </div>
     </div><!-- /pa-nutricion -->
@@ -3476,94 +3455,20 @@ function abrirPerfil(id) {
   `;
 
   window._atleta = a;
-  if (typeof cargarNutriFicha === 'function') cargarNutriFicha(a);
   renderProgresion(a);
 
   setTimeout(() => {
-    // La "Evolución de peso" se renderiza con datos reales del historial InBody
-    // (ver cargarInbodyCoach). Sin datos → estado vacío. No hay relleno demo.
-
-    // ── Carga rTSS (reescalada por el multiplicador del coach) ──
-    if (a.cargaRTSS && a.cargaRTSS.semanas && a.cargaRTSS.semanas.length) {
-      const cc = document.getElementById('cCargaRTSS');
-      if (cc) {
-        const mult = (a.endurance && a.endurance.ftpMultiplier) || 1;
-        const factor = 1 / (mult * mult);   // rTSS escala como 1/mult²
-        const labels = a.cargaRTSS.semanas.map(w => { const d = new Date(w.wk+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1); });
-        const data   = a.cargaRTSS.semanas.map(w => Math.round((w.val||0) * factor));
-        if (chartCargaRTSS) chartCargaRTSS.destroy();
-        chartCargaRTSS = new Chart(cc, {
-          type:'bar',
-          data:{ labels, datasets:[{ data, backgroundColor:'rgba(139,26,26,0.7)', borderRadius:4, maxBarThickness:30 }] },
-          options: mkOpts({ y:{ beginAtZero:true, ticks:{ callback:v=>v } } })
-        });
-      }
-    }
-
-    // ── Carga de marcha rkTSS (solo rucking, sin reescalado) ──
-    if (a.ruckLoad && a.ruckLoad.semanas && a.ruckLoad.semanas.some(w=>w.val>0)) {
-      const cr = document.getElementById('cRuckLoad');
-      if (cr) {
-        const labels = a.ruckLoad.semanas.map(w => { const d = new Date(w.wk+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1); });
-        const data   = a.ruckLoad.semanas.map(w => Math.round(w.val||0));
-        const nz = data.filter(v=>v>0);
-        const prom = nz.length ? nz.reduce((s,v)=>s+v,0)/nz.length : 0;
-        const colores = data.map(v => v===0 ? 'rgba(0,0,0,0.06)' : v>prom*1.3 ? '#e07b00' : v<prom*0.7 ? '#27ae60' : '#C9A84C');
-        if (chartRuckLoadCoach) chartRuckLoadCoach.destroy();
-        chartRuckLoadCoach = new Chart(cr, {
-          type:'bar',
-          data:{ labels, datasets:[{ data, backgroundColor:colores, borderRadius:4, maxBarThickness:30 }] },
-          options: mkOpts({ y:{ beginAtZero:true, ticks:{ callback:v=>v } } })
-        });
-        // Delta: última semana con carga vs la previa con carga
-        const rev = data.slice().reverse();
-        const curr = rev.find(v=>v>0) || 0;
-        const prev = rev.slice(rev.indexOf(curr)+1).find(v=>v>0) || 0;
-        const dEl = document.getElementById('ruckLoadCoachDelta');
-        if (dEl) {
-          if (curr>0 && prev>0) {
-            const pct = Math.round((curr-prev)/prev*100);
-            dEl.textContent = (pct>=0?'↑ ':'↓ ') + Math.abs(pct) + '%';
-            dEl.style.color = pct>15 ? 'var(--red)' : pct>5 ? 'var(--orange)' : 'var(--green)';
-          } else { dEl.textContent = '—'; }
-        }
-      }
-    }
-
-    // Nota: el mini-gráfico mensual de Strava se omite — no tenemos serie
-    // mensual real del atleta en el cloud (solo el agregado de 30 días que ya
-    // se muestra en las métricas de arriba). Sin relleno demo.
-    const csWrap = document.getElementById('cStrava');
-    if (csWrap && csWrap.parentElement) csWrap.parentElement.style.display = 'none';
-
-    if (prDists.length) {
-      prDataActual = a.prTiempos;
-      prDistActual = prDists[0];
-      const cpr = document.getElementById('cPR');
-      if (cpr) {
-        chartPR = mkLineChart(cpr, [], [], '#d4a843', v=>secAtiempo(Math.round(v)), {reverse:true});
-        actualizarPR(prDists[0]);
-      }
-    }
-
-    if (exFuerza.length) {
-      const cf = document.getElementById('cFuerza');
-      if (cf) {
-        chartFuerza = mkLineChart(cf, [], [], '#4a90d9', v=>Math.round(v)+' kg');
-        selEx(exFuerza[0], document.querySelector('.ex-btn.active'));
-      }
-    }
-
     refreshCoachCSVStatus();
 
-    // Cargar rucking del atleta — siempre automático, sin intervención manual
+    // Inicializar los charts de pa-resumen (sección visible al abrir)
+    showAtletaSec('pa-resumen', document.querySelector('.pnav-sub.active'));
+
+    // Cargar sesiones de rucking del atleta en pa-resumen
     const ruckNombreEl = document.getElementById('ruckCoachNombreAtleta');
     if (ruckNombreEl) ruckNombreEl.textContent = a.nombre ? `· ${a.nombre}` : '';
-
     if (a.stravaId) {
       cargarRuckingCoach(a.stravaId);
     } else if (a.email) {
-      // Resolver uid por email → usar como cloudId de rucking
       resolverRuckingIdPorEmail(a);
     } else {
       const emptyEl = document.getElementById('ruckCoachEmpty');
@@ -3571,10 +3476,6 @@ function abrirPerfil(id) {
       if (emptyEl) emptyEl.style.display = 'block';
       if (msgEl)   msgEl.textContent = 'Atleta sin email registrado';
     }
-
-    // Cargar InBody del atleta (usa email como identificador hacia el atleta)
-    cargarInbodyCoach(a.email);
-
   }, 150);
 }
 
@@ -4310,31 +4211,33 @@ function showAtletaSec(secId, btn) {
       }
     }
   }
-  if (secId === 'pa-composicion' && window._atleta?.email) {
-    cargarInbodyCoach(window._atleta.email);
-  }
-  if (secId === 'pa-endurance' && window._atleta) {
+  // pa-resumen ahora incluye Rucking + Strava + rTSS + rkTSS — lazy init de sus charts
+  if (secId === 'pa-resumen' && window._atleta) {
+    const a = window._atleta;
+    // rTSS
     const cs = document.getElementById('cCargaRTSS');
-    if (cs && !chartCargaRTSS) {
-      // Chart rTSS se inicializa si no existe
-      const a = window._atleta;
-      if (a.cargaRTSS && a.cargaRTSS.semanas) {
-        const mult = (a.endurance && a.endurance.ftpMultiplier) || 1;
-        const factor = 1 / (mult * mult);
-        const sems = a.cargaRTSS.semanas;
-        chartCargaRTSS = mkBarChart(cs, sems.map(w=>w.wk), sems.map(w=>Math.round((w.val||0)*factor)), '#4a90d9');
-      }
+    if (cs && !chartCargaRTSS && a.cargaRTSS?.semanas) {
+      const mult = (a.endurance?.ftpMultiplier) || 1;
+      const factor = 1 / (mult * mult);
+      const sems = a.cargaRTSS.semanas;
+      chartCargaRTSS = mkBarChart(cs, sems.map(w=>w.wk), sems.map(w=>Math.round((w.val||0)*factor)), '#4a90d9');
+    }
+    // rkTSS
+    const cr = document.getElementById('cRuckLoad');
+    if (cr && !chartRuckLoadCoach && a.ruckLoad?.semanas) {
+      const sems = a.ruckLoad.semanas;
+      chartRuckLoadCoach = mkBarChart(cr, sems.map(w=>w.wk), sems.map(w=>w.val||0), '#d4a843');
+    }
+    // Strava
+    const cv = document.getElementById('cStrava');
+    if (cv && !chartStrava && a.strava?.series) {
+      chartStrava = mkBarChart(cv, a.strava.series.map(s=>s.semana), a.strava.series.map(s=>s.km), '#00b8c4');
     }
   }
-  if (secId === 'pa-carga' && window._atleta) {
-    const cr = document.getElementById('cRuckLoad');
-    if (cr && !chartRuckLoadCoach) {
-      const a = window._atleta;
-      if (a.ruckLoad && a.ruckLoad.semanas) {
-        const sems = a.ruckLoad.semanas;
-        chartRuckLoadCoach = mkBarChart(cr, sems.map(w=>w.wk), sems.map(w=>w.val||0), '#d4a843');
-      }
-    }
+  // pa-nutricion: InBody + FatSecret
+  if (secId === 'pa-nutricion' && window._atleta) {
+    if (window._atleta.email) cargarInbodyCoach(window._atleta.email);
+    if (typeof cargarNutriFicha === 'function') cargarNutriFicha(window._atleta);
   }
 }
 </script>
