@@ -473,6 +473,15 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
   </nav>
   <div class="pcont">
 
+    <!-- VISTA ATLETA (se activa al entrar a un perfil, reemplaza las psec) -->
+    <div id="perfilAtleta" style="display:none;">
+      <div style="margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);">
+        <div style="font-family:var(--fc);font-size:17px;font-weight:700;" id="pNombre">—</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:1px;" id="pSub">—</div>
+      </div>
+      <div id="pBody"></div>
+    </div>
+
     <!-- BARRA DE FILTRO POR GRUPO (global a todas las pestañas) -->
     <div id="grupoFiltroBar" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;"></div>
 
@@ -1179,16 +1188,6 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 </div>
 
 <!-- PERFIL ATLETA -->
-<div id="perfilAtleta">
-  <div class="perfil-hdr">
-    <button class="p-back" onclick="cerrarPerfil()">← Volver</button>
-    <div>
-      <div style="font-family:var(--fc);font-size:17px;font-weight:700;" id="pNombre">—</div>
-      <div style="font-size:11px;color:var(--text3);margin-top:1px;" id="pSub">—</div>
-    </div>
-  </div>
-  <div class="perfil-body" id="pBody"></div>
-</div>
 
 <script>
 // Login del coach es por Google Auth (ver módulo Firebase arriba).
