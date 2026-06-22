@@ -1519,6 +1519,7 @@ async function sincronizarPerfilesCloud() {
       if (prof.cargaRTSS && JSON.stringify(a.cargaRTSS) !== JSON.stringify(prof.cargaRTSS)) { a.cargaRTSS = prof.cargaRTSS; cambio = true; }
       if (prof.ruckLoad && JSON.stringify(a.ruckLoad) !== JSON.stringify(prof.ruckLoad)) { a.ruckLoad = prof.ruckLoad; cambio = true; }
       if (prof.squat1RM && a.squat1RM !== prof.squat1RM) { a.squat1RM = prof.squat1RM; cambio = true; }
+      if (prof.fuerza && Object.keys(prof.fuerza).length && JSON.stringify(a.fuerza) !== JSON.stringify(prof.fuerza)) { a.fuerza = prof.fuerza; cambio = true; }
       if (prof.fechaNac && a.fechaNac !== prof.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
       if (prof.talla && a.talla !== prof.talla) { a.talla = prof.talla; cambio = true; }
       if (prof.bw && a.peso !== prof.bw) { a.peso = prof.bw; cambio = true; }
@@ -2281,6 +2282,8 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.cargaRTSS) { a.cargaRTSS = cp.cargaRTSS; guardarAtletas(); }
         // ── Carga de marcha rkTSS (resumen semanal, solo rucking) ──
         if (cp.ruckLoad) { a.ruckLoad = cp.ruckLoad; guardarAtletas(); }
+        // ── Fuerza del atleta (working max por ejercicio) ──
+        if (cp.fuerza && Object.keys(cp.fuerza).length) { a.fuerza = cp.fuerza; guardarAtletas(); }
         // ── Talla ──
         if (cp.talla && a.talla !== cp.talla) { a.talla = cp.talla; guardarAtletas(); }
         // ── Peso desde bw ──
@@ -3131,8 +3134,8 @@ function abrirPerfil(id) {
     : 'Sin vencimiento';
 
 
-  const exFuerza = Object.keys(a.fuerza);
-  const prDists = Object.keys(a.prTiempos);
+  const exFuerza = Object.keys(a.fuerza || (a.fuerza = {}));
+  const prDists = Object.keys(a.prTiempos || (a.prTiempos = {}));
 
   document.getElementById('pBody').innerHTML = `
     <div class="p-hero">

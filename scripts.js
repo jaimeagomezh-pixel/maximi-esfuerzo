@@ -3035,6 +3035,8 @@
 
     // Cargar primer ejercicio de la grilla
     selectExerciseReal(sorted[0].name, null);
+
+    syncFuerzaCloud();
   }
 
   function selectExerciseReal(exName, btn) {
@@ -3504,6 +3506,55 @@
     // Cargar primer ejercicio
     const firstEx = sorted[0]?.name;
     if (firstEx && data[firstEx]) displayExerciseData(data[firstEx], firstEx);
+
+    syncFuerzaCloud();
+  }
+
+  // ── Sincronizar fuerza del atleta a la nube para que el coach la vea ──
+  // El coach pinta a.fuerza = { ejercicio: [{d,w,e,s,r}] } con pesos en kg.
+  // Aquí transformamos el CSV (thCSVData) o los datos embebidos (thRealData)
+  // a ese mismo formato. Antes la fuerza vivía solo en el localStorage del
+  // atleta y el coach no la recibía nunca.
+  function buildFuerzaCloudPayload() {
+    const out = {};
+    let csv = null;
+    try { csv = JSON.parse(localStorage.getItem('thCSVData') || 'null'); } catch(e) {}
+    if (csv && Object.keys(csv).length) {
+      for (const ex of Object.keys(csv)) {
+        const factor = isBilateralDumbbell(ex) ? 0.5 : 1;
+        const sess = csv[ex].slice(-50).map(s => ({
+          d: s.dateStr || (s.date ? new Date(s.date).toISOString().slice(0,10) : ''),
+          w: +(((s.weight||0) * factor)).toFixed(1),
+          e: s.est1rm ? Math.round(s.est1rm * factor) : 0,
+          s: s.sets || 1, r: s.reps || 1
+        })).filter(x => x.w > 0);
+        if (sess.length) out[ex] = sess;
+      }
+      return out;
+    }
+    // Datos embebidos (solo cuenta de Jaime): están en libras → kg
+    if (typeof thRealData === 'object' && thRealData) {
+      const f = 1 / 2.205;
+      for (const ex of Object.keys(thRealData)) {
+        const sess = thRealData[ex].slice(-50).map(s => ({
+          d: s.d, w: +(((s.w||0) * f)).toFixed(1),
+          e: Math.round((s.e||0) * f), s: s.s || 1, r: s.r || 1
+        })).filter(x => x.w > 0);
+        if (sess.length) out[ex] = sess;
+      }
+    }
+    return out;
+  }
+
+  function syncFuerzaCloud() {
+    const payload = buildFuerzaCloudPayload();
+    if (!payload || !Object.keys(payload).length) return;
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    if (JSON.stringify(profile.fuerza) !== JSON.stringify(payload)) {
+      profile.fuerza = payload;
+      localStorage.setItem('ruckProfile', JSON.stringify(profile));
+      if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+    }
   }
 
   function selectExerciseFromCSV(exName, btn) {
