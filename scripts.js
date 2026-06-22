@@ -3830,6 +3830,20 @@
     const colores = data.map(v => v === 0 ? 'rgba(255,255,255,0.06)'
       : v > prom * 1.3 ? '#e07b00' : v < prom * 0.7 ? '#27ae60' : '#C9A84C');
 
+    // ── Subir la carga de marcha (rkTSS semanal) a la nube para el coach ──
+    // Independiente del cargaRTSS híbrido: esta es la carga SOLO de rucking.
+    const ultimoRk = conRkTSS.length ? Math.round(conRkTSS[conRkTSS.length - 1].carga) : 0;
+    const resumenRk = {
+      semanas: arr.map(w => ({ wk: w.key, val: Math.round(w.val) })),
+      ultimo: ultimoRk,
+      actualizado: new Date().toISOString().slice(0, 10),
+    };
+    if (JSON.stringify(profile.ruckLoad) !== JSON.stringify(resumenRk)) {
+      profile.ruckLoad = resumenRk;
+      localStorage.setItem('ruckProfile', JSON.stringify(profile));
+      if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+    }
+
     const ctx = document.getElementById('chartRuckLoad');
     if (!ctx) return;
     if (chartRuckLoad) { chartRuckLoad.destroy(); chartRuckLoad = null; }

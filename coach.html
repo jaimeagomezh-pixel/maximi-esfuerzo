@@ -1517,6 +1517,8 @@ async function sincronizarPerfilesCloud() {
       if (prof.inbodyTrend && JSON.stringify(a.inbodyTrend) !== JSON.stringify(prof.inbodyTrend)) { a.inbodyTrend = prof.inbodyTrend; cambio = true; }
       if (prof.endurance && JSON.stringify(a.endurance) !== JSON.stringify(prof.endurance)) { a.endurance = prof.endurance; cambio = true; }
       if (prof.cargaRTSS && JSON.stringify(a.cargaRTSS) !== JSON.stringify(prof.cargaRTSS)) { a.cargaRTSS = prof.cargaRTSS; cambio = true; }
+      if (prof.ruckLoad && JSON.stringify(a.ruckLoad) !== JSON.stringify(prof.ruckLoad)) { a.ruckLoad = prof.ruckLoad; cambio = true; }
+      if (prof.squat1RM && a.squat1RM !== prof.squat1RM) { a.squat1RM = prof.squat1RM; cambio = true; }
       if (prof.fechaNac && a.fechaNac !== prof.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
       if (prof.talla && a.talla !== prof.talla) { a.talla = prof.talla; cambio = true; }
       if (prof.bw && a.peso !== prof.bw) { a.peso = prof.bw; cambio = true; }
@@ -2277,6 +2279,8 @@ async function cargarPerfilAtletaRuck(aid) {
         if (cp.endurance) { a.endurance = cp.endurance; guardarAtletas(); }
         // ── Carga rTSS (resumen semanal) ──
         if (cp.cargaRTSS) { a.cargaRTSS = cp.cargaRTSS; guardarAtletas(); }
+        // ── Carga de marcha rkTSS (resumen semanal, solo rucking) ──
+        if (cp.ruckLoad) { a.ruckLoad = cp.ruckLoad; guardarAtletas(); }
         // ── Talla ──
         if (cp.talla && a.talla !== cp.talla) { a.talla = cp.talla; guardarAtletas(); }
         // ── Peso desde bw ──
@@ -3107,14 +3111,14 @@ function renderResumen() {
 }
 
 // ── PERFIL ATLETA ──────────────────────────────────────────────────────────
-let chartPeso=null, chartStrava=null, chartFuerza=null, chartPR=null, chartCargaRTSS=null;
+let chartPeso=null, chartStrava=null, chartFuerza=null, chartPR=null, chartCargaRTSS=null, chartRuckLoadCoach=null;
 let prDataActual={}, prDistActual='';
 
 function abrirPerfil(id) {
   const a = atletas.find(x=>x.id===id);
   if (!a) return;
-  [chartPeso,chartStrava,chartFuerza,chartPR].forEach(c=>c?.destroy());
-  chartPeso=chartStrava=chartFuerza=chartPR=null;
+  [chartPeso,chartStrava,chartFuerza,chartPR,chartCargaRTSS,chartRuckLoadCoach].forEach(c=>c?.destroy());
+  chartPeso=chartStrava=chartFuerza=chartPR=chartCargaRTSS=chartRuckLoadCoach=null;
 
   document.getElementById('pNombre').textContent = a.nombre;
   document.getElementById('pSub').textContent = a.plan + (a.vencimiento ? ' · Vence '+a.vencimiento : '');
@@ -3249,6 +3253,24 @@ function abrirPerfil(id) {
             <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M5 20v-8M12 20V6M19 20v-5"/><path d="M3 20h18"/></svg></div>
             <div class="empty-t">Sin carga rTSS aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere FTP (test 20 min) + Strava sincronizado en el panel del atleta</div>
+          </div>`}
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">Carga de Marcha · rkTSS</div>
+          ${a.ruckLoad && a.ruckLoad.semanas && a.ruckLoad.semanas.some(w=>w.val>0) ? `
+          <div class="pr-stats">
+            <div class="pr-stat best"><div class="pr-stat-v">${a.ruckLoad.ultimo||0}</div><div class="pr-stat-l">Última · rkTSS</div></div>
+            <div class="pr-stat delta"><div class="pr-stat-v" id="ruckLoadCoachDelta" style="font-size:1.1rem;">—</div><div class="pr-stat-l">Vs. sem. previa</div></div>
+          </div>
+          <div class="chart-wrap" style="margin-top:12px;height:130px;"><canvas id="cRuckLoad"></canvas></div>
+          <div style="font-size:10px;color:var(--text3);margin-top:6px;line-height:1.5;">
+            Carga de rucking por semana (Pandolf + MO). Verde = suave · dorado = habitual · naranja = alta vs su promedio.
+          </div>
+          ` : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+            <div class="empty-t">Sin carga de marcha aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere sesiones de rucking + rkFTP (Test 4.8 km) en el panel del atleta</div>
           </div>`}
         </div>
 
@@ -3392,6 +3414,36 @@ function abrirPerfil(id) {
       }
     }
 
+    // ── Carga de marcha rkTSS (solo rucking, sin reescalado) ──
+    if (a.ruckLoad && a.ruckLoad.semanas && a.ruckLoad.semanas.some(w=>w.val>0)) {
+      const cr = document.getElementById('cRuckLoad');
+      if (cr) {
+        const labels = a.ruckLoad.semanas.map(w => { const d = new Date(w.wk+'T12:00:00'); return d.getDate()+'/'+(d.getMonth()+1); });
+        const data   = a.ruckLoad.semanas.map(w => Math.round(w.val||0));
+        const nz = data.filter(v=>v>0);
+        const prom = nz.length ? nz.reduce((s,v)=>s+v,0)/nz.length : 0;
+        const colores = data.map(v => v===0 ? 'rgba(0,0,0,0.06)' : v>prom*1.3 ? '#e07b00' : v<prom*0.7 ? '#27ae60' : '#C9A84C');
+        if (chartRuckLoadCoach) chartRuckLoadCoach.destroy();
+        chartRuckLoadCoach = new Chart(cr, {
+          type:'bar',
+          data:{ labels, datasets:[{ data, backgroundColor:colores, borderRadius:4, maxBarThickness:30 }] },
+          options: mkOpts({ y:{ beginAtZero:true, ticks:{ callback:v=>v } } })
+        });
+        // Delta: última semana con carga vs la previa con carga
+        const rev = data.slice().reverse();
+        const curr = rev.find(v=>v>0) || 0;
+        const prev = rev.slice(rev.indexOf(curr)+1).find(v=>v>0) || 0;
+        const dEl = document.getElementById('ruckLoadCoachDelta');
+        if (dEl) {
+          if (curr>0 && prev>0) {
+            const pct = Math.round((curr-prev)/prev*100);
+            dEl.textContent = (pct>=0?'↑ ':'↓ ') + Math.abs(pct) + '%';
+            dEl.style.color = pct>15 ? 'var(--red)' : pct>5 ? 'var(--orange)' : 'var(--green)';
+          } else { dEl.textContent = '—'; }
+        }
+      }
+    }
+
     // Nota: el mini-gráfico mensual de Strava se omite — no tenemos serie
     // mensual real del atleta en el cloud (solo el agregado de 30 días que ya
     // se muestra en las métricas de arriba). Sin relleno demo.
@@ -3459,11 +3511,6 @@ async function cargarInbodyCoach(email) {
       emptyEl.style.display = 'block';
       return;
     }
-    emptyEl.style.display = 'none';
-    chartWrap.style.display = 'block';
-    linksEl.style.display = 'block';
-
-    const fechas = lista.map(m => m.fecha);
 
     // ── Evolución de peso (datos REALES del historial, no demo) ──
     // Ordenar por fecha ascendente para calcular el cambio desde el inicio
@@ -3500,6 +3547,22 @@ async function cargarInbodyCoach(email) {
       chartPeso = mkLineChart(cpCanvas, pesoSerie.map(m=>m.fecha), pesoSerie.map(m=>m.peso), '#C9A84C', v=>v+' kg');
     }
 
+    // ── Solo mediciones InBody reales (con composición) ──
+    // Las entradas "solo peso" alimentan el gráfico de peso de arriba,
+    // NO el de composición ni el historial InBody.
+    const inbodyReal = lista.filter(m => m.musculo != null || m.grasa_pct != null || m.grasa_kg != null);
+    if (!inbodyReal.length) {
+      emptyEl.style.display = 'block';
+      chartWrap.style.display = 'none';
+      linksEl.style.display = 'none';
+      if (histEl) histEl.innerHTML = '';
+      return;
+    }
+    emptyEl.style.display = 'none';
+    chartWrap.style.display = 'block';
+    linksEl.style.display = 'block';
+    const fechas = inbodyReal.map(m => m.fecha);
+
     if (inbodyCoachChart) inbodyCoachChart.destroy();
     const ctx = document.getElementById('cInbodyRadar').getContext('2d');
     inbodyCoachChart = new Chart(ctx, {
@@ -3509,7 +3572,7 @@ async function cargarInbodyCoach(email) {
         datasets: [
           {
             label: 'Masa Muscular (kg)',
-            data: lista.map(m => m.musculo),
+            data: inbodyReal.map(m => m.musculo),
             fill: true,
             spanGaps: true,
             backgroundColor: 'rgba(0,168,179,0.35)',
@@ -3523,7 +3586,7 @@ async function cargarInbodyCoach(email) {
           },
           {
             label: 'Masa Grasa (kg)',
-            data: lista.map(m => m.grasa_kg),
+            data: inbodyReal.map(m => m.grasa_kg),
             fill: true,
             spanGaps: true,
             backgroundColor: 'rgba(231,76,60,0.35)',
@@ -3557,11 +3620,8 @@ async function cargarInbodyCoach(email) {
 
     document.getElementById('inbodyCoachLeyenda').innerHTML = '';
 
-    histEl.innerHTML = lista.slice().reverse().map(m => {
-      const completa = m.musculo != null && m.grasa_pct != null;
-      const detalle = completa
-        ? `${m.peso} kg · ${m.musculo} kg musc · ${m.grasa_pct}% grasa`
-        : `${m.peso} kg · <span style="font-style:italic;color:var(--text3);">solo peso</span>`;
+    histEl.innerHTML = inbodyReal.slice().reverse().map(m => {
+      const detalle = `${m.peso!=null?m.peso+' kg · ':''}${m.musculo!=null?m.musculo+' kg musc · ':''}${m.grasa_pct!=null?m.grasa_pct+'% grasa':''}`.replace(/ · $/,'');
       return `
       <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px;">
         <span style="font-family:var(--fc);letter-spacing:1px;color:var(--text2);">${m.fecha}</span>
@@ -4046,8 +4106,8 @@ function refreshCoachCSVStatus() {
 function cerrarPerfil() {
   document.getElementById('perfilAtleta').style.display = 'none';
   document.body.style.overflow = '';
-  [chartPeso,chartStrava,chartFuerza,chartPR].forEach(c=>c?.destroy());
-  chartPeso=chartStrava=chartFuerza=chartPR=null;
+  [chartPeso,chartStrava,chartFuerza,chartPR,chartCargaRTSS,chartRuckLoadCoach].forEach(c=>c?.destroy());
+  chartPeso=chartStrava=chartFuerza=chartPR=chartCargaRTSS=chartRuckLoadCoach=null;
   window._atleta = null;
 }
 </script>
