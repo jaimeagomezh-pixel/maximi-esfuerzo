@@ -250,6 +250,41 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
 .sec-sm{background:#fff;border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.05);}
 .sec-sm-t{font-family:var(--fc);font-size:12px;letter-spacing:3px;color:var(--cian);text-transform:uppercase;margin-bottom:12px;font-weight:700;}
 
+/* ── CONTROL DE CARGA · planificador ── */
+.lc-chip{background:#f2f5f7;border:1px solid var(--border);border-radius:10px;padding:12px 8px;text-align:center;}
+.lc-chip-v{font-family:var(--fd);font-size:1.5rem;color:var(--cian);line-height:1;}
+.lc-chip-l{font-family:var(--fc);font-size:10px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-top:5px;font-weight:600;}
+.lc-block{margin-bottom:26px;}
+.lc-block:last-child{margin-bottom:0;}
+.lc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.lc-head-t{font-family:var(--fc);font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--text2);font-weight:700;}
+.lc-zone-badge{font-family:var(--fc);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:3px 10px;border-radius:20px;color:#fff;background:var(--green);}
+.lc-readout{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+.lc-readout > span:first-child{font-family:var(--fd);font-size:2rem;color:var(--text);line-height:1;}
+.lc-readout-sub{font-size:12px;color:var(--text3);}
+.lc-slider{-webkit-appearance:none;appearance:none;width:100%;height:10px;border-radius:6px;outline:none;cursor:pointer;background:#e3e7ea;}
+.lc-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--text2);box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:grab;margin-top:0;}
+.lc-slider::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--text2);box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:grab;}
+.lc-slider.lc-cap{animation:lcShake 0.32s;}
+@keyframes lcShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.lc-ticks{display:flex;justify-content:space-between;margin-top:7px;font-family:var(--fc);font-size:10px;letter-spacing:0.5px;color:var(--text3);}
+.lc-override{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12px;color:var(--text3);cursor:pointer;user-select:none;}
+.lc-override input{width:16px;height:16px;accent-color:var(--red);cursor:pointer;}
+.lc-acwr{margin-top:12px;font-size:13px;color:var(--text2);background:#f2f5f7;border-radius:8px;padding:10px 12px;line-height:1.5;}
+
+/* ── METODOLOGÍA · tarjetas de fórmulas ── */
+.fx-card{border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+.fx-head{width:100%;display:flex;align-items:center;justify-content:space-between;background:#f7f9fa;border:none;padding:14px 16px;cursor:pointer;font-family:var(--fc);font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--text2);font-weight:700;text-align:left;}
+.fx-head:hover{background:#eef2f4;}
+.fx-ico{font-size:18px;color:var(--cian);line-height:1;flex-shrink:0;margin-left:12px;}
+.fx-body{display:none;padding:16px;font-size:13px;color:var(--text2);line-height:1.6;}
+.fx-body.open{display:block;}
+.fx-body p{margin:0 0 10px;}
+.fx-body code{display:block;background:#141414;color:#9fe06a;font-size:12.5px;padding:11px 13px;border-radius:7px;margin:10px 0;overflow-x:auto;white-space:nowrap;font-family:'Courier New',monospace;}
+.fx-body ul{margin:8px 0 0;padding-left:18px;}
+.fx-body li{margin-bottom:6px;}
+.fx-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
 /* scrollbar */
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:#e8eaed;}
@@ -406,6 +441,19 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
     <div id="grupoModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:20px;" onclick="cerrarGrupoModal()">
       <div style="background:#fff;border-radius:12px;max-width:440px;width:100%;max-height:85vh;overflow:auto;padding:22px;" onclick="event.stopPropagation()">
         <div id="grupoModalBody"></div>
+      </div>
+    </div>
+
+    <!-- MODAL ALERTA DE SEGURIDAD (Control de Carga) -->
+    <div id="lcAlertModal" style="display:none;position:fixed;inset:0;background:rgba(10,10,10,0.78);z-index:400;align-items:center;justify-content:center;padding:20px;">
+      <div style="background:#141414;border:1px solid rgba(231,76,60,0.5);border-radius:14px;max-width:430px;width:100%;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,0.6);" onclick="event.stopPropagation()">
+        <div style="font-family:var(--fc);font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--red);font-weight:700;margin-bottom:6px;">⚠ Alto ahí, recluta</div>
+        <div id="lcAlertTitle" style="font-family:var(--fd);font-size:1.7rem;color:#f5f0eb;line-height:1.1;margin-bottom:12px;">Zona roja</div>
+        <div id="lcAlertBody" style="font-size:14px;color:#cfc9c1;line-height:1.6;margin-bottom:22px;"></div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="cerrarLcAlert()" style="flex:1;background:var(--green);color:#fff;border:none;padding:12px;border-radius:6px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Volver al rango seguro</button>
+          <button id="lcAlertOverrideBtn" onclick="lcAlertOverride()" style="flex:1;background:none;border:1px solid rgba(231,76,60,0.5);color:var(--red);padding:12px;border-radius:6px;font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">Anular seguridad</button>
+        </div>
       </div>
     </div>
 
@@ -583,11 +631,67 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
             <input type="number" class="l-input" id="rSE" placeholder="ej. 40 — opcional" min="1" max="300">
           </div>
           <div>
+            <label class="l-label">1RM Sentadilla (kg) — chasis</label>
+            <input type="number" class="l-input" id="r1RM" placeholder="ej. 120 — clave para topes" min="20" max="400" step="0.5">
+          </div>
+          <div>
             <label class="l-label">Carrera 2 millas · Tiempo (TMR)</label>
             <input type="text" class="l-input" id="rTMR" placeholder="ej. 14:30 — opcional" maxlength="5">
           </div>
         </div>
         <button class="l-btn" onclick="saveRuckProfile()">Guardar Perfil</button>
+      </div>
+
+      <!-- ══ CONTROL DE CARGA · PLANIFICADOR (Kraemer / Gabbett) ══ -->
+      <div class="sec" id="loadControlPanel">
+        <div class="sec-t">Control de Carga · Planificador</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.55;">
+          Topes blandos y duros calculados según el <strong>chasis</strong> (1RM sentadilla) y la
+          <strong>carga acumulada</strong> del atleta. Planifica la próxima sesión sin pasar los márgenes seguros.
+        </div>
+
+        <!-- Aviso sin datos -->
+        <div id="lcNoData" style="display:none;background:#fff7ed;border:1px solid rgba(230,126,34,0.3);border-radius:10px;padding:14px;font-size:13px;color:#9a5a12;">
+          Selecciona un atleta y registra su <strong>1RM de sentadilla</strong> en el perfil para activar el planificador de lastre.
+        </div>
+
+        <div id="lcBody" style="display:none;">
+          <!-- Chips de contexto del atleta -->
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;">
+            <div class="lc-chip"><div class="lc-chip-v" id="lcBW">—</div><div class="lc-chip-l">Peso corporal</div></div>
+            <div class="lc-chip"><div class="lc-chip-v" id="lc1RM">—</div><div class="lc-chip-l">1RM sentadilla</div></div>
+            <div class="lc-chip"><div class="lc-chip-v" id="lcPrevVol">—</div><div class="lc-chip-l">Carga últ. semana</div></div>
+          </div>
+
+          <!-- ── SLIDER 1: LASTRE ── -->
+          <div class="lc-block">
+            <div class="lc-head">
+              <span class="lc-head-t">Lastre de mochila</span>
+              <span class="lc-zone-badge" id="lcLastreBadge">—</span>
+            </div>
+            <div class="lc-readout"><span id="lcLastreKg">— kg</span><span class="lc-readout-sub" id="lcLastreSub"></span></div>
+            <input type="range" class="lc-slider" id="lcLastre" min="0" max="100" value="0" step="0.5"
+              oninput="onLastreInput(this)">
+            <div class="lc-ticks" id="lcLastreTicks"></div>
+            <label class="lc-override">
+              <input type="checkbox" id="lcOverride" onchange="onOverrideToggle()">
+              <span>Anular seguridad bajo mi propio riesgo</span>
+            </label>
+          </div>
+
+          <!-- ── SLIDER 2: VOLUMEN SEMANAL ── -->
+          <div class="lc-block">
+            <div class="lc-head">
+              <span class="lc-head-t">Volumen semanal (progresión)</span>
+              <span class="lc-zone-badge" id="lcVolBadge">—</span>
+            </div>
+            <div class="lc-readout"><span id="lcVolPct">+0%</span><span class="lc-readout-sub" id="lcVolSub"></span></div>
+            <input type="range" class="lc-slider" id="lcVol" min="0" max="25" value="0" step="1"
+              oninput="onVolInput(this)">
+            <div class="lc-ticks" id="lcVolTicks"></div>
+            <div class="lc-acwr" id="lcAcwr"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Calculadora Pandolf -->
@@ -677,10 +781,10 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
             <div>
               <label class="l-label">Terreno</label>
               <select class="l-input" id="sTerrain">
-                <option value="asfalto">Asfalto / Cemento (μ 0.10)</option>
-                <option value="tierra">Tierra compacta (μ 0.15)</option>
-                <option value="trail" selected>Trail / Montaña (μ 0.20)</option>
-                <option value="arena">Arena / Nieve (μ 0.28)</option>
+                <option value="asfalto">Asfalto / cemento</option>
+                <option value="tierra">Tierra compacta</option>
+                <option value="trail" selected>Trail / montaña</option>
+                <option value="arena">Arena / nieve</option>
               </select>
             </div>
             <div>
@@ -761,6 +865,85 @@ body{background:#f4f6f8;color:var(--text);font-family:var(--fb);font-size:17px;m
           <div class="ruck-load-btns" id="lyonsLoadBtns"></div>
         </div>
         <div id="lyonsResult"></div>
+      </div>
+
+      <!-- ══ METODOLOGÍA · FÓRMULAS Y LÓGICA (referencia) ══ -->
+      <div class="sec" id="metodologiaPanel">
+        <div class="sec-t">Metodología · Fórmulas y Lógica</div>
+        <div style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.55;">
+          Referencia de todo el motor de rucking: de dónde sale cada número y por qué. Pulsa para expandir.
+        </div>
+
+        <div class="fx-card">
+          <button class="fx-head" onclick="toggleFx(this)"><span>1 · Gasto energético — Pandolf (1977)</span><span class="fx-ico">+</span></button>
+          <div class="fx-body">
+            <p>Costo metabólico de marchar con carga, ecuación militar estándar (US Army Research Institute).</p>
+            <code>M = 1.5·W + 2.0·(W+L)·(L/W)² + η·(W+L)·(1.5·V² + 0.35·V·G)</code>
+            <ul>
+              <li><b>W</b> = peso corporal (kg) · <b>L</b> = lastre (kg) · <b>V</b> = velocidad (m/s) · <b>G</b> = pendiente (%)</li>
+              <li><b>η</b> = coeficiente de terreno: asfalto 1.0 · sendero 1.1 · trail 1.2 · arena 2.1</li>
+              <li>Resultado en <b>watts metabólicos</b>; × tiempo → kcal totales.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="fx-card">
+          <button class="fx-head" onclick="toggleFx(this)"><span>2 · Estrés de la sesión — rkTSS</span><span class="fx-ico">+</span></button>
+          <div class="fx-body">
+            <p>Adapta el TSS de Coggan usando potencia metabólica (Pandolf) en vez de mecánica. Una hora al umbral = 100.</p>
+            <code>rkTSS = (t · IF² / 3600) · 100 · MO</code>
+            <ul>
+              <li><b>t</b> = duración (s) · <b>IF</b> = M_sesión / M_umbral (rkFTP) · <b>IF²</b> penaliza la intensidad de forma no lineal.</li>
+              <li><b>MO</b> = 1.25 si el lastre supera el umbral de carga (30% peso civil / 45% militar); si no, 1.0.</li>
+              <li>El <b>rkFTP</b> sale del Test de 4.8 km con 20 kg: el costo metabólico al ritmo sostenido = umbral personal.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="fx-card">
+          <button class="fx-head" onclick="toggleFx(this)"><span>3 · Tolerancia a la carga — riesgo dual</span><span class="fx-ico">+</span></button>
+          <div class="fx-body">
+            <p>Marco Kraemer: el rucking lo limita el eslabón más débil. Se evalúan <b>dos sistemas y se toma el peor</b>.</p>
+            <code>riesgo = max( metabólico , estructural )</code>
+            <ul>
+              <li><b>Metabólico:</b> % del peso corporal, ajustado por Squat Endurance (SE) y nivel del Test 4.8 km.</li>
+              <li><b>Estructural:</b> ratio <b>Carga ÷ 1RM sentadilla</b> — umbrales 25% / 40% / 50%.</li>
+              <li>Estados: cómodo → fuerte → límite → riesgo, personalizados al atleta.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="fx-card">
+          <button class="fx-head" onclick="toggleFx(this)"><span>4 · Capacidad de rendimiento — Motor vs Chasis</span><span class="fx-ico">+</span></button>
+          <div class="fx-body">
+            <p>Cada test se normaliza a 0–100 contra baremos y se pondera en dos ejes.</p>
+            <code>Motor = VAM·0.35 + rkFTP·0.65 &nbsp;|&nbsp; Chasis = 1RM·0.65 + SE·0.35</code>
+            <ul>
+              <li>Baremos: VAM 12–20 km/h · rkFTP 60–30 min · 1RM 0.75–2.0× peso · SE 10–50 reps.</li>
+              <li>El <b>1RM</b> entra <b>relativo</b> aquí (fuerza por kg de cuerpo) y <b>absoluto</b> en el riesgo (Carga÷1RM).</li>
+              <li>Veredicto: atleta completo / fuerte sin fondo / motor sin chasis / base.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="fx-card">
+          <button class="fx-head" onclick="toggleFx(this)"><span>5 · Control de carga — Topes seguros</span><span class="fx-ico">+</span></button>
+          <div class="fx-body">
+            <p><b>Lastre</b> (vs 1RM sentadilla):</p>
+            <ul>
+              <li><span class="fx-dot" style="background:var(--green);"></span><b>Verde ≤20%</b> 1RM — asimilable.</li>
+              <li><span class="fx-dot" style="background:var(--orange);"></span><b>Naranja 21–30%</b> 1RM (o hasta 45% del peso) — límite estructural.</li>
+              <li><span class="fx-dot" style="background:var(--red);"></span><b>Rojo &gt;30%</b> 1RM — tope duro; requiere anular seguridad.</li>
+            </ul>
+            <p style="margin-top:10px;"><b>Volumen semanal</b> (modelo ACWR de Gabbett):</p>
+            <code>ACWR = carga semana planificada ÷ promedio últimas 4 semanas</code>
+            <ul>
+              <li><span class="fx-dot" style="background:var(--green);"></span><b>Verde 0–10%</b> de aumento — ACWR en el sweet spot 0.8–1.3.</li>
+              <li><span class="fx-dot" style="background:var(--orange);"></span><b>Naranja 11–15%</b> — progreso máximo recomendado.</li>
+              <li><span class="fx-dot" style="background:var(--red);"></span><b>Rojo &gt;15%</b> — ACWR &gt;1.5, danger zone (pico de riesgo de lesión).</li>
+            </ul>
+          </div>
+        </div>
       </div>
 
     </div><!-- /tab-rucking -->
@@ -1783,9 +1966,10 @@ function saveRuckProfile() {
   const lbm = parseFloat(document.getElementById('rLBM').value)||null;
   const fat = parseFloat(document.getElementById('rFAT').value)||null;
   const se  = parseInt(document.getElementById('rSE').value)||null;
+  const oneRM = parseFloat(document.getElementById('r1RM').value)||null;
   const tmrStr = document.getElementById('rTMR').value.trim()||null;
   if (!bw||bw<40) { alert('Peso corporal inválido.'); return; }
-  const profile = { bw, lbm, fat, se, tmrSec: tmrStr?parseMmSs(tmrStr):null, tmrStr };
+  const profile = { bw, lbm, fat, se, squat1RM: oneRM, tmrSec: tmrStr?parseMmSs(tmrStr):null, tmrStr };
   localStorage.setItem('ruckProfile', JSON.stringify(profile));
   // Guardar en el atleta seleccionado
   const aid = parseInt(document.getElementById('ruckAtletaSel')?.value);
@@ -1796,6 +1980,221 @@ function saveRuckProfile() {
   document.getElementById('ruckProfilePanel').style.display = 'none';
   updateRuckingUI();
   renderRuckStats();
+  const aSel = atletas.find(x=>x.id===parseInt(document.getElementById('ruckAtletaSel')?.value));
+  renderLoadControl({ oneRM, bw, cargaRTSS: aSel?.cargaRTSS||null, nombre: aSel?.nombre||'' });
+}
+
+// ══════════════════════════════════════════════════════════════
+// CONTROL DE CARGA · Planificador (Kraemer / Gabbett)
+// ══════════════════════════════════════════════════════════════
+let _lc = { oneRM:null, bw:null, prevVol:0, chronic:0, nombre:'',
+            lastreCap:0, lastreMax:0, gPct:0, oPct:0, override:false };
+
+// ── Lógica matemática: rangos y umbrales ──
+function lcLastreZones(oneRM, bw) {
+  // Devuelve umbrales en kg sobre el 1RM de sentadilla (chasis).
+  const greenMax  = 0.20 * oneRM;            // ≤20% 1RM → "Asimilable"
+  const orangeMax = 0.30 * oneRM;            // 21–30% 1RM → "Límite Estructural" (TOPE DURO)
+  const bwCeil    = 0.45 * bw;               // referencia metabólica militar (45% peso)
+  const sliderMax = Math.max(orangeMax * 1.6, bwCeil * 1.1); // visible en modo override
+  return { greenMax, orangeMax, bwCeil, hardCap: orangeMax, sliderMax };
+}
+function lcLastreZoneOf(kg) {
+  if (kg <= _lc.gPct/100 * _lc.lastreMax) return 'green';
+  if (kg <= _lc.oPct/100 * _lc.lastreMax) return 'orange';
+  return 'red';
+}
+function lcVolZoneOf(pct) {        // % de aumento sobre la semana anterior
+  if (pct <= 10) return 'green';
+  if (pct <= 15) return 'orange';
+  return 'red';
+}
+function lcACWR(plannedVol, chronic) {
+  return chronic > 0 ? plannedVol / chronic : null;
+}
+const LC_COL = { green:'var(--green)', orange:'var(--orange)', red:'var(--red)' };
+const LC_TXT = { green:'Asimilable', orange:'Límite estructural', red:'Riesgo de lesión' };
+
+// ── Pintar el riel del slider en 3 colores según los umbrales ──
+function lcPaintTrack(el, gPct, oPct, fillPct, zone) {
+  const c = LC_COL[zone];
+  el.style.background =
+    `linear-gradient(to right,
+      var(--green) 0%, var(--green) ${gPct}%,
+      var(--orange) ${gPct}%, var(--orange) ${oPct}%,
+      var(--red) ${oPct}%, var(--red) 100%)`;
+  el.style.setProperty('--lc-thumb', c);
+}
+
+// ── Render principal: recibe el perfil del atleta seleccionado ──
+function renderLoadControl(d) {
+  const panel = document.getElementById('loadControlPanel');
+  if (!panel) return;
+  const noData = document.getElementById('lcNoData');
+  const body   = document.getElementById('lcBody');
+  const oneRM = d && d.oneRM ? Number(d.oneRM) : null;
+  const bw    = d && d.bw    ? Number(d.bw)    : null;
+
+  // Volumen previo y crónico desde cargaRTSS.semanas
+  let prevVol = 0, chronic = 0;
+  const sem = d && d.cargaRTSS && d.cargaRTSS.semanas ? d.cargaRTSS.semanas.filter(w=>w.val>0) : [];
+  if (sem.length) {
+    prevVol = sem[sem.length-1].val;
+    const last4 = sem.slice(-4).map(w=>w.val);
+    chronic = last4.reduce((a,b)=>a+b,0)/last4.length;
+  }
+  _lc.nombre = d && d.nombre || '';
+
+  // Sin 1RM no se puede topar el lastre → mostrar aviso
+  if (!oneRM || oneRM < 20) {
+    noData.style.display = 'block';
+    body.style.display   = 'none';
+    return;
+  }
+  noData.style.display = 'none';
+  body.style.display   = 'block';
+
+  // Chips de contexto
+  document.getElementById('lcBW').textContent     = bw ? bw + ' kg' : '—';
+  document.getElementById('lc1RM').textContent    = oneRM + ' kg';
+  document.getElementById('lcPrevVol').textContent= prevVol ? Math.round(prevVol) : '—';
+
+  // ── Configurar slider de LASTRE ──
+  const z = lcLastreZones(oneRM, bw || oneRM*1.2);
+  _lc = { ..._lc, oneRM, bw, prevVol, chronic,
+          lastreCap: z.hardCap, lastreMax: z.sliderMax,
+          gPct: z.greenMax/z.sliderMax*100, oPct: z.orangeMax/z.sliderMax*100,
+          override:false };
+  const sl = document.getElementById('lcLastre');
+  sl.max = z.sliderMax.toFixed(1);
+  sl.value = Math.min(z.greenMax, sl.value || z.greenMax);  // arranca en verde
+  document.getElementById('lcOverride').checked = false;
+  document.getElementById('lcLastreTicks').innerHTML =
+    `<span>0</span><span>${Math.round(z.greenMax)} kg · 20%</span><span>${Math.round(z.orangeMax)} kg · 30%</span>`;
+  onLastreInput(sl);
+
+  // ── Configurar slider de VOLUMEN ──
+  const vsl = document.getElementById('lcVol');
+  vsl.value = 0;
+  document.getElementById('lcVolTicks').innerHTML =
+    `<span>0%</span><span>+10%</span><span>+15%</span><span>+25%</span>`;
+  onVolInput(vsl);
+}
+
+// ── Handler: slider de LASTRE ──
+function onLastreInput(el) {
+  let kg = parseFloat(el.value);
+  const zone = lcLastreZoneOf(kg);
+
+  // Tope duro: si entra en rojo y NO está el override, frenar en el cap
+  if (zone === 'red' && !_lc.override) {
+    el.value = _lc.lastreCap;
+    kg = _lc.lastreCap;
+    el.classList.add('lc-cap');
+    setTimeout(()=>el.classList.remove('lc-cap'), 320);
+    lcAbrirAlerta('lastre');
+    lcPaintTrack(el, _lc.gPct, _lc.oPct, kg/_lc.lastreMax*100, 'orange');
+    lcUpdateLastreReadout(kg, 'orange');
+    return;
+  }
+  lcPaintTrack(el, _lc.gPct, _lc.oPct, kg/_lc.lastreMax*100, zone);
+  lcUpdateLastreReadout(kg, zone);
+}
+function lcUpdateLastreReadout(kg, zone) {
+  const pct1RM = _lc.oneRM ? Math.round(kg/_lc.oneRM*100) : 0;
+  const pctBW  = _lc.bw    ? Math.round(kg/_lc.bw*100)    : null;
+  document.getElementById('lcLastreKg').textContent = kg.toFixed(1).replace(/\.0$/,'') + ' kg';
+  document.getElementById('lcLastreSub').textContent =
+    `${pct1RM}% del 1RM` + (pctBW!=null ? ` · ${pctBW}% del peso` : '');
+  const badge = document.getElementById('lcLastreBadge');
+  badge.textContent = LC_TXT[zone];
+  badge.style.background = LC_COL[zone];
+}
+
+// ── Handler: slider de VOLUMEN ──
+function onVolInput(el) {
+  const pct  = parseInt(el.value);
+  const zone = lcVolZoneOf(pct);
+  // pintar (mismas zonas en % sobre el max de 25): verde 0-10, naranja 10-15, rojo >15
+  const gPct = 10/25*100, oPct = 15/25*100;
+  lcPaintTrack(el, gPct, oPct, pct/25*100, zone);
+
+  document.getElementById('lcVolPct').textContent = '+' + pct + '%';
+  const planned = _lc.prevVol ? _lc.prevVol * (1 + pct/100) : 0;
+  document.getElementById('lcVolSub').textContent =
+    _lc.prevVol ? `carga proyectada ≈ ${Math.round(planned)} rkTSS` : 'sin historial de carga';
+  const badge = document.getElementById('lcVolBadge');
+  badge.textContent = LC_TXT[zone];
+  badge.style.background = LC_COL[zone];
+
+  // ACWR
+  const acwrEl = document.getElementById('lcAcwr');
+  const acwr = lcACWR(planned, _lc.chronic);
+  if (acwr != null) {
+    const aZone = acwr <= 1.3 ? 'green' : (acwr <= 1.5 ? 'orange' : 'red');
+    acwrEl.innerHTML = `<b>ACWR proyectado: <span style="color:${LC_COL[aZone]};">${acwr.toFixed(2)}</span></b> · `
+      + (aZone==='green' ? 'dentro del sweet spot (0.8–1.3).'
+       : aZone==='orange' ? 'sobre el óptimo — progresión máxima.'
+       : 'danger zone (>1.5): pico de riesgo de lesión.');
+  } else {
+    acwrEl.innerHTML = 'Sin suficientes semanas de carga para calcular el ACWR.';
+  }
+  // Aviso militar al entrar en rojo de volumen
+  if (zone === 'red' && !el.dataset.warned) { el.dataset.warned = '1'; lcAbrirAlerta('volumen'); }
+  if (zone !== 'red') el.dataset.warned = '';
+}
+
+// ── Switch de anulación de seguridad ──
+function onOverrideToggle() {
+  _lc.override = document.getElementById('lcOverride').checked;
+  const sl = document.getElementById('lcLastre');
+  // Al desactivar la anulación, si el slider está en rojo, volver al tope duro
+  if (!_lc.override && lcLastreZoneOf(parseFloat(sl.value)) === 'red') {
+    sl.value = _lc.lastreCap;
+  }
+  onLastreInput(sl);
+}
+
+// ── Modal de alerta sarcástica/militar ──
+const LC_ALERTAS = {
+  lastre: {
+    t: 'Tope estructural',
+    b: 'Estás empujando el lastre por encima del <b>30% de tu 1RM</b>. A ese ratio tu columna firma la baja antes que tus piernas, soldado. El slider queda anclado en el límite. ¿De verdad quieres pasar por encima de la fisiología?'
+  },
+  volumen: {
+    t: 'Danger zone',
+    b: 'Más de <b>15% de aumento semanal</b> dispara el ACWR sobre 1.5. Gabbett tiene un cementerio entero de atletas que "se sentían bien" en esta zona. Progresa como adulto o asume la consecuencia.'
+  }
+};
+let _lcAlertTipo = null;
+function lcAbrirAlerta(tipo) {
+  _lcAlertTipo = tipo;
+  const a = LC_ALERTAS[tipo]; if (!a) return;
+  document.getElementById('lcAlertTitle').textContent = a.t;
+  document.getElementById('lcAlertBody').innerHTML = a.b;
+  // El override solo aplica al lastre (tope duro); en volumen solo se informa
+  document.getElementById('lcAlertOverrideBtn').style.display = tipo==='lastre' ? '' : 'none';
+  document.getElementById('lcAlertModal').style.display = 'flex';
+}
+function cerrarLcAlert() {
+  document.getElementById('lcAlertModal').style.display = 'none';
+  _lcAlertTipo = null;
+}
+function lcAlertOverride() {
+  document.getElementById('lcAlertModal').style.display = 'none';
+  if (_lcAlertTipo === 'lastre') {
+    document.getElementById('lcOverride').checked = true;
+    onOverrideToggle();
+  }
+  _lcAlertTipo = null;
+}
+
+// ── Acordeón de las tarjetas de fórmulas ──
+function toggleFx(btn) {
+  const body = btn.nextElementSibling;
+  const open = body.classList.toggle('open');
+  const ico = btn.querySelector('.fx-ico');
+  if (ico) ico.textContent = open ? '–' : '+';
 }
 
 async function cargarPerfilAtletaRuck(aid) {
@@ -1808,18 +2207,21 @@ async function cargarPerfilAtletaRuck(aid) {
     document.getElementById('rLBM').value = '';
     document.getElementById('rFAT').value = '';
     document.getElementById('rSE').value  = '';
+    document.getElementById('r1RM').value = '';
     document.getElementById('rTMR').value = '';
     try {
       const res = await fetch(`${RUCK_WORKER}/rucking/get-profile?stravaId=${encodeURIComponent(cloudId)}&secret=${encodeURIComponent(PASS)}`);
       const d = await res.json();
       if (d.ok && d.profile) {
         const cp = d.profile;
-        if (cp.bw)     document.getElementById('rBW').value  = cp.bw;
-        if (cp.lbm)    document.getElementById('rLBM').value = cp.lbm;
-        if (cp.fat)    document.getElementById('rFAT').value = cp.fat;
-        if (cp.se)     document.getElementById('rSE').value  = cp.se;
-        if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
+        if (cp.bw)       document.getElementById('rBW').value  = cp.bw;
+        if (cp.lbm)      document.getElementById('rLBM').value = cp.lbm;
+        if (cp.fat)      document.getElementById('rFAT').value = cp.fat;
+        if (cp.se)       document.getElementById('rSE').value  = cp.se;
+        if (cp.squat1RM) document.getElementById('r1RM').value = cp.squat1RM;
+        if (cp.tmrStr)   document.getElementById('rTMR').value = cp.tmrStr;
         document.getElementById('ruckProfileSub').textContent = `✓ Perfil cargado · Firebase (sin Strava) · ${cp.updatedAt?.slice(0,10)||''}`;
+        renderLoadControl({ oneRM: cp.squat1RM||null, bw: cp.bw||null, cargaRTSS: cp.cargaRTSS||null, nombre: '' });
       }
     } catch(e) { console.warn('[Coach] Perfil nube error:', e); }
     return;
@@ -1833,7 +2235,9 @@ async function cargarPerfilAtletaRuck(aid) {
   document.getElementById('rLBM').value = p.lbm || '';
   document.getElementById('rFAT').value = p.fat || '';
   document.getElementById('rSE').value  = p.se  || '';
+  document.getElementById('r1RM').value = p.squat1RM || '';
   document.getElementById('rTMR').value = p.tmrStr || '';
+  renderLoadControl({ oneRM: p.squat1RM||null, bw: p.bw||a.peso||null, cargaRTSS: a.cargaRTSS||p.cargaRTSS||null, nombre: a.nombre||'' });
   // Si no hay stravaId, intentar obtener UID de Firebase via email
   if (!a.stravaId && !a.cloudId && a.email) {
     try {
@@ -1851,11 +2255,12 @@ async function cargarPerfilAtletaRuck(aid) {
       const d = await res.json();
       if (d.ok && d.profile) {
         const cp = d.profile;
-        if (cp.bw)     document.getElementById('rBW').value  = cp.bw;
-        if (cp.lbm)    document.getElementById('rLBM').value = cp.lbm;
-        if (cp.fat)    document.getElementById('rFAT').value = cp.fat;
-        if (cp.se)     document.getElementById('rSE').value  = cp.se;
-        if (cp.tmrStr) document.getElementById('rTMR').value = cp.tmrStr;
+        if (cp.bw)       document.getElementById('rBW').value  = cp.bw;
+        if (cp.lbm)      document.getElementById('rLBM').value = cp.lbm;
+        if (cp.fat)      document.getElementById('rFAT').value = cp.fat;
+        if (cp.se)       document.getElementById('rSE').value  = cp.se;
+        if (cp.squat1RM) document.getElementById('r1RM').value = cp.squat1RM;
+        if (cp.tmrStr)   document.getElementById('rTMR').value = cp.tmrStr;
         a.rucking = { ...a.rucking, ...cp };
 
         // ── Strava stats guardadas por el atleta ──
@@ -1889,6 +2294,7 @@ async function cargarPerfilAtletaRuck(aid) {
         guardarAtletas();
         const src = String(cloudId).startsWith('uid:') ? 'Firebase' : 'Strava';
         document.getElementById('ruckProfileSub').textContent = `✓ Perfil sincronizado · ${src} · ${cp.updatedAt?.slice(0,10)||''}`;
+        renderLoadControl({ oneRM: cp.squat1RM||a.rucking?.squat1RM||null, bw: cp.bw||a.peso||null, cargaRTSS: cp.cargaRTSS||a.cargaRTSS||null, nombre: a.nombre||'' });
       }
     } catch(e) { console.warn('[Coach] Perfil rucking nube error:', e); }
   }
@@ -2214,6 +2620,7 @@ function initRucking() {
   // Actualizar UI con perfil y sesiones guardadas
   updateRuckingUI();
   renderRuckStats();
+  renderLoadControl({});  // muestra el aviso "selecciona un atleta"
 }
 
 // Carga atletas desde el cloud y agrega los que no están en la lista local
