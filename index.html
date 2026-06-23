@@ -852,7 +852,7 @@
             <option value="civil">Civil / Fitness</option>
             <option value="militar">Militar / Táctico</option>
           </select>
-          <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Define cuándo se aplica el estrés operativo (MO×1.25): lastre &gt;30% del peso (civil) o &gt;45% (militar)</div>
+          <div style="font-size:10px;color:#bbb;margin-top:3px;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;">Define cuándo se aplica el estrés operativo</div>
         </div>
       </div>
       <button onclick="guardarMiPerfil()"
@@ -1332,6 +1332,16 @@
                 <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:#8B1A1A;line-height:1;" id="rtssUltimaVal">—</div>
                 <div style="font-size:9px;color:#aaa;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;" id="rtssUltimaIF">rTSS · IF —</div>
                 <span id="rtssDelta" class="me-delta" style="display:none;"></span>
+              </div>
+            </div>
+            <!-- Tarjeta explicativa IF -->
+            <div style="background:rgba(0,229,240,0.06);border:1px solid rgba(0,229,240,0.2);border-radius:8px;padding:10px 12px;margin-bottom:12px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#00bcd4;text-transform:uppercase;margin-bottom:4px;">¿Qué es el IF?</div>
+              <div style="font-size:11px;color:#555;line-height:1.5;font-family:'Barlow Condensed',sans-serif;">
+                <strong style="color:#333;">IF = Factor de Intensidad</strong> — compara tu ritmo promedio de la sesión con tu FTP (umbral).<br>
+                <span style="color:#007a85;font-weight:700;">IF 0.75–0.85</span> trote suave &nbsp;·&nbsp;
+                <span style="color:#e07b00;font-weight:700;">IF 0.90–0.95</span> umbral &nbsp;·&nbsp;
+                <span style="color:#8B1A1A;font-weight:700;">IF &gt; 1.0</span> sprint / esfuerzo máximo
               </div>
             </div>
             <!-- Gráfico carga semanal -->
@@ -2228,7 +2238,7 @@
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
               <div style="min-width:0;">
                 <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#8B1A1A;text-transform:uppercase;font-weight:700;">Entrenamiento de fuerza</div>
-                <div style="font-size:10px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;line-height:1.4;">Sin reloj · estima el gasto por tiempo (MET)</div>
+                <div style="font-size:10px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;line-height:1.4;">Ingreso manual</div>
               </div>
               <button id="fzaToggleBtn" onclick="toggleFuerzaManual()" style="flex-shrink:0;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:8px 14px;border:none;border-radius:16px;cursor:pointer;">+ Registrar</button>
             </div>
@@ -2239,7 +2249,7 @@
               <div style="display:flex;justify-content:center;margin-bottom:10px;">
                 <div class="me-wheel" id="fzaMinWheel" data-unit="min" style="width:130px;"></div>
               </div>
-              <div style="text-align:center;margin-bottom:12px;font-size:12px;color:#666;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">Gasto estimado: <span id="fzaKcalPreview" style="color:#8B1A1A;font-weight:700;">—</span></div>
+              <div id="fzaKcalPreview" style="display:none;"></div>
               <button onclick="guardarFuerzaManual()" style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:11px;border:none;border-radius:6px;cursor:pointer;">Guardar sesión</button>
               <div id="fzaManualStatus" style="font-size:11px;color:#999;margin-top:8px;text-align:center;"></div>
             </div>
