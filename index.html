@@ -1213,6 +1213,17 @@
             <i data-lucide="save" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i>
             Agregar Registro
           </button>
+
+          <!-- Historial completo de carreras (paginado) -->
+          <div style="margin-top:12px;text-align:center;">
+            <button id="runHistBtn" onclick="toggleRunHistorial()" style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial de carreras</button>
+          </div>
+          <div id="runHistWrap" style="display:none;margin-top:12px;">
+            <div id="runHistList"></div>
+            <div style="text-align:center;margin-top:8px;">
+              <button id="runHistMas" onclick="runHistMasCarreras()" style="display:none;background:none;border:1px solid rgba(0,0,0,0.15);color:#888;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 16px;border-radius:14px;cursor:pointer;">Ver más</button>
+            </div>
+          </div>
         </div>
       </div>
       </div>
@@ -1773,6 +1784,17 @@
         <div style="margin-top:14px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(0,0,0,0.35);margin-bottom:8px;">Últimas Sesiones</div>
           <div id="ruckASessionsList"></div>
+        </div>
+
+        <!-- Historial completo (paginado) -->
+        <div style="margin-top:12px;text-align:center;">
+          <button id="ruckHistBtn" onclick="toggleRuckHistorial()" style="background:rgba(139,26,26,0.06);border:1px solid rgba(139,26,26,0.3);color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial completo</button>
+        </div>
+        <div id="ruckHistWrap" style="display:none;margin-top:12px;">
+          <div id="ruckHistList"></div>
+          <div style="text-align:center;margin-top:8px;">
+            <button id="ruckHistMas" onclick="ruckHistMasSesiones()" style="display:none;background:none;border:1px solid rgba(0,0,0,0.15);color:#888;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 16px;border-radius:14px;cursor:pointer;">Ver más</button>
+          </div>
         </div>
 
       </div><!-- /ruckAData -->
@@ -2544,7 +2566,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260622e"></script>
+<script src="scripts.js?v=20260622f"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

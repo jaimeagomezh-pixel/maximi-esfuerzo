@@ -4789,6 +4789,51 @@
     initRuckingAtleta();
   }
 
+  // ── Historial completo de rucking (paginado, solo lectura) ──────────────
+  // No guarda nada: pinta de a 20 las sesiones ya almacenadas en ruckSessions.
+  let _ruckHistShown = 20;
+  function toggleRuckHistorial() {
+    const wrap = document.getElementById('ruckHistWrap');
+    const btn  = document.getElementById('ruckHistBtn');
+    if (!wrap) return;
+    const abrir = wrap.style.display === 'none' || !wrap.style.display;
+    wrap.style.display = abrir ? 'block' : 'none';
+    if (btn) btn.textContent = abrir ? 'Ocultar historial' : 'Ver historial completo';
+    if (abrir) { _ruckHistShown = 20; renderRuckHistorial(); }
+  }
+  function ruckHistMasSesiones() { _ruckHistShown += 20; renderRuckHistorial(); }
+  function renderRuckHistorial() {
+    const list = document.getElementById('ruckHistList');
+    const mas  = document.getElementById('ruckHistMas');
+    if (!list) return;
+    const all = JSON.parse(localStorage.getItem('ruckSessions') || '[]')
+      .slice().sort((a, b) => b.date.localeCompare(a.date));
+    if (!all.length) {
+      list.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin sesiones de rucking registradas aún.</div>';
+      if (mas) mas.style.display = 'none';
+      return;
+    }
+    const shown = all.slice(0, _ruckHistShown);
+    list.innerHTML = shown.map(s => {
+      const pot = calcPotenciaRuck(s);
+      const esStrava = s.source === 'strava';
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#333;">${fmtTimerRuck(s.time)}</div>
+            <div style="font-size:11px;color:#999;">${fmtDateRuck(s.date)}${esStrava ? ' · <span style="color:#FC4C02;">Strava</span>' : ''}</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#8B1A1A;">${s.dist} km · ${s.load} kg</div>
+            ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+    if (mas) mas.style.display = all.length > _ruckHistShown ? 'inline-block' : 'none';
+  }
+  window.toggleRuckHistorial = toggleRuckHistorial;
+  window.ruckHistMasSesiones = ruckHistMasSesiones;
+
   function toggleRuckManualAdd() {
     const f = document.getElementById('ruckAManualForm');
     if (!f) return;
@@ -6098,6 +6143,52 @@
       el.textContent = `${fuente} ${last.time} · ${fechaStr}`;
     });
   }
+
+  // ── Historial completo de carreras (paginado, solo lectura) ─────────────
+  // No guarda nada: aplana manualTimesHistory (manual + Strava) y pinta de a 20.
+  let _runHistShown = 20;
+  function toggleRunHistorial() {
+    const wrap = document.getElementById('runHistWrap');
+    const btn  = document.getElementById('runHistBtn');
+    if (!wrap) return;
+    const abrir = wrap.style.display === 'none' || !wrap.style.display;
+    wrap.style.display = abrir ? 'block' : 'none';
+    if (btn) btn.textContent = abrir ? 'Ocultar historial' : 'Ver historial de carreras';
+    if (abrir) { _runHistShown = 20; renderRunHistorial(); }
+  }
+  function runHistMasCarreras() { _runHistShown += 20; renderRunHistorial(); }
+  function renderRunHistorial() {
+    const list = document.getElementById('runHistList');
+    const mas  = document.getElementById('runHistMas');
+    if (!list) return;
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const hist = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    const all = [];
+    Object.keys(hist).forEach(dist => (hist[dist] || []).forEach(e => all.push({ dist, ...e })));
+    all.sort((a, b) => b.date.localeCompare(a.date));
+    if (!all.length) {
+      list.innerHTML = '<div style="text-align:center;color:#aaa;padding:12px;font-style:italic;font-size:12px;">Sin carreras registradas aún.</div>';
+      if (mas) mas.style.display = 'none';
+      return;
+    }
+    const shown = all.slice(0, _runHistShown);
+    list.innerHTML = shown.map(e => {
+      const [y, mo, da] = e.date.split('-').map(Number);
+      const fechaStr = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
+      const esStrava = e.source === 'strava';
+      return `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:#333;">${e.time}</div>
+            <div style="font-size:11px;color:#999;">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;">Strava</span>' : ' · <span style="color:#007a85;">manual</span>'}</div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:#007a85;font-weight:700;">${e.dist}</div>
+        </div>`;
+    }).join('');
+    if (mas) mas.style.display = all.length > _runHistShown ? 'inline-block' : 'none';
+  }
+  window.toggleRunHistorial = toggleRunHistorial;
+  window.runHistMasCarreras = runHistMasCarreras;
 
   // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
   // ── BANNER STRAVA → ZONAS ──────────────────────────────────────────────────
