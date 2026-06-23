@@ -5749,7 +5749,7 @@
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { display: hayRuck, position: 'bottom', labels: { color: '#f1ece4', font: { size: 9 }, boxWidth: 10, padding: 8 } },
+            legend: { display: hayRuck, position: 'bottom', labels: { color: '#f1ece4', font: { size: 9 }, boxWidth: 14, padding: 10, generateLabels: chart => chart.data.datasets.map((ds, i) => ({ text: '', fillStyle: ds.backgroundColor, strokeStyle: 'transparent', lineWidth: 0, hidden: false, datasetIndex: i })) } },
             tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y } }
           },
           scales: {
