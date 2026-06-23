@@ -1169,12 +1169,12 @@
             Agregar Registro
           </button>
           <div id="refStatus" style="font-size:12px;text-align:center;margin-top:8px;color:#999;"></div>
-
-          <!-- Historial completo de carreras → pantalla aparte -->
-          <div style="margin-top:12px;text-align:center;">
-            <button onclick="abrirHistorial('run')" style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial de carreras →</button>
-          </div>
         </div>
+      </div>
+
+      <!-- Historial completo de carreras → pantalla aparte (siempre visible) -->
+      <div style="margin:12px 0 2px;text-align:center;">
+        <button onclick="abrirHistorial('run')" style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:9px 18px;border-radius:16px;cursor:pointer;">Ver historial de carreras →</button>
       </div>
       </div>
 
@@ -2516,7 +2516,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260622i"></script>
+<script src="scripts.js?v=20260622j"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
@@ -3082,21 +3082,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const up = document.getElementById('csvUploadZone');
   if (up) up.style.display = 'none';
 });
-
-// Sobreescribir saveManualTimes para guardar también las fechas
-const _origSave = window.saveManualTimes;
-window.saveManualTimes = function() {
-  const dists = ['1km','2km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
-  // Guardar fechas
-  const dates = {};
-  dists.forEach(d => {
-    const val = document.getElementById('md_'+d)?.value;
-    if (val) dates[d] = val;
-  });
-  localStorage.setItem('manualDates', JSON.stringify(dates));
-  // Llamar función original para guardar tiempos
-  if (typeof _origSave === 'function') _origSave();
-};
 </script>
 
 <script>

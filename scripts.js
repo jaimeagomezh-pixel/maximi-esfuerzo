@@ -1060,7 +1060,6 @@
         if (dist && prData[dist]) updatePRChart(dist);
 
         // Recalcular zonas e indicadores
-        if (typeof mostrarUltimosRegistros === 'function') mostrarUltimosRegistros(history);
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
 
@@ -4793,6 +4792,7 @@
   // No guarda nada: pinta de a 20 datos ya almacenados. Solo lectura.
   let _histTipo = null;     // 'run' | 'ruck'
   let _histShown = 20;
+  let _histRendered = [];   // items actualmente pintados (para el detalle por índice)
 
   function abrirHistorial(tipo) {
     _histTipo = tipo;
@@ -4823,33 +4823,115 @@
     return all.sort((a, b) => b.date.localeCompare(a.date));
   }
 
-  function _histRow(item) {
+  // Tarjeta clickeable: cabecera + detalle desplegable (acordeón)
+  function _histRow(item, i) {
+    const esStrava = item.source === 'strava';
+    let head;
     if (_histTipo === 'ruck') {
       const pot = calcPotenciaRuck(item);
-      const esStrava = item.source === 'strava';
-      return `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid rgba(0,0,0,0.06);gap:8px;">
-          <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:600;color:#333;">${fmtTimerRuck(item.time)}</div>
-            <div style="font-size:11px;color:#999;">${fmtDateRuck(item.date)}${esStrava ? ' · <span style="color:#FC4C02;">Strava</span>' : ''}</div>
-          </div>
-          <div style="text-align:right;">
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;color:#8B1A1A;">${item.dist} km · ${item.load} kg</div>
-            ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W</div>` : ''}
-          </div>
-        </div>`;
-    }
-    const [y, mo, da] = item.date.split('-').map(Number);
-    const fechaStr = `${da} ${item._meses[mo-1]} ${String(y).slice(2)}`;
-    const esStrava = item.source === 'strava';
-    return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 2px;border-bottom:1px solid rgba(0,0,0,0.06);gap:8px;">
+      head = `
         <div style="flex:1;min-width:0;">
-          <div style="font-size:14px;font-weight:600;color:#333;">${item.time}</div>
-          <div style="font-size:11px;color:#999;">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;">Strava</span>' : ' · <span style="color:#007a85;">manual</span>'}</div>
+          <div style="font-size:15px;font-weight:700;color:#1a1a1a;">${fmtTimerRuck(item.time)}</div>
+          <div style="font-size:11px;color:#888;">${fmtDateRuck(item.date)}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · manual'}</div>
         </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:1px;color:#007a85;font-weight:700;">${item.dist}</div>
+        <div style="text-align:right;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#8B1A1A;font-weight:700;">${item.dist} km · ${item.load} kg</div>
+          ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W</div>` : ''}
+        </div>`;
+    } else {
+      const [y, mo, da] = item.date.split('-').map(Number);
+      const fechaStr = `${da} ${item._meses[mo-1]} ${String(y).slice(2)}`;
+      head = `
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:15px;font-weight:700;color:#1a1a1a;">${item.time}</div>
+          <div style="font-size:11px;color:#888;">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · <span style="color:#007a85;">manual</span>'}</div>
+        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;color:#007a85;font-weight:700;">${item.dist}</div>`;
+    }
+    return `
+      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+        <div onclick="histToggleDetail(${i})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;">
+          ${head}
+          <svg id="histChev-${i}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="histDet-${i}" style="display:none;padding:0 14px 14px;"></div>
       </div>`;
+  }
+
+  function _parseTimeToSec(str) {
+    const p = String(str).split(':').map(Number);
+    if (p.some(isNaN)) return 0;
+    return p.length === 3 ? p[0]*3600 + p[1]*60 + p[2] : p.length === 2 ? p[0]*60 + p[1] : p[0];
+  }
+  function _fmtPaceMinKm(sec, km) {
+    if (!sec || !km) return null;
+    const s = Math.round(sec / km);
+    return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0') + ' /km';
+  }
+  function _cacheRunMatch(date, km) {
+    const c = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const runs = c.filter(a => a.date === date && a.km > 0 && ['Run','TrailRun','VirtualRun','Treadmill'].includes(a.type));
+    if (!runs.length || !km) return null;
+    runs.sort((a, b) => Math.abs(a.km - km) - Math.abs(b.km - km));
+    return Math.abs(runs[0].km - km) <= Math.max(0.3, km * 0.12) ? runs[0] : null;
+  }
+  function _cacheById(id) {
+    if (!id) return null;
+    const c = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    return c.find(a => String(a.id) === String(id)) || null;
+  }
+  function _zonasTxt(zsec) {
+    if (!zsec || !zsec.some(v => v > 0)) return null;
+    const cols = ['#3498db','#1abc9c','#2ecc71','#f39c12','#e74c3c'];
+    const tot = zsec.reduce((s, v) => s + v, 0);
+    const barras = zsec.map((v, i) => v > 0 ? `<div style="width:${(v/tot*100).toFixed(1)}%;background:${cols[i]};" title="Z${i+1}"></div>` : '').join('');
+    const txt = zsec.map((v, i) => v > 0 ? `Z${i+1} ${secToTime(v)}` : '').filter(Boolean).join(' · ');
+    return `<div style="display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin-top:4px;">${barras}</div><div style="font-size:10px;color:#999;margin-top:3px;">${txt}</div>`;
+  }
+
+  function _histDetalle(item) {
+    const chip = (lbl, val) => (val != null && val !== '')
+      ? `<div style="background:#f7f4ef;border:1px solid rgba(0,0,0,0.06);border-radius:7px;padding:8px 10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">${lbl}</div><div style="font-size:14px;font-weight:700;color:#333;margin-top:2px;">${val}</div></div>`
+      : '';
+    const chips = [];
+    let zonasHtml = '', cache = null, esManual = item.source !== 'strava';
+    if (_histTipo === 'ruck') {
+      const km = item.dist, sec = item.time;
+      cache = _cacheById(item.stravaId);
+      chips.push(chip('Distancia', km + ' km'));
+      chips.push(chip('Lastre', item.load + ' kg'));
+      chips.push(chip('Tiempo', fmtTimerRuck(sec)));
+      chips.push(chip('Ritmo', _fmtPaceMinKm(sec, km)));
+      const pot = calcPotenciaRuck(item); if (pot) chips.push(chip('Potencia', pot + ' W'));
+      const w = calcTrabajoRuck(item); if (w) chips.push(chip('Trabajo', w + ' kJ'));
+      if (item.elev > 0) chips.push(chip('Desnivel', '↑ ' + item.elev + ' m'));
+      if (item.terrain) chips.push(chip('Terreno', item.terrain));
+      if (cache && cache.hr) chips.push(chip('FC media', cache.hr + ' ppm'));
+      if (cache && cache.zsec) zonasHtml = _zonasTxt(cache.zsec);
+    } else {
+      const km = (RUN_DIST.find(d => d.k === item.dist) || {}).km || parseFloat(item.dist) || null;
+      const sec = _parseTimeToSec(item.time);
+      cache = _cacheRunMatch(item.date, km);
+      chips.push(chip('Distancia', km ? km + ' km' : item.dist));
+      chips.push(chip('Tiempo', item.time));
+      chips.push(chip('Ritmo', _fmtPaceMinKm(sec, km)));
+      if (cache && cache.hr) chips.push(chip('FC media', cache.hr + ' ppm'));
+      if (cache && cache.zsec) zonasHtml = _zonasTxt(cache.zsec);
+    }
+    const grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${chips.filter(Boolean).join('')}</div>`;
+    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC</div>${zonasHtml}</div>` : '';
+    const nota = (!cache && esManual) ? '<div style="font-size:10px;color:#bbb;margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
+    return grid + zonas + nota;
+  }
+
+  function histToggleDetail(i) {
+    const det  = document.getElementById('histDet-' + i);
+    const chev = document.getElementById('histChev-' + i);
+    if (!det) return;
+    const abrir = det.style.display === 'none' || !det.style.display;
+    if (abrir && !det._filled) { det.innerHTML = _histDetalle(_histRendered[i]); det._filled = true; }
+    det.style.display = abrir ? 'block' : 'none';
+    if (chev) chev.style.transform = abrir ? 'rotate(180deg)' : '';
   }
 
   function renderHistorialOverlay() {
@@ -4860,17 +4942,19 @@
     const all = _histDatos();
     if (count) count.textContent = all.length ? all.length + (all.length === 1 ? ' registro' : ' registros') : '';
     if (!all.length) {
-      list.innerHTML = `<div style="text-align:center;color:#aaa;padding:30px 12px;font-style:italic;font-size:13px;">Sin ${_histTipo === 'ruck' ? 'sesiones de rucking' : 'carreras'} registradas aún.</div>`;
+      list.innerHTML = `<div style="text-align:center;color:#999;padding:40px 12px;font-size:13px;">Sin ${_histTipo === 'ruck' ? 'sesiones de rucking' : 'carreras'} registradas aún.</div>`;
       if (mas) mas.style.display = 'none';
       return;
     }
-    list.innerHTML = all.slice(0, _histShown).map(_histRow).join('');
+    _histRendered = all.slice(0, _histShown);
+    list.innerHTML = _histRendered.map((item, i) => _histRow(item, i)).join('');
     if (mas) mas.style.display = all.length > _histShown ? 'inline-block' : 'none';
   }
 
   window.abrirHistorial   = abrirHistorial;
   window.cerrarHistorial  = cerrarHistorial;
   window.histMasOverlay   = histMasOverlay;
+  window.histToggleDetail = histToggleDetail;
 
   function toggleRuckManualAdd() {
     const f = document.getElementById('ruckAManualForm');
@@ -6088,154 +6172,6 @@
     return latest;
   }
 
-  function saveManualTimes() {
-    const dists = ['1km','2km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
-
-    // Cargar historial existente (con migración desde formato antiguo si fuera necesario)
-    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
-    const oldFlat = localStorage.getItem('manualTimes');
-    if (oldFlat && !Object.keys(history).length) {
-      const old = JSON.parse(oldFlat);
-      dists.forEach(d => { if (old[d]) history[d] = [{ date: todayISO(), time: old[d] }]; });
-      localStorage.removeItem('manualTimes');
-    }
-
-    let added = 0;
-    dists.forEach(d => {
-      const timeVal = document.getElementById('mt_'+d)?.value.trim();
-      const dateEl  = document.getElementById('md_'+d);
-      const dateVal = dateEl?.value || todayISO();
-      if (!timeVal) return;
-
-      // Validar formato mínimo MM:SS o H:MM:SS
-      const parts = timeVal.split(':');
-      if (parts.length < 2 || parts.length > 3) return;
-
-      if (!history[d]) history[d] = [];
-
-      // Evitar duplicado exacto (misma fecha + mismo tiempo)
-      const dup = history[d].some(e => e.date === dateVal && e.time === timeVal);
-      if (dup) return;
-
-      history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
-      history[d].sort((a, b) => a.date.localeCompare(b.date)); // orden cronológico
-      added++;
-
-      // Si es 3200m → sincronizar como TMR en ruckProfile para Kraemer
-      if (d === '3200m') {
-        const parts3 = timeVal.split(':').map(Number);
-        const tmrSec = parts3.length === 3
-          ? parts3[0]*3600 + parts3[1]*60 + parts3[2]
-          : parts3[0]*60  + (parts3[1] || 0);
-        if (tmrSec > 0) {
-          const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-          profile.tmrSec = tmrSec;
-          profile.tmrStr = timeVal;
-          localStorage.setItem('ruckProfile', JSON.stringify(profile));
-          if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
-        }
-      }
-
-      // Limpiar campo de tiempo; la fecha se queda lista para la próxima entrada
-      const timeEl = document.getElementById('mt_'+d);
-      if (timeEl) timeEl.value = '';
-    });
-
-    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
-
-    buildPRDataFromHistory(history);
-    mostrarUltimosRegistros(history);
-    calcularZonasCarrera();
-
-    const activeBtn = document.querySelector('.th-dist-btn.active');
-    const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
-    const dist = m ? m[1] : '5km';
-    if (prData[dist]) updatePRChart(dist);
-
-    // Feedback visual
-    const btn = document.querySelector('.manual-save-btn');
-    const orig = btn.innerHTML;
-    if (added > 0) {
-      btn.innerHTML = '<i data-lucide="check" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i> Guardado';
-      btn.style.color = '#2ecc71';
-      btn.style.borderColor = 'rgba(46,204,113,0.4)';
-    } else {
-      btn.innerHTML = '<i data-lucide="minus" style="width:13px;height:13px;vertical-align:middle;margin-right:6px;"></i> Sin cambios';
-      btn.style.color = '#666';
-    }
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-    setTimeout(() => { btn.innerHTML = orig; btn.style.color=''; btn.style.borderColor=''; if(typeof lucide!=='undefined') lucide.createIcons(); }, 2200);
-  }
-
-  // Guarda UN solo tiempo (el de la distancia d) — botón por fila
-  function saveManualTime(d) {
-    const timeVal = document.getElementById('mt_'+d)?.value.trim();
-    const dateEl  = document.getElementById('md_'+d);
-    const dateVal = dateEl?.value || todayISO();
-    const feedEl  = document.getElementById('mlast_'+d);
-    const aviso = (txt, color) => { if (feedEl) { feedEl.textContent = txt; feedEl.style.color = color; } };
-
-    if (!timeVal) { aviso('Ingresa un tiempo', '#e07b00'); return; }
-    const parts = timeVal.split(':');
-    if (parts.length < 2 || parts.length > 3 || parts.some(p => p === '' || isNaN(parseInt(p)))) {
-      aviso('Formato MM:SS o H:MM:SS', '#e74c3c'); return;
-    }
-
-    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
-    if (!history[d]) history[d] = [];
-    if (history[d].some(e => e.date === dateVal && e.time === timeVal)) { aviso('Ya estaba registrado', '#888'); return; }
-    history[d].push({ date: dateVal, time: timeVal, source: 'manual' });
-    history[d].sort((a, b) => a.date.localeCompare(b.date));
-
-    // 3200m → sincronizar TMR para Kraemer
-    if (d === '3200m') {
-      const p3 = timeVal.split(':').map(Number);
-      const tmrSec = p3.length === 3 ? p3[0]*3600+p3[1]*60+p3[2] : p3[0]*60+(p3[1]||0);
-      if (tmrSec > 0) {
-        const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
-        profile.tmrSec = tmrSec; profile.tmrStr = timeVal;
-        localStorage.setItem('ruckProfile', JSON.stringify(profile));
-        if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
-      }
-    }
-
-    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
-    buildPRDataFromHistory(history);
-    mostrarUltimosRegistros(history);
-    calcularZonasCarrera();
-    const activeBtn = document.querySelector('.th-dist-btn.active');
-    const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
-    const dist = m ? m[1] : '5km';
-    if (prData[dist]) updatePRChart(dist);
-
-    const timeEl = document.getElementById('mt_'+d);
-    if (timeEl) timeEl.value = '';
-    aviso('✓ Guardado', '#2ecc71');
-    setTimeout(() => { if (feedEl) feedEl.style.color = ''; mostrarUltimosRegistros(JSON.parse(localStorage.getItem('manualTimesHistory')||'{}')); }, 2000);
-  }
-  window.saveManualTime = saveManualTime;
-
-  // Inyecta un botón "Guardar" en cada fila de distancia + guardar con Enter
-  function _injectManualSaveButtons() {
-    document.querySelectorAll('.manual-dist-item').forEach(item => {
-      const inp = item.querySelector('.manual-time-input');
-      if (!inp) return;
-      const d = inp.id.replace('mt_', '');
-      if (!item.querySelector('.manual-row-save')) {
-        const b = document.createElement('button');
-        b.className = 'manual-row-save';
-        b.textContent = '✓ Guardar';
-        b.style.cssText = 'margin-top:6px;width:100%;background:rgba(0,122,133,0.08);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:\'Barlow Condensed\',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:6px;border-radius:5px;cursor:pointer;';
-        b.onclick = () => saveManualTime(d);
-        item.appendChild(b);
-      }
-      if (!inp._enterBound) {
-        inp._enterBound = true;
-        inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); saveManualTime(d); } });
-      }
-    });
-  }
-
   function loadManualTimes() {
     // Migrar formato antiguo si existe
     let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
@@ -6257,8 +6193,6 @@
     });
 
     buildPRDataFromHistory(history);
-    mostrarUltimosRegistros(history);
-    _injectManualSaveButtons(); // botón "Guardar" por fila + guardar con Enter
 
     // Actualizar gráfico con la distancia activa
     const activeBtn = document.querySelector('.th-dist-btn.active');
@@ -6267,23 +6201,6 @@
     if (prData[dist] && typeof updatePRChart === 'function') updatePRChart(dist);
 
     calcularZonasCarrera();
-  }
-
-  // Muestra el último tiempo guardado debajo de cada input como referencia
-  function mostrarUltimosRegistros(history) {
-    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    ['1km','2km','2400m','5km','8km','10km','12km','15km','21km','42km'].forEach(d => {
-      const el = document.getElementById('mlast_'+d);
-      if (!el) return;
-      const entries = history[d];
-      if (!entries || !entries.length) { el.textContent = ''; return; }
-      const sorted = [...entries].sort((a,b) => b.date.localeCompare(a.date));
-      const last = sorted[0];
-      const [y, mo, da] = last.date.split('-').map(Number);
-      const fechaStr = `${da} ${meses[mo-1]} ${String(y).slice(2)}`;
-      const fuente  = last.source === 'strava' ? '🔗 Strava' : '✏️';
-      el.textContent = `${fuente} ${last.time} · ${fechaStr}`;
-    });
   }
 
   // ── ZONAS DE CARRERA (Cerezuela-Espejo et al., 2018) ──────────────────────────
