@@ -5327,6 +5327,42 @@
     const fechaEl = document.getElementById('endFecha');
     if (fechaEl) fechaEl.textContent = e.fecha ? 'Última evaluación: ' + e.fecha : '';
     res.style.display = 'block';
+    renderEnduranceProgreso();
+  }
+
+  // Gráfico de progresión VAM/FTP en el tiempo (ambos en km/h, eje compartido)
+  let _chartEndProg = null;
+  function renderEnduranceProgreso() {
+    const wrap = document.getElementById('endProgresoWrap');
+    const ctx  = document.getElementById('endProgresoChart');
+    if (!wrap || !ctx || typeof Chart === 'undefined') return;
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const hist = (profile.enduranceHistory || []).slice().sort((a, b) => a.date.localeCompare(b.date));
+    // Necesita al menos 2 mediciones para que "progresión" tenga sentido
+    if (hist.length < 2) { wrap.style.display = 'none'; if (_chartEndProg) { _chartEndProg.destroy(); _chartEndProg = null; } return; }
+    wrap.style.display = 'block';
+    const labels = hist.map(h => { const p = h.date.split('-'); return p[2] + '/' + p[1]; });
+    const vam = hist.map(h => h.vamMs ? +(h.vamMs * 3.6).toFixed(1) : null);
+    const ftp = hist.map(h => h.ftpMs ? +(h.ftpMs * 3.6).toFixed(1) : null);
+    if (_chartEndProg) _chartEndProg.destroy();
+    _chartEndProg = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets: [
+        { label: 'VAM', data: vam, borderColor: '#007a85', backgroundColor: 'rgba(0,122,133,0.10)', fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#007a85', pointBorderColor: '#fff', pointBorderWidth: 1.5, spanGaps: true },
+        { label: 'FTP', data: ftp, borderColor: '#C9A84C', backgroundColor: 'rgba(201,168,76,0.10)', fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#C9A84C', pointBorderColor: '#fff', pointBorderWidth: 1.5, spanGaps: true }
+      ]},
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { color: '#888', font: { size: 10 }, boxWidth: 10, padding: 10 } },
+          tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y + ' km/h' } }
+        },
+        scales: {
+          y: { ticks: { font: { size: 9 }, color: '#999', callback: v => v + '' }, grid: { color: 'rgba(0,0,0,0.05)' } },
+          x: { ticks: { font: { size: 9 }, color: '#999', maxTicksLimit: 7 }, grid: { display: false } }
+        }
+      }
+    });
   }
 
   function calcularYGuardarEndurance() {
@@ -5373,6 +5409,12 @@
         raw20minMs:    r.ftp   ? r.ftp.raw20minMs: prev.raw20minMs,
         fecha: new Date().toISOString().slice(0, 10),
       };
+      // Historial de VAM/FTP para el gráfico de progresión (snapshot por fecha)
+      if (!profile.enduranceHistory) profile.enduranceHistory = [];
+      const fH = profile.endurance.fecha;
+      profile.enduranceHistory = profile.enduranceHistory.filter(h => h.date !== fH);
+      profile.enduranceHistory.push({ date: fH, vamMs: profile.endurance.vamMs || null, ftpMs: profile.endurance.ftpMs || null });
+      profile.enduranceHistory.sort((a, b) => a.date.localeCompare(b.date));
       localStorage.setItem('ruckProfile', JSON.stringify(profile));
       if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
       mostrarEnduranceResultados(profile.endurance);

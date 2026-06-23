@@ -1278,6 +1278,12 @@
           </div>
           <div id="endMultNota" style="display:none;font-size:10px;color:#a8842a;margin-top:8px;text-align:center;"></div>
           <div id="endFecha" style="font-size:10px;color:#bbb;margin-top:8px;text-align:center;"></div>
+
+          <!-- Progresión VAM / FTP en el tiempo -->
+          <div id="endProgresoWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid rgba(0,0,0,0.07);">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:8px;text-align:center;">Progresión · VAM y FTP (km/h)</div>
+            <div style="height:160px;"><canvas id="endProgresoChart"></canvas></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2566,7 +2572,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260622f"></script>
+<script src="scripts.js?v=20260622g"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
