@@ -4883,10 +4883,14 @@
   function _zonasTxt(zsec) {
     if (!zsec || !zsec.some(v => v > 0)) return null;
     const cols = ['#3498db','#1abc9c','#2ecc71','#f39c12','#e74c3c'];
-    const tot = zsec.reduce((s, v) => s + v, 0);
-    const barras = zsec.map((v, i) => v > 0 ? `<div style="width:${(v/tot*100).toFixed(1)}%;background:${cols[i]};" title="Z${i+1}"></div>` : '').join('');
-    const txt = zsec.map((v, i) => v > 0 ? `Z${i+1} ${secToTime(v)}` : '').filter(Boolean).join(' · ');
-    return `<div style="display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin-top:4px;">${barras}</div><div style="font-size:10px;color:#999;margin-top:3px;">${txt}</div>`;
+    const segs = zsec.map((v, i) => {
+      if (v <= 0) return '';
+      return `<div style="flex:${v};min-width:0;display:flex;flex-direction:column;gap:2px;">
+        <div style="height:8px;background:${cols[i]};border-radius:3px;"></div>
+        <div style="font-size:9px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Z${i+1} ${secToTime(v)}</div>
+      </div>`;
+    }).join('');
+    return `<div style="display:flex;gap:3px;margin-top:6px;">${segs}</div>`;
   }
 
   function _histDetalle(item) {
