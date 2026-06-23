@@ -5361,15 +5361,19 @@
 
     // Agrupar por semana (lunes) — suma híbrida rTSS + rkTSS
     const porSemana = {};
+    const porSemanaRun = {};
+    const porSemanaRuck = {};
     sesiones.forEach(r => {
       const wk = _lunesDeSemana(r.date);
       porSemana[wk] = (porSemana[wk] || 0) + r.carga;
+      if (r.tipo === 'ruck') porSemanaRuck[wk] = (porSemanaRuck[wk] || 0) + r.carga;
+      else                   porSemanaRun[wk]  = (porSemanaRun[wk]  || 0) + r.carga;
     });
 
     // Últimas 10 semanas consecutivas (incluye semanas con 0)
     const semanas = Object.keys(porSemana).sort();
     const ultimaWk = semanas[semanas.length - 1];
-    const labels = [], data = [];
+    const labels = [], data = [], dataRun = [], dataRuck = [];
     const cursor = new Date(ultimaWk + 'T12:00:00');
     const arr = [];
     for (let i = 0; i < 10; i++) {
@@ -5381,6 +5385,8 @@
       const d = new Date(w.key + 'T12:00:00');
       labels.push(d.getDate() + '/' + (d.getMonth() + 1));
       data.push(w.val);
+      dataRun.push(porSemanaRun[w.key] || 0);
+      dataRuck.push(porSemanaRuck[w.key] || 0);
     });
 
     // ── Delta carga: semana actual vs semana anterior con actividad ──
@@ -5398,17 +5404,6 @@
         elDelta.style.display = 'none';
       }
     }
-
-    // Interpretabilidad: colorear semanas según su carga vs el promedio del atleta.
-    // Verde = suave · rojo = habitual · naranja = carga alta (pico, ojo recuperación)
-    const _nz = data.filter(v => v > 0);
-    const _prom = _nz.length ? _nz.reduce((s,v)=>s+v,0) / _nz.length : 0;
-    const _colores = data.map(v => {
-      if (v === 0) return 'rgba(0,0,0,0.06)';
-      if (_prom && v > _prom * 1.35) return 'rgba(224,123,0,0.85)';   // pico de carga
-      if (_prom && v < _prom * 0.6)  return 'rgba(30,140,58,0.6)';    // semana suave
-      return 'rgba(139,26,26,0.7)';                                    // carga habitual
-    });
 
     // Titular en lenguaje claro: última semana vs anterior
     const ultima = data[data.length - 1] || 0;
@@ -5429,15 +5424,29 @@
     const ctx = document.getElementById('chartRTSS');
     if (ctx && typeof Chart !== 'undefined') {
       if (_chartRTSS) _chartRTSS.destroy();
+      // Dos series apiladas: carrera limpia (rTSS) y ruck con lastre (rkTSS).
+      // El total por semana es el mismo, pero cada tipo se ve por separado → no parece duplicado.
+      const hayRuck = dataRuck.some(v => v > 0);
+      const datasets = [{
+        label: 'Carrera · rTSS', data: dataRun,
+        backgroundColor: 'rgba(0,122,133,0.78)', borderRadius: 4, maxBarThickness: 34, stack: 'carga'
+      }];
+      if (hayRuck) datasets.push({
+        label: 'Ruck c/lastre · rkTSS', data: dataRuck,
+        backgroundColor: 'rgba(201,168,76,0.88)', borderRadius: 4, maxBarThickness: 34, stack: 'carga'
+      });
       _chartRTSS = new Chart(ctx, {
         type: 'bar',
-        data: { labels, datasets: [{ data, backgroundColor: _colores, borderRadius: 4, maxBarThickness: 34 }] },
+        data: { labels, datasets },
         options: {
           responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => 'Carga ' + c.parsed.y } } },
+          plugins: {
+            legend: { display: hayRuck, position: 'bottom', labels: { color: '#f1ece4', font: { size: 9 }, boxWidth: 10, padding: 8 } },
+            tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y } }
+          },
           scales: {
-            y: { beginAtZero: true, ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { color: 'rgba(255,255,255,0.1)' } },
-            x: { ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { display: false } }
+            y: { beginAtZero: true, stacked: true, ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+            x: { stacked: true, ticks: { font: { size: 9 }, color: '#f1ece4' }, grid: { display: false } }
           }
         }
       });
