@@ -266,6 +266,8 @@
       if (dash) {
         dash.classList.add('open');
         document.body.style.overflow = 'hidden';
+        var _bgv = document.getElementById('dashBgVid');
+        if (_bgv) { _bgv.currentTime = 0; _bgv.play().catch(function(){}); }
         mostrarFraseCinema();
         // Init charts and real data after DOM is ready
         setTimeout(() => {
@@ -319,6 +321,8 @@
   function cerrarDash() {
     document.getElementById('dashboardAtleta').classList.remove('open');
     document.body.style.overflow = '';
+    var _bgv = document.getElementById('dashBgVid');
+    if (_bgv) { _bgv.pause(); _bgv.currentTime = 0; }
     localStorage.setItem('dashboardOpen', 'false');
     // Limpiar overlay cinema si quedó abierto
     var ov = document.getElementById('fraseOverlay');
