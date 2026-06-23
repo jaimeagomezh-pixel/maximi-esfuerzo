@@ -4891,7 +4891,7 @@
 
   function _histDetalle(item) {
     const chip = (lbl, val) => (val != null && val !== '')
-      ? `<div style="background:#f7f4ef;border:1px solid rgba(0,0,0,0.06);border-radius:7px;padding:8px 10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#999;text-transform:uppercase;">${lbl}</div><div style="font-size:14px;font-weight:700;color:#333;margin-top:2px;">${val}</div></div>`
+      ? `<div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:7px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#888;text-transform:uppercase;">${lbl}</div><div style="font-size:15px;font-weight:700;color:#00e5f0;margin-top:2px;">${val}</div></div>`
       : '';
     const chips = [];
     let zonasHtml = '', cache = null, esManual = item.source !== 'strava';
