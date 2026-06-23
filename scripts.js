@@ -4880,7 +4880,7 @@
       btn.style.transform = 'scale(1.04)';
       setTimeout(() => {
         btn.textContent = orig;
-        btn.style.background = '';
+        btn.style.background = '#8B1A1A';
         btn.style.transform = '';
       }, 1800);
     }
@@ -4937,7 +4937,7 @@
     if (typeof renderRendimiento === 'function') renderRendimiento();
     const btn = document.querySelector('[onclick="guardarRuck1RM()"]');
     if (btn) { const o = btn.textContent; btn.textContent = '✓ GUARDADO'; btn.style.background = '#27ae60';
-      setTimeout(() => { btn.textContent = o; btn.style.background = ''; }, 1600); }
+      setTimeout(() => { btn.textContent = o; btn.style.background = '#8B1A1A'; }, 1600); }
     pushRuckProfileToCloud(profile);
   }
 
