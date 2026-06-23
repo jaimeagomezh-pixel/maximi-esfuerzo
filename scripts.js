@@ -1725,9 +1725,12 @@
                  .reduce((s, a) => s + a.kj / 4.184, 0)
     );
 
-    // Gasto total = Garmin (base) + Strava (entrenamiento)
-    const gasto = (gastoGarmin || 0) + stravaKcalHoy > 0
-      ? (gastoGarmin || 0) + stravaKcalHoy
+    // Fuerza manual del día (estimación MET, sin reloj)
+    const fzaKcalHoy = _fzaKcalHoy();
+
+    // Gasto total = Garmin (base) + Strava (entrenamiento) + Fuerza manual
+    const gasto = (gastoGarmin || 0) + stravaKcalHoy + fzaKcalHoy > 0
+      ? (gastoGarmin || 0) + stravaKcalHoy + fzaKcalHoy
       : null;
 
     const gEl = document.getElementById('nutriGastadas');
@@ -1736,6 +1739,7 @@
       gEl.textContent = gasto.toLocaleString('es-CL') + ' kcal';
       let fuenteLabel = gastoGarmin ? 'Garmin' : '';
       if (stravaKcalHoy > 0) fuenteLabel += (fuenteLabel ? ' + ' : '') + 'Strava (' + stravaKcalHoy.toLocaleString('es-CL') + ' kcal entren.)';
+      if (fzaKcalHoy > 0) fuenteLabel += (fuenteLabel ? ' + ' : '') + 'Fuerza (' + fzaKcalHoy.toLocaleString('es-CL') + ' kcal)';
       gFuente.textContent = fuenteLabel || 'calculado';
       gFuente.style.color = '#27ae60';
       gFuente.style.cursor = ''; gFuente.style.textDecoration = ''; gFuente.onclick = null;
@@ -1745,6 +1749,9 @@
       gFuente.style.color = '#e0a82e';
       gFuente.style.cursor = 'pointer'; gFuente.style.textDecoration = 'underline'; gFuente.onclick = abrirGuiaReloj;
     }
+
+    // Lista de sesiones de fuerza manual de hoy (si las hay)
+    renderFzaHoy();
 
     // Objetivo del día (gasto total + ajuste del coach, o estimado si no hay datos)
     const obj = _fsObjetivo(gasto);
@@ -4005,6 +4012,98 @@
     if (lw && !lw._values) buildMeWheel(lw, RUCK_LOAD_VALS);
     return { dw, lw };
   }
+
+  // ══════════════════════════════════════════════════════════════════════
+  //  ENTRENAMIENTO DE FUERZA MANUAL (sin reloj) → gasto estimado por MET
+  //  El atleta no registra fuerza con Garmin/Strava; aquí ingresa solo el
+  //  tiempo (rueda) y se estima el gasto: kcal = MET · peso(kg) · horas.
+  // ══════════════════════════════════════════════════════════════════════
+  const MET_FUERZA = 5.0;   // resistencia/pesas, esfuerzo moderado-vigoroso (Compendio 2011)
+  const FZA_MIN_VALS = [10,15,20,25,30,35,40,45,50,55,60,70,75,80,90,100,110,120];
+
+  function _fzaPeso() {
+    try { const p = JSON.parse(localStorage.getItem('ruckProfile') || '{}'); if (p.bw > 0) return Number(p.bw); } catch(e) {}
+    const mp = parseFloat(document.getElementById('mpPeso')?.value);
+    return mp > 0 ? mp : 75; // fallback razonable si no hay peso aún
+  }
+  function _fzaKcal(min) { return Math.round(MET_FUERZA * _fzaPeso() * (min / 60)); }
+  function _fzaSesiones() { try { return JSON.parse(localStorage.getItem('strengthSessions') || '[]'); } catch(e) { return []; } }
+  function _fzaHoyStr() { return new Date().toISOString().slice(0, 10); }
+  function _fzaKcalHoy() {
+    const hoy = _fzaHoyStr();
+    return _fzaSesiones().filter(s => s.date === hoy).reduce((t, s) => t + (Number(s.kcal) || 0), 0);
+  }
+
+  function toggleFuerzaManual() {
+    const form = document.getElementById('fzaManualForm');
+    const btn  = document.getElementById('fzaToggleBtn');
+    if (!form) return;
+    const abrir = form.style.display === 'none' || form.style.display === '';
+    form.style.display = abrir ? 'block' : 'none';
+    if (btn) btn.textContent = abrir ? '✕ Cerrar' : '+ Registrar';
+    if (abrir) {
+      const wheel = document.getElementById('fzaMinWheel');
+      if (wheel && !wheel._values) buildMeWheel(wheel, FZA_MIN_VALS, (min) => _fzaActualizarPreview(min));
+      if (wheel) setMeWheelValue(wheel, 45, false);
+      _fzaActualizarPreview(45);
+    }
+  }
+
+  function _fzaActualizarPreview(min) {
+    const el = document.getElementById('fzaKcalPreview');
+    if (el) el.textContent = _fzaKcal(min).toLocaleString('es-CL') + ' kcal';
+  }
+
+  function guardarFuerzaManual() {
+    const wheel = document.getElementById('fzaMinWheel');
+    const st    = document.getElementById('fzaManualStatus');
+    const min   = wheel && wheel._values ? Number(wheel._values[wheel._idx]) : null;
+    if (!min || min <= 0) { if (st) { st.textContent = 'Elige una duración.'; st.style.color = '#d32f2f'; } return; }
+    const kcal = _fzaKcal(min);
+    const sesiones = _fzaSesiones();
+    sesiones.push({ id: 'fza' + Date.now().toString(36), date: _fzaHoyStr(), min, kcal });
+    localStorage.setItem('strengthSessions', JSON.stringify(sesiones));
+    if (st) { st.textContent = `✓ Fuerza registrada: ${min} min · ${kcal} kcal`; st.style.color = '#27ae60'; }
+    renderFzaHoy();
+    _fsRerender();   // refresca el gasto del día con la nueva sesión
+    // Cerrar el formulario tras un instante
+    setTimeout(() => { const f = document.getElementById('fzaManualForm'); const b = document.getElementById('fzaToggleBtn');
+      if (f) f.style.display = 'none'; if (b) b.textContent = '+ Registrar'; if (st) st.textContent = ''; }, 1400);
+  }
+
+  function eliminarFuerzaSesion(id) {
+    const sesiones = _fzaSesiones().filter(s => s.id !== id);
+    localStorage.setItem('strengthSessions', JSON.stringify(sesiones));
+    renderFzaHoy();
+    _fsRerender();
+  }
+
+  function renderFzaHoy() {
+    const cont = document.getElementById('fzaHoyList');
+    if (!cont) return;
+    const hoy = _fzaHoyStr();
+    const hoySes = _fzaSesiones().filter(s => s.date === hoy);
+    if (!hoySes.length) { cont.innerHTML = ''; return; }
+    cont.innerHTML = hoySes.map(s => `
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 0;border-top:1px solid rgba(0,0,0,0.05);">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:0.5px;color:#555;">
+          <span style="color:#8B1A1A;font-weight:700;">${s.min} min</span> · ${(Number(s.kcal)||0).toLocaleString('es-CL')} kcal
+        </div>
+        <button onclick="eliminarFuerzaSesion('${s.id}')" title="Eliminar"
+          style="background:none;border:1px solid rgba(0,0,0,0.15);border-radius:4px;color:#aaa;font-size:12px;padding:2px 7px;cursor:pointer;line-height:1;">✕</button>
+      </div>`).join('');
+  }
+
+  function _fsRerender() {
+    try {
+      const cache = JSON.parse(localStorage.getItem(_fsCacheKey()) || 'null');
+      if (cache && cache.data) _fsRender(cache.data);
+    } catch(e) {}
+  }
+
+  window.toggleFuerzaManual  = toggleFuerzaManual;
+  window.guardarFuerzaManual = guardarFuerzaManual;
+  window.eliminarFuerzaSesion = eliminarFuerzaSesion;
 
   // ══════════════════════════════════════════════════════════════════════
   //  PREDICTOR · TOLERANCIA A LA CARGA (Test 4.8 km + Squat Endurance)

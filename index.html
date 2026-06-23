@@ -2254,6 +2254,31 @@
             <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(212,168,67,0.15);text-align:center;font-size:10px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;color:#999;">Gasto del día: <span id="nutriGastadas" style="color:#cfc9c1;">—</span> · <span id="nutriGastoFuente">—</span></div>
           </div>
 
+          <!-- ENTRENAMIENTO DE FUERZA MANUAL (sin reloj) — estimación MET -->
+          <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(139,26,26,0.25);border-radius:10px;padding:14px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <div style="min-width:0;">
+                <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;color:#8B1A1A;text-transform:uppercase;font-weight:700;">Entrenamiento de fuerza</div>
+                <div style="font-size:10px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:0.5px;line-height:1.4;">Sin reloj · estima el gasto por tiempo (MET)</div>
+              </div>
+              <button id="fzaToggleBtn" onclick="toggleFuerzaManual()" style="flex-shrink:0;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:700;padding:8px 14px;border:none;border-radius:16px;cursor:pointer;">+ Registrar</button>
+            </div>
+
+            <!-- Formulario (oculto) -->
+            <div id="fzaManualForm" style="display:none;margin-top:14px;">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:8px;text-align:center;">Duración de la sesión</div>
+              <div style="display:flex;justify-content:center;margin-bottom:10px;">
+                <div class="me-wheel" id="fzaMinWheel" data-unit="min" style="width:130px;"></div>
+              </div>
+              <div style="text-align:center;margin-bottom:12px;font-size:12px;color:#666;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;">Gasto estimado: <span id="fzaKcalPreview" style="color:#8B1A1A;font-weight:700;">—</span></div>
+              <button onclick="guardarFuerzaManual()" style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:11px;border:none;border-radius:6px;cursor:pointer;">Guardar sesión</button>
+              <div id="fzaManualStatus" style="font-size:11px;color:#999;margin-top:8px;text-align:center;"></div>
+            </div>
+
+            <!-- Sesiones de fuerza de hoy -->
+            <div id="fzaHoyList" style="margin-top:10px;"></div>
+          </div>
+
           <!-- MACROS — barras tipo batería -->
           <div style="margin:0 0 10px;background:#fff;border:1px solid rgba(212,168,67,0.3);border-radius:10px;padding:18px 16px;">
 
@@ -2519,7 +2544,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260622d"></script>
+<script src="scripts.js?v=20260622e"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
