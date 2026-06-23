@@ -5239,8 +5239,18 @@ body.plan-activo .plan-lock  { display: none; }
 
   /* Panel transparente para que el fondo se vea a través del cristal */
   #dashboardAtleta .dashboard-box { background: transparent !important; position:relative; z-index:1; }
-  /* En sección: backdrop semitransparente — deja ver el fondo de sección */
-  #dashboardAtleta.sec-open .dashboard-box { background: rgba(4,5,7,0.60) !important; }
+  /* En sección: caja transparente para dejar ver el fondo de sección */
+  #dashboardAtleta.sec-open .dashboard-box  { background: transparent !important; }
+  /* Cuerpo del acordeón transparente en sección abierta */
+  #dashboardAtleta.sec-open .me-accord-body { background: transparent !important; }
+  /* Vidrio suave sobre el contenido activo para legibilidad sin bloquear el fondo */
+  #dashboardAtleta.nav-cards .me-accord.is-active {
+    background: rgba(0,0,0,0.38);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(255,255,255,0.07);
+    min-height: 100vh;
+  }
 
   /* Tarjetas cristalizadas (glassmorphism) */
   #dashboardAtleta .dash-navcard {
