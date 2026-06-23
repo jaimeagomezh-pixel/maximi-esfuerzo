@@ -348,7 +348,7 @@
       '</div>';
     var hint = document.createElement('div');
     hint.className = 'fop-hint';
-    hint.textContent = 'toca para continuar';
+    hint.innerHTML = '<img src="Imagenes/img01.png" class="fop-hint-logo" alt="" aria-hidden="true">';
 
     ov.appendChild(placa);
     ov.appendChild(hint);

@@ -4798,15 +4798,17 @@ body.plan-activo .plan-lock  { display: none; }
     text-align: right;
   }
   .fop-hint {
-    margin-top: 28px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: rgba(180,140,40,0.5);
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
     animation: fopBlink 1.8s ease-in-out infinite;
   }
-  @keyframes fopBlink { 0%,100% { opacity: 0.4; } 50% { opacity: 0.9; } }
+  .fop-hint-logo {
+    width: 230px;
+    mix-blend-mode: screen;
+    filter: drop-shadow(0 0 10px rgba(201,168,76,0.55)) drop-shadow(0 0 32px rgba(201,168,76,0.25));
+  }
+  @keyframes fopBlink { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
 
   @media (prefers-reduced-motion: reduce) {
     #dashboardAtleta.open .dash-frase-wrap,
