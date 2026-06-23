@@ -5214,11 +5214,33 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta .dash-bg::after {
     content:''; position:absolute; inset:0;
     background: linear-gradient(180deg, rgba(5,6,8,0.15) 0%, rgba(5,6,8,0.40) 55%, rgba(5,6,8,0.60) 100%);
+    transition: background 0.6s ease;
   }
+  /* En sección con imagen propia: scrim más suave para que se vea el fondo */
+  #dashboardAtleta.sec-open .dash-bg::after {
+    background: linear-gradient(180deg, rgba(5,6,8,0.30) 0%, rgba(5,6,8,0.52) 55%, rgba(5,6,8,0.72) 100%);
+  }
+
+  /* Capa de fondo por sección (Ken Burns) */
+  #dashboardAtleta .dash-sec-bg {
+    position: absolute; inset: 0; z-index: 1;
+    background-size: cover; background-position: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  #dashboardAtleta .dash-sec-bg.active {
+    opacity: 1;
+    animation: secBgKenBurns 22s ease-out forwards;
+  }
+  @keyframes secBgKenBurns {
+    from { transform: scale(1.0); }
+    to   { transform: scale(1.12); }
+  }
+
   /* Panel transparente para que el fondo se vea a través del cristal */
   #dashboardAtleta .dashboard-box { background: transparent !important; position:relative; z-index:1; }
-  /* En sección: backdrop oscuro local para legibilidad del contenido */
-  #dashboardAtleta.sec-open .dashboard-box { background: rgba(6,7,9,0.85) !important; }
+  /* En sección: backdrop semitransparente — deja ver el fondo de sección */
+  #dashboardAtleta.sec-open .dashboard-box { background: rgba(4,5,7,0.60) !important; }
 
   /* Tarjetas cristalizadas (glassmorphism) */
   #dashboardAtleta .dash-navcard {

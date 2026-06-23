@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260623i">
+<link rel="stylesheet" href="styles.css?v=20260623j">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -667,6 +667,7 @@
 <div id="dashboardAtleta" onclick="cerrarDashClick(event)">
   <!-- Fondo: video en loop (sin fuente todavía → cae al fondo animado CSS) + scrim -->
   <div class="dash-bg" aria-hidden="true">
+    <div id="dashSecBg" class="dash-sec-bg"></div>
     <video id="dashBgVid" class="dash-bg-video has-src" autoplay muted playsinline preload="auto"
       onended="this.currentTime=0.001"
     ><source src="Imagenes/video-dashboard.mp4" type="video/mp4"></video>
@@ -3194,6 +3195,24 @@ function openDashSection(id) {
   const label = acc.querySelector('.me-accord-label');
   const t = document.getElementById('dashBackTitle');
   if (t) t.textContent = label ? label.textContent.trim() : '';
+  // Fondo de sección específico
+  var _SEC_BG = { 'fuerza': 'Imagenes/fondo-fuerza.jpg' };
+  var _secBgEl = document.getElementById('dashSecBg');
+  var _bgVid   = document.getElementById('dashBgVid');
+  var _secLbl  = ((acc.querySelector('.me-accord-label') || {}).textContent || '').trim().toLowerCase();
+  var _secSrc  = _SEC_BG[_secLbl];
+  if (_secBgEl) {
+    _secBgEl.classList.remove('active');
+    void _secBgEl.offsetWidth; // reinicia animación
+    if (_secSrc) {
+      _secBgEl.style.backgroundImage = "url('" + _secSrc + "')";
+      _secBgEl.classList.add('active');
+      if (_bgVid) _bgVid.style.opacity = '0';
+    } else {
+      _secBgEl.style.backgroundImage = '';
+      if (_bgVid) _bgVid.style.opacity = '';
+    }
+  }
   dash.classList.add('sec-open');
   dash.scrollTop = 0;
   if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -3213,6 +3232,10 @@ function closeDashSection() {
   dash.querySelectorAll('.me-accord').forEach(a => a.classList.remove('is-active'));
   dash.classList.remove('sec-open');
   dash.scrollTop = 0;
+  var _secBgEl = document.getElementById('dashSecBg');
+  var _bgVid   = document.getElementById('dashBgVid');
+  if (_secBgEl) { _secBgEl.classList.remove('active'); _secBgEl.style.backgroundImage = ''; }
+  if (_bgVid)   { _bgVid.style.opacity = ''; }
   updateNavMetrics();
 }
 
