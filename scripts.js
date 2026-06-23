@@ -267,8 +267,14 @@
         dash.classList.add('open');
         document.body.style.overflow = 'hidden';
         var _bgv = document.getElementById('dashBgVid');
-        if (_bgv) { _bgv.currentTime = 0; _bgv.play().catch(function(){}); }
+        if (_bgv) { _bgv.pause(); _bgv.currentTime = 0; }
+        clearInterval(window._dashVidInterval);
         mostrarFraseCinema();
+        // Fallback: si la placa no se muestra, arrancar video directamente
+        if (!document.getElementById('fraseOverlay')) {
+          if (_bgv) _bgv.play().catch(function(){});
+          window._dashVidInterval = setInterval(function(){ var v=document.getElementById('dashBgVid'); if(v){v.currentTime=0;v.play().catch(function(){});} }, 30000);
+        }
         // Init charts and real data after DOM is ready
         setTimeout(() => {
           if (typeof initCharts === 'function') initCharts();
@@ -321,6 +327,7 @@
   function cerrarDash() {
     document.getElementById('dashboardAtleta').classList.remove('open');
     document.body.style.overflow = '';
+    clearInterval(window._dashVidInterval);
     var _bgv = document.getElementById('dashBgVid');
     if (_bgv) { _bgv.pause(); _bgv.currentTime = 0; }
     localStorage.setItem('dashboardOpen', 'false');
@@ -357,6 +364,14 @@
     var cerrar = function() {
       if (!ov.parentNode) return;
       ov.classList.add('saliendo');
+      // Arrancar video al cerrar la placa + reinicio cada 30s
+      var _v = document.getElementById('dashBgVid');
+      if (_v) { _v.currentTime = 0; _v.play().catch(function(){}); }
+      clearInterval(window._dashVidInterval);
+      window._dashVidInterval = setInterval(function() {
+        var vv = document.getElementById('dashBgVid');
+        if (vv) { vv.currentTime = 0; vv.play().catch(function(){}); }
+      }, 30000);
       setTimeout(function() { if (ov.parentNode) ov.parentNode.removeChild(ov); }, 560);
     };
 
