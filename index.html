@@ -669,6 +669,25 @@
   <div class="dash-bg" aria-hidden="true">
     <video class="dash-bg-video" autoplay muted loop playsinline preload="auto"></video>
   </div>
+
+  <!-- OVERLAY: HISTORIAL COMPLETO (carreras / rucking) — pantalla aparte -->
+  <div id="histOverlay" onclick="event.stopPropagation()" style="display:none;position:fixed;inset:0;z-index:1200;background:#f4f1ec;overflow-y:auto;">
+    <div style="position:sticky;top:0;background:#0d0d0d;color:#fff;display:flex;align-items:center;gap:12px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.25);">
+      <button onclick="cerrarHistorial()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:8px;color:#fff;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div>
+        <div id="histOverlayTitle" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:1px;line-height:1;">Historial</div>
+        <div id="histOverlayCount" style="font-size:11px;color:#999;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;"></div>
+      </div>
+    </div>
+    <div style="max-width:680px;margin:0 auto;padding:16px 18px 40px;">
+      <div id="histOverlayList"></div>
+      <div style="text-align:center;margin-top:14px;">
+        <button id="histOverlayMas" onclick="histMasOverlay()" style="display:none;background:#fff;border:1px solid rgba(0,0,0,0.15);color:#666;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;padding:9px 20px;border-radius:16px;cursor:pointer;">Ver más</button>
+      </div>
+    </div>
+  </div>
   <div class="dashboard-box">
 
     <div class="dash-header">
@@ -1214,15 +1233,9 @@
             Agregar Registro
           </button>
 
-          <!-- Historial completo de carreras (paginado) -->
+          <!-- Historial completo de carreras → pantalla aparte -->
           <div style="margin-top:12px;text-align:center;">
-            <button id="runHistBtn" onclick="toggleRunHistorial()" style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial de carreras</button>
-          </div>
-          <div id="runHistWrap" style="display:none;margin-top:12px;">
-            <div id="runHistList"></div>
-            <div style="text-align:center;margin-top:8px;">
-              <button id="runHistMas" onclick="runHistMasCarreras()" style="display:none;background:none;border:1px solid rgba(0,0,0,0.15);color:#888;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 16px;border-radius:14px;cursor:pointer;">Ver más</button>
-            </div>
+            <button onclick="abrirHistorial('run')" style="background:rgba(0,122,133,0.07);border:1px solid rgba(0,122,133,0.3);color:#007a85;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial de carreras →</button>
           </div>
         </div>
       </div>
@@ -1792,15 +1805,9 @@
           <div id="ruckASessionsList"></div>
         </div>
 
-        <!-- Historial completo (paginado) -->
+        <!-- Historial completo → pantalla aparte -->
         <div style="margin-top:12px;text-align:center;">
-          <button id="ruckHistBtn" onclick="toggleRuckHistorial()" style="background:rgba(139,26,26,0.06);border:1px solid rgba(139,26,26,0.3);color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial completo</button>
-        </div>
-        <div id="ruckHistWrap" style="display:none;margin-top:12px;">
-          <div id="ruckHistList"></div>
-          <div style="text-align:center;margin-top:8px;">
-            <button id="ruckHistMas" onclick="ruckHistMasSesiones()" style="display:none;background:none;border:1px solid rgba(0,0,0,0.15);color:#888;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 16px;border-radius:14px;cursor:pointer;">Ver más</button>
-          </div>
+          <button onclick="abrirHistorial('ruck')" style="background:rgba(139,26,26,0.06);border:1px solid rgba(139,26,26,0.3);color:#8B1A1A;font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:8px 16px;border-radius:16px;cursor:pointer;">Ver historial completo →</button>
         </div>
 
       </div><!-- /ruckAData -->
@@ -2572,7 +2579,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260622g"></script>
+<script src="scripts.js?v=20260622h"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
