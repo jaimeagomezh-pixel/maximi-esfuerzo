@@ -5983,8 +5983,70 @@
     const isOpen = panel.style.display !== 'none';
     panel.style.display = isOpen ? 'none' : 'block';
     icon.classList.toggle('open', !isOpen);
+    if (!isOpen) ensureRefWheels();
     if (typeof lucide !== 'undefined') lucide.createIcons();
   }
+
+  // ── Tiempos de Referencia con ruletas (distancia + H:M:S + fecha) ────────
+  // Distancias mapeadas a las claves de manualTimesHistory (km decimal → clave).
+  const RUN_DIST = [
+    { k:'1km', km:1 }, { k:'2km', km:2 }, { k:'2400m', km:2.4 }, { k:'3200m', km:3.2 },
+    { k:'5km', km:5 }, { k:'8km', km:8 }, { k:'10km', km:10 }, { k:'12km', km:12 },
+    { k:'15km', km:15 }, { k:'21km', km:21 }, { k:'42km', km:42 }
+  ];
+  function ensureRefWheels() {
+    const dw = document.getElementById('refDistWheel');
+    const hw = document.getElementById('refHWheel');
+    const mw = document.getElementById('refMWheel');
+    const sw = document.getElementById('refSWheel');
+    if (dw && !dw._values) { buildMeWheel(dw, RUN_DIST.map(d => d.km)); setMeWheelValue(dw, 5, false); }
+    if (hw && !hw._values) { buildMeWheel(hw, Array.from({length:7}, (_,i)=>i)); setMeWheelValue(hw, 0, false); }
+    if (mw && !mw._values) { buildMeWheel(mw, Array.from({length:60}, (_,i)=>i)); setMeWheelValue(mw, 25, false); }
+    if (sw && !sw._values) { buildMeWheel(sw, Array.from({length:60}, (_,i)=>i)); setMeWheelValue(sw, 0, false); }
+    const dateEl = document.getElementById('refDate');
+    if (dateEl && !dateEl.value) dateEl.value = todayISO();
+  }
+  function _refWheelVal(id) { const w = document.getElementById(id); return w && w._values ? Number(w._values[w._idx]) : 0; }
+
+  function saveRefTime() {
+    const st = document.getElementById('refStatus');
+    const aviso = (txt, color) => { if (st) { st.textContent = txt; st.style.color = color; } };
+    const km = _refWheelVal('refDistWheel');
+    const dist = (RUN_DIST.find(d => d.km === km) || RUN_DIST[4]).k;
+    const h = _refWheelVal('refHWheel'), m = _refWheelVal('refMWheel'), s = _refWheelVal('refSWheel');
+    const totalSec = h*3600 + m*60 + s;
+    if (totalSec <= 0) { aviso('Ajusta el tiempo (mayor a 0).', '#e74c3c'); return; }
+    const pad = n => String(n).padStart(2, '0');
+    const timeVal = h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+    const dateVal = document.getElementById('refDate')?.value || todayISO();
+
+    let history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    if (!history[dist]) history[dist] = [];
+    if (history[dist].some(e => e.date === dateVal && e.time === timeVal)) { aviso('Ya estaba registrado.', '#888'); return; }
+    history[dist].push({ date: dateVal, time: timeVal, source: 'manual' });
+    history[dist].sort((a, b) => a.date.localeCompare(b.date));
+
+    // 3200m → sincronizar TMR para Kraemer
+    if (dist === '3200m' && totalSec > 0) {
+      const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      profile.tmrSec = totalSec; profile.tmrStr = timeVal;
+      localStorage.setItem('ruckProfile', JSON.stringify(profile));
+      if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+    }
+
+    localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+    buildPRDataFromHistory(history);
+    calcularZonasCarrera();
+    const activeBtn = document.querySelector('.th-dist-btn.active');
+    const mm = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
+    const distSel = mm ? mm[1] : '5km';
+    if (prData[distSel]) updatePRChart(distSel);
+
+    aviso(`✓ Guardado: ${(RUN_DIST.find(d=>d.k===dist).km)} km · ${timeVal}`, '#2ecc71');
+    setTimeout(() => { if (st) { st.textContent = ''; st.style.color = '#999'; } }, 2200);
+  }
+  window.saveRefTime = saveRefTime;
+  window.ensureRefWheels = ensureRefWheels;
 
   // ── HISTORIAL DE TIEMPOS MANUALES ────────────────
   // Formato localStorage: manualTimesHistory = { "10km": [{date:"YYYY-MM-DD", time:"MM:SS"}, ...], ... }
