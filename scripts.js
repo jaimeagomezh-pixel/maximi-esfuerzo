@@ -4812,15 +4812,32 @@
   function histMasOverlay() { _histShown += 20; renderHistorialOverlay(); }
 
   function _histDatos() {
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     if (_histTipo === 'ruck') {
       return JSON.parse(localStorage.getItem('ruckSessions') || '[]')
         .slice().sort((a, b) => b.date.localeCompare(a.date));
     }
-    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    // Carreras de Strava
+    const RUN_T = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
+    const stravaCache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const stravaRuns = stravaCache
+      .filter(a => RUN_T.has(a.type) && a.km > 0 && a.sec > 0 && parseLastreKg(a.name) === null)
+      .map(a => ({
+        date: a.date, dist: a.km.toFixed(1) + ' km', time: secToTime(a.sec),
+        source: 'strava', _km: a.km, _sec: a.sec,
+        _hr: a.hr || null, _zsec: a.zsec || null, _meses: meses
+      }));
+    // Registros manuales — omitir los que ya tienen entrada Strava para la misma fecha+km
     const hist = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
-    const all = [];
-    Object.keys(hist).forEach(dist => (hist[dist] || []).forEach(e => all.push({ dist, ...e, _meses: meses })));
-    return all.sort((a, b) => b.date.localeCompare(a.date));
+    const manualRuns = [];
+    Object.keys(hist).forEach(distKey => {
+      (hist[distKey] || []).forEach(e => {
+        const km = (RUN_DIST.find(d => d.k === distKey) || {}).km || parseFloat(distKey) || null;
+        const hayStrava = km && stravaRuns.some(r => r.date === e.date && Math.abs(r._km - km) <= Math.max(0.3, km * 0.12));
+        if (!hayStrava) manualRuns.push({ dist: distKey, time: e.time, date: e.date, source: e.source || 'manual', _km: km, _sec: _parseTimeToSec(e.time) || null, _meses: meses });
+      });
+    });
+    return [...stravaRuns, ...manualRuns].sort((a, b) => b.date.localeCompare(a.date));
   }
 
   // Tarjeta clickeable: cabecera + detalle desplegable (acordeón)
@@ -4913,18 +4930,23 @@
       if (cache && cache.hr) chips.push(chip('FC media', cache.hr + ' ppm'));
       if (cache && cache.zsec) zonasHtml = _zonasTxt(cache.zsec);
     } else {
-      const km = (RUN_DIST.find(d => d.k === item.dist) || {}).km || parseFloat(item.dist) || null;
-      const sec = _parseTimeToSec(item.time);
-      cache = _cacheRunMatch(item.date, km);
+      const km = item._km || (RUN_DIST.find(d => d.k === item.dist) || {}).km || parseFloat(item.dist) || null;
+      const sec = item._sec || _parseTimeToSec(item.time);
+      let fcHr = item._hr || null;
+      let fcZsec = item._zsec || null;
+      if (!fcHr && !fcZsec) {
+        cache = _cacheRunMatch(item.date, km);
+        if (cache) { fcHr = cache.hr || null; fcZsec = cache.zsec || null; }
+      }
       chips.push(chip('Distancia', km ? km + ' km' : item.dist));
       chips.push(chip('Tiempo', item.time));
       chips.push(chip('Ritmo', _fmtPaceMinKm(sec, km)));
-      if (cache && cache.hr) chips.push(chip('FC media', cache.hr + ' ppm'));
-      if (cache && cache.zsec) zonasHtml = _zonasTxt(cache.zsec);
+      if (fcHr) chips.push(chip('FC media', fcHr + ' ppm'));
+      if (fcZsec) zonasHtml = _zonasTxt(fcZsec);
     }
     const grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${chips.filter(Boolean).join('')}</div>`;
     const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC</div>${zonasHtml}</div>` : '';
-    const nota = (!cache && esManual) ? '<div style="font-size:10px;color:#bbb;margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
+    const nota = (esManual && !zonasHtml) ? '<div style="font-size:10px;color:#bbb;margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
     return grid + zonas + nota;
   }
 
