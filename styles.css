@@ -5407,3 +5407,45 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta .me-blt-bar { position:relative; height:12px; background:rgba(255,255,255,0.05); border-radius:3px; }
   #dashboardAtleta .me-blt-fill { position:absolute; left:0; top:0; height:100%; border-radius:3px; transition:width .8s cubic-bezier(.16,1,.3,1); }
   #dashboardAtleta .me-blt-target { position:absolute; top:-2px; width:2px; height:16px; background:#f1ece4; opacity:0.85; }
+
+  /* ══════════════════════════════════════════════════════════
+     OPTIMIZACIÓN ESCRITORIO · panel del atleta (≥1024px)
+     Solo afecta pantallas anchas; el layout móvil (reglas max-width)
+     queda intacto. Centra el panel, ensancha el contenedor, reparte
+     las tarjetas y muestra el contenido de cada sección en 2 columnas.
+  ══════════════════════════════════════════════════════════ */
+  @media (min-width: 1024px) {
+    /* Contenedor centrado y más ancho (antes 680px pegado a la izquierda) */
+    #dashboardAtleta .dashboard-box {
+      max-width: 1120px;
+      margin-left: auto; margin-right: auto;
+    }
+
+    /* Home: grilla de accesos en 3 columnas, tarjetas con más aire */
+    #dashboardAtleta .dash-cardnav {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px; padding: 18px 22px 10px;
+      max-width: 920px; margin: 0 auto;
+    }
+    #dashboardAtleta .dash-navcard { min-height: 138px; padding: 18px 16px 15px; }
+    #dashboardAtleta .dash-navcard-icon { width: 44px; height: 44px; }
+    #dashboardAtleta .dash-navcard-icon svg { width: 27px; height: 27px; }
+    #dashboardAtleta .dash-navcard-label { font-size: 16px; }
+
+    /* Perfil, banner y conexiones del home: centrados y acotados para no estirarse */
+    #dashboardAtleta .dash-profile,
+    #dashboardAtleta #dashSinPlanBanner,
+    #dashboardAtleta .dash-connect-grid { max-width: 920px; margin-left: auto; margin-right: auto; }
+
+    /* Sección abierta: contenido en 2 columnas tipo "masonry" para usar el ancho */
+    #dashboardAtleta.sec-open .me-accord.is-active .sec-flat {
+      column-count: 2; column-gap: 30px;
+      max-width: 1040px; margin: 0 auto; padding: 4px 12px 24px;
+    }
+    /* Cada bloque no se parte entre columnas */
+    #dashboardAtleta.sec-open .me-accord.is-active .sec-flat > * {
+      break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid;
+    }
+    /* Back bar centrada al ancho del contenido */
+    #dashboardAtleta.sec-open .dash-backbar { padding-left: 22px; padding-right: 22px; }
+  }
