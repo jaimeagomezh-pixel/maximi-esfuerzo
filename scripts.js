@@ -1222,13 +1222,14 @@
 
   // Enriquece el cache con el tiempo REAL en cada zona FC (endpoint /zones de Strava).
   // Solo consulta actividades con FC que aún no tienen zsec; acotado para respetar el rate-limit.
-  async function enriquecerZonasFC(token, maxFetch = 12) {
+  async function enriquecerZonasFC(token, maxFetch = 25) {
     const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const fcMax = perfil.fcMax || null;
-    // Pendientes: tienen FC media y aún no tienen tiempo-en-zona real. Más recientes primero.
+    // Pendientes: tienen FC y (a) nunca se procesaron (zsec==null) o (b) se procesaron sin fcMax (zsec=[]).
+    // "false" = procesada SIN zonas con fcMax disponible → no reintentar (evita loop infinito).
     const pendientes = cache
-      .filter(a => a.id && a.hr && !a.zsec)
+      .filter(a => a.id && a.hr && (a.zsec == null || (Array.isArray(a.zsec) && a.zsec.length === 0)))
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, maxFetch);
     if (!pendientes.length) return;
@@ -1242,9 +1243,9 @@
         const zonas = await res.json();
         const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
         const zsec = hrZone ? _zsecDesdeBuckets(hrZone.distribution_buckets, fcMax) : null;
-        // Marcar como procesada aunque no tenga zonas (evita reintentar infinito)
         const idx = cache.findIndex(c => c.id === act.id);
-        if (idx >= 0) { cache[idx].zsec = zsec || []; cambios = true; }
+        // Si tiene fcMax: marcar como intentada (false) aunque no haya zonas; sin fcMax: dejar [] para reintentar.
+        if (idx >= 0) { cache[idx].zsec = zsec || (fcMax ? false : []); cambios = true; }
       } catch (e) {
         if (e && e.rateLimited) break; // detener al tocar el rate-limit; se reintenta el próximo sync
       }
@@ -4933,10 +4934,15 @@
       const km = item._km || (RUN_DIST.find(d => d.k === item.dist) || {}).km || parseFloat(item.dist) || null;
       const sec = item._sec || _parseTimeToSec(item.time);
       let fcHr = item._hr || null;
-      let fcZsec = item._zsec || null;
-      if (!fcHr && !fcZsec) {
+      // zsec válido solo si es array con al menos una zona > 0
+      let fcZsec = (Array.isArray(item._zsec) && item._zsec.some(v => v > 0)) ? item._zsec : null;
+      if (!fcZsec) {
+        // Siempre buscar en caché si no hay zonas válidas (aunque tengamos HR)
         cache = _cacheRunMatch(item.date, km);
-        if (cache) { fcHr = cache.hr || null; fcZsec = cache.zsec || null; }
+        if (cache) {
+          if (!fcHr) fcHr = cache.hr || null;
+          if (Array.isArray(cache.zsec) && cache.zsec.some(v => v > 0)) fcZsec = cache.zsec;
+        }
       }
       chips.push(chip('Distancia', km ? km + ' km' : item.dist));
       chips.push(chip('Tiempo', item.time));
