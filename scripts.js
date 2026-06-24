@@ -4852,11 +4852,11 @@
       const pot = calcPotenciaRuck(item);
       head = `
         <div style="flex:1;min-width:0;">
-          <div style="font-size:15px;font-weight:700;color:#1a1a1a;">${fmtTimerRuck(item.time)}</div>
-          <div style="font-size:11px;color:#888;">${fmtDateRuck(item.date)}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · manual'}</div>
+          <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.92);">${fmtTimerRuck(item.time)}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);">${fmtDateRuck(item.date)}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · manual'}</div>
         </div>
         <div style="text-align:right;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#8B1A1A;font-weight:700;">${item.dist} km · ${item.load} kg</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:#ff7b7b;font-weight:700;">${item.dist} km · ${item.load} kg</div>
           ${pot ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:#C9A84C;">${pot} W</div>` : ''}
         </div>`;
     } else {
@@ -4864,18 +4864,18 @@
       const fechaStr = `${da} ${item._meses[mo-1]} ${String(y).slice(2)}`;
       head = `
         <div style="flex:1;min-width:0;">
-          <div style="font-size:15px;font-weight:700;color:#1a1a1a;">${item.time}</div>
-          <div style="font-size:11px;color:#888;">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · <span style="color:#007a85;">manual</span>'}</div>
+          <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.92);">${item.time}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · <span style="color:#00e5f0;">manual</span>'}</div>
         </div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;color:#007a85;font-weight:700;">${item.dist}</div>`;
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;color:#00e5f0;font-weight:700;">${item.dist}</div>`;
     }
     return `
-      <div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
         <div onclick="histToggleDetail(${i})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;">
           ${head}
-          <svg id="histChev-${i}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#bbb" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+          <svg id="histChev-${i}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="histDet-${i}" style="display:none;padding:0 14px 14px;"></div>
+        <div id="histDet-${i}" style="display:none;padding:0 14px 14px;border-top:1px solid rgba(255,255,255,0.08);"></div>
       </div>`;
   }
 
@@ -4918,7 +4918,7 @@
 
   function _histDetalle(item) {
     const chip = (lbl, val) => (val != null && val !== '')
-      ? `<div style="background:#fff;border:1px solid rgba(0,0,0,0.1);border-radius:7px;padding:8px 10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#888;text-transform:uppercase;">${lbl}</div><div style="font-size:15px;font-weight:700;color:#00e5f0;margin-top:2px;">${val}</div></div>`
+      ? `<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:8px 10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;">${lbl}</div><div style="font-size:15px;font-weight:700;color:#00e5f0;margin-top:2px;">${val}</div></div>`
       : '';
     const chips = [];
     let zonasHtml = '', cache = null, esManual = item.source !== 'strava';
@@ -4956,8 +4956,8 @@
       if (fcZsec) zonasHtml = _zonasTxt(fcZsec);
     }
     const grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${chips.filter(Boolean).join('')}</div>`;
-    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:#999;text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC</div>${zonasHtml}</div>` : '';
-    const nota = (esManual && !zonasHtml) ? '<div style="font-size:10px;color:#bbb;margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
+    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC</div>${zonasHtml}</div>` : '';
+    const nota = (esManual && !zonasHtml) ? '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
     return grid + zonas + nota;
   }
 
