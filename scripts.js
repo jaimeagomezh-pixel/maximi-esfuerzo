@@ -1322,20 +1322,32 @@
     if (sinDatos)  sinDatos.style.display  = 'none';
     if (contenido) contenido.style.display = 'block';
 
-    // Meses disponibles (YYYY-MM), ordenados desc
+    // Meses y años disponibles, ordenados desc
     const meses = [...new Set(cache.map(a => a.date.slice(0, 7)))].sort().reverse();
-    if (!_resMesActivo || !meses.includes(_resMesActivo)) _resMesActivo = meses[0];
+    const años  = [...new Set(cache.map(a => a.date.slice(0, 4)))].sort().reverse();
+    const todosValidos = [...meses, ...años];
+    if (!_resMesActivo || !todosValidos.includes(_resMesActivo)) _resMesActivo = meses[0];
 
-    // Botones de mes
-    selector.innerHTML = meses.slice(0, 12).map(m => {
+    const _btnStyle = (active) =>
+      `font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:20px;cursor:pointer;border:1px solid ${active?'rgba(0,200,212,0.4)':'rgba(255,255,255,0.1)'};background:${active?'rgba(0,200,212,0.14)':'transparent'};color:${active?'#00c8d4':'rgba(255,255,255,0.5)'};transition:all .2s;`;
+
+    // Botones de año (uno por año con datos) + meses
+    const añoBtns = años.map(y => {
+      const active = _resMesActivo === y;
+      return `<button onclick="selectResMes('${y}')" style="${_btnStyle(active)}font-weight:${active?'700':'600'};">↳ ${y}</button>`;
+    }).join('');
+    selector.innerHTML = añoBtns + meses.slice(0, 12).map(m => {
       const [y, mo] = m.split('-');
       const label = `${MESES_ABR[parseInt(mo)-1]} ${y}`;
       const active = m === _resMesActivo;
-      return `<button onclick="selectResMes('${m}')" style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:20px;cursor:pointer;border:1px solid ${active?'rgba(0,200,212,0.4)':'rgba(255,255,255,0.1)'};background:${active?'rgba(0,200,212,0.14)':'transparent'};color:${active?'#00c8d4':'rgba(255,255,255,0.5)'};transition:all .2s;">${label}</button>`;
+      return `<button onclick="selectResMes('${m}')" style="${_btnStyle(active)}">${label}</button>`;
     }).join('');
 
-    // Filtrar actividades del mes activo
-    const acts = cache.filter(a => a.date.slice(0, 7) === _resMesActivo);
+    // Filtrar actividades: año completo (4 chars) o mes (7 chars)
+    const esAño = _resMesActivo.length === 4;
+    const acts = cache.filter(a => esAño
+      ? a.date.startsWith(_resMesActivo)
+      : a.date.slice(0, 7) === _resMesActivo);
 
     // Stats
     const km    = acts.reduce((s, a) => s + a.km, 0);
