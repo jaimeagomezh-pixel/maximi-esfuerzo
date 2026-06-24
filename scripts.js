@@ -5798,7 +5798,7 @@
         options: {
           responsive: true, maintainAspectRatio: false,
           plugins: {
-            legend: { display: true, position: 'bottom', labels: { color: '#f1ece4', font: { size: 9 }, boxWidth: 14, padding: 10, generateLabels: chart => chart.data.datasets.map((ds, i) => ({ text: ds.label, fillStyle: ds.backgroundColor, strokeStyle: 'transparent', lineWidth: 0, hidden: false, datasetIndex: i })) } },
+            legend: { display: true, position: 'bottom', labels: { color: '#f1ece4', font: { size: 9 }, boxWidth: 14, padding: 10, generateLabels: chart => chart.data.datasets.map((ds, i) => ({ text: ds.label, fillStyle: ds.backgroundColor, strokeStyle: 'transparent', lineWidth: 0, hidden: false, datasetIndex: i, fontColor: '#ffffff' })) } },
             tooltip: { callbacks: { label: c => c.dataset.label + ': ' + c.parsed.y } }
           },
           scales: {
