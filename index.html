@@ -984,33 +984,7 @@
 
     <!-- Zonas FC -->
     <div class="dash-section-title" style="margin-top:4px;">Tiempo en Zonas de FC</div>
-    <div class="dash-zones-card" style="margin:0 16px;border-radius:8px;">
-      <div class="dash-zone-row">
-        <div class="dash-zone-label">Z5 Máx</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z5" id="zBar5" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime5">--:--</div><div class="dash-zone-pct" id="zPct5">—</div>
-      </div>
-      <div class="dash-zone-row">
-        <div class="dash-zone-label">Z4 Umbral</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z4" id="zBar4" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime4">--:--</div><div class="dash-zone-pct" id="zPct4">—</div>
-      </div>
-      <div class="dash-zone-row">
-        <div class="dash-zone-label">Z3 Aerób</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z3" id="zBar3" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime3">--:--</div><div class="dash-zone-pct" id="zPct3">—</div>
-      </div>
-      <div class="dash-zone-row">
-        <div class="dash-zone-label">Z2 Suave</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z2" id="zBar2" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime2">--:--</div><div class="dash-zone-pct" id="zPct2">—</div>
-      </div>
-      <div class="dash-zone-row">
-        <div class="dash-zone-label">Z1 Calent</div>
-        <div class="dash-zone-bar-bg"><div class="dash-zone-bar-fill dash-zone-z1" id="zBar1" style="width:0%"></div></div>
-        <div class="dash-zone-time" id="zTime1">--:--</div><div class="dash-zone-pct" id="zPct1">—</div>
-      </div>
-    </div>
+    <div id="zonasHorizWrap" style="margin:0 16px;min-height:22px;"></div>
 
 
     <!-- RESUMEN MENSUAL -->
@@ -2526,7 +2500,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260623i"></script>
+<script src="scripts.js?v=20260623j"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

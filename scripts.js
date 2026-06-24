@@ -770,54 +770,30 @@
 
   // ── ZONAS FC DESDE STRAVA ──
   async function cargarZonasActividad(token, actId) {
-    // Limpiar siempre antes de cargar, para que no queden datos de otra actividad
-    for (let z = 1; z <= 5; z++) {
-      const elTime = document.getElementById('zTime' + z);
-      const elPct  = document.getElementById('zPct' + z);
-      const elBar  = document.getElementById('zBar' + z);
-      if (elTime) elTime.textContent = '--:--';
-      if (elPct)  elPct.textContent  = '—';
-      if (elBar)  elBar.style.width  = '0%';
-    }
+    const wrap = document.getElementById('zonasHorizWrap');
+    if (wrap) wrap.innerHTML = '';
     try {
       const res = await stravaFetch(
         `https://www.strava.com/api/v3/activities/${actId}/zones`, token
       );
       const zonas = await res.json();
-      // Buscar la distribución de HR zones
       const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
       if (!hrZone || !hrZone.distribution_buckets) return;
-
-      const buckets = hrZone.distribution_buckets; // [z1, z2, z3, z4, z5]
+      const buckets = hrZone.distribution_buckets;
       const totalSeg = buckets.reduce((sum, b) => sum + b.time, 0);
-      if (totalSeg === 0) return;
-
-      // Mapear: bucket[0]=Z1, bucket[1]=Z2, ..., bucket[4]=Z5
-      // En el HTML: z1=Calent, z2=Suave, z3=Aerób, z4=Umbral, z5=Máx
-      buckets.forEach((b, i) => {
-        const z = i + 1; // 1-5
-        const seg = b.time;
-        const pct = Math.round(seg / totalSeg * 100);
-        const mm = Math.floor(seg / 60).toString().padStart(2,'0');
-        const ss = (seg % 60).toString().padStart(2,'0');
-        const timeStr = mm + ':' + ss;
-
-        const elTime = document.getElementById('zTime' + z);
-        const elPct  = document.getElementById('zPct' + z);
-        const elBar  = document.getElementById('zBar' + z);
-        if (elTime) elTime.textContent = timeStr;
-        if (elPct)  elPct.textContent  = pct + '%';
-        if (elBar) {
-          // Fuente única de verdad: dataset.w guarda el target. Fijamos el width
-          // directamente con una transición CSS (la barra SIEMPRE se ve).
-          // CLAVE: quitar 'me-bar-animate' que dejaba width:0 !important pegado
-          // y hacía invisible el relleno aunque el width inline fuera correcto.
-          elBar.dataset.w = pct + '%';
-          elBar.classList.remove('me-bar-animate');
-          elBar.style.transition = 'width .9s cubic-bezier(.22,1,.36,1)';
-          elBar.style.width = pct + '%';
-        }
-      });
+      if (totalSeg === 0 || !wrap) return;
+      const cols = ['#5b9cf6','#3ecf8e','#f5c842','#f5874f','#e84040'];
+      const segs = buckets.map((b, i) => {
+        const sec = b.time; if (!sec) return '';
+        const pct = sec / totalSeg;
+        const mm = Math.floor(sec/60); const ss = sec%60;
+        const tStr = mm + ':' + String(ss).padStart(2,'0');
+        const lbl = pct > 0.07
+          ? `<span style="font:700 10px/1 'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.65);white-space:nowrap;letter-spacing:.5px;">Z${i+1} ${tStr}</span>`
+          : '';
+        return `<div style="flex:${sec};min-width:6px;height:22px;background:${cols[i]};border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${lbl}</div>`;
+      }).join('');
+      wrap.innerHTML = `<div style="display:flex;gap:3px;">${segs}</div>`;
     } catch(e) { console.error('Zonas error:', e); }
   }
 
@@ -1413,23 +1389,18 @@
     ];
 
     if (zonasEl) {
-      // Mostrar de Z5 (arriba) a Z1 (abajo), como Strava
-      zonasEl.innerHTML = [4,3,2,1,0].map(i => {
-        const s   = zonaSec[i];
-        const pct = Math.round((s / totalZ) * 100);
-        const h   = Math.floor(s / 3600);
-        const m   = Math.round((s % 3600) / 60);
+      const zCols = ['#5b9cf6','#3ecf8e','#f5c842','#f5874f','#e84040'];
+      const segs = [0,1,2,3,4].map(i => {
+        const v = zonaSec[i]; if (!v) return '';
+        const pct = v / totalZ;
+        const h = Math.floor(v/3600), m = Math.round((v%3600)/60);
         const tStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
-        return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:0.5px;color:rgba(255,255,255,0.6);min-width:64px;">${Z[i].lbl}</div>
-          <div style="flex:1;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:${Z[i].color};border-radius:4px;transition:width .8s cubic-bezier(0.4,0,0.2,1);"></div>
-          </div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:rgba(255,255,255,0.5);min-width:48px;text-align:right;">${tStr}</div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:${Z[i].color};min-width:32px;text-align:right;">${pct}%</div>
-        </div>`;
+        const lbl = pct > 0.07
+          ? `<span style="font:700 10px/1 'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.65);white-space:nowrap;letter-spacing:.5px;">Z${i+1} ${tStr}</span>`
+          : '';
+        return `<div style="flex:${v};min-width:6px;height:22px;background:${zCols[i]};border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${lbl}</div>`;
       }).join('');
-      // Nota de exactitud: real (tiempo en zona de Strava) vs aproximado (por FC media)
+      zonasEl.innerHTML = `<div style="display:flex;gap:3px;">${segs}</div>`;
       zonasEl.innerHTML += `<div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:0.5px;color:rgba(255,255,255,0.3);margin-top:6px;text-align:right;">${algunaReal ? 'tiempo real en zona · Strava' : 'aprox. por FC media — se afina al sincronizar'}</div>`;
     }
   }
