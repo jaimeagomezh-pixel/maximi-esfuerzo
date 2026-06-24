@@ -4813,7 +4813,19 @@
     if (ov) ov.style.display = 'none';
     document.body.style.overflow = '';
   }
-  function histMasOverlay() { _histShown += 20; renderHistorialOverlay(); }
+  function histMasOverlay() {
+    const list = document.getElementById('histOverlayList');
+    const mas  = document.getElementById('histOverlayMas');
+    const all  = _histDatos();
+    const prev = _histShown;
+    _histShown = prev + 20;
+    const nuevos = all.slice(prev, _histShown);
+    if (list && nuevos.length) {
+      _histRendered = _histRendered.concat(nuevos);
+      list.insertAdjacentHTML('beforeend', nuevos.map((item, i) => _histRow(item, prev + i)).join(''));
+    }
+    if (mas) mas.style.display = all.length > _histShown ? 'inline-block' : 'none';
+  }
 
   function _histDatos() {
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
