@@ -6111,7 +6111,7 @@
   // ── Tiempos de Referencia con ruletas (distancia + H:M:S + fecha) ────────
   // Distancias mapeadas a las claves de manualTimesHistory (km decimal → clave).
   const RUN_DIST = [
-    { k:'1km', km:1 }, { k:'2km', km:2 }, { k:'3km', km:3 }, { k:'2400m', km:2.4 }, { k:'3200m', km:3.2 },
+    { k:'1km', km:1 }, { k:'2km', km:2 }, { k:'2400m', km:2.4 }, { k:'3km', km:3 }, { k:'3200m', km:3.2 },
     { k:'5km', km:5 }, { k:'8km', km:8 }, { k:'10km', km:10 }, { k:'12km', km:12 },
     { k:'15km', km:15 }, { k:'21km', km:21 }, { k:'42km', km:42 }
   ];
@@ -6179,7 +6179,7 @@
 
   // Convierte el historial completo en entradas prData[] para el gráfico
   function buildPRDataFromHistory(history) {
-    const dists = ['1km','2km','3km','2400m','3200m','5km','8km','10km','12km','15km','21km','42km'];
+    const dists = ['1km','2km','2400m','3km','3200m','5km','8km','10km','12km','15km','21km','42km'];
     dists.forEach(d => {
       const entries = history[d];
       if (!entries || !entries.length) return;
@@ -6215,7 +6215,7 @@
     const oldFlat = localStorage.getItem('manualTimes');
     if (oldFlat && !Object.keys(history).length) {
       const old = JSON.parse(oldFlat);
-      const dists = ['1km','2km','3km','2400m','5km','8km','10km','12km','15km','21km','42km'];
+      const dists = ['1km','2km','2400m','3km','5km','8km','10km','12km','15km','21km','42km'];
       dists.forEach(d => { if (old[d]) history[d] = [{ date: todayISO(), time: old[d] }]; });
       localStorage.setItem('manualTimesHistory', JSON.stringify(history));
       localStorage.removeItem('manualTimes');
