@@ -5294,6 +5294,9 @@ body.plan-activo .plan-lock  { display: none; }
   }
   /* Separador sutil entre subsecciones */
   #dashboardAtleta .sec-flat .dash-section-title { margin-top:10px; }
+  /* Zonas FC: título blanco (excepción a la regla sec-flat rojo) */
+  #dashboardAtleta #zonasFcCard .th-chart-title { color:rgba(255,255,255,0.88) !important; letter-spacing:0.5px !important; }
+  #dashboardAtleta #zonasFcCard .th-chart-title::before { display:none !important; }
 
   /* ══════════════════════════════════════════════════════════
      TARJETA DE RESULTADO rkFTP · Reveal dramático
