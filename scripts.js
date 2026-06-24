@@ -1661,13 +1661,14 @@
       if (conn) conn.style.display = '';
       _fsRender(cache.data);
       _fsUltActLabel(cache.ts);
+      _marcarFatSecretConectado();
       return;
     }
     // 2) Sin datos previos: verificar conexión (barato) y ofrecer la 1ª sincronización
     try {
       const res = await fetch(`${FS_WORKER}/fatsecret/status?uid=${encodeURIComponent(uid)}`);
       const d = await res.json();
-      if (d.ok && d.connected) { if (sync) sync.style.display = ''; }
+      if (d.ok && d.connected) { if (sync) sync.style.display = ''; _marcarFatSecretConectado(); }
       else { if (desc) desc.style.display = ''; }
     } catch(e) { if (desc) desc.style.display = ''; }
   }
@@ -4919,13 +4920,15 @@
   }
   function _zonasTxt(zsec) {
     if (!zsec || !zsec.some(v => v > 0)) return null;
-    const cols = ['#3498db','#1abc9c','#2ecc71','#f39c12','#e74c3c'];
+    const cols = ['#5b9cf6','#3ecf8e','#f5c842','#f5874f','#e84040'];
+    const total = zsec.reduce((s, v) => s + v, 0);
     const segs = zsec.map((v, i) => {
       if (v <= 0) return '';
-      return `<div style="flex:${v};min-width:0;display:flex;flex-direction:column;gap:2px;">
-        <div style="height:8px;background:${cols[i]};border-radius:3px;"></div>
-        <div style="font-size:9px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Z${i+1} ${secToTime(v)}</div>
-      </div>`;
+      const pct = v / total;
+      const lbl = pct > 0.07
+        ? `<span style="font:700 10px/1 'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.65);white-space:nowrap;letter-spacing:.5px;">Z${i+1} ${secToTime(v)}</span>`
+        : '';
+      return `<div style="flex:${v};min-width:6px;height:34px;background:${cols[i]};border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;">${lbl}</div>`;
     }).join('');
     return `<div style="display:flex;gap:3px;margin-top:6px;">${segs}</div>`;
   }
