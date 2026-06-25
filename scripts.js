@@ -989,14 +989,17 @@
 
   async function cargarBestEffortsStrava(token, runs) {
     if (!runs || !runs.length) return;
-    // Solo procesar actividades nuevas (no procesadas antes)
-    const processed = JSON.parse(localStorage.getItem('stravaBEProcessed') || '{}');
-    const nuevas = runs
-      .filter(a => a.id && !processed[a.id])
-      .sort((a, b) => (b.start_date_local || b.date || '').localeCompare(a.start_date_local || a.date || ''))
-      .slice(0, 8); // máx 8 llamadas por sync para respetar rate-limit
-    if (!nuevas.length) return;
+    const processed = JSON.parse(localStorage.getItem('stravaBEProcessed') || 'null');
 
+    // Primera sync: no hay historial previo → marcar TODO como procesado sin llamadas extra
+    if (processed === null) {
+      const seed = {};
+      runs.forEach(a => { if (a.id) seed[a.id] = true; });
+      localStorage.setItem('stravaBEProcessed', JSON.stringify(seed));
+      return;
+    }
+
+    // Syncs siguientes: solo carreras nuevas que no estaban antes
     const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
     let cambios = false;
 
@@ -1136,6 +1139,9 @@
         // Recalcular zonas e indicadores
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
+
+      // Best Efforts: PRs en tramos de carreras nuevas (no historial inicial)
+      await cargarBestEffortsStrava(token, runs);
 
       // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
