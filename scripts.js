@@ -1137,9 +1137,6 @@
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
 
-      // Best Efforts: detectar PRs en tramos dentro de una carrera más larga
-      await cargarBestEffortsStrava(token, runs);
-
       // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
 
