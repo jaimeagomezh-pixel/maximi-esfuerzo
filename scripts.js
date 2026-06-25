@@ -1348,11 +1348,13 @@
       return `<button onclick="selectResMes('${m}')" style="${_btnStyle(active)}">${label}</button>`;
     }).join('');
 
-    // Filtrar actividades: año completo (4 chars) o mes (7 chars)
+    // Filtrar actividades: año completo (4 chars) o mes (7 chars); excluir ocultas del historial
+    const _hiddenRuns = JSON.parse(localStorage.getItem('histRunHidden') || '{}');
     const esAño = _resMesActivo.length === 4;
-    const acts = cache.filter(a => esAño
-      ? a.date.startsWith(_resMesActivo)
-      : a.date.slice(0, 7) === _resMesActivo);
+    const acts = cache.filter(a => {
+      if (_hiddenRuns['s_' + a.id]) return false;
+      return esAño ? a.date.startsWith(_resMesActivo) : a.date.slice(0, 7) === _resMesActivo;
+    });
 
     // Stats
     const km    = acts.reduce((s, a) => s + a.km, 0);
@@ -4844,11 +4846,12 @@
     // Carreras de Strava
     const RUN_T = new Set(['Run','TrailRun','VirtualRun','Treadmill']);
     const stravaCache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+    const hidden = JSON.parse(localStorage.getItem('histRunHidden') || '{}');
     const stravaRuns = stravaCache
-      .filter(a => RUN_T.has(a.type) && a.km > 0 && a.sec > 0 && parseLastreKg(a.name) === null)
+      .filter(a => RUN_T.has(a.type) && a.km > 0 && a.sec > 0 && parseLastreKg(a.name) === null && !hidden['s_' + a.id])
       .map(a => ({
         date: a.date, dist: a.km.toFixed(1) + ' km', time: secToTime(a.sec),
-        source: 'strava', _km: a.km, _sec: a.sec,
+        source: 'strava', _km: a.km, _sec: a.sec, _stravaId: a.id,
         _hr: a.hr || null, _zsec: a.zsec || null, _meses: meses
       }));
     // Registros manuales — omitir los que ya tienen entrada Strava para la misma fecha+km
@@ -4856,6 +4859,7 @@
     const manualRuns = [];
     Object.keys(hist).forEach(distKey => {
       (hist[distKey] || []).forEach(e => {
+        if (hidden['m_' + distKey + '_' + e.date]) return;
         const km = (RUN_DIST.find(d => d.k === distKey) || {}).km || parseFloat(distKey) || null;
         const hayStrava = km && stravaRuns.some(r => r.date === e.date && Math.abs(r._km - km) <= Math.max(0.3, km * 0.12));
         if (!hayStrava) manualRuns.push({ dist: distKey, time: e.time, date: e.date, source: e.source || 'manual', _km: km, _sec: _parseTimeToSec(e.time) || null, _meses: meses });
@@ -4889,11 +4893,21 @@
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;color:#00e5f0;font-weight:700;">${item.dist}</div>`;
     }
+    const delKey = _histTipo === 'ruck'
+      ? `histDelRuck('${item.id || ''}',${i})`
+      : item.source === 'strava'
+        ? `histDelStrava('${item._stravaId || ''}',${i})`
+        : `histDelManual('${item.dist || ''}','${item.date || ''}',${i})`;
     return `
-      <div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
-        <div onclick="histToggleDetail(${i})" style="display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;">
-          ${head}
-          <svg id="histChev-${i}" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+      <div id="histCard-${i}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;">
+          <div onclick="histToggleDetail(${i})" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0;">
+            ${head}
+          </div>
+          <button onclick="event.stopPropagation();${delKey}" title="Eliminar" style="background:none;border:none;padding:6px;cursor:pointer;flex-shrink:0;opacity:0.4;transition:opacity .2s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.4'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          </button>
+          <svg id="histChev-${i}" onclick="histToggleDetail(${i})" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s;cursor:pointer;"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
         <div id="histDet-${i}" style="display:none;padding:0 14px 14px;border-top:1px solid rgba(255,255,255,0.08);"></div>
       </div>`;
@@ -4991,6 +5005,53 @@
     if (chev) chev.style.transform = abrir ? 'rotate(180deg)' : '';
   }
 
+  function _histRemoveCard(i) {
+    const card = document.getElementById('histCard-' + i);
+    if (card) { card.style.transition = 'opacity .25s'; card.style.opacity = '0'; setTimeout(() => card.remove(), 260); }
+    const count = document.getElementById('histOverlayCount');
+    const mas   = document.getElementById('histOverlayMas');
+    const all   = _histDatos();
+    if (count) count.textContent = all.length ? all.length + (all.length === 1 ? ' registro' : ' registros') : '';
+    if (mas) mas.style.display = all.length > _histShown ? 'inline-block' : 'none';
+  }
+
+  function histDelManual(distKey, date, i) {
+    if (!confirm('¿Eliminar este registro manual?')) return;
+    const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    if (history[distKey]) {
+      history[distKey] = history[distKey].filter(e => e.date !== date);
+      if (!history[distKey].length) delete history[distKey];
+      localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+      if (typeof buildPRDataFromHistory === 'function') buildPRDataFromHistory(history);
+      setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 800);
+    }
+    _histRemoveCard(i);
+  }
+
+  function histDelStrava(stravaId, i) {
+    if (!confirm('¿Ocultar esta actividad de Strava del historial?\n(No se elimina en Strava, solo aquí.)')) return;
+    const hidden = JSON.parse(localStorage.getItem('histRunHidden') || '{}');
+    hidden['s_' + stravaId] = true;
+    localStorage.setItem('histRunHidden', JSON.stringify(hidden));
+    _histRemoveCard(i);
+  }
+
+  function histDelRuck(id, i) {
+    if (!confirm('¿Eliminar esta sesión de rucking?')) return;
+    const sessions = JSON.parse(localStorage.getItem('ruckSessions') || '[]').filter(s => s.id !== id && s.stravaId !== id);
+    localStorage.setItem('ruckSessions', JSON.stringify(sessions));
+    // Sincronizar eliminación a la nube
+    const cloudId = localStorage.getItem('strava_athlete_id') || ('uid:' + (window._auth?.currentUser?.uid || ''));
+    if (cloudId) {
+      fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/sync', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stravaId: cloudId, sessions, nombre: localStorage.getItem('atletaNombre') || '', k: 'ME-sync-26' })
+      }).catch(() => {});
+    }
+    _histRemoveCard(i);
+    if (typeof initRuckingAtleta === 'function') initRuckingAtleta();
+  }
+
   function renderHistorialOverlay() {
     const list  = document.getElementById('histOverlayList');
     const mas   = document.getElementById('histOverlayMas');
@@ -5012,6 +5073,9 @@
   window.cerrarHistorial  = cerrarHistorial;
   window.histMasOverlay   = histMasOverlay;
   window.histToggleDetail = histToggleDetail;
+  window.histDelManual    = histDelManual;
+  window.histDelStrava    = histDelStrava;
+  window.histDelRuck      = histDelRuck;
 
   function toggleRuckManualAdd() {
     const f = document.getElementById('ruckAManualForm');
