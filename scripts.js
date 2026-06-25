@@ -975,6 +975,80 @@
     } catch(e) { console.warn('[Rucking] Cloud sync error:', e); }
   }
 
+  // Mapeo Strava best_effort name → clave interna de distancia
+  const BEST_EFFORT_DIST = {
+    '1k': '1km', '1km': '1km',
+    '2 mile': '3200m',                  // 3218m ≈ 3200m
+    '5k': '5km', '5km': '5km',
+    '10k': '10km', '10km': '10km',
+    '15k': '15km', '15km': '15km',
+    '20k': '21km',                      // aproximación; Strava usa 20km
+    '1/2 marathon': '21km', 'half marathon': '21km',
+    'marathon': '42km',
+  };
+
+  async function cargarBestEffortsStrava(token, runs) {
+    if (!runs || !runs.length) return;
+    // Solo procesar actividades nuevas (no procesadas antes)
+    const processed = JSON.parse(localStorage.getItem('stravaBEProcessed') || '{}');
+    const nuevas = runs
+      .filter(a => a.id && !processed[a.id])
+      .sort((a, b) => (b.start_date_local || b.date || '').localeCompare(a.start_date_local || a.date || ''))
+      .slice(0, 8); // máx 8 llamadas por sync para respetar rate-limit
+    if (!nuevas.length) return;
+
+    const history = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
+    let cambios = false;
+
+    for (const act of nuevas) {
+      processed[act.id] = true;
+      try {
+        const res  = await stravaFetch(`https://www.strava.com/api/v3/activities/${act.id}`, token);
+        const data = await res.json();
+        if (!Array.isArray(data.best_efforts)) continue;
+
+        for (const be of data.best_efforts) {
+          const key = BEST_EFFORT_DIST[(be.name || '').toLowerCase()];
+          if (!key || !be.elapsed_time) continue;
+          const timeStr = secToTime(be.elapsed_time);
+          const dateStr = (be.start_date_local || act.start_date_local || '').slice(0, 10);
+          if (!dateStr) continue;
+
+          if (!history[key]) history[key] = [];
+          // Evitar duplicados: si ya existe una entrada strava-split para esta fecha+clave, actualizar si es más rápida
+          const idx = history[key].findIndex(e => e.date === dateStr && e.source === 'strava-split');
+          if (idx >= 0) {
+            const prevSec = _parseTimeToSec(history[key][idx].time);
+            if (be.elapsed_time < prevSec) { history[key][idx].time = timeStr; cambios = true; }
+          } else {
+            // No sobreescribir si ya hay una entrada strava (distancia exacta) más rápida ese día
+            const hayExacta = history[key].some(e => e.date === dateStr && e.source === 'strava' && _parseTimeToSec(e.time) <= be.elapsed_time);
+            if (!hayExacta) { history[key].push({ date: dateStr, time: timeStr, source: 'strava-split' }); cambios = true; }
+          }
+        }
+      } catch(e) { /* no bloquear por error en actividad individual */ }
+    }
+
+    localStorage.setItem('stravaBEProcessed', JSON.stringify(processed));
+    if (cambios) {
+      // Ordenar entradas por fecha
+      Object.keys(history).forEach(k => { history[k].sort((a, b) => a.date.localeCompare(b.date)); });
+      localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+      buildPRDataFromHistory(history);
+      // Notificar si hay nuevos récords
+      Object.keys(BEST_EFFORT_DIST).forEach(n => {
+        const k = BEST_EFFORT_DIST[n];
+        if (!k || !prData[k]) return;
+        const best = Math.min(...prData[k].map(e => e.seconds));
+        prCheckNewRecord(k, best);
+      });
+      const activeBtn = document.querySelector('.th-dist-btn.active');
+      const m = activeBtn?.getAttribute('onclick')?.match(/'([^']+)'/);
+      if (m && prData[m[1]]) updatePRChart(m[1]);
+      setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 1000);
+    }
+  }
+
   async function cargarPRsStrava(token, preActs) {
     try {
       // Indicador de sincronización
@@ -1062,6 +1136,9 @@
         // Recalcular zonas e indicadores
         if (typeof calcularZonasCarrera    === 'function') calcularZonasCarrera();
       }
+
+      // Best Efforts: detectar PRs en tramos dentro de una carrera más larga
+      await cargarBestEffortsStrava(token, runs);
 
       // Detectar actividad 5km nueva para sugerir actualización de zonas
       if (typeof checkStravaZonaUpdate === 'function') checkStravaZonaUpdate(runs);
@@ -4889,7 +4966,7 @@
       head = `
         <div style="flex:1;min-width:0;">
           <div style="font-size:15px;font-weight:700;color:rgba(255,255,255,0.92);">${item.time}</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.45);">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : ' · <span style="color:#00e5f0;">manual</span>'}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.45);">${fechaStr}${esStrava ? ' · <span style="color:#FC4C02;font-weight:600;">Strava</span>' : item.source === 'strava-split' ? ' · <span style="color:#FC4C02;">Strava · tramo</span>' : ' · <span style="color:#00e5f0;">manual</span>'}</div>
         </div>
         <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:1px;color:#00e5f0;font-weight:700;">${item.dist}</div>`;
     }
