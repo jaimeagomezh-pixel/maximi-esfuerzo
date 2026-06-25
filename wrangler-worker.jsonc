@@ -1,0 +1,18 @@
+{
+  "name": "flow-payments",
+  "main": "flow-worker.js",
+  "compatibility_date": "2026-05-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "kv_namespaces": [
+    {
+      "binding": "RUCK_DATA",
+      "id": "785dd0d41ab34c2e868975d6d0a26bcd",
+      "preview_id": "785dd0d41ab34c2e868975d6d0a26bcd"
+    },
+    {
+      "binding": "BODY_DATA",
+      "id": "3bd99f6a338c411cac4066edcf049154",
+      "preview_id": "3bd99f6a338c411cac4066edcf049154"
+    }
+  ]
+}

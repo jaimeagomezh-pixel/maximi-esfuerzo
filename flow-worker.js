@@ -500,6 +500,39 @@ export default {
       } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
     }
 
+    // ── GET /rucking/my-data?uid=uid:XXX&k=SYNC_KEY — atleta lee sus propios datos ──
+    if (url.pathname === '/rucking/my-data' && request.method === 'GET') {
+      if (url.searchParams.get('k') !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+      const uid = url.searchParams.get('uid');
+      if (!uid) return Response.json({ ok:false, error:'uid requerido' }, { status:400, headers:corsHeaders() });
+      try {
+        const [profileRaw, sessionsRaw, backupRaw] = await Promise.all([
+          env.RUCK_DATA.get(`profile:${uid}`),
+          env.RUCK_DATA.get(`ruck:${uid}`),
+          env.RUCK_DATA.get(`backup:${uid}`)
+        ]);
+        return Response.json({
+          ok: true,
+          profile:  profileRaw  ? JSON.parse(profileRaw)  : null,
+          sessions: sessionsRaw ? JSON.parse(sessionsRaw) : null,
+          backup:   backupRaw   ? JSON.parse(backupRaw)   : null
+        }, { headers: corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
+    // ── POST /rucking/save-backup — atleta guarda datos solo-local (composición, fuerza, tiempos) ──
+    if (url.pathname === '/rucking/save-backup' && request.method === 'POST') {
+      try {
+        const { uid, data, k } = await request.json();
+        if (k !== SYNC_KEY) return Response.json({ ok:false, error:'No autorizado' }, { status:401, headers:corsHeaders() });
+        if (!uid || !data) return Response.json({ ok:false, error:'Datos inválidos' }, { status:400, headers:corsHeaders() });
+        let base = {};
+        try { const prev = await env.RUCK_DATA.get(`backup:${uid}`); if (prev) base = JSON.parse(prev); } catch(e) {}
+        await env.RUCK_DATA.put(`backup:${uid}`, JSON.stringify({ ...base, ...data, updatedAt: new Date().toISOString() }));
+        return Response.json({ ok:true }, { headers:corsHeaders() });
+      } catch(e) { return Response.json({ ok:false, error:e.message }, { status:500, headers:corsHeaders() }); }
+    }
+
     // ══════════════════════════════════════════════════════════════
     // MÓDULO NUTRICIÓN — FatSecret 3-legged OAuth 1.0 (HMAC-SHA1)
     // El atleta conecta SU cuenta FatSecret (donde registra comida con

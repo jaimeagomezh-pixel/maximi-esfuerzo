@@ -276,7 +276,12 @@
           window._dashVidInterval = setInterval(function(){ var v=document.getElementById('dashBgVid'); if(v){v.currentTime=0;v.play().catch(function(){});} }, 30000);
         }
         // Init charts and real data after DOM is ready
-        setTimeout(() => {
+        setTimeout(async () => {
+          // Dispositivo nuevo: si localStorage está vacío, jalar datos de la nube primero
+          const _sinDatos = !localStorage.getItem('ruckProfile') && !localStorage.getItem('atletaPerfil') && !localStorage.getItem('strengthSessions');
+          if (_sinDatos && typeof pullAllDataFromCloud === 'function') {
+            await pullAllDataFromCloud();
+          }
           if (typeof initCharts === 'function') initCharts();
           if (typeof initPRChart === 'function') initPRChart();
           if (typeof initStrengthChart === 'function') initStrengthChart();
@@ -2245,6 +2250,7 @@
     if (fechaNac) ruckProfile.fechaNac = fechaNac;
     localStorage.setItem('ruckProfile', JSON.stringify(ruckProfile));
     if (peso || talla || fechaNac) pushRuckProfileToCloud(ruckProfile);
+    setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 800);
 
     // Registrar peso en historial SOLO si CAMBIÓ respecto al anterior.
     // (Guardar el perfil por cualquier otro motivo —FC máx, fecha, etc.— no debe
@@ -2306,6 +2312,7 @@
     // Actualizar caché local inmediatamente
     const sorted = cached.slice().sort((a,b) => a.fecha.localeCompare(b.fecha));
     localStorage.setItem(cacheKey, JSON.stringify(sorted));
+    setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 800);
 
     // Refrescar chart y cards si están visibles
     if (typeof cargarInbodyHistorial === 'function') cargarInbodyHistorial();
@@ -4066,6 +4073,7 @@
     const sesiones = _fzaSesiones();
     sesiones.push({ id: 'fza' + Date.now().toString(36), date: _fzaHoyStr(), min, kcal });
     localStorage.setItem('strengthSessions', JSON.stringify(sesiones));
+    setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 800);
     if (st) { st.textContent = `✓ Fuerza registrada: ${min} min · ${kcal} kcal`; st.style.color = '#27ae60'; }
     renderFzaHoy();
     _fsRerender();   // refresca el gasto del día con la nueva sesión
@@ -5471,6 +5479,59 @@
     }
   }
 
+  // ── Sync multi-dispositivo: push datos solo-local a la nube ──
+  async function pushBackupToCloud() {
+    const uid = window._auth?.currentUser?.uid;
+    if (!uid) return;
+    const data = {};
+    ['atletaPerfil','strengthSessions','manualTimes','manualTimesHistory','atletaBMHistorial'].forEach(k => {
+      const v = localStorage.getItem(k);
+      if (v && v !== 'null' && v !== '[]' && v !== '{}') data[k] = v;
+    });
+    const ibKey = 'inbodyHistorial_' + uid;
+    const ibVal = localStorage.getItem(ibKey);
+    if (ibVal && ibVal !== '[]') data[ibKey] = ibVal;
+    if (!Object.keys(data).length) return;
+    try {
+      await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid: 'uid:' + uid, data, k: 'ME-sync-26' })
+      });
+    } catch(e) { console.warn('[sync] backup push error:', e); }
+  }
+  window.pushBackupToCloud = pushBackupToCloud;
+
+  // ── Sync multi-dispositivo: pull todos los datos desde la nube (dispositivo nuevo) ──
+  async function pullAllDataFromCloud() {
+    const uid = window._auth?.currentUser?.uid;
+    if (!uid) return false;
+    try {
+      const res = await fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/my-data?uid=uid:' + encodeURIComponent(uid) + '&k=ME-sync-26');
+      if (!res.ok) return false;
+      const d = await res.json();
+      if (!d.ok) return false;
+      let restored = false;
+      if (d.profile) {
+        const { updatedAt, ...profile } = d.profile;
+        localStorage.setItem('ruckProfile', JSON.stringify(profile));
+        restored = true;
+      }
+      if (d.sessions && Array.isArray(d.sessions) && d.sessions.length > 0) {
+        localStorage.setItem('ruckSessions', JSON.stringify(d.sessions));
+        restored = true;
+      }
+      if (d.backup) {
+        const { updatedAt, ...backup } = d.backup;
+        Object.entries(backup).forEach(([k, v]) => {
+          if (v && !localStorage.getItem(k)) { localStorage.setItem(k, v); restored = true; }
+        });
+      }
+      return restored;
+    } catch(e) { console.warn('[sync] pull error:', e); return false; }
+  }
+  window.pullAllDataFromCloud = pullAllDataFromCloud;
+
   // ══════════════════════════════════════════════════════════════
   // ENDURANCE · Test de campo (VAM / FTP) — panel del atleta
   // ══════════════════════════════════════════════════════════════
@@ -6168,6 +6229,7 @@
     }
 
     localStorage.setItem('manualTimesHistory', JSON.stringify(history));
+    setTimeout(() => { if (typeof pushBackupToCloud === 'function') pushBackupToCloud(); }, 800);
     buildPRDataFromHistory(history);
     calcularZonasCarrera();
     const activeBtn = document.querySelector('.th-dist-btn.active');
