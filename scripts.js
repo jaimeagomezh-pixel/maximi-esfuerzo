@@ -1239,6 +1239,15 @@
       vol.semana.km = Math.round(vol.semana.km*10)/10;
       vol.mes.km    = Math.round(vol.mes.km*10)/10;
 
+      // Desglose semanal (últimas 10 semanas) para el gráfico coach
+      const series = [];
+      for (let i = 9; i >= 0; i--) {
+        const ini = new Date(hoy); ini.setDate(hoy.getDate() - ((hoy.getDay()+6)%7) - i*7); ini.setHours(0,0,0,0);
+        const fin = new Date(ini); fin.setDate(ini.getDate() + 7);
+        const semActs = allActs.filter(a => { if (!a.start_date_local) return false; const f = new Date(a.start_date_local); return f >= ini && f < fin; });
+        series.push({ km: Math.round(semActs.reduce((s,a) => s+(a.distance||0)/1000,0)*10)/10, n: semActs.length });
+      }
+
       const stats = {
         km:    Math.round(km * 10) / 10,
         ritmo: ritmo || '—',
@@ -1246,6 +1255,7 @@
         acts:  recientes.length,
         totalActs: allActs.length,
         volumen: vol,
+        series,
       };
 
       const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');

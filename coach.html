@@ -3314,7 +3314,7 @@ function abrirPerfil(id) {
         </div>
 
         <div class="sec">
-          <div class="sec-t">Endurance · Umbrales</div>
+          <div class="sec-t">Endurance · Umbrales carrera</div>
           ${a.endurance ? `
           <div class="pr-stats">
             <div class="pr-stat best"><div class="pr-stat-v">${a.endurance.vamPace||'—'}</div><div class="pr-stat-l">VAM · 5 min</div></div>
@@ -3336,6 +3336,32 @@ function abrirPerfil(id) {
             <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg></div>
             <div class="empty-t">Sin test de campo aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">El atleta registra sus tests de 5 y 20 min desde su panel</div>
+          </div>`}
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">Rucking · rkFTP (Test 4.8 km)</div>
+          ${a.endurance?.rkFtpWatts ? (() => {
+            const rkW    = a.endurance.rkFtpWatts;
+            const rkMin  = a.endurance.rkFtpTime ? Math.floor(a.endurance.rkFtpTime/60)+'\''+String(Math.round(a.endurance.rkFtpTime%60)).padStart(2,'0')+'"' : '—';
+            const rkLoad = a.endurance.rkFtpLoad ? a.endurance.rkFtpLoad+' kg' : '—';
+            const rkNivel = a.endurance.rkFtpNivel || '—';
+            const rkFecha = a.endurance.rkFtpDate || '—';
+            const nivelColor = rkNivel==='ELITE'?'#27ae60':rkNivel==='APTO'?'#00a8b3':'#e67e22';
+            return `
+            <div class="pr-stats" style="grid-template-columns:repeat(3,1fr);">
+              <div class="pr-stat best"><div class="pr-stat-v" style="color:var(--orange);">${rkW}<small style="font-size:0.6em;margin-left:2px;">W</small></div><div class="pr-stat-l">rkFTP umbral</div></div>
+              <div class="pr-stat"><div class="pr-stat-v" style="font-size:1.1rem;">${rkMin}</div><div class="pr-stat-l">Tiempo test</div></div>
+              <div class="pr-stat"><div class="pr-stat-v" style="font-size:1.1rem;">${rkLoad}</div><div class="pr-stat-l">Lastre</div></div>
+            </div>
+            <div style="margin-top:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span style="font-family:var(--fc);font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:4px 12px;border-radius:20px;color:#fff;background:${nivelColor};">${rkNivel}</span>
+              <span style="font-size:12px;color:var(--text3);">Test: ${rkFecha}</span>
+            </div>`;
+          })() : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+            <div class="empty-t">Sin test rkFTP aún</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">El atleta realiza el Test de Ruck 4.8 km desde su panel · haz Sync después</div>
           </div>`}
         </div>
 
