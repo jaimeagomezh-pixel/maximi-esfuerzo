@@ -845,13 +845,15 @@
         ? muestrarDatos(s.velocity_smooth.data, N).map(v => v > 0.5 ? parseFloat(((1000/60)/v).toFixed(2)) : null)
         : [];
 
-      // Altitud normalizada al rango FC (80-210) — solo para silueta visual
+      // Altitud → silueta de fondo con escala REAL por metros (no estirada).
+      // Anclada al piso del eje FC (82) y sube ~0.35 u por metro de desnivel,
+      // con tope de 50 u. Así una variación de pocos metros queda casi plana
+      // y solo las subidas grandes generan relieve visible.
       const altRaw = s.altitude ? muestrarDatos(s.altitude.data, N) : [];
       let altNorm = [];
       if (altRaw.length) {
-        const aMin = Math.min(...altRaw), aMax = Math.max(...altRaw);
-        const range = aMax - aMin || 1;
-        altNorm = altRaw.map(v => parseFloat((80 + ((v - aMin) / range) * 80).toFixed(1)));
+        const aMin = Math.min(...altRaw);
+        altNorm = altRaw.map(v => parseFloat((82 + Math.min((v - aMin) * 0.35, 50)).toFixed(1)));
       }
 
       // Guardar para tooltips cruzados
@@ -2519,6 +2521,16 @@
   function initCharts() {
     const fcCtx = document.getElementById('chartFC');
     if (!fcCtx) return;
+    // Posicionador de tooltip "pegado arriba": sigue el dedo en X pero fija la
+    // Y al borde superior del área, para no tapar el punto que se está eligiendo.
+    try {
+      if (window.Chart && Chart.Tooltip && Chart.Tooltip.positioners && !Chart.Tooltip.positioners.fcTop) {
+        Chart.Tooltip.positioners.fcTop = function(items, evtPos) {
+          const area = this.chart && this.chart.chartArea;
+          return { x: evtPos.x, y: (area ? area.top : 0) + 4 };
+        };
+      }
+    } catch(e) {}
     // Destruir instancias previas si existen (evita "Canvas already in use")
     if (chartFC)    { try { chartFC.destroy();    } catch(e){} chartFC    = null; }
     if (chartRitmo) { try { chartRitmo.destroy(); } catch(e){} chartRitmo = null; }
@@ -2582,6 +2594,9 @@
           displayColors: false,
           titleFont: { size: 12, weight: '700' },
           bodyFont: { size: 13 },
+          position: 'fcTop',   // pegado al borde superior, sigue el dedo en X
+          yAlign: 'top',
+          caretSize: 0,
           // Solo disparar tooltip desde el dataset FC (índice 0) para evitar duplicados
           filter: (item) => item.datasetIndex === 0,
           callbacks: {
