@@ -1089,6 +1089,15 @@
 
       // Reusa el historial pasado por cargarDatosStrava; solo refetcha si no vino
       const allActs = (preActs && preActs.length) ? preActs : await fetchTodasLasCarreras(token);
+
+      // Volumen mensual: cachear y renderizar PRIMERO e incondicionalmente.
+      // Solo necesita la lista cruda; así no depende de que haya carreras ni de
+      // que la detección de PRs/rucking/FC más abajo no lance (el catch las traga).
+      if (allActs && allActs.length) {
+        cachearActividades(allActs);
+        if (typeof renderResumenMensual === 'function') renderResumenMensual();
+      }
+
       // Una carrera con "Lastre" se desvía a rucking → se excluye del pool de endurance
       const runs    = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null);
 
@@ -1186,14 +1195,11 @@
       // Detectar nueva FC máxima en las actividades y actualizar perfil
       detectarFCMaxDesdeStrava(allActs);
 
-      // Cachear actividades (compacto) para resumen mensual
-      cachearActividades(allActs);
+      // (el cache y el resumen mensual ya se hicieron arriba, incondicionalmente)
 
       // Subir stats Strava al cloud para que el coach las vea
       pushStravaStatsToCloud(allActs);
 
-      // Renderizar resumen mensual con el mes más reciente
-      if (typeof renderResumenMensual === 'function') renderResumenMensual();
       // Recalcular carga rTSS con las actividades recién sincronizadas
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
       // Enriquecer con tiempo-real-en-zona FC (en segundo plano, acotado por rate-limit)
