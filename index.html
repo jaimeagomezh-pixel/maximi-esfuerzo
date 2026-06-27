@@ -1162,29 +1162,39 @@
           y ya genera tus zonas. El de <strong>20 min</strong> es opcional: añade el <strong>FTP</strong> (umbral) para el rTSS.
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-          <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 5 min (m)</div>
-            <input type="number" id="endD5" placeholder="ej. 1500" min="1" step="1"
-              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
-          </div>
-          <div>
-            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 20 min (m)</div>
-            <input type="number" id="endD20" placeholder="ej. 5400" min="1" step="1"
-              style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
-          </div>
+        <!-- Test 5 min → VAM y zonas -->
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 5 min (m)</div>
+          <input type="number" id="endD5" placeholder="ej. 1500" min="1" step="1"
+            style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;margin-bottom:8px;">
+          <button onclick="calcularYGuardarEndurance('vam')"
+            style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">
+            Calcular VAM y Zonas
+          </button>
         </div>
 
+        <!-- Test 20 min → FTP (umbral) -->
+        <div style="margin-bottom:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Test 20 min (m) <span style="color:#ccc;text-transform:none;letter-spacing:0;">— opcional, para el rTSS</span></div>
+          <input type="number" id="endD20" placeholder="ej. 5400" min="1" step="1"
+            style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;margin-bottom:8px;">
+          <button onclick="calcularYGuardarEndurance('ftp')"
+            style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">
+            Calcular FTP
+          </button>
+        </div>
+
+        <!-- FC máxima → zonas de FC -->
         <div style="margin-bottom:10px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">FC máxima (ppm) <span style="color:#ccc;text-transform:none;letter-spacing:0;">— opcional, para zonas de FC</span></div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">FC máxima (ppm) <span style="color:#ccc;text-transform:none;letter-spacing:0;">— para zonas de FC</span></div>
           <input type="number" id="inputFcMax" placeholder="ej. 185" min="100" max="250" step="1"
-            style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;">
+            style="width:100%;background:#fff;border:1px solid rgba(0,0,0,0.12);border-radius:5px;padding:8px 10px;font-size:14px;color:#333;outline:none;margin-bottom:8px;">
+          <button onclick="calcularYGuardarEndurance('fc')"
+            style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">
+            Actualizar FC Máxima
+          </button>
         </div>
 
-        <button id="endCalcBtn"
-          style="width:100%;background:#8B1A1A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:10px;border:none;border-radius:5px;cursor:pointer;">
-          Calcular Perfil y Zonas
-        </button>
         <div id="endError" style="display:none;font-size:11px;color:#d32f2f;margin-top:8px;"></div>
 
         <!-- Resultados -->
@@ -2503,7 +2513,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260627h"></script>
+<script src="scripts.js?v=20260627i"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

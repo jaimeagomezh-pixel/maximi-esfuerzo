@@ -5914,7 +5914,9 @@
     });
   }
 
-  function calcularYGuardarEndurance() {
+  // `only`: 'vam' | 'ftp' | 'fc' → cada botón procesa SOLO su parte.
+  //  Sin argumento procesa todo (compatibilidad).
+  function calcularYGuardarEndurance(only) {
     const errEl = document.getElementById('endError');
     if (errEl) errEl.style.display = 'none';
 
@@ -5923,10 +5925,29 @@
       return;
     }
 
-    const d5    = parseFloat(document.getElementById('endD5')?.value);
-    const d20   = parseFloat(document.getElementById('endD20')?.value);
-    const fcRaw = parseFloat(document.getElementById('inputFcMax')?.value);
-    const fcmax = (!isNaN(fcRaw) && fcRaw > 0) ? fcRaw : null;
+    const ver5  = !only || only === 'vam';
+    const ver20 = !only || only === 'ftp';
+    const verFc = !only || only === 'fc';
+
+    const d5    = ver5  ? parseFloat(document.getElementById('endD5')?.value)      : NaN;
+    const d20   = ver20 ? parseFloat(document.getElementById('endD20')?.value)     : NaN;
+    const fcRaw = verFc ? parseFloat(document.getElementById('inputFcMax')?.value) : NaN;
+    const fcInput = (!isNaN(fcRaw) && fcRaw > 0) ? fcRaw : null;
+    // FC máx para las zonas: la recién ingresada, o la ya guardada — NUNCA se borra
+    // al calcular solo un test (de lo contrario un botón pisaría a otro).
+    const zpPrev = JSON.parse(localStorage.getItem('zonaParams') || 'null') || {};
+    const fcmax  = fcInput || zpPrev.fcmax || null;
+
+    // Si se actualiza la FC máx, persistirla también en el perfil del atleta
+    // (lo usa la distribución por zonas del resumen mensual).
+    if (verFc && fcInput) {
+      try {
+        const ap = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+        ap.fcMax = fcInput;
+        localStorage.setItem('atletaPerfil', JSON.stringify(ap));
+      } catch(e) {}
+      if (typeof renderResumenMensual === 'function') renderResumenMensual();
+    }
 
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     const prev = profile.endurance || {};
@@ -5985,6 +6006,17 @@
       vamKmh = parseFloat((prev.vamMs * 3.6).toFixed(1));
     }
 
+    // Botón de FTP: solo afecta el rTSS, no las zonas. El FTP ya quedó guardado
+    // arriba; refrescamos la carga y salimos sin tocar zonas ni validar VAM.
+    if (only === 'ftp') {
+      if (nuevo20 && errEl) { /* ok, guardado */ }
+      else if (!nuevo20 && errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa una distancia de 20 min distinta a la guardada.'; }
+      if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
+      if (typeof renderToleranciaCarga === 'function') renderToleranciaCarga();
+      if (typeof renderRendimiento === 'function') renderRendimiento();
+      return;
+    }
+
     // 2) Validación: se necesita al menos VAM (test 5 min) o FC máx
     if (!vamKmh && !fcmax) {
       if (errEl) { errEl.style.display = 'block'; errEl.textContent = 'Ingresa el test de 5 min (para VAM y zonas) o al menos la FC máx.'; }
@@ -6004,11 +6036,8 @@
   }
 
   function bindEnduranceTest() {
-    const btn = document.getElementById('endCalcBtn');
-    if (btn && !btn._endBound) {
-      btn._endBound = true;
-      btn.addEventListener('click', calcularYGuardarEndurance);
-    }
+    // Los tres botones (VAM / FTP / FC máx) llaman a calcularYGuardarEndurance(only)
+    // vía onclick en el HTML; aquí solo precargamos los valores guardados.
     // Precargar valores guardados (tests + resultados)
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
     const e = profile.endurance;
