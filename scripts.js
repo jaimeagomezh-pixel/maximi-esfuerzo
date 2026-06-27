@@ -1248,6 +1248,18 @@
         series.push({ km: Math.round(semActs.reduce((s,a) => s+(a.distance||0)/1000,0)*10)/10, n: semActs.length });
       }
 
+      // Historial mensual (últimos 6 meses) para comparativa coach
+      const monthlyKm = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(hoy.getFullYear(), hoy.getMonth() - i, 1);
+        const ym = d.toISOString().slice(0, 7); // YYYY-MM
+        const mActs = allActs.filter(a => a.start_date_local && a.start_date_local.slice(0,7) === ym);
+        const kmMes = Math.round(mActs.reduce((s,a) => s+(a.distance||0)/1000, 0)*10)/10;
+        const segMes = mActs.reduce((s,a) => s+(a.moving_time||0), 0);
+        const label = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][d.getMonth()];
+        monthlyKm.push({ ym, label, km: kmMes, n: mActs.length, seg: segMes });
+      }
+
       const stats = {
         km:    Math.round(km * 10) / 10,
         ritmo: ritmo || '—',
@@ -1256,6 +1268,7 @@
         totalActs: allActs.length,
         volumen: vol,
         series,
+        monthlyKm,
       };
 
       const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
@@ -7513,3 +7526,108 @@
 
   const trackerSection = document.getElementById('tracker');
   if (trackerSection) observer.observe(trackerSection);
+
+// ══════════════════════════════════════════════════════════════════
+// RANKING DE RUCKING · Test de Umbral 4.8 km (MOCKUP · datos de ejemplo)
+// Se abre con la copa dentro de Rucking. Métrica = potencia (W) del test,
+// que normaliza lastre/terreno/desnivel → comparación justa.
+// Backend pendiente: cada Test de Umbral publicará snapshot público
+// { apodo, foto, watts, lastre, tiempo } y este render leerá la lista del KV.
+// ══════════════════════════════════════════════════════════════════
+// Init perezoso en window — evita TDZ si la ejecución top-level no llega aquí
+function _rankData() {
+  if (!window._RANK_DEMO) window._RANK_DEMO = [
+    { apodo:'Halcón Andino',  w:165, kg:30, t:'38:40' },
+    { apodo:'Lobo del Cajón', w:152, kg:25, t:'41:20', me:true },
+    { apodo:'Puma Gris',      w:148, kg:25, t:'42:10' },
+    { apodo:'Cóndor',         w:141, kg:20, t:'40:30' },
+    { apodo:'Zorro Culpeo',   w:134, kg:20, t:'43:15' },
+    { apodo:'Guanaco Veloz',  w:128, kg:15, t:'39:50' },
+    { apodo:'Vizcacha',       w:119, kg:20, t:'46:00' },
+    { apodo:'Quirquincho',    w:110, kg:15, t:'44:30' }
+  ];
+  return window._RANK_DEMO;
+}
+
+// Paleta para avatares sin foto (color estable por nombre)
+const _RANK_AV_COLORS = ['#00b8c4','#8B1A1A','#C9A84C','#2e7d54','#5a4fcf','#c2643a'];
+function _avatarColor(name) {
+  let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
+  return _RANK_AV_COLORS[Math.abs(h) % _RANK_AV_COLORS.length];
+}
+// HTML del avatar: foto si existe, si no inicial sobre color
+function _avatarHTML(r, size) {
+  const ini = (r.apodo || '?').trim().charAt(0).toUpperCase();
+  const foto = r.me ? (localStorage.getItem('atletaFoto') || r.foto) : r.foto;
+  if (foto) {
+    return `<div class="rank-av" style="width:${size}px;height:${size}px;background-image:url('${foto}');"></div>`;
+  }
+  return `<div class="rank-av rank-av-ini" style="width:${size}px;height:${size}px;background:${_avatarColor(r.apodo)};font-size:${Math.round(size*0.42)}px;">${ini}</div>`;
+}
+
+function renderRanking() {
+  const cont = document.getElementById('rankingTabla');
+  if (!cont) return;
+  // Apodo guardado por el usuario (persistido)
+  const saved = localStorage.getItem('rankApodo');
+  if (saved) { const m = _rankData().find(r => r.me); if (m) m.apodo = saved; }
+  const sorted = [..._rankData()].sort((a, b) => b.w - a.w);
+  const medals = ['🥇', '🥈', '🥉'];
+  cont.innerHTML = sorted.map((r, i) => {
+    const posHTML = i < 3
+      ? `<span class="rank-medal">${medals[i]}</span>`
+      : `<span class="rank-pos">${i + 1}</span>`;
+    return `<div class="rank-row${r.me ? ' is-me' : ''}">
+      <div style="flex-shrink:0;width:26px;text-align:center;">${posHTML}</div>
+      ${_avatarHTML(r, 40)}
+      <div class="rank-name-wrap">
+        <div class="rank-name">${r.apodo}${r.me ? ' <span style="font-size:.7em;color:#C9A84C;letter-spacing:1px;">· TÚ</span>' : ''}</div>
+        <div class="rank-sub">${r.kg} kg · ${r.t}</div>
+      </div>
+      <div class="rank-val">${r.w}<small>watts</small></div>
+    </div>`;
+  }).join('');
+  // Avatar + apodo del bloque "Apareces como"
+  const me = _rankData().find(r => r.me);
+  if (me) {
+    const ap = document.getElementById('rankApodo');
+    if (ap) ap.textContent = me.apodo;
+    const av = document.getElementById('rankMeAvatar');
+    if (av) {
+      const foto = localStorage.getItem('atletaFoto') || me.foto;
+      if (foto) { av.style.backgroundImage = `url('${foto}')`; av.textContent = ''; }
+      else { av.style.backgroundImage = ''; av.textContent = (me.apodo || '?').charAt(0).toUpperCase(); }
+    }
+  }
+}
+
+function abrirRankingRuck() {
+  const ov = document.getElementById('rankOverlay');
+  if (!ov) return;
+  renderRanking();
+  ov.style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function cerrarRankingRuck() {
+  const ov = document.getElementById('rankOverlay');
+  if (ov) ov.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function editarApodoRanking() {
+  const el = document.getElementById('rankApodo');
+  const actual = el && el.textContent.trim() !== '—' ? el.textContent.trim() : '';
+  const nuevo = prompt('Tu apodo en el ranking (así te ven los demás):', actual);
+  if (nuevo && nuevo.trim()) {
+    const v = nuevo.trim().slice(0, 24);
+    localStorage.setItem('rankApodo', v);
+    const me = _rankData().find(r => r.me);
+    if (me) me.apodo = v;
+    renderRanking();
+  }
+}
+
+window.abrirRankingRuck = abrirRankingRuck;
+window.cerrarRankingRuck = cerrarRankingRuck;
+window.editarApodoRanking = editarApodoRanking;
+window.renderRanking = renderRanking;

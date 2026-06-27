@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260627a -->
+<!-- v=20260627b -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -3231,10 +3231,16 @@ function abrirPerfil(id) {
       </div>
     </div>
 
-    <div class="datos-grid">
-      <div class="dato"><div class="dato-v">${a.peso || a.inbodyTrend?.peso || '—'}</div><div class="dato-l">Peso kg</div></div>
-      <div class="dato"><div class="dato-v">${a.talla||'—'}</div><div class="dato-l">Talla cm</div></div>
-      <div class="dato"><div class="dato-v">${calcularEdadCoach(a.fechaNac)||a.edad||'—'}</div><div class="dato-l">Edad</div></div>
+    <!-- Métricas rápidas -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+      <div class="dato"><div class="dato-v">${a.peso||a.inbodyTrend?.peso||'—'}</div><div class="dato-l">Peso kg</div></div>
+      <div class="dato"><div class="dato-v" style="color:${a.inbodyTrend?.grasa_pct>25?'var(--orange)':'var(--text)'};">${a.inbodyTrend?.grasa_pct||'—'}${a.inbodyTrend?.grasa_pct?'%':''}</div><div class="dato-l">Grasa %</div></div>
+      <div class="dato"><div class="dato-v" style="color:var(--green);">${a.inbodyTrend?.musculo||'—'}${a.inbodyTrend?.musculo?' kg':''}</div><div class="dato-l">Músculo</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+      <div class="dato"><div class="dato-v" style="color:var(--orange);">${a.endurance?.rkFtpWatts||'—'}${a.endurance?.rkFtpWatts?' W':''}</div><div class="dato-l">rkFTP</div></div>
+      <div class="dato"><div class="dato-v" style="color:var(--cian);">${a.endurance?.ftpPace||'—'}</div><div class="dato-l">FTP carrera</div></div>
+      <div class="dato"><div class="dato-v" style="color:var(--gold);">${a.squat1RM||'—'}${a.squat1RM?' kg':''}</div><div class="dato-l">1RM sentadilla</div></div>
     </div>
 
     <!-- ── SECCIÓN: RESUMEN ── -->
@@ -3250,6 +3256,18 @@ function abrirPerfil(id) {
       </div>
       <div class="chart-wrap" style="height:160px;"><canvas id="cCargaVol"></canvas></div>
       <div id="cargaVolCapacidad" style="margin-top:10px;font-size:12px;color:var(--text3);line-height:1.6;"></div>
+    </div>
+
+    <!-- Volumen mensual comparado -->
+    <div class="sec">
+      <div class="sec-t">Volumen mensual · últimos 6 meses</div>
+      <div id="volMensualVacio" style="display:none;padding:12px 0;font-size:12px;color:var(--text3);">
+        Sin historial mensual · el atleta debe abrir su panel para sincronizar
+      </div>
+      <div id="volMensualWrap">
+        <div class="chart-wrap" style="height:150px;"><canvas id="cVolMensual"></canvas></div>
+        <div id="volMensualDeltas" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;"></div>
+      </div>
     </div>
 
     <div class="prog-grid">
@@ -3526,6 +3544,7 @@ function abrirPerfil(id) {
   setTimeout(() => {
     refreshCoachCSVStatus();
     dibujarCargaVol(a);
+    dibujarVolMensual(a);
 
     // Inicializar los charts de pa-resumen (sección visible al abrir)
     showAtletaSec('pa-resumen', document.querySelector('.pnav-sub.active'));
@@ -3637,6 +3656,77 @@ function dibujarCargaVol(a) {
       }
     }
   });
+}
+
+// ── VOLUMEN MENSUAL COMPARADO ─────────────────────────────────────────────
+function dibujarVolMensual(a) {
+  const meses = a.strava?.monthlyKm;
+  const wrap  = document.getElementById('volMensualWrap');
+  const vacio = document.getElementById('volMensualVacio');
+  if (!meses || !meses.length || meses.every(m => m.km === 0)) {
+    if (wrap)  wrap.style.display  = 'none';
+    if (vacio) vacio.style.display = 'block';
+    return;
+  }
+  if (wrap)  wrap.style.display  = 'block';
+  if (vacio) vacio.style.display = 'none';
+
+  const labels = meses.map(m => m.label);
+  const kms    = meses.map(m => m.km);
+  const nSes   = meses.map(m => m.n);
+
+  // Colores: mes actual destacado, anteriores más suaves
+  const N = kms.length;
+  const bgColors = kms.map((_, i) =>
+    i === N-1 ? 'rgba(0,168,179,0.85)' : 'rgba(0,168,179,0.28)'
+  );
+  const borderColors = kms.map((_, i) =>
+    i === N-1 ? '#00a8b3' : 'rgba(0,168,179,0.5)'
+  );
+
+  const canvas = document.getElementById('cVolMensual');
+  if (!canvas) return;
+  if (window._chartVolMensual) window._chartVolMensual.destroy();
+  window._chartVolMensual = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: kms,
+        backgroundColor: bgColors,
+        borderColor: borderColors,
+        borderWidth: 1,
+        borderRadius: 4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => `${ctx.parsed.y} km · ${nSes[ctx.dataIndex]} ses` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#888' } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { font: { size: 10 }, color: '#999', callback: v => v + ' km' } }
+      }
+    }
+  });
+
+  // Deltas: últimos 3 meses con comparación
+  const deltasEl = document.getElementById('volMensualDeltas');
+  if (deltasEl && N >= 2) {
+    deltasEl.innerHTML = meses.slice(-3).map((m, i, arr) => {
+      const prev = i > 0 ? arr[i-1].km : (meses[N-4]?.km || null);
+      const delta = prev && prev > 0 ? Math.round((m.km - prev) / prev * 100) : null;
+      const color = delta === null ? '#999' : delta > 0 ? 'var(--green)' : delta < 0 ? 'var(--red)' : '#999';
+      const arrow = delta === null ? '' : delta > 0 ? `↑${delta}%` : delta < 0 ? `↓${Math.abs(delta)}%` : '→';
+      return `<div style="background:#f2f5f7;border-radius:8px;padding:10px;text-align:center;">
+        <div style="font-family:var(--fd);font-size:1.5rem;color:var(--text);line-height:1;">${m.km}</div>
+        <div style="font-family:var(--fc);font-size:9px;letter-spacing:1px;color:var(--text3);text-transform:uppercase;margin-top:3px;">${m.label} · ${m.n} ses</div>
+        ${arrow ? `<div style="font-size:11px;font-weight:700;color:${color};margin-top:3px;">${arrow} vs ${arr[i-1]?.label||meses[N-4]?.label||'ant.'}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
 }
 
 // ── RESUMEN PROGRESIÓN / REGRESIÓN (tarjetas de la vista atleta) ──────────
