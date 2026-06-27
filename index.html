@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260625b">
+<link rel="stylesheet" href="styles.css?v=20260627a">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -971,14 +971,8 @@
       <div id="zonasHorizWrap" style="padding:0 0 4px;"></div>
     </div>
 
-    <!-- Gráfico Ritmo — estilo TrainHeroic -->
-    <div class="th-chart-container">
-      <div class="th-chart-header">
-        <div>
-          <div class="th-chart-title">Ritmo</div>
-          <div class="th-chart-subtitle">min/km · menor = más rápido</div>
-        </div>
-      </div>
+    <!-- Ritmo medio última carrera — stat compacto bajo zonas FC -->
+    <div class="th-chart-container" style="padding-bottom:8px;">
       <div class="th-working-max">
         <div class="th-wm-icon"><i data-lucide="timer" style="width:18px;height:18px;color:#C9A84C;"></i></div>
         <div>
@@ -989,13 +983,6 @@
           </div>
         </div>
       </div>
-      <div class="th-range-selector" id="ritmoRangeBtns">
-        <button class="th-range-btn" onclick="changeRange('ritmo','7d',this)">7D</button>
-        <button class="th-range-btn" onclick="changeRange('ritmo','1m',this)">1M</button>
-        <button class="th-range-btn" onclick="changeRange('ritmo','3m',this)">3M</button>
-        <button class="th-range-btn active" onclick="changeRange('ritmo','all',this)">ALL</button>
-      </div>
-      <div class="th-chart-wrap"><canvas id="chartRitmo"></canvas></div>
     </div>
 
 

@@ -2583,21 +2583,21 @@
           displayColors: false,
           titleFont: { size: 12, weight: '700' },
           bodyFont: { size: 13 },
+          // Solo disparar tooltip desde el dataset FC (índice 0) para evitar duplicados
+          filter: (item) => item.datasetIndex === 0,
           callbacks: {
-            // Título: minuto de la actividad
             title: (items) => {
               if (!items.length) return '';
               return 'Min ' + (_streamData.labels[items[0].dataIndex] || items[0].label);
             },
-            // Cuerpo: FC + ritmo del mismo momento (cruzado desde _streamData)
             label: (item) => {
               const i = item.dataIndex;
               const lines = [];
-              const hr = _streamData.hr[i];
-              const pc = _streamData.pace[i];
+              const hr  = _streamData.hr[i];
+              const pc  = _streamData.pace[i];
               const alt = _streamData.alt ? _streamData.alt[i] : null;
-              if (hr != null)  lines.push('❤️  ' + Math.round(hr) + ' ppm');
-              if (pc != null)  lines.push('⏱️  ' + _paceFmt(pc));
+              if (hr  != null) lines.push('❤️  ' + Math.round(hr) + ' ppm');
+              if (pc  != null) lines.push('⏱️  ' + _paceFmt(pc));
               if (alt != null) lines.push('⛰️  ' + Math.round(alt) + ' m');
               return lines.length ? lines : (item.formattedValue || '');
             }
