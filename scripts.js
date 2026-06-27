@@ -2518,8 +2518,7 @@
 
   function initCharts() {
     const fcCtx = document.getElementById('chartFC');
-    const ritmoCtx = document.getElementById('chartRitmo');
-    if (!fcCtx || !ritmoCtx) return;
+    if (!fcCtx) return;
     // Destruir instancias previas si existen (evita "Canvas already in use")
     if (chartFC)    { try { chartFC.destroy();    } catch(e){} chartFC    = null; }
     if (chartRitmo) { try { chartRitmo.destroy(); } catch(e){} chartRitmo = null; }
