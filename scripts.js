@@ -1425,6 +1425,42 @@
 
   const MESES_ABR = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 
+  // Lista continua de meses 'YYYY-MM' de `desde` a `hasta` (inclusive), para que
+  // aparezcan también los meses de volumen cero (sin actividades).
+  function _rangoMeses(desde, hasta) {
+    const out = [];
+    let [y, m] = desde.split('-').map(Number);
+    const [hy, hm] = hasta.split('-').map(Number);
+    let guard = 0;
+    while ((y < hy || (y === hy && m <= hm)) && guard++ < 240) {
+      out.push(y + '-' + String(m).padStart(2, '0'));
+      m++; if (m > 12) { m = 1; y++; }
+    }
+    return out;
+  }
+
+  // Mes anterior a un 'YYYY-MM'
+  function _mesPrevio(ym) {
+    let [y, m] = ym.split('-').map(Number);
+    m--; if (m < 1) { m = 12; y--; }
+    return y + '-' + String(m).padStart(2, '0');
+  }
+
+  // Stats de un conjunto de actividades ya filtrado: km, seg, nº, zonas FC y ritmo medio
+  function _statsActs(acts, fcMax) {
+    const km  = acts.reduce((s, a) => s + a.km, 0);
+    const sec = acts.reduce((s, a) => s + a.sec, 0);
+    const zonaSec = [0, 0, 0, 0, 0];
+    acts.forEach(a => {
+      if (Array.isArray(a.zsec) && a.zsec.length === 5 && a.zsec.some(v => v > 0)) {
+        for (let i = 0; i < 5; i++) zonaSec[i] += a.zsec[i];
+      } else if (fcMax && a.hr && a.sec) {
+        zonaSec[_zonaDesdePctFC(a.hr / fcMax)] += a.sec;
+      }
+    });
+    return { n: acts.length, km, sec, zonaSec, paceSecKm: km > 0 ? sec / km : null };
+  }
+
   function renderResumenMensual() {
     const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
     const sinDatos  = document.getElementById('resSinDatos');
@@ -1441,9 +1477,14 @@
     if (sinDatos)  sinDatos.style.display  = 'none';
     if (contenido) contenido.style.display = 'block';
 
-    // Meses y años disponibles, ordenados desc
-    const meses = [...new Set(cache.map(a => a.date.slice(0, 7)))].sort().reverse();
+    // Meses CONTINUOS desde el primer mes con datos hasta el mes actual, para que
+    // los meses de volumen cero (sin actividades) también aparezcan en el selector.
+    const mesesConDatos = [...new Set(cache.map(a => a.date.slice(0, 7)))].sort();
     const años  = [...new Set(cache.map(a => a.date.slice(0, 4)))].sort().reverse();
+    const hoyYM = new Date().toISOString().slice(0, 7);
+    const ultimoConDatos = mesesConDatos[mesesConDatos.length - 1];
+    const hastaYM = (ultimoConDatos > hoyYM) ? ultimoConDatos : hoyYM;
+    const meses = _rangoMeses(mesesConDatos[0], hastaYM).reverse(); // desc
     const todosValidos = [...meses, ...años];
     if (!_resMesActivo || !todosValidos.includes(_resMesActivo)) _resMesActivo = meses[0];
 
@@ -1491,6 +1532,67 @@
     const fcMax  = perfil.fcMax || null;
     const zonasEl    = document.getElementById('resZonasFC');
     const sinFcEl    = document.getElementById('resZonasSinFC');
+
+    // ── Comparativa: mes en curso vs mes anterior (solo en vista de MES) ──
+    const cmpEl = document.getElementById('resComparativa');
+    if (cmpEl) {
+      if (esAño) {
+        cmpEl.style.display = 'none';
+      } else {
+        const prevMes   = _mesPrevio(_resMesActivo);
+        const prevActs  = cache.filter(a => !_hiddenRuns['s_' + a.id] && a.date.slice(0, 7) === prevMes);
+        const cur  = _statsActs(acts, fcMax);
+        const prv  = _statsActs(prevActs, fcMax);
+
+        if (cur.n === 0 && prv.n === 0) {
+          cmpEl.style.display = 'none';
+        } else {
+          const [py, pmo] = prevMes.split('-');
+          const prevLbl = `${MESES_ABR[parseInt(pmo) - 1]} ${py}`;
+          const _pace = s => { if (s == null) return '—'; const m = Math.floor(s / 60), ss = Math.round(s % 60); return m + ':' + String(ss).padStart(2, '0'); };
+          // Fila: etiqueta, valor actual, valor previo y delta con color/flecha.
+          // mejorAlta=true → subir es "más" (verde); para ritmo, bajar es más rápido.
+          const _fila = (label, curTxt, prvTxt, delta, dir) => {
+            const col = dir === 0 ? '#999' : (dir > 0 ? '#1f9e57' : '#c0392b');
+            const arr = dir === 0 ? '→' : (dir > 0 ? '▲' : '▼');
+            return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(0,0,0,0.05);">
+              <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;color:#777;">${label}</div>
+              <div style="display:flex;align-items:baseline;gap:10px;">
+                <div style="font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:#222;line-height:1;">${curTxt}</div>
+                <div style="font-size:11px;color:#aaa;min-width:54px;text-align:right;">vs ${prvTxt}</div>
+                <div style="font-size:11px;font-weight:700;color:${col};min-width:46px;text-align:right;">${arr} ${delta}</div>
+              </div>
+            </div>`;
+          };
+          // Volumen (km): subir = más volumen
+          const dKm = cur.km - prv.km;
+          const dKmPct = prv.km > 0 ? Math.round((dKm / prv.km) * 100) : (cur.km > 0 ? 100 : 0);
+          // Intensidad (ritmo medio): menos seg/km = más rápido = "más intenso"
+          let dirInt = 0, intDelta = '—';
+          if (cur.paceSecKm != null && prv.paceSecKm != null) {
+            const dSec = cur.paceSecKm - prv.paceSecKm; // negativo = más rápido
+            dirInt = Math.abs(dSec) < 1 ? 0 : (dSec < 0 ? 1 : -1);
+            const am = Math.floor(Math.abs(dSec) / 60), as = Math.round(Math.abs(dSec) % 60);
+            intDelta = (am > 0 ? am + ':' + String(as).padStart(2, '0') : as + 's');
+          } else if (cur.paceSecKm != null) { dirInt = 1; intDelta = 'nuevo'; }
+          // Alta intensidad: % de tiempo en Z4+Z5
+          const _altaPct = st => { const tot = st.zonaSec.reduce((s, v) => s + v, 0); return tot > 0 ? (st.zonaSec[3] + st.zonaSec[4]) / tot * 100 : null; };
+          const curAlta = _altaPct(cur), prvAlta = _altaPct(prv);
+
+          let filas = _fila('Volumen', cur.km.toFixed(1) + ' km', prv.km.toFixed(1) + ' km',
+                            (dKmPct >= 0 ? '+' : '') + dKmPct + '%', Math.abs(dKmPct) < 1 ? 0 : (dKmPct > 0 ? 1 : -1));
+          filas += _fila('Intensidad · ritmo', _pace(cur.paceSecKm) + '/km', _pace(prv.paceSecKm) + '/km', intDelta, dirInt);
+          if (curAlta != null || prvAlta != null) {
+            const dAlta = (curAlta || 0) - (prvAlta || 0);
+            filas += _fila('Zonas altas · Z4-5', Math.round(curAlta || 0) + '%', Math.round(prvAlta || 0) + '%',
+                           (dAlta >= 0 ? '+' : '') + Math.round(dAlta) + 'pp', Math.abs(dAlta) < 1 ? 0 : (dAlta > 0 ? 1 : -1));
+          }
+
+          cmpEl.innerHTML = `<div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:2px;color:#666;text-transform:uppercase;margin-bottom:6px;font-weight:600;">vs ${prevLbl}</div>${filas}`;
+          cmpEl.style.display = 'block';
+        }
+      }
+    }
 
     if (!fcMax) {
       if (zonasEl) zonasEl.innerHTML = '';
@@ -5827,48 +5929,60 @@
     const fcmax = (!isNaN(fcRaw) && fcRaw > 0) ? fcRaw : null;
 
     const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const prev = profile.endurance || {};
     // El multiplicador lo controla el coach; si no existe, 1.0 por defecto
-    const mult = (profile.endurance && profile.endurance.ftpMultiplier) || 1.0;
+    const mult = prev.ftpMultiplier || 1.0;
 
-    const tiene5  = !isNaN(d5)  && d5  > 0;
-    const tiene20 = !isNaN(d20) && d20 > 0;
+    // Los campos vienen PRE-RELLENADOS con los últimos valores guardados; por eso
+    // "tener un valor" no equivale a "test nuevo". Un test cuenta como NUEVO solo
+    // si su distancia cambió respecto a la guardada. Así, ingresar el test de 5 min
+    // no vuelve a estampar el de 20 min (ni en el perfil ni en el historial), y
+    // viceversa — cada test se registra de forma independiente.
+    const has5  = !isNaN(d5)  && d5  > 0;
+    const has20 = !isNaN(d20) && d20 > 0;
+    const nuevo5  = has5  && Number(d5)  !== Number(prev.d5);
+    const nuevo20 = has20 && Number(d20) !== Number(prev.d20);
     let vamKmh = null;
 
-    // 1) Si hay al menos un test, calcular y complementar el perfil
-    if (tiene5 || tiene20) {
-      const r = window.calcularPerfilEndurance(d5, d20, mult);
+    // 1) Si hay AL MENOS UN test nuevo, recalcular solo ese y complementar el perfil
+    if (nuevo5 || nuevo20) {
+      // Pasar null al test que NO cambió → calcularPerfilEndurance no lo recalcula
+      const r = window.calcularPerfilEndurance(nuevo5 ? d5 : null, nuevo20 ? d20 : null, mult);
       if (!r.ok) {
         if (errEl) { errEl.style.display = 'block'; errEl.textContent = r.error || 'Datos inválidos.'; }
         return;
       }
-      const prev = profile.endurance || {};
       profile.endurance = {
         ...prev,
-        // VAM: solo se recalcula si hay test de 5 min; si no, se conserva
-        d5:      tiene5  ? d5            : prev.d5,
+        // VAM: solo se recalcula si hay test de 5 min NUEVO; si no, se conserva
+        d5:      nuevo5  ? d5            : prev.d5,
         vamMs:   r.vam   ? r.vam.ms      : prev.vamMs,
         vamPace: r.vam   ? r.vam.pace    : prev.vamPace,
-        // FTP: solo se recalcula si hay test de 20 min; si no, se conserva
-        d20:           tiene20 ? d20             : prev.d20,
+        // FTP: solo se recalcula si hay test de 20 min NUEVO; si no, se conserva
+        d20:           nuevo20 ? d20             : prev.d20,
         ftpMs:         r.ftp   ? r.ftp.ms        : prev.ftpMs,
         ftpPace:       r.ftp   ? r.ftp.pace      : prev.ftpPace,
         ftpMultiplier: r.ftp   ? r.ftp.multiplier: prev.ftpMultiplier,
         raw20minMs:    r.ftp   ? r.ftp.raw20minMs: prev.raw20minMs,
         fecha: new Date().toISOString().slice(0, 10),
       };
-      // Historial de VAM/FTP para el gráfico de progresión (snapshot por fecha)
+      // Historial de progresión: en el snapshot de hoy SOLO se anota el test que
+      // se ejecutó hoy. El otro queda null → el gráfico (spanGaps) lo puentea en
+      // vez de dibujar un punto falso "replicado" de un test no realizado.
       if (!profile.enduranceHistory) profile.enduranceHistory = [];
       const fH = profile.endurance.fecha;
-      profile.enduranceHistory = profile.enduranceHistory.filter(h => h.date !== fH);
-      profile.enduranceHistory.push({ date: fH, vamMs: profile.endurance.vamMs || null, ftpMs: profile.endurance.ftpMs || null });
+      let dia = profile.enduranceHistory.find(h => h.date === fH);
+      if (!dia) { dia = { date: fH, vamMs: null, ftpMs: null }; profile.enduranceHistory.push(dia); }
+      if (nuevo5)  dia.vamMs = profile.endurance.vamMs || null;
+      if (nuevo20) dia.ftpMs = profile.endurance.ftpMs || null;
       profile.enduranceHistory.sort((a, b) => a.date.localeCompare(b.date));
       localStorage.setItem('ruckProfile', JSON.stringify(profile));
       if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
       mostrarEnduranceResultados(profile.endurance);
       if (profile.endurance.vamMs) vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
-    } else if (profile.endurance && profile.endurance.vamMs) {
+    } else if (prev.vamMs) {
       // Sin test nuevo, pero ya existe una VAM previa → usarla para las zonas
-      vamKmh = parseFloat((profile.endurance.vamMs * 3.6).toFixed(1));
+      vamKmh = parseFloat((prev.vamMs * 3.6).toFixed(1));
     }
 
     // 2) Validación: se necesita al menos VAM (test 5 min) o FC máx
