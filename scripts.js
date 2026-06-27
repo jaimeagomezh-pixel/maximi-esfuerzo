@@ -261,6 +261,21 @@
         _miPlanesMobileAbierto = false;
       }
 
+      // Ping lastSeen al worker (silencioso, no bloquea)
+      try {
+        const _uid = window._auth?.currentUser?.uid;
+        const _strId = localStorage.getItem('strava_athlete_id');
+        const _cloudId = _uid ? 'uid:' + _uid : (_strId ? _strId : null);
+        if (_cloudId) {
+          fetch('https://flow-payments.jaimea-gomezh.workers.dev/rucking/save-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stravaId: _cloudId, k: 'ME-sync-26',
+              profile: { lastSeen: new Date().toISOString() } })
+          }).catch(() => {});
+        }
+      } catch(_e) {}
+
       // Abrir dashboard
       const dash = document.getElementById('dashboardAtleta');
       if (dash) {

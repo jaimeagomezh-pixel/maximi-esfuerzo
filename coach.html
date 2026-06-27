@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260622a -->
+<!-- v=20260627a -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -13,7 +13,7 @@
   --card: #ffffff;
   --border: rgba(0,0,0,0.13);
   --border2: rgba(0,122,133,0.3);
-  --gold: #C9A84C; /* dorado de marca, igual al panel del atleta */
+  --gold: #C9A84C;
   --cian: #8B1A1A;
   --cian2: #00a8b3;
   --green: #1e9451;
@@ -1557,6 +1557,14 @@ async function sincronizarPerfilesCloud() {
       if (prof.fechaNac && a.fechaNac !== prof.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
       if (prof.talla && a.talla !== prof.talla) { a.talla = prof.talla; cambio = true; }
       if (prof.bw && a.peso !== prof.bw) { a.peso = prof.bw; cambio = true; }
+      if (prof.lastSeen && a.lastSeen !== prof.lastSeen) { a.lastSeen = prof.lastSeen; cambio = true; }
+      // FatSecret: consulta ligera
+      try {
+        const fsRes = await fetch(`${FLOW_WORKER_URL}/fatsecret/data`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ uid: cloudId.replace('uid:',''), k:'ME-sync-26' }) });
+        const fsData = await fsRes.json();
+        const fsConn = !!(fsData?.ok && fsData?.connected);
+        if (a.fatsecretConnected !== fsConn) { a.fatsecretConnected = fsConn; cambio = true; }
+      } catch(_) {}
       if (cambio) actualizados++;
     } catch(e) { /* silencioso por atleta */ }
   }
@@ -1789,6 +1797,24 @@ function renderAtletas() {
         }).join('')
       : `<div style="font-size:11px;color:var(--text3);font-style:italic;">Sin datos · haz Sync</div>`;
 
+    // Indicadores de conexión
+    const stravaOk = a.stravaId && !String(a.stravaId).startsWith('uid:');
+    const stravaChip = `<span style="font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:8px;border:1px solid ${stravaOk?'rgba(252,76,2,0.5)':'rgba(0,0,0,0.12)'};color:${stravaOk?'#fc4c02':'#bbb'};background:${stravaOk?'rgba(252,76,2,0.08)':'rgba(0,0,0,0.03)'};">⚡ Strava</span>`;
+    const fsChip    = `<span style="font-family:var(--fc);font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:8px;border:1px solid ${a.fatsecretConnected?'rgba(74,192,74,0.5)':'rgba(0,0,0,0.12)'};color:${a.fatsecretConnected?'#2e7d52':'#bbb'};background:${a.fatsecretConnected?'rgba(74,192,74,0.08)':'rgba(0,0,0,0.03)'};">🍎 FatSecret</span>`;
+
+    // Última conexión
+    let lastSeenHtml = '';
+    if (a.lastSeen) {
+      const diffH = Math.round((Date.now() - new Date(a.lastSeen)) / 3600000);
+      const diffD = Math.floor(diffH / 24);
+      const diffTxt = diffD === 0 ? (diffH < 1 ? 'hace menos de 1h' : `hace ${diffH}h`) : diffD === 1 ? 'ayer' : `hace ${diffD}d`;
+      lastSeenHtml = `<span style="font-size:10px;color:var(--text3);margin-left:4px;">· ${diffTxt}</span>`;
+    }
+
+    // Cumpleaños con fecha
+    const cumpleFecha = a.fechaNac ? (() => { const [y,m,d] = a.fechaNac.split('-'); return `${d}/${m}`; })() : '';
+    const cumpleFechaHtml = cumpleFecha ? `<span style="font-size:10px;color:var(--text3);margin-left:4px;">🎂 ${cumpleFecha}</span>` : '';
+
     const statsHtml = ''; // ya no se usa debajo del nombre
 
     // Badge cumpleaños
@@ -1810,9 +1836,10 @@ function renderAtletas() {
       <div class="a-dot ${dotCls}"></div>
       <div class="a-av" style="${cumple ? 'background:linear-gradient(135deg,#d4a843,#c8960f);' : ''}">${cumple ? '🎂' : a.nombre.charAt(0)}</div>
       <div class="a-info">
-        <div class="a-name">${a.nombre}</div>
+        <div class="a-name">${a.nombre}${cumpleFechaHtml}${lastSeenHtml}</div>
         <div class="a-meta">${a.email}</div>
         ${a.plan && a.plan !== 'Sin plan' ? `<div style="font-family:var(--fc);font-size:11px;color:var(--cian);letter-spacing:0.5px;margin-top:2px;">${a.plan}</div>` : ''}
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">${stravaChip}${fsChip}</div>
         ${cumpleBadge}
         ${gruposHtml}
         <div class="a-actions">${acciones}</div>
@@ -3212,6 +3239,19 @@ function abrirPerfil(id) {
 
     <!-- ── SECCIÓN: RESUMEN ── -->
     <div id="pa-resumen" data-pa-sec style="display:block;">
+
+    <!-- Gráfico combinado volumen + carga -->
+    <div class="sec" id="secCargaVol">
+      <div class="sec-t">Carga vs Volumen · semana a semana</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;" id="cargaVolLegend">
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--cian2);"><span style="display:inline-block;width:10px;height:10px;background:var(--cian2);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>km Strava</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--orange);"><span style="display:inline-block;width:10px;height:10px;background:var(--orange);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rTSS endurance</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--gold);"><span style="display:inline-block;width:10px;height:10px;background:var(--gold);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rkTSS marcha</span>
+      </div>
+      <div class="chart-wrap" style="height:160px;"><canvas id="cCargaVol"></canvas></div>
+      <div id="cargaVolCapacidad" style="margin-top:10px;font-size:12px;color:var(--text3);line-height:1.6;"></div>
+    </div>
+
     <div class="prog-grid">
       <div class="prog-card"><div class="prog-l">Composición · grasa</div><div class="prog-v" id="progGrasa">—</div><div class="prog-d flat" id="progGrasaD">sin datos</div></div>
       <div class="prog-card"><div class="prog-l">Fuerza · 1RM sentadilla</div><div class="prog-v" id="progFuerza">—</div><div class="prog-d flat" id="progFuerzaD">sin datos</div></div>
@@ -3459,6 +3499,7 @@ function abrirPerfil(id) {
 
   setTimeout(() => {
     refreshCoachCSVStatus();
+    dibujarCargaVol(a);
 
     // Inicializar los charts de pa-resumen (sección visible al abrir)
     showAtletaSec('pa-resumen', document.querySelector('.pnav-sub.active'));
@@ -3477,6 +3518,77 @@ function abrirPerfil(id) {
       if (msgEl)   msgEl.textContent = 'Atleta sin email registrado';
     }
   }, 150);
+}
+
+// ── GRÁFICO COMBINADO VOLUMEN + CARGA ────────────────────────────────────────
+function dibujarCargaVol(a) {
+  const canvas = document.getElementById('cCargaVol');
+  if (!canvas) return;
+
+  // Recopilar semanas: usamos rkLoad (10 sem) como eje temporal base
+  const N = 10;
+  const factor = a.endurance?.ftpMultiplier ? 1 / Math.pow(a.endurance.ftpMultiplier, 2) : 1;
+
+  // rTSS por semana (endurance)
+  const rtssData = (a.cargaRTSS?.semanas || []).slice(-N).map(w => Math.round((w.val||0) * factor));
+  // rkTSS por semana (rucking)
+  const rktssData = (a.ruckLoad?.semanas || []).slice(-N).map(w => Math.round(w.val||0));
+  // km Strava por semana (construir desde series si existe, o distribución del mes)
+  let kmData = Array(N).fill(0);
+  if (a.strava?.series) {
+    kmData = a.strava.series.slice(-N).map(s => parseFloat(s.km)||0);
+  } else if (a.strava?.km) {
+    // Distribuir km mensuales en 4 semanas como proxy
+    const kmPorSem = Math.round(a.strava.km / 4);
+    kmData = Array(N).fill(0).map((_, i) => i >= N-4 ? kmPorSem : 0);
+  }
+
+  // Pad hasta N semanas
+  const pad = (arr) => { while (arr.length < N) arr.unshift(0); return arr.slice(-N); };
+  const rtss = pad([...rtssData]);
+  const rktss = pad([...rktssData]);
+  const km = pad([...kmData]);
+
+  // Labels: "sem -9" … "esta sem"
+  const labels = Array.from({length:N}, (_,i) => i===N-1 ? 'Esta' : `-${N-1-i}s`);
+
+  // ACWR endurance: ATL/CTL ratio para detectar sobrecarga
+  const ctlEnd = rtss.slice(0,4).reduce((s,v)=>s+v,0)/4 || 1;
+  const atlEnd  = rtss.slice(-1)[0] || 0;
+  const acwrEnd = (atlEnd / ctlEnd).toFixed(2);
+  const acwrColor = acwrEnd > 1.5 ? '#e74c3c' : acwrEnd > 1.2 ? '#e67e22' : '#27ae60';
+
+  const capEl = document.getElementById('cargaVolCapacidad');
+  if (capEl) {
+    const totalCarga = rtss[N-1] + rktss[N-1];
+    const msg = acwrEnd > 1.5
+      ? `⚠️ ACWR ${acwrEnd} — carga esta semana muy alta vs promedio. Considera descarga activa.`
+      : acwrEnd > 1.2
+      ? `⚡ ACWR ${acwrEnd} — cerca del límite. Monitorear recuperación.`
+      : `✓ ACWR ${acwrEnd} — carga controlada. Esta sem: rTSS ${rtss[N-1]} + rkTSS ${rktss[N-1]} = ${totalCarga} total.`;
+    capEl.innerHTML = `<span style="color:${acwrColor};font-weight:600;">${msg}</span>`;
+  }
+
+  if (window._chartCargaVol) { window._chartCargaVol.destroy(); }
+  window._chartCargaVol = new Chart(canvas, {
+    data: {
+      labels,
+      datasets: [
+        { type:'bar', label:'km Strava', data: km, backgroundColor:'rgba(0,168,179,0.35)', borderColor:'rgba(0,168,179,0.7)', borderWidth:1, yAxisID:'yKm', order:2 },
+        { type:'line', label:'rTSS', data: rtss, borderColor:'#e67e22', backgroundColor:'rgba(230,126,34,0.1)', borderWidth:2, pointRadius:3, tension:0.3, yAxisID:'yTSS', order:1 },
+        { type:'line', label:'rkTSS', data: rktss, borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.1)', borderWidth:2, pointRadius:3, tension:0.3, yAxisID:'yTSS', order:0 }
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false },
+      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y}` } } },
+      scales: {
+        x: { grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#999' } },
+        yKm:  { position:'left',  beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'rgba(0,168,179,0.7)', callback: v=>`${v}km` } },
+        yTSS: { position:'right', beginAtZero:true, grid:{ drawOnChartArea:false }, ticks:{ font:{size:10}, color:'#e67e22', callback: v=>`${v}` } }
+      }
+    }
+  });
 }
 
 // ── RESUMEN PROGRESIÓN / REGRESIÓN (tarjetas de la vista atleta) ──────────
