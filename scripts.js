@@ -2692,33 +2692,8 @@
         }
       }
     });
-
-    // Chart Ritmo
-    chartRitmo = new Chart(ritmoCtx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          data: ritmoData,
-          borderColor: '#C9A84C',
-          backgroundColor: (ctx) => {
-            const g = ctx.chart.ctx.createLinearGradient(0,0,0,120);
-            g.addColorStop(0,'rgba(201,168,76,0.22)');
-            g.addColorStop(1,'rgba(201,168,76,0.02)');
-            return g;
-          },
-          fill: 'start', // rellena hacia el borde inferior (área coloreada DEBAJO de la curva)
-        }]
-      },
-      options: { ...thDefaults, scales: { ...thDefaults.scales,
-        y: { ...thDefaults.scales.y, reverse: true, min: 3, max: 7,
-          ticks: { ...thDefaults.scales.y.ticks, callback: v => {
-            const m = Math.floor(v), s = Math.round((v-m)*60);
-            return m+':'+(s<10?'0':'')+s;
-          }}
-        }
-      }}
-    });
+    // NOTA: el chart Ritmo independiente fue eliminado; el ritmo ahora va
+    // superpuesto dentro de chartFC (eje derecho). chartRitmo queda null.
   }
 
   // Inicializar charts cuando se abre el dashboard
