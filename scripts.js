@@ -851,6 +851,7 @@
       if (chartFC && hrS.length) {
         chartFC.data.labels = labels;
         chartFC.data.datasets[0].data = hrS;
+        if (paceS.length) chartFC.data.datasets[1].data = paceS;
         chartFC.update('active');
       }
       if (chartRitmo && paceS.length) {
@@ -2609,28 +2610,65 @@
       }
     };
 
-    // Chart FC
+    // Chart FC — dual eje: FC (izq, rojo) + Ritmo (der, cian invertido)
     chartFC = new Chart(fcCtx, {
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          data: fcData,
-          borderColor: '#e74c3c',
-          backgroundColor: (ctx) => {
-            const g = ctx.chart.ctx.createLinearGradient(0,0,0,120);
-            g.addColorStop(0,'rgba(231,76,60,0.15)');
-            g.addColorStop(1,'rgba(231,76,60,0)');
-            return g;
+        datasets: [
+          {
+            label: 'FC',
+            data: fcData,
+            borderColor: '#e74c3c',
+            backgroundColor: (ctx) => {
+              const g = ctx.chart.ctx.createLinearGradient(0,0,0,160);
+              g.addColorStop(0,'rgba(231,76,60,0.18)');
+              g.addColorStop(1,'rgba(231,76,60,0)');
+              return g;
+            },
+            fill: true,
+            yAxisID: 'yFC',
+            order: 1,
           },
-          fill: true,
-        }]
+          {
+            label: 'Ritmo',
+            data: ritmoData,
+            borderColor: 'rgba(0,229,240,0.80)',
+            backgroundColor: (ctx) => {
+              const g = ctx.chart.ctx.createLinearGradient(0,0,0,160);
+              g.addColorStop(0,'rgba(0,229,240,0.13)');
+              g.addColorStop(1,'rgba(0,229,240,0.01)');
+              return g;
+            },
+            fill: true,
+            yAxisID: 'yPace',
+            order: 2,
+          }
+        ]
       },
-      options: { ...thDefaults, scales: { ...thDefaults.scales,
-        y: { ...thDefaults.scales.y, min: 80, max: 200,
-          ticks: { ...thDefaults.scales.y.ticks, callback: v => v + '' }
+      options: { ...thDefaults,
+        scales: {
+          x: thDefaults.scales.x,
+          yFC: {
+            position: 'left',
+            min: 80, max: 210,
+            ticks: { color: 'rgba(231,76,60,0.85)', font: { size: 9 }, callback: v => v },
+            grid: { color: 'rgba(255,255,255,0.08)' },
+            border: { color: 'transparent' }
+          },
+          yPace: {
+            position: 'right',
+            reverse: true,
+            min: 3, max: 9,
+            ticks: {
+              color: 'rgba(0,229,240,0.7)', font: { size: 9 },
+              callback: v => { const m=Math.floor(v),s=Math.round((v-m)*60); return m+':'+(s<10?'0':'')+s; }
+            },
+            grid: { display: false },
+            border: { color: 'transparent' }
+          }
         }
-      }}
+      }
     });
 
     // Chart Ritmo
