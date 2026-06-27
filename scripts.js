@@ -825,7 +825,7 @@
       // Cargar zonas FC en paralelo
       cargarZonasActividad(token, actId);
       const res = await stravaFetch(
-        `https://www.strava.com/api/v3/activities/${actId}/streams?keys=time,heartrate,velocity_smooth&key_by_type=true`, token
+        `https://www.strava.com/api/v3/activities/${actId}/streams?keys=time,heartrate,velocity_smooth,altitude&key_by_type=true`, token
       );
       const s = await res.json();
       const N = 22;
@@ -845,13 +845,23 @@
         ? muestrarDatos(s.velocity_smooth.data, N).map(v => v > 0.5 ? parseFloat(((1000/60)/v).toFixed(2)) : null)
         : [];
 
+      // Altitud normalizada al rango FC (80-210) — solo para silueta visual
+      const altRaw = s.altitude ? muestrarDatos(s.altitude.data, N) : [];
+      let altNorm = [];
+      if (altRaw.length) {
+        const aMin = Math.min(...altRaw), aMax = Math.max(...altRaw);
+        const range = aMax - aMin || 1;
+        altNorm = altRaw.map(v => parseFloat((80 + ((v - aMin) / range) * 80).toFixed(1)));
+      }
+
       // Guardar para tooltips cruzados
-      _streamData = { labels, hr: hrS, pace: paceS };
+      _streamData = { labels, hr: hrS, pace: paceS, alt: altRaw };
 
       if (chartFC && hrS.length) {
         chartFC.data.labels = labels;
         chartFC.data.datasets[0].data = hrS;
-        if (paceS.length) chartFC.data.datasets[1].data = paceS;
+        if (paceS.length)  chartFC.data.datasets[1].data = paceS;
+        if (altNorm.length) chartFC.data.datasets[2].data = altNorm;
         chartFC.update('active');
       }
       if (chartRitmo && paceS.length) {
@@ -2585,8 +2595,10 @@
               const lines = [];
               const hr = _streamData.hr[i];
               const pc = _streamData.pace[i];
-              if (hr != null) lines.push('❤️  ' + Math.round(hr) + ' ppm');
-              if (pc != null) lines.push('⏱️  ' + _paceFmt(pc));
+              const alt = _streamData.alt ? _streamData.alt[i] : null;
+              if (hr != null)  lines.push('❤️  ' + Math.round(hr) + ' ppm');
+              if (pc != null)  lines.push('⏱️  ' + _paceFmt(pc));
+              if (alt != null) lines.push('⛰️  ' + Math.round(alt) + ' m');
               return lines.length ? lines : (item.formattedValue || '');
             }
           }
@@ -2643,6 +2655,17 @@
             fill: true,
             yAxisID: 'yPace',
             order: 2,
+          },
+          {
+            label: 'Altitud',
+            data: [],
+            borderColor: 'rgba(255,255,255,0.17)',
+            backgroundColor: 'rgba(255,255,255,0.04)',
+            borderDash: [4, 5],
+            borderWidth: 1.2,
+            fill: 'origin',
+            yAxisID: 'yFC',
+            order: 3,
           }
         ]
       },
