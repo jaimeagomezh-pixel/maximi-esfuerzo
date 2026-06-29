@@ -5188,7 +5188,7 @@
         ? `histDelStrava('${item._stravaId || ''}',${i})`
         : `histDelManual('${item.dist || ''}','${item.date || ''}',${i})`;
     return `
-      <div id="histCard-${i}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.13);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.3);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);">
+      <div id="histCard-${i}" style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;margin-bottom:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.5);">
         <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;">
           <div onclick="histToggleDetail(${i})" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0;">
             ${head}
