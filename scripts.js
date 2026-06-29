@@ -5239,7 +5239,7 @@
     return `<div style="display:flex;gap:3px;margin-top:6px;">${segs}</div>`;
   }
 
-  function _histDetalle(item) {
+  function _histDetalle(item, suppressFallback) {
     const chip = (lbl, val) => (val != null && val !== '')
       ? `<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:8px 10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;">${lbl}</div><div style="font-size:15px;font-weight:700;color:#00e5f0;margin-top:2px;">${val}</div></div>`
       : '';
@@ -5275,7 +5275,8 @@
       }
       // Fallback aprox.: sin tiempo-real-en-zona pero con FC media + FC máx,
       // estimamos la zona dominante (igual criterio que el resumen mensual).
-      if (!fcZsec && fcHr && sec) {
+      // suppressFallback=true cuando se va a hacer fetch — sin flash de estimación.
+      if (!fcZsec && fcHr && sec && !suppressFallback) {
         const _perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
         const _fcMax = _perfil.fcMax || null;
         if (_fcMax && typeof _zonaDesdePctFC === 'function') {
@@ -5305,16 +5306,16 @@
     if (!det) return;
     const abrir = det.style.display === 'none' || !det.style.display;
     if (abrir) {
-      det.innerHTML = _histDetalle(_histRendered[i]);
-      // Carrera Strava sin zones reales → fetch directo a Strava para este detalle
       const item = _histRendered[i];
-      if (_histTipo === 'run' && item && item._stravaId && item.source === 'strava') {
-        const cached = _cacheById(item._stravaId);
-        const tieneZonas = cached && Array.isArray(cached.zsec) && cached.zsec.some(v => v > 0);
-        if (!tieneZonas) {
-          const tok = localStorage.getItem('strava_token');
-          if (tok) _fetchZonesParaDetalle(String(item._stravaId), i, tok);
-        }
+      const isStravaRun = _histTipo === 'run' && item && item._stravaId && item.source === 'strava';
+      const cached = isStravaRun ? _cacheById(item._stravaId) : null;
+      const tieneZonas = cached && Array.isArray(cached.zsec) && cached.zsec.some(v => v > 0);
+      const fetchPendiente = isStravaRun && !tieneZonas;
+      // suppressFallback=true → no muestra estimación mientras el fetch llega
+      det.innerHTML = _histDetalle(item, fetchPendiente);
+      if (fetchPendiente) {
+        const tok = localStorage.getItem('strava_token');
+        if (tok) _fetchZonesParaDetalle(String(item._stravaId), i, tok);
       }
     }
     det.style.display = abrir ? 'block' : 'none';
@@ -5386,14 +5387,20 @@
   }
 
   async function _fetchZonesParaDetalle(stravaId, i, token) {
+    const _reRenderConFallback = () => {
+      const det = document.getElementById('histDet-' + i);
+      if (det && det.style.display !== 'none' && _histRendered[i]) {
+        det.innerHTML = _histDetalle(_histRendered[i]); // sin suppressFallback → muestra estimación
+      }
+    };
     try {
       const res = await stravaFetch(`https://www.strava.com/api/v3/activities/${stravaId}/zones`, token);
       const zonas = await res.json();
       const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
-      if (!hrZone || !hrZone.distribution_buckets) return;
+      if (!hrZone || !hrZone.distribution_buckets) { _reRenderConFallback(); return; }
       const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
       const zsec = _zsecDesdeBuckets(hrZone.distribution_buckets, perfil.fcMax || null);
-      if (!zsec || !zsec.some(v => v > 0)) return;
+      if (!zsec || !zsec.some(v => v > 0)) { _reRenderConFallback(); return; }
       // Guardar en cache para próximas veces
       const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
       const idx = cache.findIndex(a => String(a.id) === stravaId);
@@ -5402,7 +5409,7 @@
       if (_histRendered[i]) _histRendered[i]._zsec = zsec;
       const det = document.getElementById('histDet-' + i);
       if (det && det.style.display !== 'none') det.innerHTML = _histDetalle(_histRendered[i]);
-    } catch(e) {}
+    } catch(e) { _reRenderConFallback(); }
   }
 
   window.abrirHistorial   = abrirHistorial;
