@@ -5150,9 +5150,9 @@
     initRuckingAtleta();
   }
 
-  // ── Historial completo → overlay a pantalla aparte (carreras / rucking) ──
-  // No guarda nada: pinta de a 20 datos ya almacenados. Solo lectura.
-  let _histTipo = null;     // 'run' | 'ruck'
+  // ── Historial completo → overlay a pantalla aparte (carreras / rucking / endurance) ──
+  let _histTipo = null;     // 'run' | 'ruck' | 'endurance'
+  let _chartEndHist = null; // Chart.js instancia para el gráfico de capacidad
   let _histShown = 20;
   let _histRendered = [];   // items actualmente pintados (para el detalle por índice)
 
@@ -5167,6 +5167,7 @@
     renderHistorialOverlay();
   }
   function cerrarHistorial() {
+    if (_chartEndHist) { _chartEndHist.destroy(); _chartEndHist = null; }
     const ov = document.getElementById('histOverlay');
     if (ov) ov.style.display = 'none';
     document.body.style.overflow = '';
@@ -5437,6 +5438,49 @@
     if (typeof initRuckingAtleta === 'function') initRuckingAtleta();
   }
 
+  function _renderEndHistChart(data) {
+    const ctx = document.getElementById('endHistChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    if (_chartEndHist) { _chartEndHist.destroy(); _chartEndHist = null; }
+    // Orden cronológico para el eje X
+    const sorted = data.slice().sort((a, b) => a.date.localeCompare(b.date));
+    const labels = sorted.map(h => h._fechaStr);
+    const vam  = sorted.map(h => h._vamKmh);
+    const ftp  = sorted.map(h => h._ftpKmh);
+    const vo2  = sorted.map(h => h._vo2max);
+    const tick = c => ({ color: c, font: { size: 9, family: "'Barlow Condensed', sans-serif" } });
+    const grid = { color: 'rgba(255,255,255,0.07)' };
+    _chartEndHist = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'VO₂ Máx', data: vo2, borderColor: '#00e5f0', backgroundColor: 'rgba(0,229,240,0.08)',
+            borderWidth: 2.5, pointRadius: 5, pointBackgroundColor: '#00e5f0', fill: true,
+            tension: 0.35, spanGaps: true, yAxisID: 'yvo2' },
+          { label: 'VAM', data: vam, borderColor: '#00e5f0', borderDash: [5, 4],
+            borderWidth: 1.8, pointRadius: 4, pointBackgroundColor: '#00e5f0', fill: false,
+            tension: 0.35, spanGaps: true, yAxisID: 'ykm' },
+          { label: 'FTP', data: ftp, borderColor: '#C9A84C',
+            borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#C9A84C', fill: false,
+            tension: 0.35, spanGaps: true, yAxisID: 'ykm' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, labels: { color: 'rgba(255,255,255,0.45)', font: { size: 10 }, boxWidth: 14, padding: 12 } },
+          tooltip: { mode: 'index', intersect: false }
+        },
+        scales: {
+          x:    { ticks: tick('rgba(255,255,255,0.4)'), grid },
+          yvo2: { type: 'linear', position: 'left',  ticks: { ...tick('#00e5f0'), callback: v => v + ' ml' }, grid, title: { display: false } },
+          ykm:  { type: 'linear', position: 'right', ticks: { ...tick('#C9A84C'), callback: v => v + ' km/h' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  }
+
   function renderHistorialOverlay() {
     const list  = document.getElementById('histOverlayList');
     const mas   = document.getElementById('histOverlayMas');
@@ -5444,6 +5488,7 @@
     if (!list) return;
 
     if (_histTipo === 'endurance') {
+      if (_chartEndHist) { _chartEndHist.destroy(); _chartEndHist = null; }
       const all = _histDatosEndurance();
       if (count) count.textContent = all.length ? all.length + (all.length === 1 ? ' test' : ' tests') : '';
       if (mas) mas.style.display = 'none';
@@ -5451,7 +5496,13 @@
         list.innerHTML = '<div style="text-align:center;color:#999;padding:40px 12px;font-size:13px;">Sin tests de campo registrados aún.</div>';
         return;
       }
-      list.innerHTML = all.map(item => _histRowEndurance(item)).join('');
+      list.innerHTML = `
+        <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;padding:16px 14px;margin-bottom:14px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:10px;">Progresión</div>
+          <div style="height:180px;"><canvas id="endHistChart"></canvas></div>
+        </div>
+        ${all.map(item => _histRowEndurance(item)).join('')}`;
+      setTimeout(() => _renderEndHistChart(all), 0);
       return;
     }
 
