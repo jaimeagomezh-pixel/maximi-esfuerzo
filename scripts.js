@@ -1359,13 +1359,12 @@
 
   // Enriquece el cache con el tiempo REAL en cada zona FC (endpoint /zones de Strava).
   // Solo consulta actividades con FC que aún no tienen zsec; acotado para respetar el rate-limit.
-  async function enriquecerZonasFC(token, maxFetch = 25) {
-    const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+  async function enriquecerZonasFC(token, maxFetch = 200) {
     const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
     const fcMax = perfil.fcMax || null;
     // Pendientes: tienen FC y (a) nunca se procesaron (zsec==null) o (b) se procesaron sin fcMax (zsec=[]).
     // "false" = procesada SIN zonas con fcMax disponible → no reintentar (evita loop infinito).
-    const pendientes = cache
+    const pendientes = JSON.parse(localStorage.getItem('stravaActsCache') || '[]')
       .filter(a => a.id && a.hr && (a.zsec == null || (Array.isArray(a.zsec) && a.zsec.length === 0)))
       .sort((a, b) => b.date.localeCompare(a.date))
       .slice(0, maxFetch);
@@ -1380,17 +1379,19 @@
         const zonas = await res.json();
         const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
         const zsec = hrZone ? _zsecDesdeBuckets(hrZone.distribution_buckets, fcMax) : null;
-        const idx = cache.findIndex(c => c.id === act.id);
-        // Si tiene fcMax: marcar como intentada (false) aunque no haya zonas; sin fcMax: dejar [] para reintentar.
-        if (idx >= 0) { cache[idx].zsec = zsec || (fcMax ? false : []); cambios = true; }
+        // Escritura por actividad (re-lee cache para no pisar escrituras concurrentes)
+        const fresh = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+        const idx = fresh.findIndex(c => c.id === act.id);
+        if (idx >= 0) {
+          fresh[idx].zsec = zsec || (fcMax ? false : []);
+          localStorage.setItem('stravaActsCache', JSON.stringify(fresh));
+          cambios = true;
+        }
       } catch (e) {
         if (e && e.rateLimited) break; // detener al tocar el rate-limit; se reintenta el próximo sync
       }
     }
-    if (cambios) {
-      localStorage.setItem('stravaActsCache', JSON.stringify(cache));
-      if (typeof renderResumenMensual === 'function') renderResumenMensual();
-    }
+    if (cambios && typeof renderResumenMensual === 'function') renderResumenMensual();
   }
 
   // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
