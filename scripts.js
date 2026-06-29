@@ -1202,8 +1202,9 @@
 
       // Recalcular carga rTSS con las actividades recién sincronizadas
       if (typeof renderCargaRTSS === 'function') renderCargaRTSS();
-      // Enriquecer con tiempo-real-en-zona FC (en segundo plano, acotado por rate-limit)
+      // Enriquecer con zonas reales: FC (con pulsómetro) y velocidad (sin pulsómetro)
       enriquecerZonasFC(token).catch(() => {});
+      enriquecerZonasVelocidad(token).catch(() => {});
 
     } catch(e) {
       if (e && e.rateLimited) { mostrarEstadoRateLimit(); return; }
@@ -1278,24 +1279,28 @@
 
   // Guarda un cache compacto de actividades para el resumen mensual
   function cachearActividades(allActs) {
-    // Preservar el tiempo-real-en-zona (zsec) ya calculado en sincronizaciones previas
+    // Preservar zonas ya calculadas en sincronizaciones previas
     const prev = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
-    const zsecPrev = {};
-    prev.forEach(a => { if (a.id && a.zsec) zsecPrev[a.id] = a.zsec; });
+    const zsecPrev = {}, vsecPrev = {};
+    prev.forEach(a => {
+      if (a.id && a.zsec) zsecPrev[a.id] = a.zsec;
+      if (a.id && a.vsec) vsecPrev[a.id] = a.vsec;
+    });
 
     const compact = allActs
       .filter(a => a.distance > 0 && a.start_date_local)
       .map(a => ({
-        id:    a.id,                                 // id Strava (para enriquecer zonas FC reales)
-        date:  a.start_date_local.slice(0, 10),     // YYYY-MM-DD
+        id:    a.id,
+        date:  a.start_date_local.slice(0, 10),
         km:    +(a.distance / 1000).toFixed(2),
         sec:   a.moving_time || 0,
         hr:    a.average_heartrate ? Math.round(a.average_heartrate) : null,
         type:  a.type,
-        sport: a.sport_type || a.type,              // distingue Carrera de montaña
-        name:  a.name || '',                        // para excluir "Lastre" del pool endurance
+        sport: a.sport_type || a.type,
+        name:  a.name || '',
         kj:    a.kilojoules ? Math.round(a.kilojoules) : 0,
-        zsec:  (a.id && zsecPrev[a.id]) ? zsecPrev[a.id] : null  // [Z1..Z5] segundos reales
+        zsec:  (a.id && zsecPrev[a.id]) ? zsecPrev[a.id] : null,  // zonas FC reales
+        vsec:  (a.id && vsecPrev[a.id]) ? vsecPrev[a.id] : null   // zonas velocidad reales
       }));
     localStorage.setItem('stravaActsCache', JSON.stringify(compact));
   }
@@ -1357,6 +1362,28 @@
     return zsec.some(v => v > 0) ? zsec : null;
   }
 
+  // Convierte streams de velocidad de Strava a [Z1..Z5] segundos según % de VAM.
+  // Límites análogos a Cerezuela-Espejo: Z1<55% Z2 55-72% Z3 72-85% Z4 85-93% Z5≥93%
+  function _vsecDesdeStream(velData, timeData, vamMs) {
+    if (!Array.isArray(velData) || !Array.isArray(timeData) || !vamMs || velData.length < 2) return null;
+    const zsec = [0, 0, 0, 0, 0];
+    for (let i = 1; i < timeData.length; i++) {
+      const dt = timeData[i] - timeData[i - 1];
+      if (dt <= 0 || dt > 30) continue;   // ignorar gaps de GPS o pausas largas
+      const v = velData[i];
+      if (v == null || v < 0.3) continue; // paradas / GPS errático
+      const pct = v / vamMs;
+      let z = 0;
+      if      (pct >= 0.93) z = 4;
+      else if (pct >= 0.85) z = 3;
+      else if (pct >= 0.72) z = 2;
+      else if (pct >= 0.55) z = 1;
+      zsec[z] += dt;
+    }
+    const res = zsec.map(Math.round);
+    return res.some(v => v > 0) ? res : null;
+  }
+
   // Enriquece el cache con el tiempo REAL en cada zona FC (endpoint /zones de Strava).
   // Solo consulta actividades con FC que aún no tienen zsec; acotado para respetar el rate-limit.
   async function enriquecerZonasFC(token, maxFetch = 200) {
@@ -1392,6 +1419,39 @@
       }
     }
     if (cambios && typeof renderResumenMensual === 'function') renderResumenMensual();
+  }
+
+  // Enriquece carreras sin pulsómetro con zonas de velocidad real (streams GPS % VAM).
+  async function enriquecerZonasVelocidad(token, maxFetch = 200) {
+    const perfil = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const vamMs = perfil.endurance && perfil.endurance.vamMs || null;
+    if (!vamMs) return; // sin VAM conocida no hay zonas de velocidad
+    const RUN_T = new Set(['Run', 'TrailRun', 'VirtualRun', 'Treadmill']);
+    const pendientes = JSON.parse(localStorage.getItem('stravaActsCache') || '[]')
+      .filter(a => a.id && !a.hr && RUN_T.has(a.type) && a.vsec == null)
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, maxFetch);
+    if (!pendientes.length) return;
+
+    for (const act of pendientes) {
+      try {
+        const res = await stravaFetch(
+          `https://www.strava.com/api/v3/activities/${act.id}/streams?keys=velocity_smooth,time&key_by_type=true`, token
+        );
+        const streams = await res.json();
+        const velData  = streams.velocity_smooth && streams.velocity_smooth.data;
+        const timeData = streams.time && streams.time.data;
+        const vsec = _vsecDesdeStream(velData, timeData, vamMs);
+        const fresh = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+        const idx = fresh.findIndex(c => c.id === act.id);
+        if (idx >= 0) {
+          fresh[idx].vsec = vsec || false; // false = intentada sin resultado
+          localStorage.setItem('stravaActsCache', JSON.stringify(fresh));
+        }
+      } catch (e) {
+        if (e && e.rateLimited) break;
+      }
+    }
   }
 
   // Busca la FC máxima registrada en Strava y actualiza el perfil del atleta
@@ -5142,7 +5202,7 @@
       .map(a => ({
         date: a.date, dist: a.km.toFixed(1) + ' km', time: secToTime(a.sec),
         source: 'strava', _km: a.km, _sec: a.sec, _stravaId: a.id,
-        _hr: a.hr || null, _zsec: a.zsec || null, _meses: meses
+        _hr: a.hr || null, _zsec: a.zsec || null, _vsec: a.vsec || null, _meses: meses
       }));
     // Registros manuales — omitir los que ya tienen entrada Strava para la misma fecha+km
     const hist = JSON.parse(localStorage.getItem('manualTimesHistory') || '{}');
@@ -5263,21 +5323,20 @@
       const km = item._km || (RUN_DIST.find(d => d.k === item.dist) || {}).km || parseFloat(item.dist) || null;
       const sec = item._sec || _parseTimeToSec(item.time);
       let fcHr = item._hr || null;
-      // zsec válido solo si es array con al menos una zona > 0
+      // Prioridad: zsec (FC real) > vsec (velocidad real) > estimación FC
       let fcZsec = (Array.isArray(item._zsec) && item._zsec.some(v => v > 0)) ? item._zsec : null;
-      if (!fcZsec) {
-        // Primero buscar por ID exacto (Strava); si no, por fecha+km
+      let vsecZonas = (Array.isArray(item._vsec) && item._vsec.some(v => v > 0)) ? item._vsec : null;
+      if (!fcZsec || !vsecZonas) {
         cache = item._stravaId ? _cacheById(item._stravaId) : _cacheRunMatch(item.date, km);
         if (!cache) cache = _cacheRunMatch(item.date, km);
         if (cache) {
           if (!fcHr) fcHr = cache.hr || null;
-          if (Array.isArray(cache.zsec) && cache.zsec.some(v => v > 0)) fcZsec = cache.zsec;
+          if (!fcZsec && Array.isArray(cache.zsec) && cache.zsec.some(v => v > 0)) fcZsec = cache.zsec;
+          if (!vsecZonas && Array.isArray(cache.vsec) && cache.vsec.some(v => v > 0)) vsecZonas = cache.vsec;
         }
       }
-      // Fallback aprox.: sin tiempo-real-en-zona pero con FC media + FC máx,
-      // estimamos la zona dominante (igual criterio que el resumen mensual).
-      // suppressFallback=true cuando se va a hacer fetch — sin flash de estimación.
-      if (!fcZsec && fcHr && sec && !suppressFallback) {
+      // Fallback aprox. de FC: solo cuando no hay ninguna zona real y hay FC media
+      if (!fcZsec && !vsecZonas && fcHr && sec && !suppressFallback) {
         const _perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
         const _fcMax = _perfil.fcMax || null;
         if (_fcMax && typeof _zonaDesdePctFC === 'function') {
@@ -5291,12 +5350,17 @@
       chips.push(chip('Ritmo', _fmtPaceMinKm(sec, km)));
       if (fcHr) chips.push(chip('FC media', fcHr + ' ppm'));
       if (fcZsec) zonasHtml = _zonasTxt(fcZsec);
+      else if (vsecZonas) zonasHtml = _zonasTxt(vsecZonas);
     }
     const grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${chips.filter(Boolean).join('')}</div>`;
     const zonaNota = zsecAprox
       ? '<span style="font-weight:400;color:rgba(255,255,255,0.3);"> · aprox. por FC media</span>'
-      : '';
-    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC${zonaNota}</div>${zonasHtml}</div>` : '';
+      : (typeof vsecZonas !== 'undefined' && vsecZonas && !fcZsec && !zsecAprox)
+        ? '<span style="font-weight:400;color:rgba(255,255,255,0.3);"> · por ritmo GPS</span>'
+        : '';
+    const zonasTitulo = (typeof vsecZonas !== 'undefined' && vsecZonas && !fcZsec && !zsecAprox)
+      ? 'velocidad' : 'FC';
+    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de ${zonasTitulo}${zonaNota}</div>${zonasHtml}</div>` : '';
     const nota = (esManual && !zonasHtml) ? '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
     return grid + zonas + nota;
   }
@@ -5310,13 +5374,18 @@
       const item = _histRendered[i];
       const isStravaRun = _histTipo === 'run' && item && item._stravaId && item.source === 'strava';
       const cached = isStravaRun ? _cacheById(item._stravaId) : null;
-      const tieneZonas = cached && Array.isArray(cached.zsec) && cached.zsec.some(v => v > 0);
+      const tieneZonasFC = cached && Array.isArray(cached.zsec) && cached.zsec.some(v => v > 0);
+      const tieneZonasV  = cached && Array.isArray(cached.vsec) && cached.vsec.some(v => v > 0);
+      const tieneZonas   = tieneZonasFC || tieneZonasV;
       const fetchPendiente = isStravaRun && !tieneZonas;
-      // suppressFallback=true → no muestra estimación mientras el fetch llega
       det.innerHTML = _histDetalle(item, fetchPendiente);
       if (fetchPendiente) {
         const tok = localStorage.getItem('strava_token');
-        if (tok) _fetchZonesParaDetalle(String(item._stravaId), i, tok);
+        if (tok) {
+          // Con pulsómetro → zonas FC; sin pulsómetro → zonas de velocidad
+          if (item._hr) _fetchZonesParaDetalle(String(item._stravaId), i, tok);
+          else           _fetchSpeedZonesParaDetalle(String(item._stravaId), i, tok);
+        }
       }
     }
     det.style.display = abrir ? 'block' : 'none';
@@ -5408,6 +5477,36 @@
       if (idx >= 0) { cache[idx].zsec = zsec; localStorage.setItem('stravaActsCache', JSON.stringify(cache)); }
       // Actualizar item en memoria y re-dibujar el detalle si sigue abierto
       if (_histRendered[i]) _histRendered[i]._zsec = zsec;
+      const det = document.getElementById('histDet-' + i);
+      if (det && det.style.display !== 'none') det.innerHTML = _histDetalle(_histRendered[i]);
+    } catch(e) { _reRenderConFallback(); }
+  }
+
+  // Obtiene zonas de VELOCIDAD desde streams GPS de Strava para actividades sin pulsómetro.
+  async function _fetchSpeedZonesParaDetalle(stravaId, i, token) {
+    const _reRenderConFallback = () => {
+      const det = document.getElementById('histDet-' + i);
+      if (det && det.style.display !== 'none' && _histRendered[i]) {
+        det.innerHTML = _histDetalle(_histRendered[i]);
+      }
+    };
+    try {
+      const perfil = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+      const vamMs = perfil.endurance && perfil.endurance.vamMs || null;
+      if (!vamMs) { _reRenderConFallback(); return; }
+      const res = await stravaFetch(
+        `https://www.strava.com/api/v3/activities/${stravaId}/streams?keys=velocity_smooth,time&key_by_type=true`, token
+      );
+      const streams = await res.json();
+      const velData  = streams.velocity_smooth && streams.velocity_smooth.data;
+      const timeData = streams.time && streams.time.data;
+      const vsec = _vsecDesdeStream(velData, timeData, vamMs);
+      if (!vsec) { _reRenderConFallback(); return; }
+      // Guardar en cache
+      const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+      const idx = cache.findIndex(a => String(a.id) === stravaId);
+      if (idx >= 0) { cache[idx].vsec = vsec; localStorage.setItem('stravaActsCache', JSON.stringify(cache)); }
+      if (_histRendered[i]) _histRendered[i]._vsec = vsec;
       const det = document.getElementById('histDet-' + i);
       if (det && det.style.display !== 'none') det.innerHTML = _histDetalle(_histRendered[i]);
     } catch(e) { _reRenderConFallback(); }
