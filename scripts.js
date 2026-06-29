@@ -5104,24 +5104,8 @@
     if (ov) ov.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderHistorialOverlay();
-    // Enriquecer zonas FC en segundo plano — actualizar _histRendered en memoria,
-    // sin re-renderizar la lista (evita salto de scroll y parpadeo de fondo)
-    if (tipo === 'run') {
-      const tok = localStorage.getItem('strava_token');
-      if (tok && typeof enriquecerZonasFC === 'function') {
-        enriquecerZonasFC(tok).then(() => {
-          const fc = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
-          const byId = {};
-          fc.forEach(a => { if (a.id) byId[String(a.id)] = a; });
-          _histRendered.forEach(item => {
-            if (item._stravaId) {
-              const a = byId[String(item._stravaId)];
-              if (a && Array.isArray(a.zsec) && a.zsec.some(v => v > 0)) item._zsec = a.zsec;
-            }
-          });
-        }).catch(() => {});
-      }
-    }
+    // Las zonas se obtienen bajo demanda en histToggleDetail (_fetchZonesParaDetalle).
+    // enriquecerZonasFC ya corre tras cada sync de Strava — no repetir aquí.
   }
   function cerrarHistorial() {
     const ov = document.getElementById('histOverlay');
