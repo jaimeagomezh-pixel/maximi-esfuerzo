@@ -5252,8 +5252,9 @@
       // zsec válido solo si es array con al menos una zona > 0
       let fcZsec = (Array.isArray(item._zsec) && item._zsec.some(v => v > 0)) ? item._zsec : null;
       if (!fcZsec) {
-        // Siempre buscar en caché si no hay zonas válidas (aunque tengamos HR)
-        cache = _cacheRunMatch(item.date, km);
+        // Primero buscar por ID exacto (Strava); si no, por fecha+km
+        cache = item._stravaId ? _cacheById(item._stravaId) : _cacheRunMatch(item.date, km);
+        if (!cache) cache = _cacheRunMatch(item.date, km);
         if (cache) {
           if (!fcHr) fcHr = cache.hr || null;
           if (Array.isArray(cache.zsec) && cache.zsec.some(v => v > 0)) fcZsec = cache.zsec;
@@ -5290,7 +5291,7 @@
     const chev = document.getElementById('histChev-' + i);
     if (!det) return;
     const abrir = det.style.display === 'none' || !det.style.display;
-    if (abrir && !det._filled) { det.innerHTML = _histDetalle(_histRendered[i]); det._filled = true; }
+    if (abrir) { det.innerHTML = _histDetalle(_histRendered[i]); }
     det.style.display = abrir ? 'block' : 'none';
     if (chev) chev.style.transform = abrir ? 'rotate(180deg)' : '';
   }

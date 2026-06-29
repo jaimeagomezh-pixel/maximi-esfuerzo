@@ -4982,9 +4982,9 @@ body.plan-activo .plan-lock  { display: none; }
   #dashboardAtleta .dash-connect-card,
   #dashboardAtleta .dash-nutri-banner,
   #dashboardAtleta .dash-macro-card,
-  #dashboardAtleta [style*="border-radius:8px"],
-  #dashboardAtleta [style*="border-radius:10px"],
-  #dashboardAtleta [style*="border-radius:12px"] {
+  #dashboardAtleta [style*="border-radius:8px"]:not(#histOverlay *),
+  #dashboardAtleta [style*="border-radius:10px"]:not(#histOverlay *),
+  #dashboardAtleta [style*="border-radius:12px"]:not(#histOverlay *) {
     animation: meAuraDorada 7s ease-in-out infinite;
   }
 
