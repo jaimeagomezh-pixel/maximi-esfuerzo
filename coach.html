@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260628b -->
+<!-- v=20260628c -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -3256,7 +3256,8 @@ function abrirPerfil(id) {
         <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--cian2);"><span style="display:inline-block;width:10px;height:3px;background:var(--cian2);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>km Strava</span>
         <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--orange);"><span style="display:inline-block;width:10px;height:10px;background:var(--orange);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rTSS endurance</span>
         <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--gold);"><span style="display:inline-block;width:10px;height:10px;background:var(--gold);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rkTSS marcha</span>
-        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:#999;"><span style="display:inline-block;width:12px;height:2px;background:repeating-linear-gradient(90deg,#999 0,#999 3px,transparent 3px,transparent 6px);margin-right:4px;vertical-align:middle;"></span>Base (CTL)</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:#aaa;"><span style="display:inline-block;width:10px;height:10px;background:rgba(0,0,0,0.08);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>Total (fondo)</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:#999;"><span style="display:inline-block;width:12px;height:2px;background:repeating-linear-gradient(90deg,#999 0,#999 3px,transparent 3px,transparent 6px);margin-right:4px;vertical-align:middle;"></span>Carga habitual</span>
       </div>
       <div class="chart-wrap" style="height:180px;"><canvas id="cCargaVol"></canvas></div>
       <div id="cargaVolCapacidad" style="margin-top:12px;"></div>
@@ -3654,37 +3655,38 @@ function dibujarCargaVol(a) {
   const rktss = pad([...rktssData]);
   const km    = pad([...kmData]);
 
-  // Carga total por semana
+  // Carga total por semana (para el fondo translúcido)
   const totalTss = rtss.map((r, i) => r + rktss[i]);
 
-  // CTL = promedio 4 semanas completas anteriores a la actual
-  const ctlWeeks = totalTss.slice(-5, -1).filter(v => v > 0);
-  const ctl = ctlWeeks.length ? Math.round(ctlWeeks.reduce((s,v)=>s+v,0) / ctlWeeks.length) : Math.round(totalTss.slice(0,-1).filter(v=>v>0).reduce((s,v,_,a)=>s+v/a.length,0)) || 1;
+  // Carga habitual = promedio de semanas con actividad (excluye ceros)
+  const actWeeks = totalTss.slice(0, -1).filter(v => v > 0);
+  const ctl = actWeeks.length
+    ? Math.round(actWeeks.reduce((s, v) => s + v, 0) / actWeeks.length)
+    : 1;
 
   const atl  = totalTss[N-1];
   const acwr = ctl > 0 ? atl / ctl : 0;
 
   const labels = Array.from({length:N}, (_,i) => i===N-1 ? 'Esta' : `-${N-1-i}s`);
 
-  // Colores zona ACWR
-  let acwrColor2, zona, msg, recom;
-  if (acwr < 0.8)       { acwrColor2='#00a8b3'; zona='Sub-carga';    msg=`ACWR ${acwr.toFixed(2)} — volumen muy bajo vs base.`;            recom='Puede aumentar carga sin riesgo. Subir 10–15% la próxima semana.'; }
-  else if (acwr <= 1.3) { acwrColor2='#27ae60'; zona='Zona óptima';  msg=`ACWR ${acwr.toFixed(2)} — carga bien distribuida.`;              recom='Puede mantener o subir hasta un 10% la próxima semana.'; }
-  else if (acwr <= 1.5) { acwrColor2='#e67e22'; zona='Precaución';   msg=`ACWR ${acwr.toFixed(2)} — carga alta respecto a su base.`;       recom='No aumentar más esta semana. Priorizar recuperación.'; }
-  else                   { acwrColor2='#e74c3c'; zona='Sobrecarga';   msg=`ACWR ${acwr.toFixed(2)} — carga significativamente sobre su promedio.`; recom='Reducir volumen o intensidad. Riesgo de lesión elevado.'; }
+  // Zona ACWR
+  let acwrColor2, zona, recom;
+  if (acwr < 0.8)       { acwrColor2='#00a8b3'; zona='Sub-carga';   recom='Puede subir carga 10–15% la próxima semana.'; }
+  else if (acwr <= 1.3) { acwrColor2='#27ae60'; zona='Óptima';      recom='Puede mantener o subir hasta un 10%.'; }
+  else if (acwr <= 1.5) { acwrColor2='#e67e22'; zona='Precaución';  recom='No subir más esta semana. Priorizar recuperación.'; }
+  else                   { acwrColor2='#e74c3c'; zona='Sobrecarga';  recom='Reducir volumen o intensidad. Riesgo de lesión.'; }
 
-  // Colores barras: semana actual más oscura
-  const rtssColors  = rtss.map((_,i)  => i===N-1 ? 'rgba(230,126,34,0.90)' : 'rgba(230,126,34,0.40)');
-  const rktssColors = rktss.map((_,i) => i===N-1 ? 'rgba(201,168,76,0.90)' : 'rgba(201,168,76,0.40)');
+  // Colores barras: semana actual más saturada
+  const rtssColors  = rtss.map((_,i)  => i===N-1 ? 'rgba(230,126,34,0.88)' : 'rgba(230,126,34,0.38)');
+  const rktssColors = rktss.map((_,i) => i===N-1 ? 'rgba(201,168,76,0.88)' : 'rgba(201,168,76,0.38)');
 
-  // 4 tarjetas resumen ACWR
+  // 4 tarjetas resumen
   const capEl = document.getElementById('cargaVolCapacidad');
   if (capEl) {
     const thisRtss  = rtss[N-1];
     const thisRktss = rktss[N-1];
     const thisTotal = thisRtss + thisRktss;
     const pct       = Math.round(acwr * 100);
-    const pctLabel  = acwr < 0.8 ? `${pct}% — bajo` : acwr <= 1.3 ? `${pct}% — óptimo` : acwr <= 1.5 ? `${pct}% — alto` : `${pct}% — exceso`;
     capEl.innerHTML = `
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
         <div style="background:#f5f5f5;border-radius:6px;padding:10px 8px;text-align:center;">
@@ -3708,21 +3710,50 @@ function dibujarCargaVol(a) {
           <div style="font-size:9px;color:${acwrColor2};font-weight:600;">${zona}</div>
         </div>
       </div>
-      <div style="font-size:11px;color:var(--text3);line-height:1.5;">↳ ${recom} <span style="color:var(--text4);">(base promedio: ~${ctl} pts/sem)</span></div>`;
+      <div style="font-size:11px;color:var(--text3);line-height:1.5;">↳ ${recom} <span style="color:var(--text4);">(carga habitual: ~${ctl} pts/sem)</span></div>`;
   }
+
+  // Plugin: dibuja el fondo translúcido de carga total ANTES de las barras
+  const totalBgPlugin = {
+    id: 'cvTotalBg',
+    beforeDatasetsDraw(chart) {
+      const ctx = chart.ctx;
+      const ys  = chart.scales['yTSS'];
+      if (!ys) return;
+      // datasets: 0=km(line), 1=CTL(line), 2=rTSS(bar), 3=rkTSS(bar)
+      const m2 = chart.getDatasetMeta(2);
+      const m3 = chart.getDatasetMeta(3);
+      if (!m2?.data?.length || !m3?.data?.length) return;
+      totalTss.forEach((t, i) => {
+        if (!t) return;
+        const b2 = m2.data[i], b3 = m3.data[i];
+        if (!b2 || !b3) return;
+        const x1 = Math.min(b2.x - b2.width / 2, b3.x - b3.width / 2) - 3;
+        const x2 = Math.max(b2.x + b2.width / 2, b3.x + b3.width / 2) + 3;
+        const yTop = ys.getPixelForValue(t);
+        const yBot = ys.getPixelForValue(0);
+        ctx.save();
+        ctx.fillStyle = i === N - 1 ? 'rgba(0,0,0,0.09)' : 'rgba(0,0,0,0.05)';
+        ctx.fillRect(x1, yTop, x2 - x1, yBot - yTop);
+        ctx.restore();
+      });
+    }
+  };
 
   if (window._chartCargaVol) { window._chartCargaVol.destroy(); }
   window._chartCargaVol = new Chart(canvas, {
+    plugins: [totalBgPlugin],
     data: {
       labels,
       datasets: [
-        // Barras apiladas TSS
-        { type:'bar',  label:'rTSS endurance', data: rtss,  backgroundColor: rtssColors,  borderWidth:0, yAxisID:'yTSS', order:2, stack:'tss' },
-        { type:'bar',  label:'rkTSS marcha',   data: rktss, backgroundColor: rktssColors, borderWidth:0, yAxisID:'yTSS', order:2, stack:'tss' },
-        // Línea punteada CTL (base promedio)
-        { type:'line', label:'Base promedio',  data: Array(N).fill(ctl), borderColor:'rgba(0,0,0,0.22)', borderWidth:1.5, borderDash:[5,4], pointRadius:0, yAxisID:'yTSS', order:1 },
-        // Línea km Strava
-        { type:'line', label:'km Strava', data: km, borderColor:'rgba(0,168,179,0.75)', backgroundColor:'rgba(0,168,179,0.08)', borderWidth:2, pointRadius:2, pointBackgroundColor:'rgba(0,168,179,0.75)', tension:0.3, yAxisID:'yKm', order:0 }
+        // km Strava — línea, eje izquierdo (índice 0)
+        { type:'line', label:'km Strava',       data: km,   borderColor:'rgba(0,168,179,0.75)', backgroundColor:'rgba(0,168,179,0.08)', borderWidth:2, pointRadius:2, pointBackgroundColor:'rgba(0,168,179,0.75)', tension:0.3, yAxisID:'yKm',  order:0 },
+        // Carga habitual — línea punteada (índice 1)
+        { type:'line', label:'Carga habitual',  data: Array(N).fill(ctl), borderColor:'rgba(0,0,0,0.20)', borderWidth:1.5, borderDash:[5,4], pointRadius:0, yAxisID:'yTSS', order:1 },
+        // rTSS — barra individual, agrupada (índice 2)
+        { type:'bar',  label:'rTSS endurance',  data: rtss,  backgroundColor: rtssColors,  borderWidth:0, yAxisID:'yTSS', order:2 },
+        // rkTSS — barra individual, agrupada (índice 3)
+        { type:'bar',  label:'rkTSS marcha',    data: rktss, backgroundColor: rktssColors, borderWidth:0, yAxisID:'yTSS', order:2 }
       ]
     },
     options: {
@@ -3733,22 +3764,22 @@ function dibujarCargaVol(a) {
         tooltip:{
           callbacks:{
             label: ctx => {
-              if (ctx.dataset.label === 'Base promedio') return null;
+              if (ctx.dataset.label === 'Carga habitual') return null;
               const u = ctx.dataset.label === 'km Strava' ? ' km' : ' pts';
               return `${ctx.dataset.label}: ${ctx.parsed.y}${u}`;
             },
-            afterBody: (items) => {
-              const tssItems = items.filter(i => i.dataset.label !== 'km Strava' && i.dataset.label !== 'Base promedio');
-              const total = tssItems.reduce((s,i) => s + (i.parsed.y||0), 0);
-              return total > 0 ? ['─────────────', `Total carga: ${total} pts`] : [];
+            afterBody: items => {
+              const tss = items.filter(i => i.dataset.label !== 'km Strava' && i.dataset.label !== 'Carga habitual');
+              const tot = tss.reduce((s, i) => s + (i.parsed.y || 0), 0);
+              return tot > 0 ? ['─────────────', `Total carga: ${tot} pts`] : [];
             }
           }
         }
       },
       scales: {
-        x:    { stacked:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#999' } },
-        yTSS: { position:'right', stacked:true, beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#aaa', callback: v=>`${v}` } },
-        yKm:  { position:'left',  beginAtZero:true, grid:{ drawOnChartArea:false }, ticks:{ font:{size:10}, color:'rgba(0,168,179,0.7)', callback: v=>`${v}km` } }
+        x:    { grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#999' } },
+        yTSS: { position:'right', beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#aaa', callback: v=>`${v}` } },
+        yKm:  { position:'left',  beginAtZero:true, grid:{ drawOnChartArea:false },     ticks:{ font:{size:10}, color:'rgba(0,168,179,0.7)', callback: v=>`${v}km` } }
       }
     }
   });
