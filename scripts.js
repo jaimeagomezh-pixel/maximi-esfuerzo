@@ -7549,11 +7549,13 @@ function _rankData() {
   return window._RANK_DEMO;
 }
 
-// Paleta para avatares sin foto (color estable por nombre)
-const _RANK_AV_COLORS = ['#00b8c4','#8B1A1A','#C9A84C','#2e7d54','#5a4fcf','#c2643a'];
+// Paleta para avatares sin foto (color estable por nombre).
+// Definida dentro de la función a propósito: evita TDZ si la ejecución
+// top-level de scripts.js no alcanza esta zona del archivo.
 function _avatarColor(name) {
+  const cols = ['#00b8c4','#8B1A1A','#C9A84C','#2e7d54','#5a4fcf','#c2643a'];
   let h = 0; for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) | 0;
-  return _RANK_AV_COLORS[Math.abs(h) % _RANK_AV_COLORS.length];
+  return cols[Math.abs(h) % cols.length];
 }
 // HTML del avatar: foto si existe, si no inicial sobre color
 function _avatarHTML(r, size) {
@@ -7565,6 +7567,22 @@ function _avatarHTML(r, size) {
   return `<div class="rank-av rank-av-ini" style="width:${size}px;height:${size}px;background:${_avatarColor(r.apodo)};font-size:${Math.round(size*0.42)}px;">${ini}</div>`;
 }
 
+// Placa hexagonal SVG oro/plata/bronce para el podio (gradientes en #rankOverlay defs)
+function _hexMedal(rank) {
+  const c = {
+    1: { g:'hexGold',   stroke:'#7a5e1e', inner:'#fbeeb8', num:'#5a4410' },
+    2: { g:'hexSilver', stroke:'#7f858e', inner:'#ffffff', num:'#54585f' },
+    3: { g:'hexBronze', stroke:'#6f4527', inner:'#f0c79e', num:'#3f2613' }
+  }[rank];
+  return `<svg viewBox="-32 -36 64 72" width="32" height="36" aria-hidden="true">
+    <polygon points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" fill="url(#${c.g})" stroke="${c.stroke}" stroke-width="1.5"/>
+    <polygon points="0,-30 26,-15 26,2 -26,2 -26,-15" fill="url(#hexGloss)"/>
+    <ellipse cx="-8" cy="-15" rx="10" ry="4.2" fill="#ffffff" opacity="0.5" transform="rotate(-24 -8 -15)"/>
+    <polygon points="0,-22 19,-11 19,11 0,22 -19,11 -19,-11" fill="none" stroke="${c.inner}" stroke-width="1" opacity="0.6"/>
+    <text y="10" text-anchor="middle" fill="${c.num}" font-family="'Bebas Neue',sans-serif" font-size="27" style="paint-order:stroke;" stroke="${c.inner}" stroke-width="0.4" stroke-opacity="0.3">${rank}</text>
+  </svg>`;
+}
+
 function renderRanking() {
   const cont = document.getElementById('rankingTabla');
   if (!cont) return;
@@ -7572,13 +7590,13 @@ function renderRanking() {
   const saved = localStorage.getItem('rankApodo');
   if (saved) { const m = _rankData().find(r => r.me); if (m) m.apodo = saved; }
   const sorted = [..._rankData()].sort((a, b) => b.w - a.w);
-  const medals = ['🥇', '🥈', '🥉'];
+  const halo = ['#ecc657', '#cfd5dc', '#d68b58']; // oro / plata / bronce
   cont.innerHTML = sorted.map((r, i) => {
-    const posHTML = i < 3
-      ? `<span class="rank-medal">${medals[i]}</span>`
-      : `<span class="rank-pos">${i + 1}</span>`;
+    const posbox = i < 3
+      ? `<div class="rank-posbox has-halo" style="--halo:${halo[i]}">${_hexMedal(i + 1)}</div>`
+      : `<div class="rank-posbox"><span class="rank-pos">${i + 1}</span></div>`;
     return `<div class="rank-row${r.me ? ' is-me' : ''}">
-      <div style="flex-shrink:0;width:26px;text-align:center;">${posHTML}</div>
+      ${posbox}
       ${_avatarHTML(r, 40)}
       <div class="rank-name-wrap">
         <div class="rank-name">${r.apodo}${r.me ? ' <span style="font-size:.7em;color:#C9A84C;letter-spacing:1px;">· TÚ</span>' : ''}</div>

@@ -5439,3 +5439,68 @@ body.plan-activo .plan-lock  { display: none; }
       margin-left: auto; margin-right: auto;
     }
   }
+
+  /* ══════════════════════════════════════════════════════════
+     RANKING RUCKING · overlay leaderboard (Test 4.8 km · potencia W)
+     OJO: #rankOverlay vive FUERA de #dashboardAtleta → scope propio
+  ══════════════════════════════════════════════════════════ */
+  #rankOverlay .rank-row {
+    display:flex; align-items:center; gap:11px; padding:10px 12px;
+    background:rgba(10,10,10,0.88); border:1px solid rgba(255,255,255,0.08);
+    border-radius:10px; margin-bottom:8px;
+  }
+  #rankOverlay .rank-row.is-me {
+    background:rgba(201,168,76,0.13); border-color:rgba(201,168,76,0.65);
+  }
+  #rankOverlay .rank-posbox {
+    flex-shrink:0; width:34px; display:flex; align-items:center; justify-content:center;
+    position:relative;
+  }
+  #rankOverlay .rank-posbox svg { display:block; position:relative; z-index:1; filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+  /* Halo pulsante del color de la medalla (oro/plata/bronce vía --halo) */
+  #rankOverlay .rank-posbox.has-halo::before {
+    content:''; position:absolute; left:50%; top:50%; width:50px; height:50px;
+    transform:translate(-50%,-50%); border-radius:50%; z-index:0; pointer-events:none;
+    background:radial-gradient(closest-side, var(--halo) 0%, transparent 70%);
+    animation: rankHalo 2.1s ease-in-out infinite;
+  }
+  @keyframes rankHalo {
+    0%,100% { transform:translate(-50%,-50%) scale(.72); opacity:.25; }
+    50%     { transform:translate(-50%,-50%) scale(1.2);  opacity:.6;  }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #rankOverlay .rank-posbox.has-halo::before { animation:none; opacity:.42; transform:translate(-50%,-50%) scale(1); }
+  }
+  #rankOverlay .rank-pos {
+    display:inline-block; width:34px; text-align:center;
+    font-family:'Bebas Neue',sans-serif; font-size:1.35rem; color:#6e6a62; line-height:1;
+  }
+  #rankOverlay .rank-row.is-me .rank-pos { color:#C9A84C; }
+  #rankOverlay .rank-av {
+    flex-shrink:0; border-radius:50%; background-size:cover; background-position:center;
+    background-color:#1a1a1a; box-shadow:0 0 0 1.5px rgba(255,255,255,0.12);
+  }
+  #rankOverlay .rank-row.is-me .rank-av { box-shadow:0 0 0 2px #C9A84C; }
+  #rankOverlay .rank-av-ini {
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Bebas Neue',sans-serif; color:#fff; letter-spacing:.5px;
+  }
+  #rankOverlay .rank-name-wrap { flex:1; min-width:0; }
+  #rankOverlay .rank-name {
+    font-family:'Bebas Neue',sans-serif; font-size:1.2rem; color:#e8e3da;
+    letter-spacing:.5px; line-height:1.05; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  #rankOverlay .rank-row.is-me .rank-name { color:#00e5f0; }
+  #rankOverlay .rank-sub {
+    font-family:'Barlow Condensed',sans-serif; font-size:11px; letter-spacing:1px;
+    color:#8a857c; text-transform:uppercase; margin-top:2px;
+  }
+  #rankOverlay .rank-val {
+    flex-shrink:0; text-align:right; font-family:'Bebas Neue',sans-serif;
+    font-size:1.55rem; color:#fff; line-height:1;
+  }
+  #rankOverlay .rank-val small {
+    display:block; font-family:'Barlow Condensed',sans-serif; font-size:8.5px;
+    letter-spacing:1.5px; color:#777; text-transform:uppercase; margin-top:2px;
+  }
+  #rankOverlay .rank-row.is-me .rank-val { color:#C9A84C; }

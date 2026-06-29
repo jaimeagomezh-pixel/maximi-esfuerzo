@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260627b -->
+<!-- v=20260628a -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -3250,12 +3250,13 @@ function abrirPerfil(id) {
     <div class="sec" id="secCargaVol">
       <div class="sec-t">Carga vs Volumen · semana a semana</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;" id="cargaVolLegend">
-        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--cian2);"><span style="display:inline-block;width:10px;height:10px;background:var(--cian2);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>km Strava</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--cian2);"><span style="display:inline-block;width:10px;height:3px;background:var(--cian2);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>km Strava</span>
         <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--orange);"><span style="display:inline-block;width:10px;height:10px;background:var(--orange);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rTSS endurance</span>
         <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:var(--gold);"><span style="display:inline-block;width:10px;height:10px;background:var(--gold);border-radius:2px;margin-right:4px;vertical-align:middle;"></span>rkTSS marcha</span>
+        <span style="font-family:var(--fc);font-size:11px;letter-spacing:1px;color:#999;"><span style="display:inline-block;width:12px;height:2px;background:repeating-linear-gradient(90deg,#999 0,#999 3px,transparent 3px,transparent 6px);margin-right:4px;vertical-align:middle;"></span>Base (CTL)</span>
       </div>
-      <div class="chart-wrap" style="height:160px;"><canvas id="cCargaVol"></canvas></div>
-      <div id="cargaVolCapacidad" style="margin-top:10px;font-size:12px;color:var(--text3);line-height:1.6;"></div>
+      <div class="chart-wrap" style="height:180px;"><canvas id="cCargaVol"></canvas></div>
+      <div id="cargaVolCapacidad" style="margin-top:12px;"></div>
     </div>
 
     <!-- Volumen mensual comparado -->
@@ -3570,67 +3571,79 @@ function dibujarCargaVol(a) {
   const canvas = document.getElementById('cCargaVol');
   if (!canvas) return;
 
-  // Recopilar semanas: usamos rkLoad (10 sem) como eje temporal base
   const N = 10;
   const factor = a.endurance?.ftpMultiplier ? 1 / Math.pow(a.endurance.ftpMultiplier, 2) : 1;
 
-  // rTSS por semana (endurance)
-  const rtssData = (a.cargaRTSS?.semanas || []).slice(-N).map(w => Math.round((w.val||0) * factor));
-  // rkTSS por semana (rucking)
-  const rktssData = (a.ruckLoad?.semanas || []).slice(-N).map(w => Math.round(w.val||0));
-  // km Strava por semana (construir desde series si existe, o distribución del mes)
+  const rtssData  = (a.cargaRTSS?.semanas  || []).slice(-N).map(w => Math.round((w.val||0) * factor));
+  const rktssData = (a.ruckLoad?.semanas   || []).slice(-N).map(w => Math.round(w.val||0));
   let kmData = Array(N).fill(0);
   if (a.strava?.series) {
     kmData = a.strava.series.slice(-N).map(s => parseFloat(s.km)||0);
   } else if (a.strava?.km) {
-    // Distribuir km mensuales en 4 semanas como proxy
     const kmPorSem = Math.round(a.strava.km / 4);
     kmData = Array(N).fill(0).map((_, i) => i >= N-4 ? kmPorSem : 0);
   }
 
-  // Pad hasta N semanas
   const pad = (arr) => { while (arr.length < N) arr.unshift(0); return arr.slice(-N); };
-  const rtss = pad([...rtssData]);
+  const rtss  = pad([...rtssData]);
   const rktss = pad([...rktssData]);
-  const km = pad([...kmData]);
+  const km    = pad([...kmData]);
 
-  // Labels: "sem -9" … "esta sem"
+  // Carga total por semana
+  const totalTss = rtss.map((r, i) => r + rktss[i]);
+
+  // CTL = promedio 4 semanas completas anteriores a la actual
+  const ctlWeeks = totalTss.slice(-5, -1).filter(v => v > 0);
+  const ctl = ctlWeeks.length ? Math.round(ctlWeeks.reduce((s,v)=>s+v,0) / ctlWeeks.length) : Math.round(totalTss.slice(0,-1).filter(v=>v>0).reduce((s,v,_,a)=>s+v/a.length,0)) || 1;
+
+  const atl  = totalTss[N-1];
+  const acwr = ctl > 0 ? atl / ctl : 0;
+
   const labels = Array.from({length:N}, (_,i) => i===N-1 ? 'Esta' : `-${N-1-i}s`);
 
-  // ACWR endurance: ATL/CTL ratio para detectar sobrecarga
-  const ctlEnd = rtss.slice(0,4).reduce((s,v)=>s+v,0)/4 || 1;
-  const atlEnd  = rtss.slice(-1)[0] || 0;
-  const acwrEnd = (atlEnd / ctlEnd).toFixed(2);
-  const acwrColor = acwrEnd > 1.5 ? '#e74c3c' : acwrEnd > 1.2 ? '#e67e22' : '#27ae60';
+  // Colores zona ACWR
+  let acwrColor2, zona, msg, recom;
+  if (acwr < 0.8)       { acwrColor2='#00a8b3'; zona='Sub-carga';    msg=`ACWR ${acwr.toFixed(2)} — volumen muy bajo vs base.`;            recom='Puede aumentar carga sin riesgo. Subir 10–15% la próxima semana.'; }
+  else if (acwr <= 1.3) { acwrColor2='#27ae60'; zona='Zona óptima';  msg=`ACWR ${acwr.toFixed(2)} — carga bien distribuida.`;              recom='Puede mantener o subir hasta un 10% la próxima semana.'; }
+  else if (acwr <= 1.5) { acwrColor2='#e67e22'; zona='Precaución';   msg=`ACWR ${acwr.toFixed(2)} — carga alta respecto a su base.`;       recom='No aumentar más esta semana. Priorizar recuperación.'; }
+  else                   { acwrColor2='#e74c3c'; zona='Sobrecarga';   msg=`ACWR ${acwr.toFixed(2)} — carga significativamente sobre su promedio.`; recom='Reducir volumen o intensidad. Riesgo de lesión elevado.'; }
 
+  // Colores barras: semana actual más oscura
+  const rtssColors  = rtss.map((_,i)  => i===N-1 ? 'rgba(230,126,34,0.90)' : 'rgba(230,126,34,0.40)');
+  const rktssColors = rktss.map((_,i) => i===N-1 ? 'rgba(201,168,76,0.90)' : 'rgba(201,168,76,0.40)');
+
+  // 4 tarjetas resumen ACWR
   const capEl = document.getElementById('cargaVolCapacidad');
   if (capEl) {
-    const totalCarga = rtss[N-1] + rktss[N-1];
-    let zona, msg, recom;
-    if (acwrEnd < 0.8) {
-      zona = '🔵 Sub-carga'; acwrColor2 = '#00a8b3';
-      msg  = `ACWR ${acwrEnd} — volumen muy bajo vs promedio.`;
-      recom = 'Puede aumentar carga sin riesgo. Subir 10–15% la próxima semana.';
-    } else if (acwrEnd <= 1.3) {
-      zona = '✓ Zona óptima'; acwrColor2 = '#27ae60';
-      msg  = `ACWR ${acwrEnd} — carga bien distribuida.`;
-      recom = 'Puede mantener o subir hasta un 10% la próxima semana.';
-    } else if (acwrEnd <= 1.5) {
-      zona = '⚡ Precaución'; acwrColor2 = '#e67e22';
-      msg  = `ACWR ${acwrEnd} — carga alta respecto a su base.`;
-      recom = 'No aumentar más esta semana. Priorizar recuperación.';
-    } else {
-      zona = '⚠️ Sobrecarga'; acwrColor2 = '#e74c3c';
-      msg  = `ACWR ${acwrEnd} — carga significativamente sobre su promedio.`;
-      recom = 'Reducir volumen o intensidad. Riesgo de lesión elevado.';
-    }
+    const thisRtss  = rtss[N-1];
+    const thisRktss = rktss[N-1];
+    const thisTotal = thisRtss + thisRktss;
+    const pct       = Math.round(acwr * 100);
+    const pctLabel  = acwr < 0.8 ? `${pct}% — bajo` : acwr <= 1.3 ? `${pct}% — óptimo` : acwr <= 1.5 ? `${pct}% — alto` : `${pct}% — exceso`;
     capEl.innerHTML = `
-      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px;">
-        <span style="font-family:var(--fc);font-size:13px;font-weight:700;letter-spacing:1px;color:${acwrColor2};">${zona}</span>
-        <span style="color:var(--text3);">·</span>
-        <span style="color:var(--text2);">${msg}</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">
+        <div style="background:#f5f5f5;border-radius:6px;padding:10px 8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:20px;font-weight:700;color:#e67e22;line-height:1;">${thisRtss}</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px;">rTSS</div>
+          <div style="font-size:9px;color:var(--text4);">Endurance</div>
+        </div>
+        <div style="background:#f5f5f5;border-radius:6px;padding:10px 8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:20px;font-weight:700;color:#C9A84C;line-height:1;">${thisRktss}</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px;">rkTSS</div>
+          <div style="font-size:9px;color:var(--text4);">Marcha</div>
+        </div>
+        <div style="background:#f5f5f5;border-radius:6px;padding:10px 8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:20px;font-weight:700;color:var(--text);line-height:1;">${thisTotal}</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px;">Total</div>
+          <div style="font-size:9px;color:var(--text4);">pts esta sem</div>
+        </div>
+        <div style="background:${acwrColor2}12;border:1px solid ${acwrColor2}40;border-radius:6px;padding:10px 8px;text-align:center;">
+          <div style="font-family:var(--fc);font-size:20px;font-weight:700;color:${acwrColor2};line-height:1;">${pct}%</div>
+          <div style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-top:3px;">ACWR</div>
+          <div style="font-size:9px;color:${acwrColor2};font-weight:600;">${zona}</div>
+        </div>
       </div>
-      <div style="color:var(--text3);">↳ ${recom} <span style="color:var(--text3);">(Esta sem: rTSS ${rtss[N-1]} + rkTSS ${rktss[N-1]} = <strong>${totalCarga}</strong> pts carga)</span></div>`;
+      <div style="font-size:11px;color:var(--text3);line-height:1.5;">↳ ${recom} <span style="color:var(--text4);">(base promedio: ~${ctl} pts/sem)</span></div>`;
   }
 
   if (window._chartCargaVol) { window._chartCargaVol.destroy(); }
@@ -3638,21 +3651,39 @@ function dibujarCargaVol(a) {
     data: {
       labels,
       datasets: [
-        { type:'bar', label:'km Strava', data: km, backgroundColor:'rgba(0,168,179,0.35)', borderColor:'rgba(0,168,179,0.7)', borderWidth:1, yAxisID:'yKm', order:2 },
-        { type:'line', label:'rTSS', data: rtss, borderColor:'#e67e22', backgroundColor:'rgba(230,126,34,0.1)', borderWidth:2, pointRadius:3, tension:0.3, yAxisID:'yTSS', order:1 },
-        { type:'line', label:'rkTSS', data: rktss, borderColor:'#C9A84C', backgroundColor:'rgba(201,168,76,0.1)', borderWidth:2, pointRadius:3, tension:0.3, yAxisID:'yTSS', order:0 }
+        // Barras apiladas TSS
+        { type:'bar',  label:'rTSS endurance', data: rtss,  backgroundColor: rtssColors,  borderWidth:0, yAxisID:'yTSS', order:2, stack:'tss' },
+        { type:'bar',  label:'rkTSS marcha',   data: rktss, backgroundColor: rktssColors, borderWidth:0, yAxisID:'yTSS', order:2, stack:'tss' },
+        // Línea punteada CTL (base promedio)
+        { type:'line', label:'Base promedio',  data: Array(N).fill(ctl), borderColor:'rgba(0,0,0,0.22)', borderWidth:1.5, borderDash:[5,4], pointRadius:0, yAxisID:'yTSS', order:1 },
+        // Línea km Strava
+        { type:'line', label:'km Strava', data: km, borderColor:'rgba(0,168,179,0.75)', backgroundColor:'rgba(0,168,179,0.08)', borderWidth:2, pointRadius:2, pointBackgroundColor:'rgba(0,168,179,0.75)', tension:0.3, yAxisID:'yKm', order:0 }
       ]
     },
     options: {
-      responsive:true, maintainAspectRatio:false, interaction:{ mode:'nearest', intersect:true },
-      plugins:{ legend:{ display:false }, tooltip:{ callbacks:{ label: ctx => {
-        const u = ctx.dataset.label === 'km Strava' ? ' km' : ' pts';
-        return `${ctx.dataset.label}: ${ctx.parsed.y}${u}`;
-      } } } },
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          callbacks:{
+            label: ctx => {
+              if (ctx.dataset.label === 'Base promedio') return null;
+              const u = ctx.dataset.label === 'km Strava' ? ' km' : ' pts';
+              return `${ctx.dataset.label}: ${ctx.parsed.y}${u}`;
+            },
+            afterBody: (items) => {
+              const tssItems = items.filter(i => i.dataset.label !== 'km Strava' && i.dataset.label !== 'Base promedio');
+              const total = tssItems.reduce((s,i) => s + (i.parsed.y||0), 0);
+              return total > 0 ? ['─────────────', `Total carga: ${total} pts`] : [];
+            }
+          }
+        }
+      },
       scales: {
-        x: { grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#999' } },
-        yKm:  { position:'left',  beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'rgba(0,168,179,0.7)', callback: v=>`${v}km` } },
-        yTSS: { position:'right', beginAtZero:true, grid:{ drawOnChartArea:false }, ticks:{ font:{size:10}, color:'#e67e22', callback: v=>`${v}` } }
+        x:    { stacked:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#999' } },
+        yTSS: { position:'right', stacked:true, beginAtZero:true, grid:{ color:'rgba(0,0,0,0.05)' }, ticks:{ font:{size:10}, color:'#aaa', callback: v=>`${v}` } },
+        yKm:  { position:'left',  beginAtZero:true, grid:{ drawOnChartArea:false }, ticks:{ font:{size:10}, color:'rgba(0,168,179,0.7)', callback: v=>`${v}km` } }
       }
     }
   });

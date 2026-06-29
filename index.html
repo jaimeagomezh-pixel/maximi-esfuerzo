@@ -6,7 +6,7 @@
 <title>MÁXIMO ESFUERZO | Rendimiento Militar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=20260627d">
+<link rel="stylesheet" href="styles.css?v=20260627f">
 <link rel="stylesheet" href="showcase-phones.css?v=20260605">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
@@ -706,6 +706,22 @@
       </div>
     </div>
     <div style="max-width:620px;margin:0 auto;padding:16px 18px 40px;">
+
+      <!-- Gradientes metálicos de las medallas hexagonales (referenciados por _hexMedal) -->
+      <svg width="0" height="0" style="position:absolute;" aria-hidden="true"><defs>
+        <linearGradient id="hexGold" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stop-color="#fff6d4"/><stop offset="0.24" stop-color="#f2da84"/><stop offset="0.5" stop-color="#dcb451"/><stop offset="0.72" stop-color="#bb9033"/><stop offset="1" stop-color="#8a691f"/>
+        </linearGradient>
+        <linearGradient id="hexSilver" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stop-color="#ffffff"/><stop offset="0.24" stop-color="#eaeef3"/><stop offset="0.5" stop-color="#c7cdd5"/><stop offset="0.72" stop-color="#a0a7b0"/><stop offset="1" stop-color="#787e87"/>
+        </linearGradient>
+        <linearGradient id="hexBronze" x1="0.15" y1="0" x2="0.85" y2="1">
+          <stop offset="0" stop-color="#f6cda2"/><stop offset="0.24" stop-color="#e5a877"/><stop offset="0.5" stop-color="#c6824f"/><stop offset="0.72" stop-color="#9f6138"/><stop offset="1" stop-color="#744529"/>
+        </linearGradient>
+        <linearGradient id="hexGloss" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" stop-opacity="0.62"/><stop offset="0.42" stop-color="#ffffff" stop-opacity="0.14"/><stop offset="0.5" stop-color="#ffffff" stop-opacity="0"/>
+        </linearGradient>
+      </defs></svg>
 
       <!-- Tu apodo / cómo apareces -->
       <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;background:rgba(13,13,13,0.85);border:1px solid rgba(0,229,240,0.25);border-radius:10px;padding:11px 14px;margin-bottom:14px;">
@@ -1655,6 +1671,19 @@
       </button>
       <div class="me-accord-body sec-flat">
 
+    <!-- RANKING · trofeo prominente, primero al entrar a Rucking -->
+    <button onclick="abrirRankingRuck()" id="ruckRankingBtn"
+      style="display:flex;align-items:center;gap:13px;width:calc(100% - 16px);margin:8px 8px 12px;padding:14px 16px;background:linear-gradient(135deg,rgba(201,168,76,0.18),rgba(201,168,76,0.06));border:1.5px solid rgba(201,168,76,0.6);border-radius:12px;cursor:pointer;text-align:left;box-shadow:0 4px 16px rgba(201,168,76,0.12);">
+      <span style="flex-shrink:0;width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,0.16);display:flex;align-items:center;justify-content:center;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4v8a5 5 0 0 1-10 0V4"/><path d="M5 9a2 2 0 0 1 0-4"/><path d="M19 9a2 2 0 0 0 0-4"/></svg>
+      </span>
+      <span style="flex:1;min-width:0;">
+        <span style="display:block;font-family:'Bebas Neue',sans-serif;font-size:1.25rem;color:#C9A84C;letter-spacing:.5px;line-height:1.05;">Ranking de la comunidad</span>
+        <span style="display:block;font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:1px;color:#9a948a;text-transform:uppercase;margin-top:2px;">Test de Umbral 4.8 km · potencia (rkFTP)</span>
+      </span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
     <!-- RUCKING · subsecciones planas (sin tarjetas) -->
     <div class="th-chart-container" style="margin:0 8px 6px;">
 
@@ -1822,14 +1851,7 @@
 
       <!-- Test de Umbral de Rucking (rkFTP) -->
       <div class="flat-box" style="margin-top:4px;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.18);border-radius:8px;padding:12px 14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(139,26,26,0.75);text-transform:uppercase;">Test de Umbral · Ruck 4.8 km (3 millas)</div>
-          <button onclick="abrirRankingRuck()" title="Ver ranking de la comunidad"
-            style="flex-shrink:0;display:inline-flex;align-items:center;gap:6px;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.55);color:#C9A84C;font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 11px;border-radius:20px;cursor:pointer;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10"/><path d="M17 4v8a5 5 0 0 1-10 0V4"/><path d="M5 9a2 2 0 0 1 0-4"/><path d="M19 9a2 2 0 0 0 0-4"/></svg>
-            Ranking
-          </button>
-        </div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(139,26,26,0.75);text-transform:uppercase;margin-bottom:10px;">Test de Umbral · Ruck 4.8 km (3 millas)</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
           <div>
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:#999;text-transform:uppercase;margin-bottom:4px;">Lastre (kg)</div>
@@ -2564,7 +2586,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260627l"></script>
+<script src="scripts.js?v=20260627p"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
