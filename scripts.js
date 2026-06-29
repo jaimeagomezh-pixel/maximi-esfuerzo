@@ -5463,6 +5463,56 @@
     if (typeof initRuckingAtleta === 'function') initRuckingAtleta();
   }
 
+  function _endHistInfoToggle(e) {
+    e.stopPropagation();
+    const el = document.getElementById('endHistInfo');
+    if (!el) return;
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+  window._endHistInfoToggle = _endHistInfoToggle;
+
+  function _endHistAnalisis(all) {
+    if (all.length < 2) return '<span style="color:rgba(255,255,255,0.4);">Registra al menos 2 tests para ver el análisis de cambios.</span>';
+    const nuevo = all[0];
+    const lines = [];
+    const fmt = v => v > 0 ? '+' + v : String(v);
+    const col = v => v > 0.2 ? '#4ade80' : v < -0.2 ? '#f87171' : '#fbbf24';
+
+    if (nuevo._deltaVam !== null) {
+      const d = nuevo._deltaVam;
+      const c = col(d);
+      let txt;
+      if (d > 0.5)       txt = 'Tu VAM subió <b style="color:' + c + '">' + fmt(d) + ' km/h</b>. El trabajo de alta intensidad e intervalos está produciendo adaptaciones aeróbicas claras.';
+      else if (d > 0.1)  txt = 'Pequeña mejora en VAM <b style="color:' + c + '">(' + fmt(d) + ' km/h)</b>. Progresión sostenida; mantén el trabajo de velocidad para seguir subiendo.';
+      else if (d < -0.5) txt = 'VAM bajó <b style="color:' + c + '">' + fmt(d) + ' km/h</b>. Puede ser fatiga acumulada, reducción de entrenamiento de velocidad o periodo de recuperación. Revisa la carga reciente.';
+      else if (d < -0.1) txt = 'Leve descenso en VAM <b style="color:' + c + '">(' + fmt(d) + ' km/h)</b>. Posible acumulación de carga o insuficiente trabajo a alta intensidad.';
+      else               txt = 'VAM <b style="color:' + c + '">sin cambio significativo</b>. Fase de consolidación o carga de trabajo constante.';
+      lines.push(txt);
+    }
+
+    if (nuevo._deltaFtp !== null) {
+      const d = nuevo._deltaFtp;
+      const c = col(d);
+      let txt;
+      if (d > 0.5)       txt = 'FTP subió <b style="color:' + c + '">' + fmt(d) + ' km/h</b>. Tu umbral aeróbico mejoró: puedes sostener mayor intensidad durante más tiempo.';
+      else if (d > 0.1)  txt = 'Mejora leve en FTP <b style="color:' + c + '">(' + fmt(d) + ' km/h)</b>. El volumen a ritmo de umbral está surtiendo efecto.';
+      else if (d < -0.5) txt = 'FTP bajó <b style="color:' + c + '">' + fmt(d) + ' km/h</b>. Umbral a la baja: puede reflejar exceso de carga, falta de rodajes largos o un período de descarga necesario.';
+      else if (d < -0.1) txt = 'Leve caída en FTP <b style="color:' + c + '">(' + fmt(d) + ' km/h)</b>. Considera más volumen a ritmo de umbral.';
+      else               txt = 'FTP <b style="color:' + c + '">sin cambio significativo</b>. Estabilidad en el umbral aeróbico.';
+      lines.push(txt);
+    }
+
+    if (nuevo._deltaVam !== null && nuevo._deltaFtp !== null) {
+      const dv = nuevo._deltaVam, df = nuevo._deltaFtp;
+      let nota = '';
+      if (dv > 0.2 && df < -0.2) nota = '<span style="color:rgba(255,255,255,0.45);font-size:10px;">VAM sube pero FTP baja: posible exceso de trabajo de velocidad a expensas del volumen de base.</span>';
+      else if (dv < -0.2 && df > 0.2) nota = '<span style="color:rgba(255,255,255,0.45);font-size:10px;">FTP sube pero VAM baja: buen trabajo de umbral aunque la velocidad máxima aeróbica retrocedió. Añade intervalos cortos.</span>';
+      if (nota) lines.push(nota);
+    }
+
+    return lines.join('<br><br>');
+  }
+
   function _renderEndHistChart(data) {
     const ctx = document.getElementById('endHistChart');
     if (!ctx || typeof Chart === 'undefined') return;
@@ -5525,12 +5575,10 @@
         <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;padding:16px 14px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;">Progresión</div>
-            <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:50%;width:18px;height:18px;color:rgba(255,255,255,0.55);font-size:10px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;">ⓘ</button>
-            <div style="display:none;position:absolute;right:14px;margin-top:30px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;font-size:11px;color:rgba(255,255,255,0.65);line-height:1.6;z-index:10;max-width:260px;">
-              <b style="color:#00e5f0;">— VO₂ Máx</b> · Consumo máximo de oxígeno (mL/kg/min). Derivado del VAM: a mayor velocidad aeróbica, mayor capacidad cardiorrespiratoria.<br>
-              <b style="color:rgba(0,229,240,0.6);">- - VAM</b> · Velocidad Aeróbica Máxima (km/h). La velocidad mínima a la que alcanzas tu VO₂ Máx. Test de 5 minutos.<br>
-              <b style="color:#C9A84C;">— FTP</b> · Umbral funcional (km/h). La velocidad máxima que puedes sostener ~1 hora. Test de 20 minutos.
-            </div>
+            <button id="endHistInfoBtn" onclick="_endHistInfoToggle(event)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:50%;width:20px;height:20px;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">↗</button>
+          </div>
+          <div id="endHistInfo" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7;">
+            ${_endHistAnalisis(all)}
           </div>
           <div style="height:180px;"><canvas id="endHistChart"></canvas></div>
         </div>
