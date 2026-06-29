@@ -5231,7 +5231,7 @@
       ? `<div style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:8px 10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;">${lbl}</div><div style="font-size:15px;font-weight:700;color:#00e5f0;margin-top:2px;">${val}</div></div>`
       : '';
     const chips = [];
-    let zonasHtml = '', cache = null, esManual = item.source !== 'strava';
+    let zonasHtml = '', cache = null, esManual = item.source !== 'strava', zsecAprox = false;
     if (_histTipo === 'ruck') {
       const km = item.dist, sec = item.time;
       cache = _cacheById(item.stravaId);
@@ -5259,6 +5259,17 @@
           if (Array.isArray(cache.zsec) && cache.zsec.some(v => v > 0)) fcZsec = cache.zsec;
         }
       }
+      // Fallback aprox.: sin tiempo-real-en-zona pero con FC media + FC máx,
+      // estimamos la zona dominante (igual criterio que el resumen mensual).
+      if (!fcZsec && fcHr && sec) {
+        const _perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+        const _fcMax = _perfil.fcMax || null;
+        if (_fcMax && typeof _zonaDesdePctFC === 'function') {
+          const est = [0, 0, 0, 0, 0];
+          est[_zonaDesdePctFC(fcHr / _fcMax)] = sec;
+          fcZsec = est; zsecAprox = true;
+        }
+      }
       chips.push(chip('Distancia', km ? km + ' km' : item.dist));
       chips.push(chip('Tiempo', item.time));
       chips.push(chip('Ritmo', _fmtPaceMinKm(sec, km)));
@@ -5266,7 +5277,10 @@
       if (fcZsec) zonasHtml = _zonasTxt(fcZsec);
     }
     const grid = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">${chips.filter(Boolean).join('')}</div>`;
-    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC</div>${zonasHtml}</div>` : '';
+    const zonaNota = zsecAprox
+      ? '<span style="font-weight:400;color:rgba(255,255,255,0.3);"> · aprox. por FC media</span>'
+      : '';
+    const zonas = zonasHtml ? `<div style="margin-top:10px;"><div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,0.45);text-transform:uppercase;margin-bottom:2px;">Tiempo en zonas de FC${zonaNota}</div>${zonasHtml}</div>` : '';
     const nota = (esManual && !zonasHtml) ? '<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;font-style:italic;">Registro manual — sin datos de FC ni zonas.</div>' : '';
     return grid + zonas + nota;
   }

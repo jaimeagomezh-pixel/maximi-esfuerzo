@@ -5253,8 +5253,9 @@ body.plan-activo .plan-lock  { display: none; }
      SECCIONES PLANAS · contenido sin tarjetas, separado por subtítulos
      (clase .sec-flat en el .me-accord-body de la sección)
   ══════════════════════════════════════════════════════════ */
+  /* Nota: .dash-chart-card (hero "Frecuencia Cardíaca" con stats superpuestas)
+     NO se aplana: su layout interno usa posición/padding propios. */
   #dashboardAtleta .sec-flat .th-chart-container,
-  #dashboardAtleta .sec-flat .dash-chart-card,
   #dashboardAtleta .sec-flat .dash-zones-card,
   #dashboardAtleta .sec-flat .flat-box {
     background: transparent !important;
@@ -5266,7 +5267,6 @@ body.plan-activo .plan-lock  { display: none; }
     margin: 4px 8px 20px !important;
   }
   #dashboardAtleta .sec-flat .th-chart-container::before,
-  #dashboardAtleta .sec-flat .dash-chart-card::before,
   #dashboardAtleta .sec-flat .dash-zones-card::before { display: none !important; }
 
   /* Catch-all: cualquier DIV-contenedor con esquinas redondeadas inline pierde
