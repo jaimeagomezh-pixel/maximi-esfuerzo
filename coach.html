@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<!-- v=20260628a -->
+<!-- v=20260628b -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -1553,6 +1553,9 @@ async function sincronizarPerfilesCloud() {
       if (prof.cargaRTSS && JSON.stringify(a.cargaRTSS) !== JSON.stringify(prof.cargaRTSS)) { a.cargaRTSS = prof.cargaRTSS; cambio = true; }
       if (prof.ruckLoad && JSON.stringify(a.ruckLoad) !== JSON.stringify(prof.ruckLoad)) { a.ruckLoad = prof.ruckLoad; cambio = true; }
       if (prof.squat1RM && a.squat1RM !== prof.squat1RM) { a.squat1RM = prof.squat1RM; cambio = true; }
+      if (prof.squat1RMDate && a.squat1RMDate !== prof.squat1RMDate) { a.squat1RMDate = prof.squat1RMDate; cambio = true; }
+      if (prof.se && a.se !== prof.se) { a.se = prof.se; cambio = true; }
+      if (prof.rendimiento && JSON.stringify(a.rendimiento) !== JSON.stringify(prof.rendimiento)) { a.rendimiento = prof.rendimiento; cambio = true; }
       if (prof.fuerza && Object.keys(prof.fuerza).length && JSON.stringify(a.fuerza) !== JSON.stringify(prof.fuerza)) { a.fuerza = prof.fuerza; cambio = true; }
       if (prof.fechaNac && a.fechaNac !== prof.fechaNac) { a.fechaNac = prof.fechaNac; cambio = true; }
       if (prof.talla && a.talla !== prof.talla) { a.talla = prof.talla; cambio = true; }
@@ -3417,6 +3420,68 @@ function abrirPerfil(id) {
             <div class="empty-i"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
             <div class="empty-t">Sin carga de marcha aún</div>
             <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere sesiones de rucking + rkFTP (Test 4.8 km) en el panel del atleta</div>
+          </div>`}
+        </div>
+
+        <div class="sec">
+          <div class="sec-t">Motor · Chasis</div>
+          ${a.rendimiento ? (() => {
+            const r   = a.rendimiento;
+            const sub = r.sub || {};
+            const mScore = r.motor  != null ? Math.round(r.motor)  : null;
+            const cScore = r.chasis != null ? Math.round(r.chasis) : null;
+            const U = 50;
+            const tipo = (() => {
+              if (mScore != null && cScore != null) {
+                const m = mScore >= U, c = cScore >= U;
+                if (m && c)   return { t:'Atleta completo',  e:'bien',  msg:'Motor y chasis altos y equilibrados. Listo para cargas exigentes.' };
+                if (!m && c)  return { t:'Fuerte sin fondo', e:'medio', msg:'Fuerza OK, pero el motor aeróbico limita el rendimiento en marchas largas.' };
+                if (m && !c)  return { t:'Motor sin chasis', e:'medio', msg:'Buen fondo, pero la fuerza es el cuello de botella bajo cargas pesadas.' };
+                return { t:'Base', e:'bajo', msg:'Ambos ejes en desarrollo. Cargas ligeras, construir base en paralelo.' };
+              }
+              if (mScore != null) return { t: mScore>=U?'Motor sólido':'Motor en desarrollo', e: mScore>=U?'bien':'medio', msg:'Falta chasis: registrar 1RM sentadilla o SE.' };
+              return { t: cScore>=U?'Chasis sólido':'Chasis en desarrollo', e: cScore>=U?'bien':'medio', msg:'Falta motor: realizar Test 4.8 km o test VAM/FTP.' };
+            })();
+            const VCOL = {
+              bien:  { bg:'rgba(39,174,96,0.08)',  bd:'rgba(39,174,96,0.3)',  tx:'#27ae60' },
+              medio: { bg:'rgba(230,126,34,0.08)', bd:'rgba(230,126,34,0.3)', tx:'#e67e22' },
+              bajo:  { bg:'rgba(231,76,60,0.08)',  bd:'rgba(231,76,60,0.3)',  tx:'#e74c3c' }
+            }[tipo.e];
+            const rc = s => s==null?'#999': s>=67?'#27ae60': s>=34?'#e67e22':'#e74c3c';
+            const bullets = [
+              { k:'vam',   l:'VAM · motor' },
+              { k:'rkftp', l:'rkFTP · motor' },
+              { k:'oneRM', l:'1RM · chasis' },
+              { k:'se',    l:'SE · chasis' }
+            ].map(d => {
+              const v = sub[d.k];
+              if (v == null) return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--text3);">${d.l}</span><span style="color:#999;">sin dato</span></div><div style="height:4px;background:#eee;border-radius:2px;"></div></div>`;
+              const col = rc(Math.round(v));
+              return `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span style="color:var(--text3);">${d.l}</span><span style="font-weight:700;color:${col};">${Math.round(v)}</span></div><div style="height:4px;background:#eee;border-radius:2px;position:relative;"><div style="height:100%;width:${Math.round(v)}%;background:${col};border-radius:2px;"></div><div style="position:absolute;top:-2px;bottom:-2px;left:75%;width:1px;background:rgba(0,0,0,0.15);"></div></div></div>`;
+            }).join('');
+            return `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+              <div style="background:#f5f5f5;border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-family:var(--fc);font-size:2.4rem;font-weight:700;color:${rc(mScore)};line-height:1;">${mScore??'—'}</div>
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:4px;">MOTOR</div>
+                <div style="font-size:9px;color:var(--text4);margin-top:1px;">VAM · rkFTP</div>
+              </div>
+              <div style="background:#f5f5f5;border-radius:8px;padding:14px;text-align:center;">
+                <div style="font-family:var(--fc);font-size:2.4rem;font-weight:700;color:${rc(cScore)};line-height:1;">${cScore??'—'}</div>
+                <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-top:4px;">CHASIS</div>
+                <div style="font-size:9px;color:var(--text4);margin-top:1px;">1RM · SE</div>
+              </div>
+            </div>
+            <div style="background:${VCOL.bg};border:1px solid ${VCOL.bd};border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+              <div style="font-family:var(--fc);font-size:12px;font-weight:700;letter-spacing:1px;color:${VCOL.tx};margin-bottom:3px;">${tipo.t}</div>
+              <div style="font-size:11px;color:var(--text2);line-height:1.4;">${tipo.msg}</div>
+            </div>
+            ${bullets}
+            ${r.fecha ? `<div style="font-size:9px;color:var(--text4);margin-top:4px;">Actualizado: ${r.fecha}</div>` : ''}`;
+          })() : `<div class="empty" style="padding:16px 0;">
+            <div class="empty-i"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+            <div class="empty-t">Sin datos Motor · Chasis</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:6px;">Requiere 1RM sentadilla + VAM o rkFTP en el panel del atleta · haz Sync después</div>
           </div>`}
         </div>
 
