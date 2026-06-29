@@ -5165,6 +5165,31 @@
     if (ov) ov.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderHistorialOverlay();
+    // Pre-cargar zonas en background para que aparezcan sin necesidad de re-entrar.
+    // Per-activity writes en enriquecerZonasFC/Velocidad evitan race conditions.
+    if (tipo === 'run') {
+      const tok = localStorage.getItem('strava_token');
+      if (tok) {
+        const _actualizarCardsAbiertas = () => {
+          const fc = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+          const byId = {};
+          fc.forEach(a => { if (a.id) byId[String(a.id)] = a; });
+          _histRendered.forEach((item, i) => {
+            if (!item._stravaId) return;
+            const a = byId[String(item._stravaId)];
+            if (!a) return;
+            if (Array.isArray(a.zsec) && a.zsec.some(v => v > 0)) item._zsec = a.zsec;
+            if (Array.isArray(a.vsec) && a.vsec.some(v => v > 0)) item._vsec = a.vsec;
+            const det = document.getElementById('histDet-' + i);
+            if (det && det.style.display !== 'none') det.innerHTML = _histDetalle(item);
+          });
+        };
+        if (typeof enriquecerZonasFC === 'function')
+          enriquecerZonasFC(tok).then(_actualizarCardsAbiertas).catch(() => {});
+        if (typeof enriquecerZonasVelocidad === 'function')
+          enriquecerZonasVelocidad(tok).then(_actualizarCardsAbiertas).catch(() => {});
+      }
+    }
   }
   function cerrarHistorial() {
     if (_chartEndHist) { _chartEndHist.destroy(); _chartEndHist = null; }
@@ -5498,7 +5523,15 @@
       }
       list.innerHTML = `
         <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;padding:16px 14px;margin-bottom:14px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;margin-bottom:10px;">Progresión</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;">Progresión</div>
+            <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:50%;width:18px;height:18px;color:rgba(255,255,255,0.55);font-size:10px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;">ⓘ</button>
+            <div style="display:none;position:absolute;right:14px;margin-top:30px;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:12px 14px;font-size:11px;color:rgba(255,255,255,0.65);line-height:1.6;z-index:10;max-width:260px;">
+              <b style="color:#00e5f0;">— VO₂ Máx</b> · Consumo máximo de oxígeno (mL/kg/min). Derivado del VAM: a mayor velocidad aeróbica, mayor capacidad cardiorrespiratoria.<br>
+              <b style="color:rgba(0,229,240,0.6);">- - VAM</b> · Velocidad Aeróbica Máxima (km/h). La velocidad mínima a la que alcanzas tu VO₂ Máx. Test de 5 minutos.<br>
+              <b style="color:#C9A84C;">— FTP</b> · Umbral funcional (km/h). La velocidad máxima que puedes sostener ~1 hora. Test de 20 minutos.
+            </div>
+          </div>
           <div style="height:180px;"><canvas id="endHistChart"></canvas></div>
         </div>
         ${all.map(item => _histRowEndurance(item)).join('')}`;
