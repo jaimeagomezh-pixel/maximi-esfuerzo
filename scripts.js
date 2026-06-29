@@ -5093,6 +5093,13 @@
     if (ov) ov.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderHistorialOverlay();
+    // Enriquecer zonas FC en segundo plano y re-renderizar al completar
+    if (tipo === 'run') {
+      const tok = localStorage.getItem('strava_token');
+      if (tok && typeof enriquecerZonasFC === 'function') {
+        enriquecerZonasFC(tok).then(() => renderHistorialOverlay()).catch(() => {});
+      }
+    }
   }
   function cerrarHistorial() {
     const ov = document.getElementById('histOverlay');
