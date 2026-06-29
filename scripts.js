@@ -2840,6 +2840,17 @@
     });
     // NOTA: el chart Ritmo independiente fue eliminado; el ritmo ahora va
     // superpuesto dentro de chartFC (eje derecho). chartRitmo queda null.
+
+    // Mobile: el tooltip queda pegado en pantalla táctil → auto-cerrar 1.5s después
+    if (fcCtx && 'ontouchend' in window) {
+      let _ttTimer = null;
+      fcCtx.addEventListener('touchend', () => {
+        clearTimeout(_ttTimer);
+        _ttTimer = setTimeout(() => {
+          if (chartFC) { chartFC.tooltip.setActiveElements([], {}); chartFC.update('none'); }
+        }, 1500);
+      }, { passive: true });
+    }
   }
 
   // Inicializar charts cuando se abre el dashboard
@@ -5093,11 +5104,22 @@
     if (ov) ov.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderHistorialOverlay();
-    // Enriquecer zonas FC en segundo plano y re-renderizar al completar
+    // Enriquecer zonas FC en segundo plano — actualizar _histRendered en memoria,
+    // sin re-renderizar la lista (evita salto de scroll y parpadeo de fondo)
     if (tipo === 'run') {
       const tok = localStorage.getItem('strava_token');
       if (tok && typeof enriquecerZonasFC === 'function') {
-        enriquecerZonasFC(tok).then(() => renderHistorialOverlay()).catch(() => {});
+        enriquecerZonasFC(tok).then(() => {
+          const fc = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+          const byId = {};
+          fc.forEach(a => { if (a.id) byId[String(a.id)] = a; });
+          _histRendered.forEach(item => {
+            if (item._stravaId) {
+              const a = byId[String(item._stravaId)];
+              if (a && Array.isArray(a.zsec) && a.zsec.some(v => v > 0)) item._zsec = a.zsec;
+            }
+          });
+        }).catch(() => {});
       }
     }
   }
@@ -5298,7 +5320,19 @@
     const chev = document.getElementById('histChev-' + i);
     if (!det) return;
     const abrir = det.style.display === 'none' || !det.style.display;
-    if (abrir) { det.innerHTML = _histDetalle(_histRendered[i]); }
+    if (abrir) {
+      det.innerHTML = _histDetalle(_histRendered[i]);
+      // Carrera Strava sin zones reales → fetch directo a Strava para este detalle
+      const item = _histRendered[i];
+      if (_histTipo === 'run' && item && item._stravaId && item.source === 'strava') {
+        const cached = _cacheById(item._stravaId);
+        const tieneZonas = cached && Array.isArray(cached.zsec) && cached.zsec.some(v => v > 0);
+        if (!tieneZonas) {
+          const tok = localStorage.getItem('strava_token');
+          if (tok) _fetchZonesParaDetalle(String(item._stravaId), i, tok);
+        }
+      }
+    }
     det.style.display = abrir ? 'block' : 'none';
     if (chev) chev.style.transform = abrir ? 'rotate(180deg)' : '';
   }
@@ -5365,6 +5399,26 @@
     _histRendered = all.slice(0, _histShown);
     list.innerHTML = _histRendered.map((item, i) => _histRow(item, i)).join('');
     if (mas) mas.style.display = all.length > _histShown ? 'inline-block' : 'none';
+  }
+
+  async function _fetchZonesParaDetalle(stravaId, i, token) {
+    try {
+      const res = await stravaFetch(`https://www.strava.com/api/v3/activities/${stravaId}/zones`, token);
+      const zonas = await res.json();
+      const hrZone = Array.isArray(zonas) ? zonas.find(z => z.type === 'heartrate') : null;
+      if (!hrZone || !hrZone.distribution_buckets) return;
+      const perfil = JSON.parse(localStorage.getItem('atletaPerfil') || '{}');
+      const zsec = _zsecDesdeBuckets(hrZone.distribution_buckets, perfil.fcMax || null);
+      if (!zsec || !zsec.some(v => v > 0)) return;
+      // Guardar en cache para próximas veces
+      const cache = JSON.parse(localStorage.getItem('stravaActsCache') || '[]');
+      const idx = cache.findIndex(a => String(a.id) === stravaId);
+      if (idx >= 0) { cache[idx].zsec = zsec; localStorage.setItem('stravaActsCache', JSON.stringify(cache)); }
+      // Actualizar item en memoria y re-dibujar el detalle si sigue abierto
+      if (_histRendered[i]) _histRendered[i]._zsec = zsec;
+      const det = document.getElementById('histDet-' + i);
+      if (det && det.style.display !== 'none') det.innerHTML = _histDetalle(_histRendered[i]);
+    } catch(e) {}
   }
 
   window.abrirHistorial   = abrirHistorial;
