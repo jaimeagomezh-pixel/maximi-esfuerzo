@@ -5161,12 +5161,10 @@
     _histShown = 20;
     const ov = document.getElementById('histOverlay');
     const title = document.getElementById('histOverlayTitle');
-    if (title) title.textContent = tipo === 'ruck' ? 'Historial de Rucking' : 'Historial de Carreras';
+    if (title) title.textContent = tipo === 'ruck' ? 'Historial de Rucking' : tipo === 'endurance' ? 'Capacidad Aeróbica' : 'Historial de Carreras';
     if (ov) ov.style.display = 'block';
     document.body.style.overflow = 'hidden';
     renderHistorialOverlay();
-    // Las zonas se obtienen bajo demanda en histToggleDetail (_fetchZonesParaDetalle).
-    // enriquecerZonasFC ya corre tras cada sync de Strava — no repetir aquí.
   }
   function cerrarHistorial() {
     const ov = document.getElementById('histOverlay');
@@ -5444,6 +5442,19 @@
     const mas   = document.getElementById('histOverlayMas');
     const count = document.getElementById('histOverlayCount');
     if (!list) return;
+
+    if (_histTipo === 'endurance') {
+      const all = _histDatosEndurance();
+      if (count) count.textContent = all.length ? all.length + (all.length === 1 ? ' test' : ' tests') : '';
+      if (mas) mas.style.display = 'none';
+      if (!all.length) {
+        list.innerHTML = '<div style="text-align:center;color:#999;padding:40px 12px;font-size:13px;">Sin tests de campo registrados aún.</div>';
+        return;
+      }
+      list.innerHTML = all.map(item => _histRowEndurance(item)).join('');
+      return;
+    }
+
     const all = _histDatos();
     if (count) count.textContent = all.length ? all.length + (all.length === 1 ? ' registro' : ' registros') : '';
     if (!all.length) {
@@ -5454,6 +5465,54 @@
     _histRendered = all.slice(0, _histShown);
     list.innerHTML = _histRendered.map((item, i) => _histRow(item, i)).join('');
     if (mas) mas.style.display = all.length > _histShown ? 'inline-block' : 'none';
+  }
+
+  function _histDatosEndurance() {
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    const hist = (profile.enduranceHistory || [])
+      .filter(h => h.vamMs || h.ftpMs)
+      .slice().sort((a, b) => b.date.localeCompare(a.date)); // más reciente primero
+    return hist.map((item, i) => {
+      const older = hist[i + 1];
+      const [y, mo, da] = item.date.split('-').map(Number);
+      return {
+        ...item,
+        _fechaStr: `${da} ${meses[mo-1]} ${String(y).slice(2)}`,
+        _vo2max:   item.vamMs ? +(item.vamMs * 12 + 3.5).toFixed(1) : null,
+        _vamKmh:   item.vamMs ? +(item.vamMs * 3.6).toFixed(1) : null,
+        _ftpKmh:   item.ftpMs ? +(item.ftpMs * 3.6).toFixed(1) : null,
+        _deltaVam: (older && older.vamMs && item.vamMs) ? +(  (item.vamMs - older.vamMs) * 3.6).toFixed(1) : null,
+        _deltaFtp: (older && older.ftpMs && item.ftpMs) ? +((item.ftpMs - older.ftpMs) * 3.6).toFixed(1) : null,
+      };
+    });
+  }
+
+  function _histRowEndurance(item) {
+    const chip = (lbl, val, unit, color) => `
+      <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 6px;text-align:center;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.4);text-transform:uppercase;">${lbl}</div>
+        <div style="font-size:18px;font-weight:700;color:${color};margin-top:2px;line-height:1;">${val !== null ? val : '—'}</div>
+        <div style="font-size:8px;color:rgba(255,255,255,0.3);margin-top:1px;">${unit}</div>
+      </div>`;
+    const delta = (d, unit) => {
+      if (d === null) return '';
+      const pos = d > 0;
+      const col = pos ? '#4ade80' : '#f87171';
+      return `<span style="font-size:9px;color:${col};font-family:'Barlow Condensed',sans-serif;"> ${pos ? '▲' : '▼'} ${Math.abs(d)} ${unit}</span>`;
+    };
+    return `
+      <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;margin-bottom:8px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${item._fechaStr}</div>
+          <div>${delta(item._deltaVam, 'km/h')}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+          ${chip('VO₂ Máx', item._vo2max, 'mL/kg/min', '#00e5f0')}
+          ${chip('VAM', item._vamKmh, 'km/h', '#00e5f0')}
+          ${chip('FTP', item._ftpKmh, 'km/h', '#C9A84C')}
+        </div>
+      </div>`;
   }
 
   async function _fetchZonesParaDetalle(stravaId, i, token) {
