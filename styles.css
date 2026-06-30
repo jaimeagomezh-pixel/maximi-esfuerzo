@@ -5504,3 +5504,16 @@ body.plan-activo .plan-lock  { display: none; }
     letter-spacing:1.5px; color:#777; text-transform:uppercase; margin-top:2px;
   }
   #rankOverlay .rank-row.is-me .rank-val { color:#C9A84C; }
+
+
+/* Botón ⓘ historial de capacidad aeróbica */
+@keyframes endInfoPulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0.55); }
+  50%  { transform: scale(1.18); box-shadow: 0 0 0 7px rgba(255,255,255,0); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+#endHistInfoBtn {
+  animation: endInfoPulse 0.85s ease-in-out 3;
+  animation-delay: 0.5s;
+  animation-fill-mode: both;
+}

@@ -5690,7 +5690,7 @@
         <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;padding:16px 14px;margin-bottom:14px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,0.35);text-transform:uppercase;">Progresión</div>
-            <button id="endHistInfoBtn" onclick="_endHistInfoToggle(event)" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:50%;width:20px;height:20px;color:rgba(255,255,255,0.6);font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;">↗</button>
+            <button id="endHistInfoBtn" onclick="_endHistInfoToggle(event)" style="background:#fff;border:1.5px solid rgba(255,255,255,0.6);border-radius:50%;width:26px;height:26px;color:#111;font-size:13px;font-weight:700;font-family:'Georgia',serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;letter-spacing:0;">i</button>
           </div>
           <div id="endHistInfo" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:rgba(255,255,255,0.7);line-height:1.7;">
             ${_endHistAnalisis(all)}
