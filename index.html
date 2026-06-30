@@ -1211,9 +1211,26 @@
     <div class="dash-section-title" style="margin-top:4px;">Test de Campo · Umbrales</div>
     <div style="margin:0 8px 8px;background:#fff;border:1.5px solid rgba(0,0,0,0.14);border-radius:10px;overflow:hidden;">
       <div style="padding:14px 14px 12px;">
-        <div style="font-size:12px;color:#888;line-height:1.5;margin-bottom:12px;">
-          Tests máximos <strong>en terreno plano</strong>. El de <strong>5 min</strong> calcula tu <strong>VAM</strong>
-          y ya genera tus zonas. El de <strong>20 min</strong> es opcional: añade el <strong>FTP</strong> (umbral) para el rTSS.
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:12px;">
+          <div style="font-size:12px;color:#888;line-height:1.5;">
+            Tests máximos <strong>en terreno plano</strong>. El de <strong>5 min</strong> calcula tu <strong>VAM</strong>
+            y ya genera tus zonas. El de <strong>20 min</strong> es opcional: añade el <strong>FTP</strong> (umbral) para el rTSS.
+          </div>
+          <button onclick="var p=document.getElementById('testCampoInfo');p.style.display=p.style.display==='none'?'block':'none'" style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.15);border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888;font-weight:700;">?</button>
+        </div>
+        <div id="testCampoInfo" style="display:none;background:#f7f6f4;border-radius:8px;padding:11px 13px;margin-bottom:12px;font-size:11px;color:#555;line-height:1.7;">
+          <strong style="color:#333;font-size:11px;">Cómo hacer el test de 5 min (VAM)</strong><br>
+          Sal a correr en terreno plano. Calienta 10–15 min. Luego corre TODO LO QUE PUEDAS durante exactamente <strong>5 minutos</strong> y detén el cronómetro. La distancia recorrida en esos 5 min va en el campo de arriba.<br><br>
+          <strong style="color:#333;font-size:11px;">Cómo hacer el test de 20 min (FTP)</strong><br>
+          Igual pero durante <strong>20 minutos</strong> a ritmo máximo sostenible. Ingresa la distancia cubierta.<br><br>
+          <strong style="color:#FC4C02;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Registro automático desde Strava</strong><br>
+          Nombra la actividad con cualquiera de estas palabras + el tiempo:<br>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Ev. 5min</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Test 5'</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Evaluación 5 min</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Ev. 20'</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Test 20min</span><br>
+          <span style="color:#999;font-size:10px;">Al sincronizar Strava, el campo se prellena solo. Solo confirma y guarda.</span>
         </div>
 
         <!-- Banner: test detectado automáticamente desde Strava (título con "Ev./Test/Evaluación + 5 o 20 min") -->
@@ -1863,7 +1880,22 @@
 
       <!-- Test de Umbral de Rucking (rkFTP) -->
       <div class="flat-box" style="margin-top:4px;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.18);border-radius:8px;padding:12px 14px;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(139,26,26,0.75);text-transform:uppercase;margin-bottom:10px;">Test de Umbral · Ruck 4.8 km (3 millas)</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:9px;letter-spacing:2px;color:rgba(139,26,26,0.75);text-transform:uppercase;">Test de Umbral · Ruck 4.8 km (3 millas)</div>
+          <button onclick="var p=document.getElementById('ruckTestInfo');p.style.display=p.style.display==='none'?'block':'none'" style="background:rgba(139,26,26,0.08);border:1px solid rgba(139,26,26,0.2);border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:rgba(139,26,26,0.7);font-weight:700;">?</button>
+        </div>
+        <div id="ruckTestInfo" style="display:none;background:#f7f6f4;border-radius:8px;padding:11px 13px;margin-bottom:10px;font-size:11px;color:#555;line-height:1.7;">
+          <strong style="color:#333;font-size:11px;">Cómo hacer el test (estándar militar)</strong><br>
+          Marcha <strong>4.8 km (3 millas)</strong> cargando <strong>20 kg</strong> de lastre, al mayor ritmo sostenible posible. Se registra el tiempo total. El corte de referencia es <strong>45 minutos</strong>.<br><br>
+          <strong style="color:#333;font-size:11px;">Variantes aceptadas</strong><br>
+          Puedes usar un lastre diferente (el sistema ajusta la potencia). El resultado siempre se expresa en Watts (rkFTP), que normaliza el peso.<br><br>
+          <strong style="color:#FC4C02;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Registro automático desde Strava</strong><br>
+          Nombra la actividad incluyendo <strong>lastre</strong> + una de estas palabras + <strong>marcha</strong>:<br>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Test marcha Lastre 20 kg</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Ev. marcha Lastre 20kg</span>
+          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Evaluación marcha Lastre 15 kg</span><br>
+          <span style="color:#999;font-size:10px;">Al sincronizar Strava, lastre, tiempo y desnivel se prellenan solos. Solo elige el terreno y confirma.</span>
+        </div>
 
         <!-- Banner: test detectado automáticamente desde Strava (título con "Lastre XX kg" + "test/evaluación" + "marcha") -->
         <div id="ruckTestStravaBanner" style="display:none;margin:0 0 10px;background:#fff;border:1px solid rgba(252,76,2,0.25);border-left:3px solid #FC4C02;border-radius:8px;padding:10px 12px;">
@@ -2610,7 +2642,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260629m"></script>
+<script src="scripts.js?v=20260629n"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
