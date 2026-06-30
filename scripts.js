@@ -978,6 +978,117 @@
     }
   }
 
+  // ── TEST DE CAMPO (VAM/FTP) y TEST DE UMBRAL RUCKING: detección desde Strava ──
+  // Normaliza acentos/comillas para reconocer "Ev.", "evaluación", "EVALUACION",
+  // "test"... en cualquier variante de mayúscula/minúscula/tilde.
+  function _normTxt(s) {
+    return (s || '').toLowerCase()
+      .replace(/[áàä]/g, 'a').replace(/[éèë]/g, 'e').replace(/[íìï]/g, 'i')
+      .replace(/[óòö]/g, 'o').replace(/[úùü]/g, 'u').replace(/ñ/g, 'n')
+      .replace(/[’′]/g, "'");
+  }
+  const TEST_KEYWORD_RE = /\b(ev|evaluacion|test)\b/;
+  function _tieneMarcaMin(name, minutos) {
+    const t = _normTxt(name);
+    if (!TEST_KEYWORD_RE.test(t)) return false;
+    return new RegExp('\\b' + minutos + "\\s*(?:'|min(?:utos)?)\\b").test(t);
+  }
+
+  // Test de Campo 5 min (VAM) y 20 min (FTP): detecta carreras tituladas
+  // "Ev. 5min", "Test 20'", "Evaluación 5 min", etc. Prellena endD5/endD20
+  // normalizando la distancia a la duración exacta del test (5 o 20 min),
+  // por si el atleta no paró el cronómetro justo al segundo.
+  function detectarTestCampoDesdeStrava(allActs) {
+    const info = {};
+    const cand5 = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null && _tieneMarcaMin(a.name, 5));
+    if (cand5.length) {
+      const latest = cand5.sort((a, b) => new Date(b.start_date_local) - new Date(a.start_date_local))[0];
+      const dateStr = (latest.start_date_local || '').split('T')[0];
+      if (localStorage.getItem('testCampoVam5Date') !== dateStr && latest.moving_time > 0) {
+        const dist = Math.round(latest.distance * (300 / latest.moving_time));
+        const inp = document.getElementById('endD5');
+        if (inp) inp.value = dist;
+        localStorage.setItem('testCampoVam5Date', dateStr);
+        info.vam5 = { date: dateStr, dist, name: latest.name };
+      }
+    }
+    const cand20 = allActs.filter(a => STRAVA_RUN_TYPES.has(a.type) && parseLastreKg(a.name) === null && _tieneMarcaMin(a.name, 20));
+    if (cand20.length) {
+      const latest = cand20.sort((a, b) => new Date(b.start_date_local) - new Date(a.start_date_local))[0];
+      const dateStr = (latest.start_date_local || '').split('T')[0];
+      if (localStorage.getItem('testCampoFtp20Date') !== dateStr && latest.moving_time > 0) {
+        const dist = Math.round(latest.distance * (1200 / latest.moving_time));
+        const inp = document.getElementById('endD20');
+        if (inp) inp.value = dist;
+        localStorage.setItem('testCampoFtp20Date', dateStr);
+        info.ftp20 = { date: dateStr, dist, name: latest.name };
+      }
+    }
+    if (info.vam5 || info.ftp20) mostrarTestCampoBanner(info);
+  }
+
+  function mostrarTestCampoBanner(info) {
+    const banner = document.getElementById('testCampoStravaBanner');
+    const el = document.getElementById('testCampoStravaInfo');
+    if (!banner) return;
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const fmt = d => { const p = d.split('-'); return p[2] + ' ' + meses[+p[1] - 1]; };
+    const lines = [];
+    if (info.vam5)  lines.push(`<strong>${info.vam5.dist} m</strong> en 5 min · "${info.vam5.name}" (${fmt(info.vam5.date)}) → prellenado en el Test 5 min.`);
+    if (info.ftp20) lines.push(`<strong>${info.ftp20.dist} m</strong> en 20 min · "${info.ftp20.name}" (${fmt(info.ftp20.date)}) → prellenado en el Test 20 min.`);
+    if (el) el.innerHTML = lines.join('<br>');
+    banner.style.display = 'block';
+  }
+  window.descartarTestCampoBanner = function() {
+    const banner = document.getElementById('testCampoStravaBanner');
+    if (banner) banner.style.display = 'none';
+  };
+
+  // Test de Umbral de Rucking (4.8 km): detecta marcha con "Lastre XX kg" +
+  // "test"/"evaluación" + "marcha" en el título. Prellena lastre/tiempo/desnivel;
+  // el terreno queda a elección del atleta (no se puede inferir con certeza).
+  function detectarTestRuckDesdeStrava(allActs) {
+    const cand = allActs.filter(a => {
+      if (parseLastreKg(a.name) === null) return false;
+      if (!FOOT_RUCK_TYPES.has(a.sport_type || a.type)) return false;
+      const t = _normTxt(a.name);
+      return TEST_KEYWORD_RE.test(t) && /\bmarcha\b/.test(t);
+    });
+    if (!cand.length) return;
+    const latest = cand.sort((a, b) => new Date(b.start_date_local) - new Date(a.start_date_local))[0];
+    const dateStr = (latest.start_date_local || '').split('T')[0];
+    if (localStorage.getItem('testRuckDate') === dateStr) return;
+    if (!latest.distance || Math.abs(latest.distance - 4800) / 4800 > 0.2) return;
+
+    const load = parseLastreKg(latest.name);
+    const tSec = Math.round(latest.moving_time * (4800 / latest.distance));
+    const elev = Math.round(latest.total_elevation_gain || 0);
+    const loadEl = document.getElementById('ruckFtpLoad');
+    const timeEl = document.getElementById('ruckFtpTime');
+    const elevEl = document.getElementById('ruckFtpElev');
+    if (loadEl) loadEl.value = load;
+    if (timeEl) timeEl.value = Math.floor(tSec / 60) + ':' + String(tSec % 60).padStart(2, '0');
+    if (elevEl) elevEl.value = elev;
+    localStorage.setItem('testRuckDate', dateStr);
+
+    mostrarTestRuckBanner({ date: dateStr, name: latest.name, load, tSec, elev });
+  }
+
+  function mostrarTestRuckBanner(d) {
+    const banner = document.getElementById('ruckTestStravaBanner');
+    const el = document.getElementById('ruckTestStravaInfo');
+    if (!banner) return;
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const p = d.date.split('-');
+    const mm = Math.floor(d.tSec / 60), ss = d.tSec % 60;
+    if (el) el.innerHTML = `<strong>"${d.name}"</strong> · ${p[2]} ${meses[+p[1] - 1]} · ${d.load} kg · ${mm}:${String(ss).padStart(2, '0')} (normalizado a 4.8 km) → prellenado abajo. Elige el terreno y confirma.`;
+    banner.style.display = 'block';
+  }
+  window.descartarTestRuckBanner = function() {
+    const banner = document.getElementById('ruckTestStravaBanner');
+    if (banner) banner.style.display = 'none';
+  };
+
   // Devuelve el ID cloud del atleta: StravaId si existe, uid:xxx como fallback Firebase
   function getAthleteCloudId() {
     const stravaId = localStorage.getItem('strava_athlete_id');
@@ -1191,6 +1302,10 @@
 
       // Detectar sesiones de rucking (Walk/Hike con "Lastre XX kg" en el título)
       detectarRuckingDesdeStrava(allActs);
+
+      // Detectar Test de Campo (VAM 5min / FTP 20min) y Test de Umbral Ruck (4.8km)
+      detectarTestCampoDesdeStrava(allActs);
+      detectarTestRuckDesdeStrava(allActs);
 
       // Detectar nueva FC máxima en las actividades y actualizar perfil
       detectarFCMaxDesdeStrava(allActs);
