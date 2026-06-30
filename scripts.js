@@ -5752,7 +5752,11 @@
       <div style="background:#111;border:1px solid rgba(255,255,255,0.11);border-radius:10px;margin-bottom:8px;padding:14px 16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;letter-spacing:1px;color:rgba(255,255,255,0.5);text-transform:uppercase;">${item._fechaStr}</div>
-          <div>${delta(item._deltaVam, 'km/h')}</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${delta(item._deltaVam, 'km/h')}
+            <button onclick="_eliminarTestEndurance('${item.date}')" title="Eliminar test"
+              style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:50%;width:22px;height:22px;color:rgba(255,80,80,0.7);font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">×</button>
+          </div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
           ${chip('VO₂ Máx', item._vo2max, 'mL/kg/min', '#00e5f0')}
@@ -5761,6 +5765,49 @@
         </div>
       </div>`;
   }
+
+  function _eliminarTestEndurance(date) {
+    if (!confirm('¿Eliminar este test del historial?')) return;
+    const profile = JSON.parse(localStorage.getItem('ruckProfile') || '{}');
+    if (!profile.enduranceHistory) return;
+
+    profile.enduranceHistory = profile.enduranceHistory.filter(h => h.date !== date);
+    profile.enduranceHistory.sort((a, b) => a.date.localeCompare(b.date));
+
+    // Reconstruir profile.endurance con los valores más recientes que queden
+    if (profile.endurance) {
+      const desc = profile.enduranceHistory.slice().sort((a, b) => b.date.localeCompare(a.date));
+      const latestVam = desc.find(h => h.vamMs);
+      const latestFtp = desc.find(h => h.ftpMs);
+      if (latestVam) {
+        profile.endurance.vamMs = latestVam.vamMs;
+        const secKm = 1000 / latestVam.vamMs;
+        profile.endurance.vamPace = Math.floor(secKm / 60) + ':' + String(Math.round(secKm % 60)).padStart(2, '0') + ' min/km';
+      } else {
+        delete profile.endurance.vamMs;
+        delete profile.endurance.vamPace;
+      }
+      if (latestFtp) {
+        profile.endurance.ftpMs = latestFtp.ftpMs;
+        const secKm = 1000 / latestFtp.ftpMs;
+        profile.endurance.ftpPace = Math.floor(secKm / 60) + ':' + String(Math.round(secKm % 60)).padStart(2, '0') + ' min/km';
+      } else {
+        delete profile.endurance.ftpMs;
+        delete profile.endurance.ftpPace;
+      }
+      profile.endurance.fecha = desc.length > 0 ? desc[0].date : null;
+    }
+
+    localStorage.setItem('ruckProfile', JSON.stringify(profile));
+    if (typeof pushRuckProfileToCloud === 'function') pushRuckProfileToCloud(profile);
+
+    // Refrescar el historial overlay y el panel de endurance
+    renderHistorialOverlay();
+    if (typeof renderEnduranceProgreso === 'function') renderEnduranceProgreso();
+    if (profile.endurance && typeof mostrarEnduranceResultados === 'function')
+      mostrarEnduranceResultados(profile.endurance);
+  }
+  window._eliminarTestEndurance = _eliminarTestEndurance;
 
   async function _fetchZonesParaDetalle(stravaId, i, token) {
     const _reRenderConFallback = () => {
