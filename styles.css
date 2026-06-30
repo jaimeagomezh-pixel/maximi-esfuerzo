@@ -5506,14 +5506,24 @@ body.plan-activo .plan-lock  { display: none; }
   #rankOverlay .rank-row.is-me .rank-val { color:#C9A84C; }
 
 
-/* Botón ⓘ historial de capacidad aeróbica */
+/* Botón i — historial capacidad aeróbica y test umbral rucking */
 @keyframes endInfoPulse {
-  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0.55); }
-  50%  { transform: scale(1.18); box-shadow: 0 0 0 7px rgba(255,255,255,0); }
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0.6); }
+  50%  { transform: scale(1.2);  box-shadow: 0 0 0 8px rgba(255,255,255,0); }
   100% { transform: scale(1);    box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+@keyframes ruckInfoPulse {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 1.5px #8B1A1A, 0 0 0 2px rgba(139,26,26,0.5); }
+  50%  { transform: scale(1.2);  box-shadow: 0 0 0 1.5px #8B1A1A, 0 0 0 9px rgba(139,26,26,0); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 1.5px #8B1A1A, 0 0 0 2px rgba(139,26,26,0); }
 }
 #endHistInfoBtn {
   animation: endInfoPulse 0.85s ease-in-out 3;
+  animation-delay: 0.5s;
+  animation-fill-mode: both;
+}
+#ruckTestInfoBtn {
+  animation: ruckInfoPulse 0.85s ease-in-out 3;
   animation-delay: 0.5s;
   animation-fill-mode: both;
 }
