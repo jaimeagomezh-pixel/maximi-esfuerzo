@@ -672,6 +672,38 @@
     ><source src="Imagenes/video-dashboard.mp4" type="video/mp4"></video>
   </div>
 
+  <!-- MODAL: info Test de Campo VAM/FTP -->
+  <div id="testCampoInfoModal" style="display:none;position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;" onclick="event.stopPropagation();if(event.target===this)this.style.display='none'">
+    <div style="background:#1c1a18;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:26px 22px;max-width:340px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.7);position:relative;">
+      <button onclick="document.getElementById('testCampoInfoModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;font-size:24px;color:rgba(255,255,255,0.4);cursor:pointer;line-height:1;">×</button>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2.5px;color:#c9a84c;text-transform:uppercase;margin-bottom:14px;">Test de Campo · Umbrales</div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.75;margin:0 0 6px;">
+        <strong style="color:#fff;">Test 5 min → VAM</strong>
+      </p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;margin:0 0 14px;">
+        Calienta 10–15 min en terreno plano. Luego corre <strong style="color:#fff;">todo lo que puedas durante exactamente 5 minutos</strong> y detén el cronómetro. Ingresa la distancia recorrida.
+      </p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.82);line-height:1.75;margin:0 0 6px;">
+        <strong style="color:#fff;">Test 20 min → FTP</strong>
+      </p>
+      <p style="font-size:13px;color:rgba(255,255,255,0.7);line-height:1.7;margin:0 0 16px;">
+        Igual, pero durante <strong style="color:#fff;">20 minutos a ritmo máximo sostenible</strong>. Ingresa la distancia cubierta.
+      </p>
+      <div style="background:rgba(252,76,2,0.1);border:1px solid rgba(252,76,2,0.25);border-radius:10px;padding:13px 14px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:1px;color:#FC4C02;text-transform:uppercase;margin-bottom:8px;">Registro automático desde Strava</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:10px;">Nombra la actividad con una palabra clave + el tiempo:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">
+          <span style="background:rgba(252,76,2,0.18);border-radius:5px;padding:4px 10px;font-family:monospace;font-size:11px;color:#fc8c5a;">Ev. 5min</span>
+          <span style="background:rgba(252,76,2,0.18);border-radius:5px;padding:4px 10px;font-family:monospace;font-size:11px;color:#fc8c5a;">Test 5'</span>
+          <span style="background:rgba(252,76,2,0.18);border-radius:5px;padding:4px 10px;font-family:monospace;font-size:11px;color:#fc8c5a;">Evaluación 5 min</span>
+          <span style="background:rgba(252,76,2,0.18);border-radius:5px;padding:4px 10px;font-family:monospace;font-size:11px;color:#fc8c5a;">Ev. 20'</span>
+          <span style="background:rgba(252,76,2,0.18);border-radius:5px;padding:4px 10px;font-family:monospace;font-size:11px;color:#fc8c5a;">Test 20min</span>
+        </div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:8px;">Al sincronizar, el campo se prellena solo. Solo confirma y guarda.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: info Test de Umbral Ruck — hijo directo de dashboardAtleta para position:fixed correcto -->
   <div id="ruckTestInfoModal" style="display:none;position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,0.75);align-items:center;justify-content:center;padding:20px;" onclick="event.stopPropagation();if(event.target===this)this.style.display='none'">
     <div style="background:#1c1a18;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:26px 22px;max-width:340px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.7);position:relative;">
@@ -1237,21 +1269,7 @@
             Tests máximos <strong>en terreno plano</strong>. El de <strong>5 min</strong> calcula tu <strong>VAM</strong>
             y ya genera tus zonas. El de <strong>20 min</strong> es opcional: añade el <strong>FTP</strong> (umbral) para el rTSS.
           </div>
-          <button onclick="var p=document.getElementById('testCampoInfo');p.style.display=p.style.display==='none'?'block':'none'" style="background:rgba(0,0,0,0.06);border:1px solid rgba(0,0,0,0.15);border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888;font-weight:700;">?</button>
-        </div>
-        <div id="testCampoInfo" style="display:none;background:#f7f6f4;border-radius:8px;padding:11px 13px;margin-bottom:12px;font-size:11px;color:#555;line-height:1.7;">
-          <strong style="color:#333;font-size:11px;">Cómo hacer el test de 5 min (VAM)</strong><br>
-          Sal a correr en terreno plano. Calienta 10–15 min. Luego corre TODO LO QUE PUEDAS durante exactamente <strong>5 minutos</strong> y detén el cronómetro. La distancia recorrida en esos 5 min va en el campo de arriba.<br><br>
-          <strong style="color:#333;font-size:11px;">Cómo hacer el test de 20 min (FTP)</strong><br>
-          Igual pero durante <strong>20 minutos</strong> a ritmo máximo sostenible. Ingresa la distancia cubierta.<br><br>
-          <strong style="color:#FC4C02;font-size:10px;letter-spacing:1px;text-transform:uppercase;">Registro automático desde Strava</strong><br>
-          Nombra la actividad con cualquiera de estas palabras + el tiempo:<br>
-          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Ev. 5min</span>
-          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Test 5'</span>
-          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Evaluación 5 min</span>
-          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Ev. 20'</span>
-          <span style="display:inline-block;background:#FC4C0215;border-radius:4px;padding:2px 7px;margin:3px 2px 0;font-family:monospace;font-size:10px;color:#d4420a;">Test 20min</span><br>
-          <span style="color:#999;font-size:10px;">Al sincronizar Strava, el campo se prellena solo. Solo confirma y guarda.</span>
+          <button id="testCampoInfoBtn" onclick="var m=document.getElementById('testCampoInfoModal');m.style.display=m.style.display==='none'?'flex':'none'" style="background:#8B1A1A;border:2.5px solid #fff;border-radius:50%;width:28px;height:28px;font-size:14px;font-weight:700;font-family:'Georgia',serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;letter-spacing:0;box-shadow:0 0 0 1.5px #8B1A1A;">i</button>
         </div>
 
         <!-- Banner: test detectado automáticamente desde Strava (título con "Ev./Test/Evaluación + 5 o 20 min") -->
@@ -2651,7 +2669,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260629s"></script>
+<script src="scripts.js?v=20260629t"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle

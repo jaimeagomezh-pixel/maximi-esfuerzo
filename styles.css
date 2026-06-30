@@ -5522,7 +5522,8 @@ body.plan-activo .plan-lock  { display: none; }
   animation-delay: 0.5s;
   animation-fill-mode: both;
 }
-#ruckTestInfoBtn {
+#ruckTestInfoBtn,
+#testCampoInfoBtn {
   animation: ruckInfoPulse 0.85s ease-in-out 3;
   animation-delay: 0.5s;
   animation-fill-mode: both;
