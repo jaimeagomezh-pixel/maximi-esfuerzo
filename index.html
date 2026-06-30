@@ -672,6 +672,30 @@
     ><source src="Imagenes/video-dashboard.mp4" type="video/mp4"></video>
   </div>
 
+  <!-- MODAL: info Test de Umbral Ruck — hijo directo de dashboardAtleta para position:fixed correcto -->
+  <div id="ruckTestInfoModal" style="display:none;position:fixed;inset:0;z-index:1400;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:20px;" onclick="event.stopPropagation();if(event.target===this)this.style.display='none'">
+    <div style="background:#1c1a18;border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:22px 18px;max-width:320px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.6);position:relative;">
+      <button onclick="document.getElementById('ruckTestInfoModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:22px;color:rgba(255,255,255,0.4);cursor:pointer;line-height:1;">×</button>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#c9a84c;text-transform:uppercase;margin-bottom:12px;">Test de Umbral · Ruck 4.8 km</div>
+      <p style="font-size:12px;color:rgba(255,255,255,0.75);line-height:1.7;margin:0 0 10px;">
+        Marcha <strong style="color:#fff;">4.8 km</strong> cargando <strong style="color:#fff;">20 kg</strong> de lastre al mayor ritmo sostenible. El corte de referencia es <strong style="color:#fff;">45 minutos</strong> (estándar militar).
+      </p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.7;margin:0 0 14px;">
+        Puedes usar otro lastre — el sistema normaliza el resultado en <strong style="color:#fff;">Watts (rkFTP)</strong> para que sea comparable entre pesos.
+      </p>
+      <div style="background:rgba(252,76,2,0.1);border:1px solid rgba(252,76,2,0.25);border-radius:8px;padding:10px 12px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#FC4C02;text-transform:uppercase;margin-bottom:6px;">Registro automático desde Strava</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.6;margin-bottom:8px;">Nombra la actividad con <strong style="color:#fff;">lastre</strong> + palabra clave + <strong style="color:#fff;">marcha</strong>:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          <span style="background:rgba(252,76,2,0.15);border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#fc8c5a;">Test marcha Lastre 20 kg</span>
+          <span style="background:rgba(252,76,2,0.15);border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#fc8c5a;">Ev. marcha Lastre 20kg</span>
+          <span style="background:rgba(252,76,2,0.15);border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#fc8c5a;">Evaluación marcha Lastre 15 kg</span>
+        </div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:6px;">Al sincronizar, lastre · tiempo · desnivel se prellenan solos. Solo elige el terreno y confirma.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- OVERLAY: HISTORIAL COMPLETO (carreras / rucking) — pantalla aparte -->
   <div id="histOverlay" onclick="event.stopPropagation()" style="display:none;position:fixed;inset:0;z-index:1200;background:linear-gradient(rgba(0,0,0,.52),rgba(0,0,0,.52)),url('Imagenes/fondo-fuerza.jpg') center/cover no-repeat;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;">
     <div style="position:sticky;top:0;background:#0d0d0d;color:#fff;display:flex;align-items:center;gap:12px;padding:16px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.25);">
@@ -1878,35 +1902,11 @@
         </div>
       </div>
 
-      <!-- Modal de información: Test de Umbral Ruck -->
-      <div id="ruckTestInfoModal" style="display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
-        <div style="background:#fff;border-radius:14px;padding:20px 18px;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">
-          <button onclick="document.getElementById('ruckTestInfoModal').style.display='none'" style="position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;color:#bbb;cursor:pointer;line-height:1;">×</button>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:10px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;margin-bottom:12px;">Test de Umbral · Ruck 4.8 km</div>
-          <p style="font-size:12px;color:#444;line-height:1.7;margin:0 0 10px;">
-            Marcha <strong>4.8 km</strong> cargando <strong>20 kg</strong> de lastre al mayor ritmo sostenible. Se registra el tiempo total. El corte de referencia es <strong>45 minutos</strong> (estándar militar).
-          </p>
-          <p style="font-size:12px;color:#444;line-height:1.7;margin:0 0 12px;">
-            Puedes usar un lastre diferente — el sistema normaliza el resultado en <strong>Watts (rkFTP)</strong> para comparar entre pesos distintos.
-          </p>
-          <div style="background:#fff8f6;border:1px solid rgba(252,76,2,0.2);border-radius:8px;padding:10px 12px;">
-            <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#FC4C02;text-transform:uppercase;margin-bottom:6px;">Registro automático desde Strava</div>
-            <div style="font-size:11px;color:#555;line-height:1.6;margin-bottom:8px;">Nombra la actividad con <strong>lastre</strong> + una de estas palabras + <strong>marcha</strong>:</div>
-            <div style="display:flex;flex-wrap:wrap;gap:4px;">
-              <span style="background:#FC4C0212;border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#d4420a;">Test marcha Lastre 20 kg</span>
-              <span style="background:#FC4C0212;border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#d4420a;">Ev. marcha Lastre 20kg</span>
-              <span style="background:#FC4C0212;border-radius:4px;padding:3px 8px;font-family:monospace;font-size:10px;color:#d4420a;">Evaluación marcha Lastre 15 kg</span>
-            </div>
-            <div style="font-size:10px;color:#999;margin-top:6px;">Al sincronizar, lastre · tiempo · desnivel se prellenan solos. Solo elige el terreno y confirma.</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Test de Umbral de Rucking (rkFTP) -->
       <div class="flat-box" style="margin-top:4px;background:rgba(139,26,26,0.04);border:1px solid rgba(139,26,26,0.18);border-radius:8px;padding:12px 14px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;letter-spacing:2px;color:#8B1A1A;text-transform:uppercase;font-weight:700;">Test de Umbral · Ruck 4.8 km</div>
-          <button onclick="var m=document.getElementById('ruckTestInfoModal');m.style.display=m.style.display==='none'?'flex':'none'" style="background:#fff;border:1.5px solid rgba(139,26,26,0.35);border-radius:50%;width:26px;height:26px;font-size:13px;font-weight:700;font-family:'Georgia',serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#8B1A1A;letter-spacing:0;">i</button>
+          <button onclick="var m=document.getElementById('ruckTestInfoModal');m.style.display=m.style.display==='none'?'flex':'none'" style="background:#8B1A1A;border:2.5px solid #fff;border-radius:50%;width:28px;height:28px;font-size:14px;font-weight:700;font-family:'Georgia',serif;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;letter-spacing:0;box-shadow:0 0 0 1.5px #8B1A1A;">i</button>
         </div>
 
         <!-- Banner: test detectado automáticamente desde Strava (título con "Lastre XX kg" + "test/evaluación" + "marcha") -->
@@ -2654,7 +2654,7 @@
   </div>
 </div>
 
-<script src="scripts.js?v=20260629q"></script>
+<script src="scripts.js?v=20260629r"></script>
 <script>
   // ═══════════════════════════════════════════════════════════
   //  SISTEMA DE PLANES — 3 vistas: áreas → orientación → detalle
