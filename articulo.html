@@ -172,24 +172,6 @@ body { background: #f5f2ee; }
   line-height: 1.6;
 }
 
-/* Back link inline */
-.art-back { max-width: 680px; margin: 0 auto 80px; padding: 0 5vw; }
-.art-back a {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #999;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  transition: color 0.2s, gap 0.2s;
-}
-.art-back a:hover { color: #c0392b; gap: 12px; }
-.art-back a::before { content: '←'; }
-
 /* Botón flotante de retroceso */
 .art-fab-back {
   position: fixed;
@@ -398,10 +380,6 @@ body { background: #f5f2ee; }
         <a href="index.html" class="btn-primary" onclick="window.location.href='index.html'; setTimeout(()=>{if(window.abrirPlanes) abrirPlanes();}, 400); return false;">Ver Planes →</a>
       </div>
 
-      <!-- VOLVER AL BLOG -->
-      <div class="art-back">
-        <a href="blog.html">Volver al Blog</a>
-      </div>
 
       <!-- FOOTER -->
       <footer>
