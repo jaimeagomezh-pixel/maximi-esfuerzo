@@ -288,7 +288,7 @@
         // Fallback: si la placa no se muestra, arrancar video directamente
         if (!document.getElementById('fraseOverlay')) {
           if (_bgv) _bgv.play().catch(function(){});
-          window._dashVidInterval = setInterval(function(){ var v=document.getElementById('dashBgVid'); if(v){v.currentTime=0;v.play().catch(function(){});} }, 30000);
+          window._dashVidInterval = setInterval(function(){ var v=document.getElementById('dashBgVid'); if(v){v.currentTime=0;v.play().catch(function(){});} }, 120000);
         }
         // Init charts and real data after DOM is ready
         setTimeout(async () => {
